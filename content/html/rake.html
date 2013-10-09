@@ -1,0 +1,26 @@
+<p>Rake tasks are executed as <a href="/articles/one-off-dynos">one-off dynos</a> on Heroku, using the same environment as your app’s <a href="/articles/dynos">dynos</a>. You can run Rake tasks within the remote app environment using the <code>heroku run rake</code> command as follows:</p>
+
+<pre><code class="term">$ heroku run rake db:version
+Running `rake db:version` attached to terminal... up, run.1
+(in /home/slugs/41913_06f36ef_ab3a/mnt)
+Current version: 20081118092504</code></pre>
+
+<p>You can pass Rake arguments, run multiple tasks, and pass environment variables just as you would locally. For instance, to migrate the database to a specific version with verbose backtraces:</p>
+
+<pre><code class="term">$ heroku run rake --trace db:migrate VERSION=20081118092504</code></pre>
+
+<p>After running a migration you’ll want to restart your app with <code>heroku restart</code> to reload the schema and pickup any schema changes.</p>
+
+<h3 id="limitations">Limitations</h3>
+
+<p>Not all Rake features are supported on Heroku. The following is a list of known limitations:</p>
+
+<ul>
+<li>
+<p>Rake tasks that write to disk, such as <code>rake db:schema:dump</code>, are not compatible with Heroku’s ephemeral filesystem.</p>
+</li>
+
+<li>
+<p>The <code>db:reset</code> task is not supported. Heroku apps do not have permission to drop and create databases. Use the <code>heroku pg:reset</code> command instead.</p>
+</li>
+</ul>

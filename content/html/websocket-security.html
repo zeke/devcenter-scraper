@@ -1,0 +1,51 @@
+<p>The WebSocket protocol is a young technology, and brings with it some risks. Decades of experience have taught the web community some best practices around HTTP security, but the security best practices in the WebSocket world aren’t firmly established, and continue to evolve.</p>
+
+<p>Nevertheless, some themes have emerged:</p>
+
+<h2 id="wss">WSS</h2>
+
+<p>You should strongly prefer the secure <code>wss://</code> protocol over the insecure <code>ws://</code> transport. Like HTTPS, WSS (WebSockets over SSL/TLS) is encrypted, thus protecting against Man-in-the-Middle attacks. A variety of attacks against WebSockets become impossible if the transport is secured.</p>
+
+<p>Heroku’s <a href="https://devcenter.heroku.com/articles/ssl-endpoint">SSL Endpoints</a> support WSS, and we strongly recommend that you use it.</p>
+
+<h2 id="avoid-tunneling">Avoid tunneling</h2>
+
+<p>It’s relatively easy to tunnel arbitrary TCP services through a WebSocket. So you could, for example, tunnel a database connection directly through to the browser.</p>
+
+<p>This is very dangerous, however. Doing so would enable access to these services to an in-browser attacker in the case of a <a href="https://www.owasp.org/index.php/Cross-site_Scripting_%28XSS%29">Cross-site Scripting</a> attack, thus allowing an escalation of a XSS attack into a complete remote breach.</p>
+
+<p>We recommend avoiding tunneling if at all possible, instead developing more secured and checked protocols on top of WebSockets.</p>
+
+<h2 id="validate-client-input">Validate client input</h2>
+
+<p>WebSocket connections are easily established outside of a browser, so you should assume that you need to deal with arbitrary data. Just as with any data coming from a client, you should carefully validate input before processing it. <a href="https://www.owasp.org/index.php/SQL_Injection">SQL Injection</a> attacks are just as possible over WebSockets as they are over HTTP.</p>
+
+<h2 id="validate-server-data">Validate server data</h2>
+
+<p>You should apply equal suspicion to data returned from the server, as well. Always process messages received on the client side as data. Don’t try to assign them directly to the DOM, nor evaluate as code. If the response is JSON, always use <code>JSON.parse()</code> to safely parse the data.</p>
+
+<h2 id="authentication-authorization">Authentication/authorization</h2>
+
+<p>The WebSocket protocol doesn’t handle authorization or authentication. Practically, this means that a WebSocket opened from a page behind auth doesn’t “automatically” receive any sort of auth; you need to take steps to <em>also</em> secure the WebSocket connection.</p>
+
+<p>This can be done in a variety of ways, as WebSockets will pass through standard HTTP headers commonly used for authentication. This means you could use the same authentication mechanism you’re using for your web views on WebSocket connections as well.</p>
+
+<p>Since you cannot customize WebSocket headers from JavaScript, you’re limited to the “implicit” auth (i.e. Basic or cookies) that’s sent from the browser. Further, it’s common to have the server that handles WebSockets be completely separate from the one handling “normal” HTTP requests. This can make shared authorization headers difficult or impossible.</p>
+
+<p>So, one pattern we’ve seen that seems to solve the WebSocket authentication problem well is a “ticket”-based authentication system. Broadly speaking, it works like this:</p>
+
+<ul>
+<li><p>When the client-side code decides to open a WebSocket, it contacts the HTTP server to obtain an authorization “ticket”.</p></li>
+<li><p>The server generates this ticket. It typically contains some sort of user/account ID, the IP of the client requesting the ticket, a timestamp, and any other sort of internal record-keeping you might need.</p></li>
+<li><p>The server stores this ticket (i.e. in a database or cache), and also returns it to the client.</p></li>
+<li><p>The client opens the WebSocket connection, and sends along this “ticket” as part of an initial handshake.</p></li>
+<li><p>The server can then compare this ticket, check source IPs, verify that the ticket hasn’t been re-used and hasn’t expired, and do any other sort of permission checking. If all goes well, the WebSocket connection is now verified.</p></li>
+</ul><p>[Thanks to <a href="http://lucumr.pocoo.org/2012/9/24/websockets-101/">Armin Ronacher</a> for first bringing this pattern to our attention.]</p>
+
+<h2 id="origin-header">Origin header</h2>
+
+<p>The WebSocket standard defines an <code>Origin</code> header field which web browsers set to the URL that originates a WebSocket request. This can be used to differentiate between WebSocket connections from different hosts, or between those made from a browser and some other kind of network client. However, remember that the <code>Origin</code> header is essentially advisory: non-browser clients can easily set the <code>Origin</code> header to any value, and thus “pretend” to be a browser.</p>
+
+<p>You can think of the <code>Origin</code> header as roughly analogous to the <code>X-Requested-With</code> header used by AJAX requests. Web browsers send a header of <code>X-Requested-With: XMLHttpRequest</code> which can be used to distinguish between AJAX requests made by a browser and those made directly. However, this header is easily set by non-browser clients, and thus isn’t trusted as a source of authentication.</p>
+
+<p>In the same way, you can use the <code>Origin</code> header as an advisory mechanism, one that helps differentiate WebSocket requests from different locations and hosts, but you shouldn’t rely on it as a source of authentication.</p>

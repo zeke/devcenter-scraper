@@ -1,0 +1,108 @@
+<div class="note">
+<p>All the information in this document is subject to change as Heroku  adapts the service to better handle customer database workloads.</p>
+</div>
+
+<p>The Heroku Postgres <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans#production-tier">production tier</a> plans offer different performance characteristics based on their multitenancy, CPU, RAM and I/O architectures.  This article provides a technical description of the implementation of these production plans, and some of the performance characteristics of each.</p>
+
+<h2 id="performance-characteristics">Performance characteristics</h2>
+
+<p>The following table outlines our production tier plans along with relevant
+specifications about the underlying hardware.</p>
+
+<table>
+<thead><tr>
+<th>Heroku Postgres plan</th>
+<th>vCPU</th>
+<th>RAM</th>
+<th>PIOPs</th>
+<th>Multitenant</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Crane</td>
+<td>2</td>
+<td>400MB</td>
+<td>200</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Kappa</td>
+<td>2</td>
+<td>800MB</td>
+<td>200</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Ronin</td>
+<td>1</td>
+<td>1.7GB</td>
+<td>200</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Fugu</td>
+<td>1</td>
+<td>3.75GB</td>
+<td>200</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Ika</td>
+<td>2</td>
+<td>7.5GB</td>
+<td>500</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Zilla</td>
+<td>2</td>
+<td>17.1GB</td>
+<td>750</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Baku</td>
+<td>4</td>
+<td>34.2GB</td>
+<td>1000</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Mecha</td>
+<td>8</td>
+<td>68.4GB</td>
+<td>2000</td>
+<td>no</td>
+</tr>
+</tbody>
+</table><h2 id="multitenancy">Multitenancy</h2>
+
+<p>Heroku Postgres databases currently run on virtualized infrastructure provided by AWS EC2. Higher level Heroku Postgres plans benefit from higher levels of resource isolation than lower level plans.</p>
+
+<p>There are two main variants of database deployment architectures on Heroku Postgres: multi-tenant and single-tenant. </p>
+
+<p>For multi-tenant plans, several LXC containers are created within a single large instance. Each LXC container holds a single database service and provides security and resource isolation within the instance.   </p>
+
+<p>Resource isolation and sharing on multi-tenant plans is imperfect and absolutely fair resource distribution between tenants cannot be guaranteed under this architecture.</p>
+
+<p>For single-tenant plans, a customer’s database and related management software are the sole residents of resources on the instance, offering more predictable and less variable performance. However, virtualized infrastructure is still subject to some resource contention and minor performance variations are expected.</p>
+
+<h2 id="architecture-vcpu-ram-and-i-o">Architecture, vCPU, RAM and I/O</h2>
+
+<p>All Heroku Postgres plans run on 64-bit architectures, ensuring best performance
+for internal Postgres operations, and interoperability with other features like <a href="https://devcenter.heroku.com/articles/heroku-postgres-fork">Forks</a> and
+<a href="https://devcenter.heroku.com/articles/heroku-postgres-follower-databases">Followers</a>
+across all production tier plans.</p>
+
+<p>vCPU are the number of virtual processors on the underlying instance. Larger number of vCPUs
+provide higher performance on the virtual server or instance.</p>
+
+<p>RAM is the approximate amount of memory used for data caching. An in-depth
+discussion on Postgres caching can be found in <a href="https://devcenter.heroku.com/articles/understanding-postgres-data-caching">Understanding Heroku Postgres Data Caching</a>.</p>
+
+<p>All instances are backed by EBS optimized instances where EBS disks with provisioned IOPs
+ are attached. PIOPs are a measure of how many IO operations the underlying disks can perform
+per second. The amount of IOPs provisioned for each plan determines its I/O throughput. 
+On write-heavy applications, I/O can be a significant bottleneck, but on read-heavy ones, your
+hot dataset should fit in RAM and can therefore have very high performance with
+lower IOPs values.</p>

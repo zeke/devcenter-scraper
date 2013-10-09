@@ -1,0 +1,48 @@
+<p>Heroku Labs allows you to try out experimental features that are under consideration for inclusion into the platform.</p>
+
+<div class="warning">
+<p>The features added through labs are experimental and may change or be removed without notice.</p>
+</div>
+
+<h3 id="usage">Usage</h3>
+
+<p>View the available features:</p>
+
+<pre><code class="term">$ heroku labs:list
+=== App Available Features
+flux-capacitor:   Adds time travel capability
+
+=== User Available Features
+superpowers:      Adds flight and laser vision
+</code></pre>
+
+<p>View detailed information about a particular feature:</p>
+
+<pre><code class="term">$ heroku labs:info flux-capacitor
+=== flux-capacitor
+Summary: Adds time travel capability
+Docs:    https://devcenter.heroku.com/articles/labs-flux-capacitor
+</code></pre>
+
+<p>Enable a feature for an app:</p>
+
+<pre><code class="term">$ heroku labs:enable flux-capacitor --app example
+Enabling flux-capacitor for example... done
+WARNING: This feature is experimental and may change or be removed without notice.
+</code></pre>
+
+<p>Disable a feature for an app:</p>
+
+<pre><code class="term">$ heroku labs:disable flux-capacitor --app example
+Disabling flux-capacitor for example... done
+</code></pre>
+
+<p>See all the features applied to an app and user:</p>
+
+<pre><code class="term">$ heroku labs --app example
+=== example Enabled Features
+flux-capacitor:   Adds time travel capability
+
+=== user@domain Enabled Features
+superpowers:      Adds flight and laser vision
+</code></pre>

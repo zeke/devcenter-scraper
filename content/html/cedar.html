@@ -1,0 +1,160 @@
+<p>Celadon Cedar is Heroku’s default <a href="/articles/stack">runtime stack</a> and is a flexible, polyglot environment with robust introspection and erosion-resistance capabilities. It embodies <a href="https://devcenter.heroku.com/articles/architecting-apps">modern principles of building, deploying and managing web applications</a> and is recommended for all apps.</p>
+
+<h2 id="using-cedar">Using Cedar</h2>
+
+<p>To create an app on the Cedar stack use the <code>heroku create</code> command from the <a href="/articles/using-the-cli">Heroku command line</a>:</p>
+
+<pre><code class="term">$ heroku create
+Creating quiet-sky-6888... done, stack is cedar
+http://quiet-sky-6888.herokuapp.com/ | git@heroku.com:quiet-sky-6888.git</code></pre>
+
+<p>Make sure you’re running version 2.1.0 or higher of the command-line tool which can be installed via the <a href="https://toolbelt.heroku.com/">Heroku toolbelt</a>.</p>
+
+<pre><code class="term">$ heroku --version
+2.0.1
+$ heroku update
+-----&gt; Updating to latest client... done
+$ heroku --version
+2.21.2</code></pre>
+
+<h2 id="polyglot-platform">Polyglot platform</h2>
+
+<p>Cedar is a <a href="http://blog.heroku.com/archives/2011/8/3/polyglot_platform/">polyglot platform</a> with native support for many of today’s most popular and productive languages and frameworks including:</p>
+<table>
+<tr>
+<th colspan="2">Get started with...</th>
+  </tr>
+<tr>
+<td style="text-align: left; width: 50%;"><a href="https://devcenter.heroku.com/articles/clojure">Clojure</a></td>
+    <td style="text-align: left"><a href="https://devcenter.heroku.com/articles/facebook">Facebook</a></td>	
+  </tr>
+<tr>
+<td style="text-align: left">
+<a href="https://devcenter.heroku.com/articles/java">Java</a>, <a href="https://devcenter.heroku.com/articles/spring-mvc-hibernate">Spring</a> or <a href="https://devcenter.heroku.com/articles/play">Play</a>
+</td>
+    <td style="text-align: left"><a href="https://devcenter.heroku.com/articles/nodejs">Node.js</a></td>
+  </tr>
+<tr>
+<td style="text-align: left">
+<a href="https://devcenter.heroku.com/articles/python">Python</a> or <a href="https://devcenter.heroku.com/articles/django">Django</a>
+</td>
+    <td style="text-align: left">
+<a href="https://devcenter.heroku.com/articles/ruby">Ruby</a> or <a href="https://devcenter.heroku.com/articles/rails3">Rails</a>
+</td>
+  </tr>
+<tr>
+<td style="text-align: left"><a href="https://devcenter.heroku.com/articles/scala">Scala</a></td>
+    <td></td>
+  </tr>
+</table><p>Polyglot support at the platform level lets development teams effectively utilize many languages across - and within - projects and ensures the right tool for the job. On Cedar, language choice and deployment infrastructure are orthogonal.</p>
+
+<p>The foundation of Cedar’s unified multi-language support is the new process model which provides a consistent interface for running and managing apps.</p>
+
+<h2 id="process-model">Process model</h2>
+
+<p>Cedar introduces a new way to think about scaling your app: <a href="/articles/process-model">the process model</a>. The process model is a generalized approach to managing processes across a distributed environment. It allows you to specify a custom list of process types in a <a href="/articles/procfile">Procfile</a> and provides for very granular management of an application’s components.</p>
+
+<pre><code class="ruby">web:     node web.js
+worker:  node worker.js
+reports: node report.js</code></pre>
+
+<p>The process model enables the thousands of unique <a href="/articles/scaling">dyno formations</a> to be coordinated by the <a href="/articles/dynos#the-dyno-manager">dyno manager</a> while giving application developers the flexibility to use the frameworks and libraries of their choice.</p>
+
+<h3 id="management-granularity">Management granularity</h3>
+
+<p>The process model also allows applications with logical components to manage and <a href="/articles/scaling">scale at a very granular level</a>. For instance, to dial-down HTTP processing while increasing background job concurrency, apply the <code>heroku ps:scale</code> command against your application’s unique process model.</p>
+
+<pre><code class="term">$ heroku ps:scale web-1 worker+2 reports=1
+Scaling web processes... done, now running 3
+Scaling worker processes... done, now running 5
+Scaling reports processes... done, now running 1</code></pre>
+
+<h2 id="one-off-dynos">One-off dynos</h2>
+
+<p>Cedar’s flexibility is most evident with the <code>heroku run</code> command which lets you execute any command against your application. Many languages support a <a href="http://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop">REPL</a> which gives you a console with which to interact with your application. Use <code>heroku run</code> to establish an interactive session with a remote REPL for a Clojure app.</p>
+
+<pre><code class="term">$ heroku run "lein repl"
+Running lein repl attached to terminal... up, run.1
+Clojure 1.3.0
+user=&gt;</code></pre>
+
+<p><a href="/articles/oneoff-admin-ps">One-off dynos</a>, such as rake tasks for Ruby applications, can also be executed against their remote environment on Heroku.</p>
+
+<pre><code class="term">$ heroku run rake db:migrate
+Running `rake db:migrate` attached to terminal... up, ps.1
+(in /app)
+Migrating to CreateWidgets (20110204210157)
+==  CreateWidgets: migrating ==================================================
+-- create_table(:widgets)
+   -&gt; 0.0120s
+==  CreateWidgets: migrated (0.0121s) =========================================</code></pre>
+
+<h2 id="visibility">Visibility</h2>
+
+<p>Deployment platforms can appear to be black-boxes in their management and automation of application runtimes. Heroku Cedar provides several tools to give application developers <a href="http://blog.heroku.com/archives/2011/6/24/the_new_heroku_3_visibility_introspection/">complete insight</a> into their applications.</p>
+
+<h3 id="dyno-formation">Dyno formation</h3>
+
+<p>The <a href="/articles/scaling"><code>heroku ps</code> command</a> lists all dynos running for an application and clearly identifies the state of each individual dyno.</p>
+
+<pre><code class="term">$ heroku ps
+=== web: `bundle exec unicorn -p $PORT -c ./config/unicorn.rb`
+web.1: up for 8h
+web.2: up for 3m
+
+=== worker: `bundle exec stalk worker.rb`
+worker.1: up for 1m</code></pre>
+
+<h3 id="logging">Logging</h3>
+
+<p><a href="/articles/logging">Aggregated logs</a> for all components in the application stack, including components managed by Heroku such as the HTTP router, are available in a single stream with <code>heroku logs</code>.</p>
+<div class="callout">
+<p>The <code>-t</code> flag keeps the log stream open so new entries are automatically displayed, much like the Unix <code>tail -f</code> command.</p>
+</div>
+<pre><code class="term">$ heroku logs -t
+2012-03-16T14:02:57+00:00 heroku[router]: GET devcenter.heroku.com/articles/git dyno=web.3  service=44ms status=200 bytes=32839
+2012-03-16T14:02:57+00:00 app[worker.1]: [Worker(host:278fa1bc-d6aa-4409-bffd-0032dd0093b5 pid:1)] Article#reindex_without_delay completed after 0.1200
+2012-03-16T14:02:57+00:00 app[worker.1]: [Worker(host:278fa1bc-d6aa-4409-bffd-0032dd0093b5 pid:1)] 1 job processed at 11.3892 j/s, 0 failed ...
+2012-03-16T14:03:00+00:00 heroku[router]: GET devcenter.heroku.com/images/dev-center/aside_accordion_indicator_open.png dyno=web.1 service=2ms status=200 bytes=369
+2012-03-16T14:03:05+00:00 app[web.3]: Started GET "/articles/git" for 213.144.5.2 at 2012-03-16 14:03:05 +0000
+2012-03-16T14:03:05+00:00 app[web.3]:   Processing by ArticlesController#show as HTML
+2012-03-16T14:03:05+00:00 app[web.3]:   Parameters: {"id"=&gt;"git"}
+2012-03-16T14:03:05+00:00 app[web.3]: Read fragment views/devcenter.heroku.com/articles/git (3.6ms)</code></pre>
+<div class="callout">
+<p>Additionally, <a href="https://devcenter.heroku.com/articles?q=loggly+OR+papertrail+OR+logentries+OR+%22progstr+logger%22+OR+sentry+OR+%22treasure+data%22">several add-on providers</a> provide retention, indexing and visualization capabilities of log data.</p>
+</div>
+<p>Here we see the router receiving a request and passing it to the <code>web.3</code> dyno while the <code>worker.1</code> dyno indexes an article for search. Router logs, database queries and application output is all coalesced into a singled event stream for full visibility into your application’s execution.</p>
+
+<p>Component and dyno-level introspection is also available to quickly zero-in on problematic dynos and filter out irrelevant activity.</p>
+
+<pre><code class="term">$ heroku logs --ps worker.1 -t
+2012-03-16T14:16:58+00:00 app[worker.1]: [Worker(host:278fa1bc-d6aa-4409-bffd-0032dd0093b5 pid:1)] Article#reindex_without_delay completed after 0.0645
+2012-03-16T14:16:58+00:00 app[worker.1]: [Worker(host:278fa1bc-d6aa-4409-bffd-0032dd0093b5 pid:1)] Article#record_view_without_delay completed after 0.0388
+2012-03-16T14:16:58+00:00 app[worker.1]: [Worker(host:278fa1bc-d6aa-4409-bffd-0032dd0093b5 pid:1)] 10 jobs processed at 11.6378 j/s, 0 failed ...</code></pre>
+
+<h3 id="release-management">Release management</h3>
+
+<p>All application deployments and configuration changes are captured and logged by Heroku and are <a href="/articles/releases">made available with <code>heroku releases</code></a>.</p>
+
+<pre><code class="term">$ heroku releases
+Rel   Change                          By                    When
+----  ----------------------          ----------            ----------
+v52   Config add AWS_S3_KEY           jim@example.com       5 minutes ago            
+v51   Deploy de63889                  stephan@example.com   7 minutes ago
+v50   Deploy 7c35f77                  stephan@example.com   3 hours ago</code></pre>
+
+<p><a href="/articles/releases">Releases</a> ensures that an application’s lifecycle is captured in an accountable and actionable format with the ability to undo errant modifications with <code>heroku releases:rollback</code>.</p>
+
+<h2 id="advanced-http-capabilities">Advanced HTTP capabilities</h2>
+
+<p>On Cedar, an app named <code>foo</code> will have the default hostname of <code>foo.herokuapp.com</code>.</p>
+
+<p>The <code>herokuapp.com</code> domain routes to a modern <a href="http-routing">HTTP stack</a> which offers a direct routing path to your web processes. This allows for advanced HTTP uses such as <a href="http://en.wikipedia.org/wiki/Chunked_transfer_encoding">chunked responses</a>, <a href="http://en.wikipedia.org/wiki/Push_technology#Long_polling">long polling</a>, and using an async webserver to handle multiple responses from a single web process.</p>
+
+<p>Cedar does not include a reverse proxy cache such as Varnish, preferring to empower developers to choose the CDN solution that best serves their needs.</p>
+
+<h2 id="migrating-to-cedar">Migrating to Cedar</h2>
+
+<p>Migrating from Bamboo to Cedar allows an application to take advantage of a much more flexible and powerful stack. Because the significant architectural differences, migrating to Cedar is a largely manual process.</p>
+
+<p>Instructions for migrating to Cedar can be <a href="/articles/cedar-migration">found here</a>.</p>

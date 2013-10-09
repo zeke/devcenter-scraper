@@ -1,0 +1,39 @@
+<div class="deprecated">
+<p>This article applies to apps using Compass with Rails 3.0 on the <a href="/articles/bamboo">Bamboo</a> stack. They will not work for other versions of Rails. On the most recent stack, <a href="/articles/cedar">Cedar</a>, this configuration is unnecessary.</p>
+</div><div class="callout">
+<p><a href="http://compass-style.org/">Compass</a> is a popular framework for creating stylesheets. With Compass, you write <a href="http://sass-lang.com/">SASS</a> and can easily pull in useful CSS frameworks like <a href="http://blueprintcss.org/">Blueprint</a>.</p>
+</div>
+<p>If you’d like to use Compass in your Heroku app, you’ll need to do some configuration - by default, Compass generates CSS files in <code>public/stylesheets</code>, which <a href="/articles/read-only-filesystem">isn’t writable</a> on Heroku.</p>
+
+<h2 id="gems">Gems</h2>
+
+<p>The first step is to require the gems that you’ll need. In your <code>Gemfile</code>, add the following:</p>
+<div class="callout">
+<p>You may want to include other gems to get specific functionality. The <code>compass-52-plugin</code> gem enables the <a href="http://www.52framework.com/">52 CSS framework</a>, for instance.</p>
+</div>
+<pre><code class="ruby">gem 'compass'
+gem 'haml' # for SASS</code></pre>
+
+<h2 id="configuration">Configuration</h2>
+
+<p>Next, you’ll need to direct Compass to save the generated files to <code>tmp</code>. In <code>config/compass.rb</code>:</p>
+
+<pre><code class="ruby">project_type = :rails
+http_path    = '/'
+css_dir      = 'tmp/stylesheets'
+sass_dir     = 'app/views/stylesheets'</code></pre>
+<div class="callout">
+<p>Please note that if you use this technique, <em>all</em> stylesheet requests will be redirected to <code>tmp</code> – which means that any CSS files you leave in <code>public/stylesheets</code> will be ignored.</p>
+</div>
+<p>And finally, you’ll need to make sure that <code>tmp/stylesheets</code> exists when your app starts running and that your stylesheets are served as static assets. For these two tasks, you’ll need to add the following to <code>config/initializers/compass.rb</code>:</p>
+
+<pre><code class="ruby">require 'fileutils'
+FileUtils.mkdir_p(Rails.root.join("tmp", "stylesheets"))
+
+Rails.configuration.middleware.insert_before('Rack::Sendfile', 'Rack::Static',
+    :urls =&gt; ['/stylesheets'],
+    :root =&gt; "#{Rails.root}/tmp")</code></pre>
+
+<h2 id="start-using-compass">Start using Compass</h2>
+
+<p>Once your configuration is complete, you’re free to start using Compass. For detailed instructions, check out the <a href="http://compass-style.org/docs/">Compass documentation</a>.</p>

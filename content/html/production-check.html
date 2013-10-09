@@ -1,0 +1,97 @@
+<p>Production Check tests your app’s configuration against a set of optional—but highly recommended—criteria. It makes it easy to ensure that your app’s configuration lends itself to maximum uptime. Moreover, it ensures that you have tools available for understanding and monitoring the factors that contribute to uptime.</p>
+
+<h2 id="how-to-check-your-app">How to Check Your App</h2>
+
+<p>To run Production Check, click the “Run Production Check” link in the header for any app in the Heroku Dashboard.</p>
+
+<p><img alt="Heroku Production Check" src="https://s3.amazonaws.com/heroku.devcenter/heroku_assets/images/166-original.jpg?1366938447"></p>
+
+<p>Production Check will run a series of tests on your app recommended for maintaining and monitoring availability. Each check includes useful links to related resources.</p>
+
+<h2 id="cedar">Cedar</h2>
+
+<p><a href="/articles/cedar">Cedar</a> is recommended for all applications and is Heroku’s most performant and robust stack. Cedar is the focus of the majority of the platform engineering and availability efforts.</p>
+
+<p>To determine what stack your application is currently deployed to, use the <code>heroku stack</code> command.</p>
+
+<pre><code class="term">$ heroku stack -a ha-app
+=== ha-app Available Stacks
+  bamboo-mri-1.9.2
+  bamboo-ree-1.8.7
+* cedar</code></pre>
+
+<p>If you are not yet on Cedar, consider <a href="/articles/cedar-migration">migrating your application</a>.</p>
+
+<h2 id="dyno-redundancy">Dyno redundancy</h2>
+
+<p>Running at least 2 web <a href="/articles/dynos">dynos</a> for any mission-critical app increases the probability that the app will remain available during a catastrophic event. Multiple dynos are also more likely to run on different physical infrastructure (for example, separate AWS Availability Zones), further increasing redundancy.</p>
+
+<p>Use the <code>heroku ps</code> command to determine how many dynos of each type your app is currently running and <code>heroku ps:scale</code> to increase dyno redundancy.</p>
+
+<pre><code class="term">$ heroku ps -a ha-app
+=== web:
+web.1: up for 17m
+
+$ heroku ps:scale web+2
+Scaling web processes... done, now running 3</code></pre>
+
+<p>This applies to <code>web</code> dynos but also any <a href="/articles/background-jobs-queueing">background or worker</a> dynos as well.</p>
+
+<h2 id="dns-ssl">DNS &amp; SSL</h2>
+
+<p>Apps on the Cedar stack should have <a href="/articles/custom-domains#custom-subdomains">CNAME records</a> pointing to <code>app-name.herokuapp.com</code>. When SSL is required, provision an <a href="https://devcenter.heroku.com/articles/ssl-endpoint">SSL Endpoint</a> and point your CNAME records to <code>endpoint-name.herokussl.com</code>. Any other configuration will result in reduced availability.</p>
+<div class="warning">
+<p>Apex domains (otherwise known as bare, root and naked domains) should not be configured using A-records. <a href="/articles/apex-domains">Properly configure the root domain DNS</a> using CNAME-like functionality or subdomain redirection.</p>
+</div>
+<p>You can quickly determine if your DNS records are properly configured using the <code>host</code> command-line utility.</p>
+
+<pre><code class="term">$ host www.example.com
+www.example.com is an alias for nara-1234.herokussl.com.
+nara-1234.herokussl.com is an alias for elb002776-242519199.us-east-1.elb.amazonaws.com.
+elb002776-242519199.us-east-1.elb.amazonaws.com has address 107.21.240.226
+…</code></pre>
+
+<p>You should see an alias mapping from <code>www.example.com</code> to either <code>app-name.herokuapp.com</code> or <code>endpoint-name.herokussl.com</code>.</p>
+
+<h2 id="production-database">Production database</h2>
+
+<p>If you run your business on Heroku, you should use a production-grade <a href="https://addons.heroku.com/heroku-postgresql">Heroku Postgres database</a>.</p>
+<div class="note">
+<p>The Heroku Postgres production tier starts with Crane and extends through to the Mecha plan. <em>Dev and Starter plans are not production databases</em>.</p>
+</div>
+<p>The production tier of service achieves the highest expected uptime and includes automated health checks, data snapshots and advanced features such as fork and follow.</p>
+
+<pre><code class="term">$ heroku pg:info -a ha-app
+=== HEROKU_POSTGRESQL_RED
+Plan:        Ronin
+Status:      available
+Data Size:   5.9 MB
+Tables:      0
+PG Version:  9.1.4
+Fork/Follow: Available
+Created:     2012-07-13 16:59 UTC
+Maintenance: not required</code></pre>
+
+<p>If your application requires a non-relational data store, <a href="http://aws.amazon.com/dynamodb/">Amazon DynamoDB</a> is another great candidate for highly available data storage.</p>
+
+<h2 id="visibility-monitoring">Visibility &amp; monitoring</h2>
+
+<p>Before improving the availability of your app, you should have excellent awareness of, and reactivity to, the state of your app. This can be accomplished with a variety of tools.</p>
+
+<h3 id="app-monitoring">App Monitoring</h3>
+
+<p><a href="/articles/newrelic">New Relic</a> allows you to monitor, and drill into, the performance of your app over time. There are many cases in which a loss in availability is preceded by a degradation in service.</p>
+
+<p><img alt="New Relic" src="https://dl.dropbox.com/u/674401/devcenter/newrelic.png"></p>
+
+<p>Over a reasonable period of observation, establish normal operating boundaries for your application and set up alerts to notify you when your system is beginning to deviate.</p>
+
+<p>Use New Relic’s rich graphing and performance analysis capabilities to better understand how your application behaves in certain circumstances and where it is most brittle. These observations can help you diagnose and work around degradations in periods of instability.</p>
+
+<h3 id="log-monitoring">Log Monitoring</h3>
+
+<p>The Heroku <a href="https://addons.heroku.com/">add-on marketplace</a> includes many services that consume, store and provide instrumention against your application’s <a href="/articles/logging">log stream</a>. By logging interesting events, like successful credit card signups, you can use these log services to alert you of unusual activity. When problems do arise they also simplify debugging by allowing you to search the history of your log events.</p>
+
+<p><a href="https://papertrailapp.com/">Papertrail</a> is an example of such a service that provides alerting based on patterns in your log data. Setup a search alert for errors &amp; events within your app and integrate with Librato, PagerDuty, and Campfire. The search alert can be for Heroku error codes or interesting events in your app.</p>
+
+<p><img alt="Papertrail" src="https://dl.dropbox.com/u/674401/devcenter/Screen%2520Shot%25202012-07-12%2520at%25209.16.png"></p>

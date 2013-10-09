@@ -1,0 +1,123 @@
+<p>The Heroku platform automatically routes HTTP requests sent to your app’s hostname(s) to your web dynos. The entry point for all applications on the <a href="/articles/cedar">Cedar</a> stack is the <code>herokuapp.com</code> domain which offers a direct routing path to your web dynos.</p>
+
+<h2 id="routing">Routing</h2>
+
+<p>Inbound requests are received by a load balancer that offers HTTP and SSL termination. From here they are passed directly to a set of routers.</p>
+
+<p>The routers are responsible for determining the location of your application’s web <a href="/articles/dynos">dynos</a> and forwarding the HTTP request to one of these dynos.</p>
+
+<p>A request’s unobfuscated path from the end-client through the Heroku infrastructure to your application allows for full support of <a href="https://tools.ietf.org/html/rfc2616" title="RFC2616: Hypertext Transfer Protocol -- HTTP/1.1">HTTP 1.1</a> features such as chunked responses, long polling, and using an async webserver to handle multiple responses from a single web process.</p>
+
+<h2 id="request-distribution">Request distribution</h2>
+
+<p>Routers use a random selection algorithm for HTTP request load balancing across web dynos.</p>
+
+<h2 id="request-queueing">Request queueing</h2>
+
+<p>Each router maintains an internal per-app request queue. For Cedar apps, routers limit the number of active requests per dyno to 50 and queue additional requests. There is no coordination between routers however, so this request limit is per router. The request queue on each router has a maximum backlog size of 50n (n = the number of web dynos your app has running). If the request queue on a particular router fills up, subsequent requests to that router will immediately return an <a href="/articles/error-codes#h11-backlog-too-deep">H11 (Backlog too deep)</a> response.</p>
+
+<h2 id="dyno-connection-behavior">Dyno connection behavior</h2>
+
+<p>When Heroku receives an HTTP request, a router establishes a new upstream TCP connection to a randomly selected web dyno. If the connection is refused or has not been successfully established after 5 seconds, the dyno will be quarantined and no other connections will be forwarded from that router to the dyno for up to 5 seconds. The quarantine only applies to a single router. Because each router keep its own list of quarantined dynos, other routers may continue to forward connections to the dyno.</p>
+
+<p>When a connection to a dyno is refused or times out, the router processing the request will retry the request on another dyno. A maximum of 10 attempts (or fewer if you don’t have 10 running web dynos) will be made before returning an <a href="/articles/error-codes#h19-backend-connection-timeout">H19</a> or <a href="/articles/error-codes#h21-backend-connection-refused">H21</a> error.</p>
+
+<p>If all dynos are quarantined, the router will retry for up to 75 seconds (with an incremental back off), before serving an <a href="/articles/error-codes#h99-platform-error">H99</a> error.</p>
+
+<h2 id="timeouts">Timeouts</h2>
+
+<p>After a dyno connection has been established, HTTP requests have an initial 30 second window in which the web process must return response data (either the completed response or some amount of response data to indicate that the process is active). Processes that do not send response data within the initial 30-second window will see an <a href="/articles/error-codes#h12-request-timeout">H12</a> error in their <a href="/articles/logging">logs</a>.</p>
+
+<p>After the initial response, each byte sent (either from the client or from your app process) resets a rolling 55 second window. If no data is sent during this 55 second window then the connection is terminated and a <a href="/articles/error-codes#h15-idle-connection">H15</a> error is logged.</p>
+
+<h2 id="simultaneous-connections">Simultaneous connections</h2>
+
+<p>The <code>herokuapp.com</code> routing stack allows many concurrent connections to web dynos. For production apps, you should always choose an embedded webserver that allows multiple concurrent connections to maximize the responsiveness of your app. You can also take advantage of concurrent connections for long-polling requests.</p>
+
+<p>Almost all modern web frameworks and embeddable webservers support multiple concurrent connections. Examples of webservers that allow concurrent request processing in the dyno include Unicorn (Ruby), Goliath (Ruby), Puma (JRuby), Gunicorn (Python), and Jetty (Java).</p>
+
+<h2 id="request-buffering">Request buffering</h2>
+
+<p>When processing an incoming request, a router sets up an 8KB receive buffer and begins reading the HTTP request line and request headers. Each of these can be at most 8KB in length, but together can be more than 8KB in total. Requests containing a request line or header line longer than 8KB will be dropped by the router without being dispatched. The body of a request can be of any size. Once the entire set of HTTP headers has been received, the router starts the process of dispatching the request to a dyno.</p>
+
+<p>As a result, each router buffers the header section of all requests, and will deliver this to your dyno as fast as our internal network will run. The dyno is protected from slow clients until the request body needs to be read. If you need protection from clients transmitting the body of a request slowly, you’ll have the request headers available to you in order to make a decision as to when you want to drop the request by closing the connection at the dyno.</p>
+
+<h2 id="response-buffering">Response buffering</h2>
+
+<p>The router maintains a 1MB buffer for responses from the dyno per connection. This means that you can send a response up to 1MB in size before the rate at which the client receives the response will affect the dyno - even if the dyno closes the connection, the router will keep sending the response buffer to the client. The transfer rate for responses larger than the 1MB buffer size will be limited by how fast the client can receive data.</p>
+
+<h2 id="heroku-headers">Heroku headers</h2>
+
+<ul>
+<li>
+<code>X-Forwarded-For</code>: the originating IP address of the client connecting to the Heroku router</li>
+
+<li>
+<code>X-Forwarded-Proto</code>: the originating protocol of the HTTP request (example: https)</li>
+
+<li>
+<code>X-Forwarded-Port</code>: the originating port of the HTTP request (example: 443)</li>
+
+<li>
+<code>X-Request-Start</code>: unix timestamp (milliseconds) when the request was received by the router</li>
+</ul><h2 id="heroku-router-log-format">Heroku router log format</h2>
+
+<h4 id="info-logs">info logs</h4>
+
+<pre><code>2012-10-11T03:47:20+00:00 heroku[router]: at=info method=GET path=/ host=myapp.herokuapp.com fwd="204.204.204.204" dyno=web.1 connect=1ms service=18ms status=200 bytes=13</code></pre>
+
+<ul>
+<li>
+<code>method</code>: HTTP request method</li>
+
+<li>
+<code>path</code>: HTTP request path</li>
+
+<li>
+<code>host</code>: HTTP request <code>Host</code> header value</li>
+
+<li>
+<code>fwd</code>: HTTP request <code>X-Forwarded-For</code> header value</li>
+
+<li>
+<code>dyno</code>: name of the dyno that serviced the request</li>
+
+<li>
+<code>connect</code>: amount of time spent establishing a connection to the backend web process</li>
+
+<li>
+<code>service</code>: amount of time spent proxying data between the backend web process and the client</li>
+
+<li>
+<code>status</code>: HTTP response code</li>
+
+<li>
+<code>bytes</code>: Number of bytes transferred from the backend web process to the client</li>
+</ul><h4 id="error-logs">Error logs</h4>
+
+<pre><code>2012-10-11T03:47:20+00:00 heroku[router]: at=error code=H12 desc="Request timeout" method=GET path=/ host=myapp.herokuapp.com fwd="204.204.204.204" dyno=web.1 connect= service=30000ms status=503 bytes=0</code></pre>
+
+<ul>
+<li>
+<code>code</code>: <a href="https://devcenter.heroku.com/articles/error-codes">Heroku error code</a>
+</li>
+
+<li>
+<code>desc</code>: description of error</li>
+</ul><h2 id="caching">Caching</h2>
+
+<p>Apps serving large amounts of static assets can take advantage of <a href="http-caching">HTTP caching</a> to improve performance and reduce load.</p>
+
+<h2 id="websockets">WebSockets</h2>
+
+<p>WebSocket functionality is <a href="https://devcenter.heroku.com/articles/heroku-labs-websockets">now available as a labs feature</a>.</p>
+
+<h2 id="gzipped-responses">Gzipped responses</h2>
+
+<p>Since requests to Cedar apps are made directly to the application server – not proxied through an HTTP server like nginx – any compression of responses must be done within your application.</p>
+
+<h2 id="supported-http-methods">Supported HTTP Methods</h2>
+
+<p>The Heroku HTTP stack supports any <a href="https://tools.ietf.org/html/rfc2616#section-5.1.1" title="HTTP/1.1 Method token">HTTP method</a> (sometimes called a “verb”), even those not defined in an RFC, except the following: <a href="https://tools.ietf.org/html/rfc2616#section-9.9" title="CONNECT method">CONNECT</a>.</p>
+
+<p>Commonly used methods include <a href="https://tools.ietf.org/html/rfc2616#section-9.3" title="HTTP/1.1 - GET">GET</a>, <a href="https://tools.ietf.org/html/rfc2616#section-9.5" title="HTTP/1.1 - POST">POST</a>, <a href="https://tools.ietf.org/html/rfc2616#section-9.6" title="HTTP/1.1 - PUT">PUT</a>, <a href="https://tools.ietf.org/html/rfc2616#section-9.7" title="HTTP/1.1 - DELETE">DELETE</a>, <a href="https://tools.ietf.org/html/rfc2616#section-9.4" title="HTTP/1.1 - HEAD">HEAD</a>, <a href="https://tools.ietf.org/html/rfc2616#section-9.2" title="HTTP/1.1 - OPTIONS">OPTIONS</a>, and <a href="http://tools.ietf.org/html/rfc5789" title="PATCH Method for HTTP">PATCH</a>. Methods are limited to 127 characters in length.</p>

@@ -1,0 +1,137 @@
+<p>The Heroku Add-on catalog is a unique marketing channel that places the add-on
+in front of a large and diverse group of technologists and is capable of
+accelerating its adoption and awareness. Well-written and maintained Dev
+Center documentation is central to clearly identifying the service benefits to
+the various language communities and provides confidence to developers
+considering integrating the add-on into their application.</p>
+
+<h2 id="duplicate-documentation">Duplicate documentation</h2>
+
+<p>Many add-on providers maintain product documentation on their own site and
+attempt to remove all areas of duplication by linking to their site
+documentation throughout the article or by providing a very thin document that
+delegates back to the provider site. This type of documentation is not
+appropriate for the Dev Center.</p>
+
+<p>Developers look to the Dev Center as their first resource for all topics
+surrounding the platform and add-ons and as many of their questions as
+possible should be answered on this initial visit. It creates a very
+inconsistent and poor experience for the reader to have to navigate outside
+the Dev Center. The user experience is paramount at Heroku.</p>
+
+<p>Additionally, the Dev Center should be thought of as its own marketing
+channel. Different channels necessarily duplicate some content to speak more
+directly to that particular audience. The business benefits far outweigh any
+minor administrative overhead incurred.</p>
+
+<h2 id="starter-template">Starter template</h2>
+
+<p>Developers unfamiliar with an add-on may have very little knowledge about the
+functionality it provides, how to integrate it with their preferred language
+or even how to use it during development and testing. It is important to
+provide both broad context and specific examples to ensure complete coverage.</p>
+
+<h3 id="download-template">Download template</h3>
+
+<p>To aid in this task, Heroku provides a starter-template that can be used as
+a starting point for add-on documentation. It includes topics that have been
+found to increase clarity and reduce developer confusion.</p>
+
+<p>Copy <a href="https://gist.github.com/rwdaigle/44bca0418bc77e54e972/raw/eff355ba5d7892123f20307dcc5d2c0308e02576/README.md">the template</a> to your local environment for editing.</p>
+
+<pre><code>$ curl https://gist.github.com/rwdaigle/44bca0418bc77e54e972/raw/eff355ba5d7892123f20307dcc5d2c0308e02576/README.md &gt; addon-doc.md
+</code></pre>
+
+<p>Dev Center documentation is written using a slight extension to the text-based <a href="http://daringfireball.net/projects/markdown/">GitHub Flavored 
+Markdown</a> format. Any text
+editor can be used to edit the article.</p>
+
+<h3 id="replace-stubs">Replace stubs</h3>
+
+<p>Open the article and replace the following keywords with the appropriate
+values for the article’s add-on.</p>
+
+<table>
+<tr>
+<th>Replace…</th>
+    <th>with</th>
+  </tr>
+<tr>
+<td><code>ADDON_NAME</code></td>
+    <td style="text-align: left">The name of the add-on. E.g. <code>New Relic</code>.</td>
+  </tr>
+<tr>
+<td><code>ADDON_SLUG</code></td>
+    <td style="text-align: left">The shorthand name used by the CLI and Add-on site URL. E.g. <code>newrelic</code>.</td>
+  </tr>
+<tr>
+<td><code>ADDON_CONFIG_NAME</code></td>
+    <td style="text-align: left">The name of the add-on config expose to integrated apps. E.g. <code>CLOUDANT_URL</code>.</td>
+  </tr>
+</table><p>Sections wrapped in <code>[[</code> <code>]]</code> brackets are notes to the author and should be
+removed before publishing.</p>
+
+<h2 id="content">Content</h2>
+
+<p>Many of the sections in the starter template may not be appropriate for the
+add-on being documented. In such cases the sections can be removed. However,
+this should be the exception and not the rule as these sections have been
+found create the best experience for potential users of the add-on.</p>
+
+<h3 id="writing-guide">Writing guide</h3>
+
+<p>In order to provide a consistent experience across the Dev Center, Heroku has
+created a <a href="http://devcenter.heroku.com/articles/writing">writing guide</a> with
+clear style, structure and formatting guidance. Please read the writing guide
+to ensure the add-on documentation maintains consistency with the rest of the
+Dev Center content.</p>
+
+<h3 id="about-the-add-on">About the add-on</h3>
+
+<p>Please describe the details of the service you are providing in the opening
+section. Information you may want to include are: 1) how the service works
+2) the benefits of your service. 3) how your service differs from other
+options in the market place. Developers have many choices in application
+services, use this as an opportunity to convince them of the value of your
+offering.</p>
+
+<h3 id="code-samples-polyglot">Code samples/polyglot</h3>
+
+<p>Heroku is a polyglot platform. Add-ons should also support the tenet of
+polyglot application development by providing code samples in languages
+supported by the add-on. The starter template has several areas where code and
+integration samples are given in Ruby followed by a placeholder for other
+languages. Please complete the other language sections with as much detail as
+the Ruby section as possible.</p>
+
+<p>Documenting support for only a single language severely limits the potential
+market for the add-on amongst Heroku’s increasingly polyglot developer-base.</p>
+
+<h3 id="rendering-tools">Rendering tools</h3>
+
+<p>Many services support the rendering of Markdown into HTML including
+<a href="https://gist.github.com/">GitHub Gists</a>. Storing the article in a private
+gist and using it to collaborate with others during the writing process is
+a common and convenient practice.</p>
+
+<h3 id="writing-support">Writing support</h3>
+
+<p>If review and feedback is desired, please contact the Heroku Add-ons team
+at <a href="mailto:addons@heroku.com">addons@heroku.com</a>.</p>
+
+<h2 id="examples">Examples</h2>
+
+<p>The <a href="https://devcenter.heroku.com/articles/cloudamqp">CloudAMQP add-on documentation</a>
+is a great example of a well-written, consistent and polyglot document.</p>
+
+<h2 id="submission">Submission</h2>
+
+<p>Once the add-on article has been created, please follow the submission process
+in the <a href="https://addons.heroku.com/provider/dashboard">Provider Portal</a>
+to submit the documentation.</p>
+
+<h2 id="maintenance">Maintenance</h2>
+
+<p>Content is only as compelling as it is relevant. Add-on providers should
+ensure their Dev Center documentation stays up-to-date with new versions and
+language releases.</p>

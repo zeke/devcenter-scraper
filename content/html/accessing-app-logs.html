@@ -1,0 +1,60 @@
+<p>Add-on services can access an app’s log data.  If you’re building an add-on service that requires this access, you can create a <a href="https://devcenter.heroku.com/articles/logging">log drain</a> on behalf of the app and receive the log data.</p>
+
+<p>To set it up, you first need to request it through the manifest.</p>
+
+<h2 id="add-on-manifest">Add-on manifest</h2>
+
+<p>The manifest will need to tell Heroku that your add-on requires permission to set up the syslog drain. This is done by adding <code>syslog_drain</code> to the list if permissions in the <code>requires</code> property:</p>
+
+<pre><code class="json">{ "id": "myaddon",
+  "api": { ... }
+  "requires" : ["syslog_drain"]
+}
+</code></pre>
+
+<h2 id="provisioning-call">Provisioning call</h2>
+
+<p>When the add-on is provisioned, Heroku’s systems will generate a unique log token for that app/add-on instance combo. Add-on Providers should use this to identify logs sent to the drain.</p>
+
+<p>The provisioning call will contain the log tokeng. Storing the token is recommended for providers, but not necessary as it’s possible use another mechanism to separate traffic such as unique port+IP combinations per Heroku user/app. The content of our POST to the /heroku/resources endpoint looks like:</p>
+
+<pre><code class="json">{ "heroku_id": "app123@heroku.com", 
+  "plan": "basic", 
+  "callback_url":"https://api.heroku.com/vendor/resources/123",
+  "syslog_token": "XXYYZZ1234fff" }
+</code></pre>
+
+<p>and the response would be:</p>
+
+<pre><code class="json">{ "id": 456, 
+  "config": { ... },
+  "syslog_drain_url": "syslog://1.1.1.1:67890/",
+  "message": "your message here"
+}
+</code></pre>
+
+<p>Heroku will then create the drain.</p>
+
+<h2 id="ip-whitelist-api">IP Whitelist API</h2>
+
+<p>The final piece of configuration is to whitelist Heroku’s Logplex IPs for incoming syslog traffic. Simply send HTTP GET request to <code>https://api.heroku.com/vendor/logplex/whitelist</code> using basic auth with your provider API credentials. The call returns a JSON array of IP addresses to whitelist:</p>
+
+<pre><code class="json"> [
+   "184.73.5.216",
+   "50.16.41.187",
+   "50.19.0.98",
+   "50.19.146.67",
+   "184.72.174.202",
+   "50.16.56.45",
+   "50.16.160.94",
+   "50.17.56.172"
+  ]
+</code></pre>
+
+<p>When an app provisions an add-on successfully, the user will be able to see the drain created on behalf of the add-on in the log drain list.</p>
+
+<pre><code class="term">$ heroku drains
+syslog://two.example.org:584
+-----------------------------
+[Dummy Addon]
+</code></pre>

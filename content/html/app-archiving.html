@@ -1,0 +1,19 @@
+<p>Some apps on Heroku may be automatically archived.</p>
+
+<p>When archived, an app won’t be accessible via any web domain.  In particular, accessing the app on its <code>.herokuapp.com</code> domain will yield a “No such app” response. </p>
+
+<p>Currently apps are archived only if they have never had a <a href="/articles/git">user-initiated deploy</a>, i.e. they are empty apps or apps created from templates and never changed.</p>
+
+<p>Use the <a href="/articles/articles/heroku-command">Heroku CLI</a> to determine whether an app has been archived:</p>
+
+<pre><code class="term">$ heroku apps:info -a example-app
+=== example-app
+Archived At:   2013-07-24 01:10 UTC
+...
+</code></pre>
+
+<p>You can also inspect archived state in <a href="https://dashboard.heroku.com/">Heroku Dashboard</a>.</p>
+
+<p><img src="https://s3.amazonaws.com/heroku.devcenter/heroku_assets/images/205-original.jpg" alt="screenshot showing archived app"></p>
+
+<p>Apps can be un-archived by deploying any change to the application. See the <a href="/articles/articles/quickstart">getting started guide</a> for details.</p>

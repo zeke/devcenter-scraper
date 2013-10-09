@@ -1,0 +1,9 @@
+<p>To clone the source of an existing application from Heroku using <a href="/articles/git">Git</a>, use the <code>heroku git:clone</code> command:</p>
+
+<pre><code class="term">$ heroku git:clone -a myapp</code></pre>
+
+<p>Replace <code>myapp</code> with the name of your app.</p>
+
+<p>This will create a new directory named after your app with its source and complete repository history, as well as adding a <code>heroku</code> git remote to facilitate further updates.</p>
+
+<p>Heroku provides the git service primarily for deployment, and the ability to clone from it is offered as a convenience. We strongly recommend you store your code in another git repository such as <a href="https://github.com">GitHub</a> and treat that as canonical.</p>

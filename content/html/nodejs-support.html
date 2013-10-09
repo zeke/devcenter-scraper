@@ -1,0 +1,53 @@
+<p>This document describes the general behavior of the Cedar stack as it relates to the recognition and execution of Node.js applications. For a more detailed explanation of how to deploy an application, see <a href="http://devcenter.heroku.com/articles/nodejs">Getting Started with Node.js on Heroku/Cedar</a>.</p>
+<div class="note">
+<p>If you have questions about Node.js on Heroku, consider discussing it in the <a href="https://discussion.heroku.com/category/node">Node.js on Heroku forums</a>.</p>
+</div>
+<h2 id="activation">Activation</h2>
+
+<p>The Heroku Node.js Support is applied only when the application has a <code>package.json</code> file in the root directory.</p>
+
+<h2 id="versions">Versions</h2>
+
+<p>You can use the <code>engines</code> section of your <code>package.json</code> to specify the version of Node.js and npm to use on Heroku.</p>
+
+<pre><code class="javascript">{
+  "name": "myapp",
+  "version": "0.0.1",
+  "engines": {
+    "node": "0.10.x",
+    "npm":  "1.2.x"
+  }
+}</code></pre>
+
+<p>If you do not specify a version, the latest will be used. The available versions of Node.js and npm can be found here:</p>
+
+<ul>
+<li><a href="http://heroku-buildpack-nodejs.s3.amazonaws.com/manifest.nodejs">Node.js version manifest</a></li>
+
+<li><a href="http://heroku-buildpack-nodejs.s3.amazonaws.com/manifest.npm">npm version manifest</a></li>
+</ul><h2 id="environment">Environment</h2>
+
+<p>The following environment variables will be set:</p>
+
+<ul>
+<li>
+<code>PATH</code> =&gt; <code>"bin:node_modules/.bin:/usr/local/bin:/usr/bin:/bin"</code>
+</li>
+</ul><h2 id="build-behavior">Build behavior</h2>
+
+<p>The Node.js buildpack runs the following commands on your app to resolve dependencies:</p>
+
+<pre><code>$ npm install --production
+$ npm rebuild</code></pre>
+
+<h2 id="runtime-behavior">Runtime behavior</h2>
+
+<p>The highest available version of Node.js that matches your <code>engines</code> specification will be available on the <code>PATH</code>. You can use it directly in a Procfile:</p>
+
+<pre><code>web: node web.js</code></pre>
+
+<h2 id="add-ons">Add-ons</h2>
+
+<p>No add-ons are provisioned by default. If you need a SQL database for your app, add one explicitly:</p>
+
+<pre><code class="term">$ heroku addons:add heroku-postgresql:dev</code></pre>

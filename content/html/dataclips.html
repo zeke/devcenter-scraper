@@ -1,0 +1,71 @@
+<p>Dataclips allow the results of SQL queries on a Heroku Postgres database to be easily shared. Simply create a query on <a href="https://dataclips.heroku.com">dataclips.heroku.com</a>, and then share the resulting URL with co-workers, colleagues, or the world. The recipients of a dataclip are able to view the data in their browser or download it in JSON, CSV, XML, or Microsoft Excel formats.</p>
+
+<h2 id="creating-dataclips">Creating dataclips</h2>
+
+<ol>
+<li>
+<p>From within the <a href="https://dataclips.heroku.com">dataclips dashboard</a>, when logged in, click create clip. <img alt="" src="https://s3.amazonaws.com/f.cl.ly/items/3W0l3u1d0e323p0j3531/Screenshot_1_15_13_9_16_AM-2.png"></p>
+</li>
+
+<li>
+<p>Enter your query into the area <img alt="" src="https://s3.amazonaws.com/f.cl.ly/items/062X1p3g1n342x2j1u2F/Screenshot_1_15_13_11_32_AM.png"></p>
+</li>
+
+<li>
+<p>Click create clip</p>
+</li>
+</ol><h2 id="formats">Formats</h2>
+
+<p>Dataclips can be accessed in several forms:</p>
+
+<ul>
+<li>JSON</li>
+
+<li>CSV</li>
+
+<li>XLS</li>
+</ul><p>You may access each format by selecting the format from the dataclips menu, or by appending the file format to the URL of the dataclip. The JSON endpoint is handy for prototyping APIs but should not be used as a replacement for a production API.</p>
+
+<h2 id="interacting-with-dataclips">Interacting with dataclips</h2>
+
+<p>Dataclips provides the ability to access all previous versions of your query and previous result sets as well. You can access previous versions and results from within the menu on a specific dataclip. You may also access previous versions and results if you have a direct URL to a dataclip as well, including with specific file formats.</p>
+
+<p>Given an example dataclip - <a href="https://dataclips.heroku.com/vgyygvzqtezwpmwpcmmjlluamjlk">https://dataclips.heroku.com/vgyygvzqtezwpmwpcmmjlluamjlk</a> you could access it in several forms when getting the csv format:</p>
+
+<ul>
+<li>
+<p>The latest results in csv by adding .csv to the url</p>
+
+<p><code>https://dataclips.heroku.com/vgyygvzqtezwpmwpcmmjlluamjlk.csv</code></p>
+</li>
+
+<li>
+<p>The first version of the dataclip created by adding .csv and ?version=1</p>
+
+<p><code>https://dataclips.heroku.com/xqzzcwmlubhblavdipydzzqmlmbm.csv?version=1</code></p>
+</li>
+
+<li>
+<p>The first version of the dataclip and its first result set by adding the above and result=1</p>
+
+<p><code>https://dataclips.heroku.com/xqzzcwmlubhblavdipydzzqmlmbm.csv?result=1&amp;version=1</code></p>
+</li>
+</ul><h3 id="data-refresh">Data Refresh</h3>
+
+<p>When visiting a dataclip it will immediately show the last run results and alert you if there is a new result set available. New data will be automatically shown only if the last run of your query executed in under 2 seconds. Queries that take longer than 10 minutes to run are automatically cancelled.</p>
+
+<p>When connecting your dataclips to google docs your data is refreshed on an hourly basis.</p>
+
+<h2 id="security">Security</h2>
+
+<p>All dataclips are secured through unique un-guessable URLs. <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans#production-tier">Production tier</a> databases also have the ability to secure dataclips to a heroku user account.</p>
+
+<h2 id="limits">Limits</h2>
+
+<ul>
+<li>Dataclips may return up to 29,999 rows</li>
+
+<li>Dataclips can only be secured via authentication on <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans#production-tier">production tier</a> databases</li>
+
+<li>By default, Dataclips will cancel queries after 10 minutes.</li>
+</ul>

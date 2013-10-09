@@ -1,0 +1,253 @@
+---
+title: Choosing the Right Heroku Postgres Plan
+slug: heroku-postgres-plans
+url: https://devcenter.heroku.com/articles/heroku-postgres-plans
+description: Understand the differences between the various Heroku Postgres plans and how to choose which one is most appropriate for your use-case.
+---
+
+  [Heroku Postgres](heroku-postgresql) offers a wide spectrum of plans
+appropriate for everything from personal blogs all the way to
+large-dataset and high-transaction applications. Choosing the right
+plan depends on the unique usage characteristics of your app as well
+as your organization's availability and uptime expectations.
+
+## Plan tiers
+
+[Heroku Postgres's many plans](https://postgres.heroku.com/pricing)
+are segmented in two broad tiers: Starter and production. Each tier
+then contains several individual plans. While these two tiers share
+many features there are several differences that will determine what
+database plan is most appropriate for your use-case.
+
+### Shared features
+
+The starter and production tier database plans all share the following features:
+
+* Fully managed database service with automatic health checks
+* Write-ahead log (WAL) off-premise storage every 60 seconds, ensuring
+  minimal data loss in case of catastrophic failure
+* [Data clips](https://postgres.heroku.com/blog/past/2012/1/31/simple_data_sharing_with_data_clips/)
+  for easy and secure sharing of data and queries
+* SSL-protected psql/libpq access
+* Running unmodified Postgres v9.1 or v9.2 (v9.0 is available on
+  production tier only) for guaranteed compatibility
+* Postgres [extensions](heroku-postgres-extensions-postgis-full-text-search)
+* A full-featured [web UI](https://postgres.heroku.com/databases)
+
+### Starter tier
+
+<p class="warning" markdown="1">
+The starter tier database plans are not intended for
+production-caliber applications or applications with high-uptime
+requirements.
+</p>
+
+The starter tier, which includes the [`dev` and `basic`
+plans](https://addons.heroku.com/heroku-postgresql), has the following
+limitations:
+
+* Enforced row limits of 10,000 rows for `dev` and 10,000,000 for `basic` plans
+* Max of 20 connections
+* No in-memory cache: The lack of an in-memory cache limits the
+  performance capabilities since the data can't be accessed on
+  low-latency storage.
+* No [fork/follow](heroku-postgres-follower-databases) support: Fork
+  and follow, used to create replica databases and master-slave
+  setups, are not supported.
+* Expected uptime of 99.5% each month
+* No postgres logs
+
+### Row limit enforcement
+
+When you are over the starter tier row limits and try to insert you will see a Postgres error:
+
+    permission denied for relation <table name>
+
+The row limits of the starter tier database plans are enforced with the following mechanism:
+
+1. When a `dev` database hits 7,000 rows, or a `basic` database hits 1
+   million rows , the owner receives a warning e-mail stating they are
+   nearing their row limits.
+2. When the database exceeds its row capacity, the owner will receive
+   an additional notification. At this point, the database will receive a
+   24-hour grace period to either reduce the number of records, or
+   [migrate to another plan](heroku-postgres-follower-databases#database-upgrades-and-migrations-with-changeovers).
+3. If the number of rows still exceeds the plan capacity after 24
+   hours, `INSERT` privileges will be revoked on the database. Data can
+   still be read, updated or deleted from database. This ensures that
+   users still have the ability to bring their database into compliance,
+   and retain access to their data.
+4. Once the number of rows is again in compliance with the plan limit,
+   `INSERT` privileges are automatically restored to the database. Note
+   that the database sizes are checked asynchronously, so it may take a
+   few minutes for the privileges to be restored.
+
+### Production tier
+
+As the name implies, the production tier of Heroku Postgres is
+intended for production applications and includes the following
+feature additions to the starter tier:
+
+* No row limitations
+* Increasing amounts of in-memory cache
+* [Fork and follow](heroku-postgres-follower-databases) support
+* Max of 500 connections
+* 1 TB of storage
+* Expected uptime of 99.95% each month
+* [Database metrics published](https://devcenter.heroku.com/articles/heroku-postgres-metrics-logs) to application log stream for further analysis
+
+Management of production tier database plans is also much more robust including:
+
+* Eligible for automatic daily snapshots with 1-month retention (see
+  the [PGBackups add-on](https://devcenter.heroku.com/articles/pgbackups)
+  for more details)
+* Priority service restoration on disruptions
+
+## Production plans
+
+Non-production applications, or applications with minimal data
+storage, performance or availability requirements can choose between
+one of the two starter tier plans, `dev` and `basic`, depending on row
+requirements. However, production applications, or apps that require
+the features of a production tier database plan, have a variety of
+plans to choose from. These plans vary primarily by the size of their
+in-memory data cache.
+
+### Cache size
+
+Each [production tier plan's](https://postgres.heroku.com/pricing)
+RAM size constitutes the total amount of System Memory on the 
+underlying instance's hardware, most of which is given to
+Postgres and used for caching.. While a small amount of RAM is
+used for managing each connection and other tasks, Postgres will 
+take advantage of almost all this RAM for its cache. Learn more
+about how this works [in this article](https://devcenter.heroku.com/articles/understanding-postgres-data-caching)
+
+Postgres constantly manages the cache of your data: rows you've
+written, indexes you've made, and metadata Postgres keeps. When the
+data needed for a query is entirely in that cache, performance is very
+fast. Queries made from cached data are often 100-1000x faster than
+from the full data set.
+
+<p class="note" markdown="1">
+Well engineered, high performance web applications will have 99% or more
+of their queries be served from cache.
+</p>
+
+Conversely, having to fall back to disk is at least an order of
+magnitude slower. Additionally, columns with large data types
+(e.g. large text columns) are stored out-of-line via
+[TOAST](http://www.postgresql.org/docs/current/static/storage-toast.html),
+and accessing large amounts of TOASTed data can be slow.
+
+### General guidelines
+
+Access patterns vary greatly from application to application. Many
+applications only access a small, recently-changed portion of their
+overall data. Postgres can always keep that portion in cache as time
+goes on, and as a result these applications can perform well on
+smaller plans.
+
+Other applications which frequently access all of their data don't
+have that luxury and can see dramatic increases in performance by
+ensuring that their entire dataset fits in memory. To determine the
+total size of your dataset use the `heroku pg:info` command and look
+for the `Data Size` row:
+
+    :::term
+    $ heroku pg:info
+    === HEROKU_POSTGRESQL_CHARCOAL_URL (DATABASE_URL)
+    Plan:        Crane
+    Status:      available
+    Data Size:   9.4 MB
+    ...
+
+Though a crude measure, choosing a plan that has at least as much
+in-memory cache available as the size of your total dataset will
+ensure high cache ratios. However, you will eventually reach the point
+where you have more data than the largest plan, and you will have to
+shard. Plan ahead for sharding: it takes a long time to execute a
+sharding strategy.
+
+### Determining required cache-size
+
+There is no substitute for observing the database demands of your
+application with live traffic to determine the appropriate
+cache-size. Cache hit ratio should be in the 99%+ range. Uncommon
+queries should be less than 100ms and common ones less than 10ms.
+
+<div class="callout" markdown="1">
+[This blog post](http://www.craigkerstiens.com/2012/10/01/understanding-postgres-performance/)
+includes a deeper discussion of Postgres performance concerns and techniques.
+</div>
+
+To measure the cache hit ratio for tables:
+
+    :::sql
+    SELECT
+        'cache hit rate' AS name,
+         sum(heap_blks_hit) / (sum(heap_blks_hit) + sum(heap_blks_read)) AS ratio
+    FROM pg_statio_user_tables;
+
+or the cache hit ratio for indexes:
+
+    :::sql
+    SELECT
+        'index hit rate' AS name,
+        (sum(idx_blks_hit)) / sum(idx_blks_hit + idx_blks_read) AS ratio
+    FROM pg_statio_user_indexes
+
+<div class="callout" markdown="1">
+You can also install the [pg extras plugin](http://www.github.com/heroku/heroku-pg-extras)
+and then simply run heroku pg:cache_hit.
+</div>
+
+Both queries should indicate a `ratio` near `0.99`:
+
+    :::sql
+    heap_read | heap_hit |         ratio          
+    -----------+----------+------------------------
+           171 |   503551 | 0.99966041175571094090
+
+When the cache hit ratio begins to decrease, upgrading your database
+will generally put it back in the green. The best way is to use the
+[fast-changeover technique](fast-database-changeovers) to move between
+plans, watch [New Relic](https://addons.heroku.com/newrelic), and see
+what works best for your application's access patterns.
+
+## Stand-alone vs. add-on provisioning
+
+Heroku Postgres can be provisioned as a [stand-alone service](https://postgres.heroku.com/)
+or attached to an application on Heroku [as an add-on](heroku-postgresql).
+Though the same plans are available across both services and the underlying
+technology and management infrastructure is the same there are some key differences.
+
+When you provision a database from
+[postgres.heroku.com](http://postgres.heroku.com), you do
+not have direct CLI access for database administration.
+Administration of these databases is only supported through the web
+interface.
+
+Many features will first be accessible via the heroku CLI for add-on
+databases and may not manifest in the web UI until much later. Such
+examples include [automatic credential
+rotation](https://postgres.heroku.com/blog/past/2012/7/17/rotate_database_credentials_on_heroku_postgres_/)
+and [pg:reset](heroku-postgresql#pg-reset).
+
+Heroku Postgres databases created with the `heroku addons:add` command
+are provisioned as add-ons and are tied to a specific application on
+Heroku. Though they are listed and available for management in the
+Heroku Postgres web UI their management features can also be accessed
+via the heroku CLI. They retain all the features of the stand-alone
+service and include features only accessible via the CLI.
+
+If you are interested in CLI administration, you should create
+the database via the CLI, even if you intend to principally
+access it via [postgres.heroku.com](https://postgres.heroku.com/).
+
+<p class="note" markdown="1">
+Applications on Heroku requiring a SQL database should [provision
+Heroku Postgres as an add-on](heroku-postgresql) with the `heroku
+addons:add heroku-postgresql` command.
+</p>      
+        

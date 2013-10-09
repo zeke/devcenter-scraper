@@ -1,0 +1,79 @@
+<p>When you <code>git push heroku</code>, Heroku’s slug compiler prepares your code for execution by the Heroku manager. At the heart of the slug compiler is a collection of scripts called a buildpack.</p>
+
+<p>Heroku’s <a href="/articles/cedar">Cedar stack</a> has no native language or framework support; Ruby, Python, Java, Clojure, Node.js and Scala are all implemented as buildpacks.</p>
+
+<h2 id="default-buildpacks">Default Buildpacks</h2>
+
+<p>Heroku maintains a collection of buildpacks that are available by default to all Heroku apps during slug compilation.</p>
+<div class="callout">
+<p>These buildpacks are open-source and available on Github. If you have a change that would be useful to all Heroku developers, we encourage you to submit a pull request.</p>
+</div><table>
+<tr>
+<th>Name</th>
+  	<th>URL</th>
+  </tr>
+<tr>
+<td>Ruby</td>
+  	<td style="text-align:left"><a href="https://github.com/heroku/heroku-buildpack-ruby">https://github.com/heroku/heroku-buildpack-ruby</a></td>
+  </tr>
+<tr>
+<td>Node.js</td>
+  	<td style="text-align:left"><a href="https://github.com/heroku/heroku-buildpack-nodejs">https://github.com/heroku/heroku-buildpack-nodejs</a></td>
+  </tr>
+<tr>
+<td>Clojure</td>
+  	<td style="text-align:left"><a href="https://github.com/heroku/heroku-buildpack-clojure">https://github.com/heroku/heroku-buildpack-clojure</a></td>
+  </tr>
+<tr>
+<td>Python</td>
+  	<td style="text-align:left"><a href="https://github.com/heroku/heroku-buildpack-python">https://github.com/heroku/heroku-buildpack-python</a></td>
+  </tr>
+<tr>
+<td>Java</td>
+  	<td style="text-align:left"><a href="https://github.com/heroku/heroku-buildpack-java">https://github.com/heroku/heroku-buildpack-java</a></td>
+  </tr>
+<tr>
+<td>Gradle</td>
+  	<td style="text-align:left"><a href="https://github.com/heroku/heroku-buildpack-gradle">https://github.com/heroku/heroku-buildpack-gradle</a></td>
+  </tr>
+<tr>
+<td>Grails</td>
+  	<td style="text-align:left"><a href="https://github.com/heroku/heroku-buildpack-grails">https://github.com/heroku/heroku-buildpack-grails</a></td>
+  </tr>
+<tr>
+<td>Scala</td>
+  	<td style="text-align:left"><a href="https://github.com/heroku/heroku-buildpack-scala">https://github.com/heroku/heroku-buildpack-scala</a></td>
+  </tr>
+<tr>
+<td>Play</td>
+  	<td style="text-align:left"><a href="https://github.com/heroku/heroku-buildpack-play">https://github.com/heroku/heroku-buildpack-play</a></td>
+  </tr>
+</table><p>By default, these buildpacks will be searched in order until a match is detected and used to compile your app.</p>
+
+<p>Custom buildpacks can be used to support languages or frameworks that are not convered by Heroku’s default buildpacks. For a list of known third-party buildpacks, see <a href="/articles/third-party-buildpacks">Third-Party Buildpacks</a>.</p>
+
+<h2 id="using-a-custom-buildpack">Using a custom Buildpack</h2>
+<div class="callout">
+<p>You can specify an exact version of a buildpack by using a a git <a href="http://git-scm.com/book/en/Git-Tools-Revision-Selection">revision</a> in your <code>BUILDPACK_URL</code>.</p>
+
+<p><code>git://repo.git#master</code> <code>git://repo.git#v1.2.0</code></p>
+</div>
+<p>You can override the Heroku default buildpacks by specifying a custom buildpack in the <code>BUILDPACK_URL</code> <a href="/articles/config-vars">config var</a>:</p>
+
+<pre><code>$ heroku config:set BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-ruby</code></pre>
+
+<p>You can also specify a buildpack during app creation:</p>
+
+<pre><code>$ heroku create myapp --buildpack https://github.com/heroku/heroku-buildpack-ruby</code></pre>
+
+<p>Buildpack URLs can point to either git repositories or tarballs. Hosting a buildpack on S3 can be a good way to ensure it’s highly available.</p>
+
+<h2 id="creating-a-buildpack">Creating a Buildpack</h2>
+
+<p>If you’d like to use a language or framework not yet supported on Heroku you can create a custom buildpack. To get started, see the following articles:</p>
+
+<ul>
+<li>To learn about the structure of a buildpack, see <a href="/articles/buildpack-api">Buildpack API</a>.</li>
+
+<li>To handle platform-specific binaries in a buildpack, see <a href="/articles/buildpack-binaries">Packaging Binary Buildpack Dependencies</a>.</li>
+</ul><p>You can use the <a href="https://github.com/heroku/heroku-buildpacks">heroku-buildpacks</a> CLI plugin to publish buildpacks to our catalog.</p>

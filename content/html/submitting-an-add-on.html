@@ -1,0 +1,42 @@
+<p>Add-ons are visible to users in the <a href="http://addons.heroku.com/">add-ons catalog</a>, which includes information about your product and company, and plans and pricing for the add-on.</p>
+
+<p>This document covers the steps between completing a technical integration and getting your add-on visible in the catalog and available to Heroku users.</p>
+
+<h3 id="1-test-your-production-service">1. Test your production service</h3>
+
+<p>Everything shown so far in this guide has been testing against your local development environment. Now you should get these changes deployed to your production service through your standard deploy process. Once ready, you can run the tests against your production system using the same manifest document.</p>
+
+<p>Edit addon-manifest.json and set the production URLs to match your production service. For example:</p>
+
+<pre><code class="json">"api": {
+  "production": {
+    "base_url": "https://api.mysqlomatic.net/heroku/resources",
+    "sso_url": "https://api.mysqlomatic.net/sso/login"
+  },
+</code></pre>
+
+<p>Also update the regions setting to reflect what regions you want your add-on to be available in. For example, if you want it to be available in both US and EU regions:</p>
+
+<pre><code class="json">"api": {
+  "regions": ["us","eu"],
+</code></pre>
+
+<p>Now you can run the full integration test again, this time against your production system. It should be provisioning and de-provisioning real resources:</p>
+
+<pre><code class="term">$ kensa run --production ruby use_mysql.rb
+</code></pre>
+
+<p>All tests (provision, consume, deprovision) should pass before proceeding to the next step.</p>
+
+<h3 id="2-submit-manifest-to-heroku">2. Submit manifest to Heroku</h3>
+
+<p>Now you’re almost ready to load your manifest onto Heroku, and start testing as a real Heroku users. First, collect your add-on manifest (<code>addon-manifest.json</code>) which describes provisioning.</p>
+
+<p>If you haven’t done so already, you will now need to <a href="https://addons.heroku.com/provider/">go to the Provider Portal and register as and Add-on Provider</a>. Once you have registered, you can use the kensa gem to send your manifest to heroku with one simple command.</p>
+
+<pre><code class="term">$ kensa push
+</code></pre>
+
+<p>Now your add-on is loaded on Heroku, although it’s disabled and not visible to anyone yet. To activate your add-on and advance it through the stages of alpha, private beta, beta and general availability you must go to the Provider Portal and follow the instructions for verifying your Heroku account, providing docs, and inviting users.</p>
+
+<p>The process of getting from the build stage to the general availability usually takes anywhere between 4-8 weeks. If you have questions that aren’t addressed in these docs, or in the Provider Portal, you are always welcome to <a href="mailto:addons@heroku.com">contact us</a>. Good luck! We look forward to seeing your add-on on Heroku.</p>

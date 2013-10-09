@@ -1,0 +1,25 @@
+<p>Software-as-a-service apps deployed in traditional server-based environments require ongoing maintenance to keep them running, whether or not the app is under active development. The Heroku platform is erosion-resistant.</p>
+
+<h2 id="erosion-is-a-problem-for-apps">Erosion is a problem for apps</h2>
+
+<p>Anyone who has built an application, set it up to run on a server somewhere, and come back months later to discover it down is familiar with this problem. Forces of entropy that affect every running application include:</p>
+
+<ul>
+<li>Operating system upgrades, kernel patches, and infrastructure software (e.g. Apache, MySQL, ssh, OpenSSL) updates to fix security vulnerabilities.</li>
+
+<li>The server’s disk filling up with logfiles.</li>
+
+<li>One or more of the app’s processes crashing or getting stuck, requiring someone to log in and restart them.</li>
+
+<li>Failure of the underlying hardware causing one or more entire servers to go down, taking the application with it.</li>
+</ul><p>The effect of these and other such forces is often known as “bit rot” or ”<a href="http://en.wikipedia.org/wiki/Software_erosion">software erosion</a>”.</p>
+
+<h2 id="heroku-is-erosion-resistant">Heroku is erosion-resistant</h2>
+
+<p>In contrast to traditional server-based environments, the Heroku platform is built to be <strong>erosion-resistant</strong>.</p>
+
+<p>The <a href="/articles/dynos#the-dyno-manager">dyno manager</a> keeps your app’s <a href="/articles/scaling#dyno-formation">dyno formation</a> running without any manual intervention. It restarts crashed dynos automatically, and moves your dynos to new locations automatically and instantly whenever a failure in the underlying hardware occurs.</p>
+
+<p>Heroku’s ops team keeps the underlying operating system kernel and other components up-to-date with the latest security patches. This is handled without any impact to running dynos except for a restart, which happens automatically and silently behind the scenes.</p>
+
+<p>Databases running on <a href="http://devcenter.heroku.com/articles/heroku-postgresql">Heroku’s PostgreSQL service</a> are fully managed and monitored. Hardware failures are handled completely by the Heroku PostgreSQL team and require no intervention from the app owner.</p>

@@ -1,0 +1,92 @@
+<div class="warning">The Platform API is a <a href="https://devcenter.heroku.com/articles/heroku-beta-features">beta feature</a>. Functionality may change prior to general availability.</div>
+
+<p>This is a brief guide to help you get started with the Heroku Platform API. For a detailed reference, please see the <a href="https://devcenter.heroku.com/articles/platform-api-reference">Platform API Reference</a> article.</p>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<ol>
+<li>A shell with <a href="http://curl.haxx.se/"><code>curl</code></a>
+</li>
+<li>A Heroku user account. <a href="https://api.heroku.com/signup/devcenter">Signup is free and instant</a>.</li>
+</ol><h2 id="samples">Samples</h2>
+
+<p>The samples below use <code>curl</code> simply for convenience. We recommend using your favorite programming language and a HTTP library with the API.</p>
+
+<h2 id="authentication">Authentication</h2>
+
+<p>Authentication is passed in the <code>Authorization</code> header with a value set to <code>:{api-key}</code>, base64 encoded. You can find your api-key on the <a href="https://dashboard.heroku.com/account">“Account” page</a> on dashboard or by running this command:</p>
+
+<pre><code class="term">$ heroku auth:token
+01234567-89ab-cdef-0123-456789abcdef
+</code></pre>
+
+<p>If you are using <code>curl</code> and the Heroku toolbelt, then <code>curl</code> can handle authentication details by reading the <code>netrc</code> file as <a href="https://devcenter.heroku.com/articles/platform-api-reference">demonstrated in the reference</a>. The computation is included here for demonstration purposes.</p>
+
+<p>Here’s how to generate the header value with Bash and store it in the <code>$TUTORIAL_KEY</code> var:</p>
+
+<pre><code class="term">$ TUTORIAL_KEY=`(echo -n ":" ; heroku auth:token) | base64` ; echo $TUTORIAL_KEY
+OjAxMjM0NTY3LTg5YWItY2RlZi0wMTIzLTQ1Njc4OWFiY2RlZgo=
+</code></pre>
+
+<h2 id="calling-the-api">Calling the API</h2>
+
+<p>With the <code>Authorization</code> value in place, you can call the API. First create an app:</p>
+
+<pre><code class="term">$ curl -X POST https://api.heroku.com/apps \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Authorization: $TUTORIAL_KEY"
+</code></pre>
+
+<p>Note that we pass two headers, <code>Authorization</code> to authenticate and <code>Accept</code> to specify API version.</p>
+
+<p>The API returns JSON with details of the newly created app:</p>
+
+<pre><code class="Javascript">{
+  "created_at":"2013-05-21T22:36:48-00:00",
+  "id":"01234567-89ab-cdef-0123-456789abcdef",
+  "git_url":"git@heroku.com:cryptic-ocean-8852.git",
+  "name":"cryptic-ocean-8852",
+  ...
+}
+</code></pre>
+
+<p>You can also query the API for info on the app you created by passing the id in the path:</p>
+
+<pre><code class="term">$ curl -X GET https://api.heroku.com/apps/01234567-89ab-cdef-0123-456789abcdef \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Authorization: $TUTORIAL_KEY"
+</code></pre>
+
+<p>You can also list all the apps that you own or collaborate on:</p>
+
+<pre><code class="term">$ curl -X GET https://api.heroku.com/apps \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Authorization: $TUTORIAL_KEY"
+</code></pre>
+
+<p>Let’s update the name of the app we created above by making a PATCH request to the same path you used for info:</p>
+
+<pre><code class="term">$ curl -X PATCH https://api.heroku.com/apps/01234567-89ab-cdef-0123-456789abcdef \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Authorization: $TUTORIAL_KEY" \
+-H "Content-Type: application/json" \
+-d "{\"name\":\"my-awesome-app\"}"
+</code></pre>
+
+<p>You can also use the name to query the app, which is especially handy when you have changed it to something more memorable:</p>
+
+<pre><code class="term">$ curl https://api.heroku.com/apps/my-awesome-app \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Authorization: $TUTORIAL_KEY"
+</code></pre>
+
+<p>Finally, you can clean up and delete the test app:</p>
+
+<pre><code class="term">$ curl -X DELETE https://api.heroku.com/apps/01234567-89ab-cdef-0123-456789abcdef \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Authorization: $TUTORIAL_KEY"
+</code></pre>
+
+<h2 id="wrap-up">Wrap-up</h2>
+
+<p>This tutorial demonstrates how to call the Heroku Platform API from Bash and using <code>curl</code>, but you can transfer this approach to whatever language and environment you favor. The tutorial focused specifically on creating, updating and deleting apps. The API has many more resources available, including add-ons, config vars and domains. They all work quite similarly to apps and detailed information can be found in the <a href="https://devcenter.heroku.com/articles/platform-api-reference">API reference</a>.</p>

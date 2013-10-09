@@ -1,0 +1,144 @@
+<p>Use <code>heroku fork</code> to copy an existing application, including add-ons, config vars, and Heroku Postgres data.</p>
+
+<p>It is a common practice to maintain <a href="/articles/multiple-environments">more than one environment</a> for each application. For example, a staging and production environment for each app along with any number of ephemeral test environments for features in various stages of development. To ensure parity across applications, create new apps as forks from the production environment.</p>
+<p class="warning">Forked applications are created in the account of the user executing <code>heroku fork</code>. The forking user will be the owner of the app and responsible for any application charges. For this reason, your account needs to be verified if the application you’re forking contains paid resources.</p>
+<h2 id="setup">Setup</h2>
+
+<p>You must have the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a> installed to use the features described here. <a href="https://devcenter.heroku.com/articles/heroku-command#installing-the-heroku-cli">Verify your toolbelt installation</a> and update it to the latest version with <code>heroku update</code>.</p>
+
+<h2 id="fork-application">Fork application</h2>
+<p class="note">For the purpose of this guide the originating app is called <code>sourceapp</code> and the new forked app is <code>targetapp</code>.</p><div class="callout">
+<p>Any add-ons with paid plans on the old app will be provisioned with the same paid plans on the new app. Adjust your add-on plans as needed by up- or down-grading after forking.</p>
+</div>
+<p>Invoke <code>heroku fork</code> to create the target app, copy all Heroku Postgres data and config vars to the new app, and re-provision all add-ons with the same plan. Depending on the size of your database this process may take some time.</p>
+<p class="warning">Only Heroku Postgres data is automatically copied to the new application. All other add-ons are simply re-provisioned and you will need to manually manage any requisite data export/import for these services.</p><div class="callout">
+<p>Don’t create <code>targetapp</code> yourself. <code>heroku fork</code> creates the target app as part of the forking process.</p>
+</div>
+<pre><code class="term">$ heroku fork -a sourceapp targetapp
+Creating fork targetapp... done
+Copying slug... done
+Adding pgbackups:plus... done
+Adding heroku-postgresql:dev... done
+Creating database backup from sourcapp... .. done
+Restoring database backup to targetapp... .. done
+Copying config vars... done
+Fork complete, view it at http://targetapp.herokuapp.com/</code></pre>
+
+<p>To fork an app to a non-default <a href="/articles/regions">region</a>, use the <code>--region</code> flag:</p>
+
+<pre><code class="term">$ heroku fork -a sourceapp targetapp --region eu</code></pre>
+
+<h3 id="add-on-failures">Add-on failures</h3>
+
+<p>Some add-ons may fail provisioning if they’re no longer available.</p>
+
+<pre><code class="term">$ heroku fork -a sourceapp targetapp
+Creating fork targetapp... done
+Copying slug... ........ done
+Adding airbrake:developer... done
+Adding bonsai:test... skipped (not found)
+...</code></pre>
+
+<p>If the add-ons can’t be provisioned because the original plan no longer exists, upgrade the plan on the source app and retry the fork.</p>
+<div class="callout">
+<p>If you’ve already run <code>heroku fork</code> you will need to destroy the target app before retrying: <code>heroku destroy -a targetapp</code>.</p>
+</div>
+<pre><code class="term">$ heroku addons:upgrade bonsai:starter -a sourceapp
+Upgrading to bonsai:starter on sourceapp... done, v207 (free)</code></pre>
+
+<h2 id="manual-add-on-configuration">Manual add-on configuration</h2>
+
+<p>There are some add-ons that require additional configuration after provisioning. There may be others beyond the add-ons listed so please review your app’s add-ons for any that have manually entered configuration.</p>
+
+<h3 id="heroku-postgres">Heroku Postgres</h3>
+
+<p>All Heroku Postgres databases on your application will be copied from your <code>sourceapp</code> to your target app. This is done through pg_backups and does not take advantage fork Heroku Postgres forks. If you have followers this will result in duplicate copies that are not currently following your leader database.</p>
+
+<p>If the <code>DATABASE_URL</code> value was manually set on <code>sourceapp</code>, for instance to share a database with another app or to add a parameter like <code>?pool=10</code>, its value will copied to <code>targetapp</code> verbatim. In other words, <code>targetapp</code> will be configured to use the same database as <code>sourceapp</code>.</p>
+
+<p>If this is not the desired functionality, use <code>heroku pg:promote</code> to use the database provisioned specifically for <code>targetapp</code> instead.</p>
+
+<h3 id="custom-domains">Custom domains</h3>
+
+<p>Since custom domains can only belong to a single app at a time, no custom domains are copied as part of the forking process. If you want to use <a href="/articles/custom-domains">custom domains</a> in your new environment you will need to add them yourself as well as make the necessary DNS additions.</p>
+
+<h3 id="ssl">SSL</h3>
+<p class="warning">If your forked app doesn’t need to use SSL, remove the add-on with <code>heroku addons:remove ssl</code> to avoid unnecessary charges.</p>
+<p>Although the forking process re-provisions the <a href="/articles/ssl-endpoint">SSL Endpoint</a> on <code>targetapp</code> it does not add any certs on your behalf. If your app uses custom domains with SSL you need to add <a href="https://devcenter.heroku.com/articles/ssl-endpoint#provision-the-add-on">new certs to your SSL endpoint instance</a> on <code>targetapp</code>.</p>
+
+<pre><code class="term">$ heroku certs:add server.crt server.key -a targetapp
+Resolving trust chain... done
+Adding SSL Endpoint to targetapp... done
+example now served by tokyo-1234.herokussl.com</code></pre>
+
+<p>Add a new DNS CNAME record utilizing this new endpoint URL to serve requests via HTTPS.</p>
+<table>
+<tr>
+<th>Type</th>
+    <th>Name</th>
+    <th>Target</th>
+  </tr>
+<tr>
+<td>CNAME</td>
+    <td>www</td>
+    <td>tokyo-1234.herokussl.com</td>
+  </tr>
+</table><h3 id="scheduler">Scheduler</h3>
+
+<p>The <a href="https://addons.heroku.com/scheduler">Heroku Scheduler</a> add-on requires that the job schedule be manually transferred. Open the scheduler dashboard for both <code>sourceapp</code> and <code>targetapp</code> side-by-side to view the diffs and manually copy the jobs.</p>
+
+<pre><code class="term">$ heroku addons:open scheduler -a sourceapp
+$ heroku addons:open scheduler -a targetapp</code></pre>
+
+<h2 id="deploy">Deploy</h2>
+
+<p>Forking your application doesn’t automatically create a new git remote in your current project. To deploy to <code>targetapp</code> you will need to establish the git remote yourself. Use <code>heroku info</code> to retrieve the Git URL of the new application and the set it manually.</p>
+
+<pre><code class="term">$ heroku info -a targetapp
+=== targetapp
+...
+Git URL:       git@heroku.com:targetapp.git
+...</code></pre>
+
+<p>Add a git remote named <code>forked</code> representing the deploy URL for <code>targetapp</code>.</p>
+
+<pre><code class="term">$ git remote add forked git@heroku.com:targetapp.git</code></pre>
+
+<p>Deploy to the new environment with:</p>
+
+<pre><code class="term">$ git push forked master</code></pre>
+
+<p>If you wish to make the new app the default deployment target you can rename the git remotes.</p>
+
+<pre><code class="term">$ git remote rename heroku old
+$ git remote rename forked heroku</code></pre>
+
+<h2 id="forked-app-state">Forked app state</h2>
+
+<p>Forked apps are as close to the source app as possible. However, there are some differences.</p>
+
+<h3 id="git-repository">Git repository</h3>
+
+<p>When forking, the slug currently running in the forked app is copied to the new app. The Git repository contents of old app are <em>not</em> copied to the Git repository of the new app.</p>
+
+<h3 id="dynos">Dynos</h3>
+
+<p>Forked applications are similar to new apps in that they are scaled to the default <a href="https://devcenter.heroku.com/articles/scaling#dyno-formation">dyno formation</a> consisting of a single web dyno and no worker or other dynos.</p>
+
+<p>Scale your forked application’s dynos to meet your needs:</p>
+
+<pre><code class="term">$ heroku ps:scale web=1 worker=1 -a targetapp</code></pre>
+
+<h3 id="collaborators">Collaborators</h3>
+
+<p>No users from the source app are transferred over to the forked app. You need to add collaborators yourself.</p>
+
+<pre><code class="term">$ heroku sharing:add colleague@example.com -a targetapp</code></pre>
+
+<h3 id="database-followers">Database followers</h3>
+
+<p>The forking process copies all databases present on <code>sourceapp</code> but does not retain any <a href="https://devcenter.heroku.com/articles/heroku-postgres-fork">fork</a>/<a href="https://devcenter.heroku.com/articles/heroku-postgres-follower-databases">follow</a> relationships between them. Remove extraneous databases yourself and manually re-establish any forks or followers.</p>
+
+<h3 id="labs-features">Labs features</h3>
+
+<p>Any enabled <a href="https://devcenter.heroku.com/categories/labs">Heroku Labs</a> features on <code>sourceapp</code> are not re-enabled on <code>targetapp</code>.</p>

@@ -1,0 +1,321 @@
+---
+title: Getting Started with Ruby on Heroku
+slug: getting-started-with-ruby
+url: https://devcenter.heroku.com/articles/getting-started-with-ruby
+description: Create, configure, deploy and scale a Ruby application on Heroku.
+---
+
+This quickstart will get you going with [Ruby](http://www.ruby-lang.org/) and the [Sinatra](http://www.sinatrarb.com/) web framework, deployed to Heroku.  For Rails applications, please see [Getting Started with Rails 4.x on Heroku](getting-started-with-rails4). For general information on how to develop and architect apps for use on Heroku, see [Architecting Applications for Heroku](https://devcenter.heroku.com/articles/architecting-apps).
+
+Prerequisites
+-------------
+
+* Basic Ruby knowledge, including an installed version of Ruby 2.0.0, Rubygems, and Bundler.
+* Basic Git knowledge
+* Your application must run on Ruby (MRI) 2.0.0.
+* Your application must use Bundler.
+* A Heroku user account.  [Signup is free and instant](https://api.heroku.com/signup/devcenter).
+
+## Local workstation setup
+
+Install the [Heroku Toolbelt](https://toolbelt.heroku.com/) on your local workstation.  This ensures that you have access to the [Heroku command-line client](/categories/command-line), Foreman, and the Git revision control system.
+
+Once installed, you use the `heroku` command from your command shell.  Log in using the email address and password you used when creating your Heroku account:
+
+    :::term
+    $ heroku login
+    Enter your Heroku credentials.
+    Email: adam@example.com
+    Password: 
+    Could not find an existing public key.
+    Would you like to generate one? [Yn] 
+    Generating new SSH public key.
+    Uploading ssh public key /Users/adam/.ssh/id_rsa.pub
+
+Press enter at the prompt to upload your existing `ssh` key or create a new one, used for pushing code later on.
+
+Write your app
+--------------
+
+You may be starting from an existing app.  If not, here's a "hello, world" sourcefile you can use:
+
+### web.rb
+
+    :::ruby
+    require 'sinatra'
+
+    get '/' do
+      "Hello, world"
+    end
+
+Specify Ruby Version and Declare dependencies with a Gemfile
+------------------------------------------------------------
+
+Heroku recognizes an app as Ruby by the existence of a `Gemfile`.  Even if your app has no gem dependencies, you should still create an empty `Gemfile` in order that it appear as a Ruby app.
+
+In local testing, you should be sure to run your app in an isolated environment (via `bundle exec` or an empty RVM gemset), to make sure that all the gems your app depends on are in the `Gemfile`.
+
+In addition to specifying dependencies, you'll want to [specify your Ruby Version](ruby-versions) using the `ruby` DSL provided by Bundler.
+
+Here's an example `Gemfile` for the Sinatra app we created above:
+
+### Gemfile
+
+    :::ruby
+    source "https://rubygems.org"
+    ruby "2.0.0"
+    gem 'sinatra', '1.1.0'
+
+Run `bundle install` to set up your bundle locally.
+
+Declare process types with Procfile
+-------------------------------------------
+
+Use a [Procfile](procfile), a text file in the root directory of your application, to explicitly declare what command should be executed to start a web [dyno](dynos). In this case, you simply need to execute the `web.rb` using Ruby.
+
+Here's a `Procfile` for the sample app we've been working on:
+
+    :::term
+    web: bundle exec ruby web.rb -p $PORT
+
+If you're instead deploying a straight Rack app, here's a `Procfile` that can execute your `config.ru`:
+
+    :::term
+    web: bundle exec rackup config.ru -p $PORT
+
+This declares a single process type, `web`, and the command needed to run it.  The name "web" is important here.  It declares that this process type will be attached to the [HTTP routing](http-routing) stack of Heroku, and receive web traffic when deployed.
+
+You can now start your application locally using [Foreman](http://blog.daviddollar.org/2011/05/06/introducing-foreman.html) (installed as part of the Toolbelt):
+
+    :::term
+    $ foreman start
+    16:39:04 web.1     | started with pid 30728
+    18:49:43 web.1     | [2013-03-12 18:49:43] INFO  WEBrick 1.3.1
+    18:49:43 web.1     | [2013-03-12 18:49:43] INFO  ruby 2.0.0p247 (2013-06-27 revision 41674) [x86_64-linux]
+    18:49:43 web.1     | [2013-03-12 18:49:43] INFO  WEBrick::HTTPServer#start: pid=30728 port=5000
+
+
+Your app will come up on port 5000.  Test that it's working with `curl` or a web browser, then Ctrl-C to exit.
+
+Store your app in Git
+---------------------
+
+We now have the three major components of our app: dependencies in `Gemfile`, process types in `Procfile`, and our application source in `web.rb`.  Let's put it into Git:
+
+    :::term
+    $ git init
+    $ git add .
+    $ git commit -m "init"
+
+Deploy your application to Heroku
+----------------------
+
+Create the app on Heroku:
+
+    :::term
+    $ heroku create
+    Creating blazing-galaxy-997... done, stack is cedar
+    http://blazing-galaxy-997.herokuapp.com/ | git@heroku.com:blazing-galaxy-997.git
+    Git remote heroku added
+
+Deploy your code:
+
+    :::term
+    $ git push heroku master
+    Counting objects: 6, done.
+    Delta compression using up to 4 threads.
+    Compressing objects: 100% (5/5), done.
+    Writing objects: 100% (6/6), 660 bytes, done.
+    Total 6 (delta 0), reused 0 (delta 0)
+
+    -----> Ruby/Rack app detected
+    -----> Using Ruby version: ruby-2.0.0
+    -----> Installing dependencies using Bundler version 1.3.2
+           Running: bundle install --without development:test --path vendor/bundle --binstubs vendor/bundle/bin --deployment
+           Fetching gem metadata from https://rubygems.org/..........
+           Fetching gem metadata from https://rubygems.org/..
+           Installing rack (1.2.2)
+           Installing tilt (1.3)
+           Installing sinatra (1.1.0)
+           Using bundler (1.3.2)
+           Your bundle is complete! It was installed into ./vendor/bundle
+           Cleaning up the bundler cache.
+    -----> Discovering process types
+           Procfile declares types     -> web
+           Default types for Ruby/Rack -> console, rake
+    -----> Compiled slug size: 25.1MB
+    -----> Launching... done, v3
+           http://blazing-galaxy-997.herokuapp.com deployed to Heroku
+
+    To git@heroku.com:blazing-galaxy-997.git
+     * [new branch]      master -> master
+
+## Visit your application
+
+You've deployed your code to Heroku, and specified the process types in a `Procfile`.  You can now instruct Heroku to execute a process type.  Heroku does this by running the associated command in a [dyno](dynos) - a lightweight container which is the basic unit of composition on Heroku.
+
+Let's ensure we have one dyno running the `web` process type:
+
+    :::term
+    $ heroku ps:scale web=1
+
+You can check the state of the app's dynos.  The `heroku ps` command lists the running dynos of your application:
+
+    :::term
+    $ heroku ps
+    === web: `bundle exec ruby web.rb -p $PORT`
+    web.1: up for 9m
+
+Here, one dyno is running.
+
+We can now visit the app in our browser with `heroku open`.
+
+    :::term
+    $ heroku open
+    Opening blazing-galaxy-997... done
+
+
+## Dyno sleeping and scaling 
+
+Having only a single web dyno running will result in the dyno [going to sleep](dynos#dyno-sleeping) after one hour of inactivity.  This causes a delay of a few seconds for the first request upon waking. Subsequent requests will perform normally.
+
+To avoid this, you can scale to more than one web dyno.  For example:
+
+    :::term
+    $ heroku ps:scale web=2
+
+For each application, Heroku provides [750 free dyno-hours](usage-and-billing#750-free-dyno-hours-per-app).  Running your app at 2 dynos would exceed this free, monthly allowance, so let's scale back:
+
+    :::term
+    $ heroku ps:scale web=1
+
+## View the logs
+
+Heroku treats logs as streams of time-ordered events aggregated from the output streams of all the dynos running the components of your application.  Heroku’s [Logplex](logplex) provides a single channel for all of these events. 
+
+View information about your running app using one of the [logging commands](logging), `heroku logs`:
+
+    :::term
+    $ heroku logs
+    2013-03-13T04:10:49+00:00 heroku[web.1]: Starting process with command `bundle exec ruby web.rb -p 25410`
+    2013-03-13T04:10:50+00:00 app[web.1]: [2013-03-13 04:10:50] INFO  WEBrick 1.3.1
+    2013-03-13T04:10:50+00:00 app[web.1]: [2013-03-13 04:10:50] INFO  ruby 2.0.0p247 (2013-06-27 revision 41674) [x86_64-linux]
+    2013-03-13T04:10:50+00:00 app[web.1]: [2013-03-13 04:10:50] INFO  WEBrick::HTTPServer#start: pid=2 port=25410
+
+Console
+-------
+
+Heroku allows you to run commands in a [one-off dyno](oneoff-admin-ps) - scripts and applications that only need to be executed when needed - using the `heroku run` command.  You can use this to launch an interactive Ruby shell (`bundle exec irb`) attached to your local terminal for experimenting in your app's environment:
+
+    :::term
+    $ heroku run console
+    Running `console` attached to terminal... up, ps.1
+    irb(main):001:0>
+
+By default, `irb` has nothing loaded other than the Ruby standard library.  From here you can `require` some of your application files.  Or you can do it on the command line:
+
+    :::term
+    $ heroku run console -r ./web
+
+Rake
+----
+
+Rake can be run in an attached dyno exactly like the console:
+
+    :::term
+    $ heroku run rake db:migrate
+
+Using a SQL database
+--------------------
+
+By default, non-Rails apps aren't given a SQL database.  This is because you might want to use a NoSQL database like Redis or CouchDB, or (as in the case of our sample app above) you don't need any database at all.  If you need a SQL database for your app, do this:
+
+    :::term
+    $ heroku addons:add heroku-postgresql:dev
+
+You must also add the Postgres gem to your app in order to use your database.  Add a line to your `Gemfile` like this:
+
+    :::ruby
+    gem 'pg'
+
+You'll also want to [setup a local PostgreSQL database](heroku-postgresql#local-setup).
+
+Logging
+-------
+
+By default, Ruby buffers its output to `stdout`. To take advantage of Heroku's [realtime logging](logging), you will need to disable this buffering to have log messages sent straight to Logplex. To disable this buffering add this to your `config.ru`:
+
+    :::ruby
+    $stdout.sync = true
+
+Webserver
+---------
+
+By default your app (Rack) will use Webrick. This is fine for testing, but for production apps you'll want to switch to a more robust webserver. On Cedar, [we recommend Unicorn as the webserver](ruby-production-web-server).
+
+Troubleshooting
+---------------
+
+If you push  your app and it crashes (`heroku ps` shows state `crashed`), check your logs to find out what went wrong.  Here are some common problems.
+
+### Failed to require a sourcefile
+
+If your app failed to require a sourcefile, chances are good you're running Ruby 1.9.1 or 1.8 in your local environment.  The load paths have changed in Ruby 1.9 which applies to Ruby 2.0.  Port your app forward to Ruby 2.0.0 making certain it works locally before trying to push to Cedar again.
+
+### Encoding error
+
+Ruby 1.9 added more sophisticated encoding support to the language which applies to Ruby 2.0.  Not all gems work with Ruby 2.0.  If you hit an encoding error, you probably haven't fully tested your app with Ruby 2.0.0 in your local environment.  Port your app forward to Ruby 2.0.0 making certain it works locally before trying to push to Cedar again.
+
+### Missing a gem
+
+If your app crashes due to missing a gem, you may have it installed locally but not specified in your `Gemfile`.  **You must isolate all local testing using `bundle exec`.**  For example, don't run `ruby web.rb`, run `bundle exec ruby web.rb`.  Don't run `rake db:migrate`, run `bundle exec rake db:migrate`.
+
+Another approach is to create a blank RVM gemset to be absolutely sure you're not touching any system-installed gems:
+
+    :::term
+    $ rvm gemset create myapp
+    $ rvm gemset use myapp
+
+### Runtime dependencies on development/test gems
+
+If you're still missing a gem when you deploy, check your Bundler groups.  Heroku builds your app without the `development` or `test` groups, and if you app depends on a gem from one of these groups to run, you should move it out of the group.
+
+One common example using the RSpec tasks in your `Rakefile`.  If you see this in your Heroku deploy:
+
+    :::term
+    $ heroku run rake -T
+    Running `rake -T` attached to terminal... up, ps.3
+    rake aborted!
+    no such file to load -- rspec/core/rake_task
+
+Then you've hit this problem.  First, duplicate the problem locally like so:
+
+    :::term
+    $ bundle install --without development:test
+    ...
+    $ bundle exec rake -T
+    rake aborted!
+    no such file to load -- rspec/core/rake_task
+
+Now you can fix it by making these Rake tasks conditional on the gem load.  For example:
+
+### Rakefile
+
+    :::ruby
+    begin
+      require "rspec/core/rake_task"
+
+      desc "Run all examples"
+      RSpec::Core::RakeTask.new(:spec) do |t|
+        t.rspec_opts = %w[--color]
+        t.pattern = 'spec/*_spec.rb'
+      end
+    rescue LoadError
+    end
+
+Confirm it works locally, then push to Heroku.
+
+## Next steps
+
+* Visit the [Ruby category](/categories/ruby) to learn more about deploying Ruby applications.
+* Read [How Heroku Works](how-heroku-works) for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.

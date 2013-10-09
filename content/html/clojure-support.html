@@ -1,0 +1,67 @@
+<p>The <a href="/articles/cedar">Heroku Cedar stack</a> is capable of running a variety of types of Clojure applications.</p>
+
+<p>This document describes the general behavior of the Cedar stack as it relates to the recognition and execution of Clojure applications. For a more detailed explanation of how to deploy an application, see:</p>
+
+<ul>
+<li><a href="http://devcenter.heroku.com/articles/clojure">Getting Started with Clojure on Heroku/Cedar</a></li>
+
+<li>
+<a href="http://devcenter.heroku.com/articles/clojure-web-application">Building a Database-Backed Clojure Web Application</a>.</li>
+</ul><h2 id="activation">Activation</h2>
+
+<p>Heroku’s Clojure support is applied only when the application has a <code>project.clj</code> file in the root directory.</p>
+
+<p>Clojure applications that use Maven can be deployed as well, but they will be treated as Java applications, so <a href="http://devcenter.heroku.com/articles/java">different documentation</a> will apply.</p>
+
+<p>Projects that specify a <code>:min-lein-version</code> in project.clj beginning with 2 will use Leiningen 2.x, (highly recommended) otherwise Leiningen 1.7.1 will be used.</p>
+
+<h2 id="configuration">Configuration</h2>
+
+<p>Leiningen 1.7.1 will be used by default, but if you have <code>:min-lein-version "2.0.0"</code> in project.clj (highly recommended) then the latest Leiningen 2.x release will be used instead.</p>
+
+<p>Your <code>Procfile</code> should declare what process types which make up your app. Often in development Leiningen projects are launched using <code>lein
+run -m my.project.namespace</code>, but this is not recommended in production because it leaves Leiningen running in addition to your project’s process. It also uses profiles that are intended for development, which can let test libraries and test configuration sneak into production.</p>
+
+<h3 id="uberjar">Uberjar</h3>
+
+<p>If your <code>project.clj</code> contains an <code>:uberjar-name</code> setting, then <code>lein uberjar</code> will run during deploys. If you do this, your <code>Procfile</code> entries should consist of just <code>java</code> invocations.</p>
+
+<p>If your main namespace doesn’t have a <code>:gen-class</code> then you can use <code>clojure.main</code> as your entry point and indicate your app’s main namespace using the <code>-m</code> argument in your <code>Procfile</code>:</p>
+
+<pre><code>web: java $JVM_OPTS -cp target/myproject-standalone.jar clojure.main -m myproject.web</code></pre>
+
+<p>If you have custom settings you would like to only apply during build, you can place them in an <code>:uberjar</code> profile. This can be useful to use AOT-compiled classes in production but not during development where they can cause reloading issues:</p>
+
+<pre><code class="clojure">:profiles {:uberjar {:main myproject.web, :aot :all}}</code></pre>
+
+<p>If you need Leiningen in a <code>heroku run</code> session, it will be downloaded on-demand.</p>
+
+<p>Note that if you use Leiningen features which affect runtime like <code>:jvm-opts</code>, extraction of native dependencies, or <code>:java-agents</code>, then you’ll need to do a little extra work to ensure your Procfile’s <code>java</code> invocation includes these things. In these cases it might be simpler to use Leiningen at runtime instead.</p>
+
+<h3 id="leiningen-at-runtime">Leiningen at Runtime</h3>
+
+<p>Instead of putting a direct <code>java</code> invocation into your Procfile, you can have Leiningen handle launching your app. If you do this, be sure to use the <code>trampoline</code> and <code>with-profile</code> tasks. Trampolining will cause Leiningen to calculate the classpath and code to run for your project, then exit and execute your project’s JVM, while <code>with-profile</code> will omit development profiles:</p>
+
+<pre><code>web: lein with-profile production trampoline run -m myapp.web</code></pre>
+
+<p>Including Leiningen in your slug will add about ten megabytes to its size and will add a second or two of overhead to your app’s boot time.</p>
+
+<h3 id="overriding-build-behavior">Overriding build behavior</h3>
+
+<p>If neither of these options get you quite what you need, you can check in your own executable <code>bin/build</code> script into your app’s repo and it will be run instead of <code>compile</code> or <code>uberjar</code> after setting up Leiningen.</p>
+
+<h2 id="jdk-version">JDK Version</h2>
+
+<p>By default you will get OpenJDK 1.6. To use a different version, you can commit a <code>system.properties</code> file to your app.</p>
+
+<p><code>
+$ echo "java.runtime.version=1.7" &gt; system.properties
+$ git add system.properties
+$ git commit -m "JDK 7"
+</code></p>
+
+<h2 id="add-ons">Add-ons</h2>
+
+<p>No add-ons are provisioned by default. If you need a SQL database for your app, add one explicitly:</p>
+
+<pre><code class="term">$ heroku addons:add heroku-postgresql:crane</code></pre>

@@ -1,0 +1,73 @@
+<p>Most modern applications rely heavily on third party libraries and must specify these dependencies within the application repository itself. Tools like <a href="http://rubygems.org/">RubyGems</a>, <a href="http://maven.apache.org/">Maven</a> in Java, or Python’s <a href="http://pypi.python.org/pypi/pip">pip</a> are all dependency managers that translate a list of stated application dependencies into the code or binaries the application uses during execution.</p>
+
+<p>However, in some cases the required third-party libraries can’t be resolved by the dependency manager. Such scenarios include private libraries that aren’t publicly accessible or libraries whose maintainers haven’t packaged them for distribution via the dependency manager. In these situations you can use <a href="http://git-scm.com/book/en/Git-Tools-Submodules">git submodules</a> to manually manage external dependencies.</p>
+
+<p>This guide discusses the pros/cons of dependency management with git submodules as well as some alternative approaches to consider to avoid the use of submodules.</p>
+
+<h2 id="git-submodules">Git submodules</h2>
+
+<p><a href="http://git-scm.com/book/en/Git-Tools-Submodules">Git submodules</a> are a feature of the <a href="http://git-scm.com/">Git SCM</a> that allow you to include the contents of one repository within another by simply specifying the referenced repository location. This provides a mechanism of including an external library’s source into an application’s source tree.</p>
+
+<p>For example, to include the <code>FooBar</code> source into the <code>heroku-rails</code> project simply use the <code>git submodule add</code> command.</p>
+
+<pre><code class="term">$ cd ~/Code/heroku-rails/lib
+$ git submodule add https://github.com/myusername/FooBar
+Cloning into 'FooBar'...
+remote: Counting objects: 26, done.
+remote: Compressing objects: 100% (17/17), done.
+remote: Total 26 (delta 8), reused 19 (delta 5)
+Unpacking objects: 100% (26/26), done.</code></pre>
+
+<p>This would create a new submodule called <code>FooBar</code> and place a <code>FooBar</code> directory with the full source tree of the library into the <code>lib</code> application directory.</p>
+
+<p>Once a git submodule is added locally you need to commit the new submodule reference to your application repository.</p>
+
+<pre><code class="term">$ git commit -am "adding a submodule for FooBar"
+[master 314ef62] adding a submodule for testing
+2 files changed, 4 insertions(+)
+create mode 160000 FooBar</code></pre>
+
+<p>Heroku properly resolves and fetches submodules as part of deployment:</p>
+
+<pre><code class="term">$ git push heroku
+Counting objects: 13, done.
+...
+
+-----&gt; Heroku receiving push
+-----&gt; Git submodules detected, installing Submodule 'FooBar' (https://github.com/myusername/FooBar.git) registered for path 'FooBar'
+Initialized empty Git repository in /tmp/build_2qfce3fkvrug9/FooBar/.git/
+Submodule path 'FooBar': checked out '667e0b5717631a8cca657a0aa306c045f06cfda4'
+-----&gt; Ruby/Rails app detected
+...</code></pre>
+
+<p>Note that failures to fetch the submodules will cause the build to fail.</p>
+
+<p>If it’s at all possible to use your runtime’s preferred dependency resolution mechanisms, you should prefer it to using submodules, which can often be confusing and error-prone.</p>
+
+<h2 id="protected-git-submodules">Protected Git submodules</h2>
+
+<p>If the referenced git repository is protected via a username and password it’s still possible to reference it with a submodule. Since remote environments like Heroku don’t have access to locally available credentials you will need to embed the username and password into the repository URL.</p>
+
+<p>For instance, to add the <code>FooBar</code> submodule using an HTTP basic authentication URL scheme (note the presence of the <code>username:password</code> tokens):</p>
+
+<pre><code class="term">$ git submodule add https://username:password@github.com/myusername/FooBar</code></pre>
+
+<p>This adds a private submodule dependency to the application while still allowing it to resolve in non-local environments.</p>
+<p class="warning">Since submodule references are stored in plaintext in the <code>.git/submodules</code> directory please consider if this is acceptable for your particular security requirements.</p>
+<h2 id="vendoring">Vendoring</h2>
+
+<p>While Git submodules are one way to quickly reference external library source, users often run into issues with its nuanced update lifecycle. If you find the usability of submodules to be counter-productive you can vendor the code into the project.</p>
+
+<p>Many frameworks allow the use of “vendored” code which simply copies the source of the reference library into the application’s source tree:</p>
+
+<pre><code class="term">$ git clone &lt;remote repo&gt; /path/to/some/directory 
+$ cp -R /path/to/some/directory /app/vendor/directory
+$ git add app/vendor/directory</code></pre>
+
+<p>A downside of this approach is that it requires a manual download and copy process when the external library is updated. However, for a external resource that changes very slowly, or that you don’t want to introduce changes from, this is an option.</p>
+
+<h2 id="private-dependency-repositories">Private dependency repositories</h2>
+
+<p>A very robust and scalable approach to dependency management is to use a private <em>package</em> repository. For Ruby, Python and Node.js this is available on Heroku with the <a href="https://devcenter.heroku.com/articles/gemfury">Gemfury add-on</a>. For JVM-based languages it’s easy to use a private S3 bucket with the <a href="https://github.com/technomancy/s3-wagon-private/">s3-wagon-private</a> tool. It may also be possible to <a href="https://github.com/hashicorp/heroku-buildpack-rubygem-server">host your dependencies</a> on Heroku using custom <a href="https://devcenter.heroku.com/articles/buildpacks#using-a-custom-buildpack">buildpack</a> functionality.</p>
+
+<p>Private package repositories allow you to use your language’s dependency management tools while limiting access to only your application or organization. While this does incur the overhead of having to properly package your referenced libraries for broader distribution it is a much more scalable approach that takes advantage of your language’s well supported and vetted dependency toolset.</p>

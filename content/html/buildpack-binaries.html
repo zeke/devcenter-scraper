@@ -1,0 +1,69 @@
+<p>A buildpack is responsible for building a complete working runtime environment around the app. This may include language VMs and other runtime dependencies that are needed by the app.</p>
+
+<p>Your buildpack will need to provide these binaries and combine them with the app code. This article will cover both how to create binaries compatible with the Heroku platform and strategies for including them with your buildpack.</p>
+
+<h2 id="compiling-binaries">Compiling binaries</h2>
+<div class="callout">
+<p>You should try to make your dependencies self-contained. This includes both statically compiling whenever possible and assuming that there are no existing libraries or binaries on the server.</p>
+<br><p>You can safely assume the presence of <code>bash</code> and <code>curl</code>.</p>
+</div>
+<p>The <a href="https://github.com/heroku/vulcan">Vulcan</a> build server gives you easy access to compile software inside a Heroku dyno. This will ensure that the binaries you create are compatible with the Heroku runtime.</p>
+
+<p>You can install Vulcan with:</p>
+
+<pre><code>$ gem install vulcan</code></pre>
+
+<p>You will then need to create a build server on Heroku:</p>
+
+<pre><code>$ vulcan create vulcan-david
+Creating vulcan-david... done, stack is cedar
+http://vulcan-david.herokuapp.com/ | git@heroku.com:vulcan-david.git    </code></pre>
+
+<p>You can then use Vulcan to compile software:</p>
+
+<pre><code>$ curl -O http://memcached.googlecode.com/files/memcached-1.4.13.tar.gz
+$ tar xzvf memcached-1.4.13.tar.gz
+$ cd memcached-1.4.13
+$ vulcan build 
+&gt;&gt; Packaging local directory
+&gt;&gt; Uploading code for build
+&gt;&gt; Building with: ./configure --prefix /app/vendor/memcached-1.4.13 &amp;&amp; make install
+&gt;&gt; Downloading build artifacts to: /tmp/memcached-1.4.13.tgz
+   (available at http://vulcan-david.herokuapp.com/output/4082384a-dc5a-4adc-ac02-0480a6db4ba2)
+
+$ tar tf /tmp/memcached-1.4.13.tgz 
+bin/
+bin/memcached
+include/
+include/memcached/
+include/memcached/protocol_binary.h
+share/
+share/man/
+share/man/man1/
+share/man/man1/memcached.1</code></pre>
+
+<p>For more advanced usage of Vulcan, see the <a href="https://github.com/heroku/vulcan/blob/master/README.md">README</a>.</p>
+
+<h2 id="packaging-binaries">Packaging binaries</h2>
+
+<p>Heroku recommends storing the binary assets needed by your buildpack on S3 and fetching them at build time as needed.</p>
+
+<pre><code>$ cat bin/compile
+
+AWESOME_VM_BINARY="https://awesome-vm.s3.amazonaws.com/awesome-vm/awesome-vm-1.0.0.tgz"
+AWESOME_VM_VENDOR="vendor/awesome-vm"
+
+# vendor awesome-vm
+mkdir -p $1/$AWESOME_VM_VENDOR
+curl $AWESOME_VM_BINARY -o - | tar -xz -C $1/$AWESOME_VM_VENDOR -f -</code></pre>
+
+<p>For an example of how the Node.js buildpack uses Vulcan to package <code>node</code> binaries, see <a href="https://github.com/heroku/heroku-buildpack-nodejs/blob/master/support/package_nodejs">support/package_nodejs</a> in the buildpack.</p>
+
+<h2 id="setting-up-the-path">Setting up the PATH</h2>
+
+<p>If you install binaries that will be needed by the app, it is helpful to add them to the <code>PATH</code> using <code>bin/release</code>:</p>
+
+<pre><code>$ cat bin/release
+---
+config_vars:
+  PATH: "vendor/awesome-vm/bin:/usr/bin:/bin"</code></pre>

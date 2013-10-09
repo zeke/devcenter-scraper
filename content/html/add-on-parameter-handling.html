@@ -1,0 +1,41 @@
+<p>This article describes how to access command-line parameters that a user may have added as part of  add-on provisioning. </p>
+
+<h2 id="command-line-parameter-format">Command-line parameter format</h2>
+
+<p>The command-line accepts parameters in standard Unix-style switch format, with or without an equals sign. Single parameters are interpreted as boolean switches and will have the string <code>'true'</code> as their value.</p>
+
+<p>For example, the following command line:</p>
+
+<pre><code class="term">$ heroku addons:add youraddon --foo=bar --bar foo --baz
+</code></pre>
+
+<p>Will be interpreted as:</p>
+
+<pre><code class="json">{ "foo" : "bar", "bar" : "foo", "baz" : "true" }
+</code></pre>
+
+<h2 id="accessing-parameters">Accessing parameters</h2>
+
+<p>Heroku passes command-line parameters given to the <code>addons:add</code> action during add-on provisioning to the add-on provider.  These options are passed in the JSON body of the provision request via the “options” key.</p>
+
+<p>Consider this example:</p>
+
+<pre><code class="term">$ heroku addons:add youraddon --foo=bar --bar foo --baz
+</code></pre>
+
+<p>The options are included as part of the JSON in the provision request:</p>
+
+<pre><code class="json">POST /heroku/resources HTTP/1.0
+Content-Type: text/json
+{
+  "options": {"foo":"bar","bar":"foo","baz":"true"},
+  "heroku_id": "app12345@heroku.com",
+  "plan": "test",
+  "callback_url": "http://localhost:7779/callback/999"
+}
+</code></pre>
+
+<p>You can use the <code>kensa</code> gem to test the extra command line parameters:</p>
+
+<pre><code class="term">$ kensa test provision --foo=bar --bar foo --baz
+</code></pre>

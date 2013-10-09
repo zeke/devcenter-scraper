@@ -1,0 +1,28 @@
+<div class="deprecated">
+<p>This article applies to apps on the <a href="/articles/bamboo">Bamboo</a> stack. For the most recent stack, <a href="/articles/cedar">Cedar</a>, see <a href="http-routing">HTTP Routing</a>.</p>
+</div>
+<p>The Heroku platform automatically routes HTTP requests sent to your app’s hostname(s) through to all of your web dynos.</p>
+
+<p>Applications running on the <a href="/articles/bamboo">Bamboo</a> stack use the <code>heroku.com</code> HTTP stack. Apps on the <a href="/articles/cedar">Cedar</a> stack use the newer <code>herokuapp.com</code> HTTP stack, which offers <a href="http-routing">more direct routing</a> to your dyno to allow more advanced uses of HTTP.</p>
+<div class="callout">
+<p><a href="/articles/bamboo">Bamboo</a> apps use the heroku.com stack. Any request sent to <code>*.heroku.com</code> is using the <code>heroku.com</code> stack. The new <a href="/articles/cedar">Cedar</a> stack uses <code>*.herokuapp.com</code>.</p>
+</div>
+<h3 id="request-distribution">Request distribution</h3>
+
+<p>A request sent to Bamboo app <code>myapp.heroku.com</code> passes through an <a href="http://nginx.org/">nginx</a> proxy, into a Heroku router, and finally to one of the app’s dynos, chosen at random.</p>
+
+<h3 id="request-queueing">Request queueing</h3>
+
+<p>Each router node maintains an internal per-app request queue. For Bamboo apps, router nodes limit the number of active requests per dyno to 1 and queue additional requests. There is no coordination between routing nodes however, so this request limit is per routing node. The request queue on each router has a maximum backlog size of 50n (n = the number of web dynos your app has running). If the request queue on a particular router fills up, subsequent requests to that router will immediately return an <a href="/articles/error-codes#h11-backlog-too-deep">H11 (Backlog too deep)</a> response.</p>
+
+<h3 id="request-body-size-limit">Request body size limit</h3>
+
+<p>The <code>heroku.com</code> stack has a 30 megabyte request body size limit.</p>
+
+<h3 id="30-second-timeout">30 second timeout</h3>
+
+<p>All requests on the <code>heroku.com</code> stack are limited to 30 seconds total time. Any request that takes more than 30 seconds will be <a href="http://devcenter.heroku.com/articles/request-timeout">returned to the user as an error page</a>. This 30-second limit is measured by the router processing the request, and includes all time spent in the dyno, including the kernel’s incoming connection queue and the app itself.</p>
+
+<h3 id="http-1-0">HTTP 1.0</h3>
+
+<p>The <code>heroku.com</code> stack is HTTP 1.0 compliant only. HTTP 1.1 features such as long-polling and chunked response are not supported.</p>

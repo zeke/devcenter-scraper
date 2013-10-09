@@ -1,0 +1,368 @@
+<p>The Dev Center contains a diverse collection of articles from both internal and external contributors across a variety of topics including platform reference material, getting started guides and general web application development tutorials. Having a standardized tone, style and structure ensures cohesion and consistency across this content.</p>
+
+<p>This guide quantifies the characteristics of a well-written Dev Center article and the shared expectations around its creation.</p>
+
+<h2 id="style">Style</h2>
+
+<h3 id="factual-tone">Factual tone</h3>
+
+<p>Stylistically the tone of the Dev Center is both factual and academic. In standard how-to fashion, focus on the steps and rationale necessary to convey the subject matter in a clear, concise and confident manner. </p>
+
+<p>For instance, avoid using language such as “it seems”, “probably” and other non-determinant phrases. Instead of:</p>
+
+<blockquote>
+<p>It seems like every SSL reseller packs their certs in a slightly different way with slightly different filenames.</p>
+</blockquote>
+
+<p>Use:</p>
+
+<blockquote>
+<p>SSL resellers use a variety of naming conventions when packaging certs.</p>
+</blockquote>
+
+<h3 id="second-person-narrative">Second-person narrative</h3>
+
+<p>The <a href="http://en.wikipedia.org/wiki/Narrative_mode#Second-person_view">second-person narrative</a> uses “you” to address the reader and works well because it allows the use of the imperative voice, is concise and focuses on the reader<sup>[<a href="http://www.techwr-l.com/archives/0508/techwhirl-0508-00646.html#.TyqvS-NWpy8">1</a>]</sup>. Using “I” or “we” (a <a href="http://en.wikipedia.org/wiki/Narrative_mode#First-person_view">first-person narrative</a>) is discouraged in the Dev Center.</p>
+
+<p>Instead of relating the reader to your personal experiences:</p>
+
+<blockquote>
+<p>Based on our own experience managing remote assets we created the <code>foo</code> gem so you can transparently upload your static assets to S3 on deploy.</p>
+</blockquote>
+
+<p>Succinctly present the concept based on its own merits:</p>
+
+<blockquote>
+<p>The <code>foo</code> gem reflects real world experience and gives you the ability to transparently upload static assets at deploy time.</p>
+</blockquote>
+
+<h3 id="tense">Tense</h3>
+
+<p>The present tense should be used when possible to convey temporal relevance. <code>was created</code>, <code>was built</code> and other <code>was ...</code> phrases are an indication of the unnecessary use of the past tense.</p>
+
+<blockquote>
+<p>The following guide was created to quantify the characteristics of a well-written Dev Center article.</p>
+</blockquote>
+
+<p>Should be re-stated as:</p>
+
+<blockquote>
+<p>The following guide quantifies the characteristics of a well-written Dev Center article.</p>
+</blockquote>
+
+<h2 id="structure">Structure</h2>
+
+<h3 id="introductory-statement">Introductory statement</h3>
+
+<p>Provide a brief overview of the problem or situation the content is intended to address as the article introduction. Compel readers to engage with the content by providing supporting motivation and a clear problem statement. Sell the problem or opportunity at hand.</p>
+
+<p>For reference, here is the introductory statement from this very article.</p>
+
+<blockquote>
+<p>The Dev Center contains a diverse collection of articles from both internal and external contributors across a variety of topics including platform reference material, getting started guides and general web application development tutorials. Having a standardized tone, style and structure ensures cohesion and consistency across this content.</p>
+</blockquote>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<blockquote>
+<p>This guide quantifies the characteristics of a well-written Dev Center article and the shared expectations around its creation.</p>
+</blockquote>
+
+<h3 id="title">Title</h3>
+
+<p>Dev Center article titles should contain reference to the major language, framework and concepts being presented.</p>
+
+<blockquote>
+<p>Database-Driven Web Apps with Play!</p>
+</blockquote>
+
+<p>Doing so clearly defines the purpose and ensures accurate recognition by readers viewing the article title within a list of other search results.</p>
+
+<h3 id="section-titles">Section titles</h3>
+
+<p>All section titles should use sentence-casing. For instance, use:</p>
+
+<blockquote>
+<p>This is a sentence case title</p>
+</blockquote>
+
+<p>Instead of:</p>
+
+<blockquote>
+<p>This is Not a Sentence Case Title</p>
+</blockquote>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<div class="warning">
+<p>The H2 header (<code>##</code>) should be used for all top-level sections. These titles will be extracted to form the table of contents. No H1 headers (<code>#</code>) should be used within the article body.</p>
+</div>
+
+<h3 id="sequence">Sequence</h3>
+
+<p>Content should be structured in sequential fashion. Keep the work-flow as linear as possible to minimize the cognitive overhead. Provide clear article structure through the use of H2/¾ section headers (<code>##</code>, <code>###</code>, etc…)</p>
+
+<h2 id="content">Content</h2>
+
+<h3 id="graphics">Graphics</h3>
+
+<p>Images succinctly convey hard to understand concepts or step explanations and are great tools to provide a visual break from the monotony of reading a large block of text. Use them to emphasize important concepts and support the larger article structure.</p>
+
+<div class="callout">
+<p>Hosting image files on S3, Github or similar service ensures the portability of the article throughout the authorship process.</p>
+</div>
+
+<pre><code>![Image title](https://s3.amazonaws.com/bucket/image.jpg)
+</code></pre>
+
+<p>All images (and external assets in general) should be referenced via <code>https</code> to ensure readers securely accessing the Dev Center aren’t presented with warnings.</p>
+
+<h3 id="step-verification">Step verification</h3>
+
+<p>If the article is a tutorial the author is responsible for executing the steps in the sequence mandated by the article. Utilizing a fresh environment will ensure symmetry between the writer and readers' environments.</p>
+
+<p>Articles with sample applications should include complete instructions for running the application in a local environment and any required system dependencies.</p>
+
+<h3 id="minimize-introduction-of-new-tools">Minimize introduction of new tools</h3>
+
+<p>As part of creating technical Dev Center content it may be necessary to introduce new tooling, libraries and frameworks to efficiently solve a particular class of problems. <em>Introduce new tools with great forethought</em>.</p>
+
+<p>Build the work-flow on top of easily understood and widely documented technologies. If unavoidable, consider structuring the content into multiple articles to establish the benefit of a new tool independently. Only if its presence speaks directly to the solving of the core problem should a new tool be presented within the article.</p>
+
+<h3 id="library-framework-configuration">Library/framework configuration</h3>
+
+<p>Applications running on Heroku should not store configuration settings within the code-base as files. To maintain consistency with the Heroku approach to application configuration all referenced frameworks should read settings from environment-based configuration variables.</p>
+
+<p>This presents a consistent face to the tenet of <a href="http://www.12factor.net/config">separation of config from code</a> and reinforces the clean contract between the platform and the application.</p>
+
+<h3 id="supporting-applications">Supporting applications</h3>
+
+<p>A deployable reference application is a great way to convey the totality of a particular approach and allows the writer to focus on the core steps associated with the broader solution being presented.</p>
+
+<p>If such a companion application exists provide the following note after the article introduction.</p>
+
+<pre><code>
+&gt;note
+&gt;Source for this article's [reference application](https://github.com/xyz) is available on
+&gt;GitHub and can be seen running at
+&gt;[http://glowing-sun-4312.herokuapp.com](http://glowing-sun-4312.herokuapp.com)
+</code></pre>
+
+<p>This will produce an obvious reference to the app early in the article and present users with the option to go directly to deploying.</p>
+
+<div class="note">
+<p>Source for this article’s <a href="https://github.com/xyz">reference application</a> is available on
+GitHub and can be seen running at
+<a href="http://glowing-sun-4312.herokuapp.com">http://glowing-sun-4312.herokuapp.com</a></p>
+</div>
+
+<p>The Github project should contain README instructions for running the application both locally with Foreman/Procfile and on Heroku using standard add-on, deployment and scaling CLI commands.</p>
+
+<h2 id="formatting">Formatting</h2>
+
+<h3 id="markdown-formatting">Markdown formatting</h3>
+
+<p>Articles should be written in <a href="http://github.github.com/github-flavored-markdown/">Github flavored markdown</a>. Here is a brief syntax example:</p>
+
+<pre><code>
+## Section header
+
+Here is some text, and a [link](http://heroku.com/).
+
+![A descriptive image title](https://example.com/test.png)
+
+### Sub header
+
+* Bullet 1
+* Bullet 2
+
+And some output from a command:
+
+```term
+$ echo hi
+hi
+```
+
+Now some code:
+
+```ruby
+puts "hello"
+```  
+
+And a table:
+
+|  A  |  B  |
+| --- | --- |
+|  1  |  2  |
+|  3  |  4  | 
+
+</code></pre>
+
+<h3 id="table-of-contents">Table of contents</h3>
+
+<p>A table of contents will automatically be generated by the Dev Center keyed off of top level H2 (<code>##</code>) elements.</p>
+
+<p>The following header structure will result in a TOC with <code>Header 1</code> and <code>Header 2</code> elements.</p>
+
+<pre><code>## Header 1
+### Header 1.1
+## Header 2
+</code></pre>
+
+<div class="note">
+<p>Give thought to ensure the top-level header elements provide accurate structural</p>
+</div>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<blockquote>
+<p>and navigational representation of the article.</p>
+</blockquote>
+
+<h3 id="inline-notes">Inline notes</h3>
+
+<p>Notices or warnings of destructive or irreversible behavior should be displayed inline to reinforce their importance. Warnings are specified with the <code>warning</code> class.</p>
+
+<pre><code>
+&gt;warning
+&gt;This is a warning message
+</code></pre>
+
+<p>And are rendered as:</p>
+
+<div class="warning">
+<p>This is a warning</p>
+</div>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<blockquote>
+<p>message</p>
+</blockquote>
+
+<p>Similarly, notices of a less destructive nature that are still central to the reader’s comprehension of the topic are denoted by the <code>note</code> class:</p>
+
+<pre><code>
+&gt;note
+&gt;This is an important notice
+</code></pre>
+
+<p>and are rendered as:</p>
+
+<div class="note">
+<p>This is an important notice</p>
+</div>
+
+<p>Callouts provide a mechanism to display relevant but non critical-path information, and are created by beginning each line of the called out text with a <code>&gt;</code> character, and by having a line at the start with the word <code>callout</code>: </p>
+
+<pre><code>
+&gt;callout
+&gt;Called out content
+</code></pre>
+
+<div class="callout">
+<p>Called out content</p>
+</div>
+
+<h2 id="code">Code</h2>
+
+<p>As expected, code is a big part of Dev Center documentation. The Dev Center supports syntax highlighting for all languages supported on Heroku.</p>
+
+<h3 id="fenced-code-blocks">Fenced code blocks</h3>
+
+<p>Code blocks should be clearly associated with the containing file for clarity with users that are unfamiliar with file structure of the framework being used.</p>
+
+<p>The first line of fenced code blocks should begin with three back ticks <code>```</code> and an optional language identifier:</p>
+
+<pre><code>
+```ruby
+puts "hello world"
+```
+</code></pre>
+
+<p>Is rendered as:</p>
+
+<pre><code class="ruby">puts "hello world"
+</code></pre>
+
+<p>The following are the language identifiers for major languages on Heroku:</p>
+
+<table>
+<tr>
+<th>Language</th>
+    <th>Identifier</th>
+  </tr>
+<tr>
+<td>Ruby</td>
+    <td style="text-align: left;"><code>ruby</code></td>
+  </tr>
+<tr>
+<td>Node.js / JavaScript</td>
+    <td style="text-align: left;"><code>javascript</code></td>
+  </tr>
+<tr>
+<td>Python</td>
+    <td style="text-align: left;"><code>python</code></td>
+  </tr>
+<tr>
+<td>Java</td>
+    <td style="text-align: left;"><code>java</code></td>
+  </tr>
+<tr>
+<td>Scala</td>
+    <td style="text-align: left;"><code>scala</code></td>
+  </tr>
+<tr>
+<td>Clojure</td>
+    <td style="text-align: left;"><code>clojure</code></td>
+  </tr>
+<tr>
+<td>Objective-C</td>
+    <td style="text-align: left;"><code>c</code></td>
+  </tr>
+<tr>
+<td>PHP</td>
+    <td style="text-align: left;"><code>php</code></td>
+  </tr>
+</table><h3 id="inline-code">Inline code</h3>
+
+<p>In-line filenames, commands and code should be surrounded by back-ticks. This will ensure `file.rb` is rendered as <code>file.rb</code>.</p>
+
+<h3 id="terminal-commands">Terminal commands</h3>
+
+<p>Terminal commands and output should use the <code>term</code> code block identifier. Precede terminal commands with a <code>$</code> prompt indicator.</p>
+
+<pre><code>
+```term
+$ heroku create
+Creating blooming-water-4431... done, stack is cedar
+http://blooming-water-4431.herokuapp.com/ | git@heroku.com:blooming-water-4431.git
+Git remote heroku added
+```
+</code></pre>
+
+<p>Is rendered as:</p>
+
+<pre><code class="term">$ heroku create
+Creating blooming-water-4431... done, stack is cedar
+http://blooming-water-4431.herokuapp.com/ | git@heroku.com:blooming-water-4431.git
+Git remote heroku added
+</code></pre>
+
+<p>Be sure to show sample output from commands to provide context and successful execution expectations. Output should be limited to the relevant portions so as not to overwhelm the reader and obscure the topically supportive nature of the example.</p>
+
+<h2 id="terminology">Terminology</h2>
+
+<p>There are several common Heroku terms with ambiguous spellings. To maintain consistency please use the following representations:</p>
+
+<ul>
+<li>Add-ons: <code>Add-ons</code> or <code>add-ons</code> but never <code>addons</code>.  When dealing with the pronoun referring to our product/marketplace it’s always capitalized (e.g., Heroku Add-ons, Add-ons Marketplace). When referring to an instance or a service, it’s lowercase (e.g., installing an add-on).</li>
+<li>Dev Center: <code>Dev Center</code> but not <code>Devcenter</code> or <code>devcenter</code>
+</li>
+</ul><p>When naming apps, try to use <code>example</code> as the name of the application, leading to a Heroku hostname of <code>example.herokuapp.com</code>.  The app at <a href="http://example.herokuapp.com">http://example.herokuapp.com</a> makes it clear that the reader is viewing an example.</p>
+
+<p>When naming a domain, try to use <code>www.example.com</code> as an example domain name.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>This guide identifies the patterns present within successful articles and the collaborations that produce them. Following the framework presented here aids in the Dev Center authorship process and ensures a consistent experience for readers.</p>

@@ -1,0 +1,43 @@
+<!-- #HOME: http://devcenter.heroku.com/articles/gitignore -->
+<p>The source code for your application, its dependencies, small static assets (CSS, images), and most config files should be checked into your Git repo for deploy to Heroku.</p>
+
+<p>Anything else, such as log files, large static assets, or SQLite database files should be ignored via one or more <code>.gitignore</code> files in your repo. This will keep the <a href="/articles/slug-compiler">slug size</a> down, speeding up the speed at which new dynos can be started.</p>
+
+<h2 id="ignoring-directories">Ignoring directories</h2>
+
+<p>When you <a href="/articles/git">deploy with Git</a>, a branch of your repository is pushed to Heroku. To ensure that superfluous assets aren’t sent, such as a <code>log</code> or <code>tmp</code> directory, configure your Git to ignore those particular assets, and remove them from your repository. The configuration takes place in a <code>.gitignore</code> file.</p>
+
+<p>Some language frameworks automatically generate a <code>.gitignore</code> file - ensuring that any files that match the patterns in the file are not considered for addition to a repository. You may already have a <code>.gitignore</code> in the root of your application folder, which matches certain patterns - yet still want to configure it to ignore additional folders.</p>
+
+<p>Let’s assume you need to ignore the contents of the <code>log</code> and <code>tmp</code> directories. In this example, we’ll use the approach of ignoring <code>*.log</code> within the log folder, and ignoring the <code>tmp</code> folder altogether:</p>
+
+<pre><code class="term">$ git rm -r -f log
+rm 'log/development.log'
+rm 'log/production.log'
+rm 'log/server.log'
+rm 'log/test.log'
+$ git rm -r -f tmp
+fatal: pathspec 'tmp' did not match any files
+
+$ mkdir log
+$ echo '*.log' &gt; log/.gitignore
+$ git add log
+$ echo tmp &gt;&gt; .gitignore
+$ git add .gitignore
+$ git commit -m "ignored log files and tmp dir"</code></pre>
+
+<h2 id="ignoring-sqlite-files">Ignoring SQLite files</h2>
+
+<p>If you use SQLite for your local database (which is the default for some language frameworks), you should ignore the resulting database files in the same way. Here’s one way to do so:</p>
+
+<pre><code class="term">$ git rm -f db/*.sqlite3
+$ echo '*.sqlite3' &gt;&gt; .gitignore
+$ git add .gitignore
+$ git commit -m "ignored sqlite databases"</code></pre>
+
+<h2 id="further-reading">Further reading</h2>
+
+<ul>
+<li>Git Community Book on <a href="http://book.git-scm.com/4_ignoring_files.html">.gitignore</a>
+</li>
+</ul>

@@ -1,0 +1,57 @@
+<p>You can manage your add-ons either through the <a href="/articles/heroku-command">command line interface</a> or through the Heroku Dashboard web interface.</p>
+
+<h2 id="using-the-command-line-interface">Using the command line interface</h2>
+
+<p>You can view your current add-ons within an app with the <code>heroku addons</code> command.</p>
+
+<pre><code class="term">$ heroku addons
+newrelic:gold
+heroku-postgresql:dev</code></pre>
+
+<h3 id="adding-an-add-on">Adding an add-on:</h3>
+
+<pre><code class="term">$ heroku addons:add newrelic:standard
+Adding newrelic:standard on myapp...done, v27 (free)
+Use `heroku addons:docs newrelic:standard` to view documentation</code></pre>
+
+<h3 id="removing-an-add-on">Removing an add-on:</h3>
+
+<pre><code class="term">$ heroku addons:remove newrelic:standard
+Removing newrelic:standard from myapp...done, v27 (free)</code></pre>
+
+<h3 id="upgrade-an-add-on">Upgrade an add-on:</h3>
+
+<pre><code class="term">$ heroku addons:upgrade newrelic:professional
+Upgrading newrelic:professional to myapp... done, v28 ($0.06/dyno/hr)
+Use `heroku addons:docs newrelic:professional` to view documentation   </code></pre>
+
+<h3 id="downgrade-an-add-on">Downgrade an add-on:</h3>
+
+<pre><code class="term">$ heroku addons:downgrade newrelic:standard
+Downgrading to newrelic:standard on myapp... done, v27 (free)
+Use `heroku addons:docs newrelic:standard` to view documentation.</code></pre>
+
+<h3 id="open-an-add-on-dashboard">Open an add-on dashboard</h3>
+
+<pre><code class="term">$ heroku addons:open newrelic
+Opening newrelic:professional for myapp.</code></pre>
+
+<h2 id="using-the-dashboard">Using the Dashboard</h2>
+
+<h3 id="list-installed-add-ons">List installed add-ons</h3>
+
+<p>To see a list of currently installed add-ons for any application, visit <a href="https://dashboard.heroku.com">Heroku Dashboard</a>, and click on the name of the app or click on the Resources tab when viewing an app.</p>
+
+<h3 id="add-an-add-on">Add an add-on</h3>
+
+<p>Visit the <a href="https://addons.heroku.com">add-on catalog</a> to find and install add-ons.</p>
+
+<h3 id="remove-an-add-on">Remove an add-on</h3>
+
+<p>From the app Resources tab, find the add-on resource and click the remove icon next to the name, and then click Apply Changes to remove the add-on.</p>
+
+<p><img alt="Remove add-on resources" src="https://s3.amazonaws.com/heroku.devcenter/heroku_assets/images/68-original.jpg?1348681909"></p>
+
+<h3 id="configure-an-add-on">Configure an add-on</h3>
+
+<p>From the app Resources tab, find the add-on resource you want to configure and click on the name. This will take you to a configuration page that allows you to change the settings for the add-on.</p>

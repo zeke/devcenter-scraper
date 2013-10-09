@@ -1,0 +1,113 @@
+<p>The unix process model is a simple and powerful abstraction for running server-side programs. Applied to web apps, the process model gives us a unique way to think about dividing our workloads and scaling up over time. The Heroku <a href="/articles/cedar">Cedar</a> stack uses the process model for web, worker and all other types of dynos.</p>
+
+<h2 id="basics">Basics</h2>
+
+<p>Let’s begin with a simple illustration of the basics of the process model, using a well-known unix daemon: memcached.</p>
+
+<p>Download and compile it:</p>
+
+<pre><code class="term">$ wget http://memcached.googlecode.com/files/memcached-1.4.5.tar.gz
+$ tar xzf memcached-1.4.5.tar.gz 
+$ cd memcached-1.4.5
+$ ./configure
+$ make</code></pre>
+
+<p>Run the program:</p>
+
+<pre><code class="term">$ ./memcached -vv
+...
+&lt;17 server listening (auto-negotiate)
+&lt;18 send buffer was 9216, now 3728270</code></pre>
+
+<p>This running program is called a <strong>process</strong>.</p>
+
+<p>Running manually in a terminal is fine for local development, but in a production deployment we want memcached to be a <strong>managed</strong> process. A managed process should run automatically when the operating system starts up, and should be restarted if the system crashes or dies for any reason.</p>
+
+<p>In traditional server-based deployments, the OS provides a <strong>process manager</strong>. On OS X, <a href="http://launchd.macosforge.org/">launchd</a> is the built-in process manager; on Ubuntu, <a href="http://upstart.ubuntu.com/">Upstart</a> the built-in process manager. On Heroku, the <a href="/articles/dynos#the-dyno-manager">dyno manager</a> provides an analogous mechanism.</p>
+
+<p>Now that we’ve established a baseline for the process model, we can put its principles to work in more novel way: running a web app.</p>
+
+<h2 id="mapping-the-unix-process-model-to-web-apps">Mapping the Unix process model to web apps</h2>
+
+<p>A server daemon like memcached has a single entry point, meaning there’s only one command you run to invoke it. Web apps, on the other hand, typically have two or more entry points. Each of these entry points can be called a <a href="/articles/procfile#declaring-process-types">process type</a>.</p>
+
+<p>A basic Rails app will typically have two process types: a Rack-compatible web process type (such as Webrick or Unicorn), and a worker process type using a queueing library (such as Delayed Job or Resque). For example:</p>
+<table>
+<tr>
+<th>Process type</th>
+<th>Command</th>
+</tr>
+<tr>
+<td>web</td>
+<td>bundle exec rails server</td>
+</tr>
+<tr>
+<td>worker</td>
+<td>bundle exec rake jobs:work</td>
+</tr>
+</table><p>A basic Django app looks strikingly similar: a web process type can be run with the <code>manage.py</code> admin tool; and background jobs via Celery.</p>
+<table>
+<tr>
+<th>Process type</th>
+<th>Command</th>
+</tr>
+<tr>
+<td>web</td>
+<td>python manage.py runserver</td>
+</tr>
+<tr>
+<td>worker</td>
+<td>celeryd --loglevel=INFO</td>
+</tr>
+</table><p>For Java, your process types might look like this:</p>
+<table>
+<tr>
+<th>Process type</th>
+<th>Command</th>
+</tr>
+<tr>
+<td>web</td>
+<td>java $JAVA_OPTS -jar web/target/dependency/webapp-runner.jar --port $PORT web/target/*.war</td>
+</tr>
+<tr>
+<td>worker</td>
+<td>sh worker/target/bin/worker</td>
+</tr>
+</table><p>Process types differ for each app. For example, some Rails apps use Resque instead of Delayed Job, or have multiple types of workers. Every app needs to declare its own process types.</p>
+
+<p><code>Procfile</code> offers a format for declaring your process types, and Foreman is a tool that makes it easy to run the commands defined in the process types in your development environment. Read <a href="/articles/procfile">the Procfile documentation</a> for details.</p>
+
+<h2 id="process-types-vs-dynos">Process types vs dynos</h2>
+
+<p>To scale up, we’ll want a full grasp of the relationship between process types and dynos.</p>
+
+<p>A <strong>process type</strong> is the prototype from which one or more <strong>dynos</strong> are instantiated. This is similar to the way a <strong>class</strong> is the prototype from which one or more <strong>objects</strong> are instantiated in object-oriented programming.</p>
+
+<p>Here’s a visual aid showing the relationship between dynos (on the vertical axis) and process types (on the horizontal axis):</p>
+
+<p><img alt="" src="https://s3-eu-west-1.amazonaws.com/jon-assettest/dynos.jpg"></p>
+
+<p>Dynos, on the vertical axis, are <strong>scale</strong>. You increase this direction when you need to scale up your concurrency for the type of work handled by that process type. On Heroku, you do this with the <code>scale</code> command:</p>
+
+<pre><code class="term">$ heroku ps:scale web=2 worker=4 clock=1
+Scaling web processes... done, now running 2
+Scaling worker processes... done, now running 4
+Scaling clock processes... done, now running 1</code></pre>
+
+<p>Process types, on the horizontal axis, are <strong>workload diversity</strong>. Each process type specializes in a certain type of work.</p>
+
+<p>For example, some apps have two types of workers, one for urgent jobs and another for long-running jobs. By subdividing into more specialized workers, you can get better responsiveness on your urgent jobs and more granular control over how to spend your compute resources. A <a href="/articles/background-jobs-queueing">queueing</a> system can be used to distribute jobs to the worker dynos.</p>
+
+<h2 id="scheduling-processes">Scheduling processes</h2>
+
+<p>Scheduling work at a certain time of day, or time intervals, much like <code>cron</code> does, can be achieved with a tool like the <a href="/articles/scheduler">Heroku Scheduler</a> add-on or by using a <a href="/articles/scheduled-jobs-custom-clock-processes">specialized job-scheduling process type</a>.</p>
+
+<h2 id="one-off-admin-dynos">One-off admin dynos</h2>
+
+<p>The set of dynos run by the <a href="/articles/dynos#the-dyno-manager">dyno manager</a> via <code>heroku ps:scale</code> are known as the <a href="/articles/scaling">dyno formation</a> - for example, web=2 worker=4 clock=1. In addition to these dynos, which run continually, the process model also allows for one-off dynos to handle administrative tasks, such as database migrations and console sessions.</p>
+
+<p><a href="/articles/oneoff-admin-ps">Read more about one-off dynos.</a></p>
+
+<h2 id="output-streams-as-logs">Output streams as logs</h2>
+
+<p>All code running on dynos under the process model should send their logs to <code>STDOUT</code>. Locally, output streams from your processes are displayed by Foreman in your terminal. On Heroku, output streams from processes executing on all your dynos are collected together by <a href="/articles/logging">Logplex</a> for easy viewing with the <code>heroku logs</code> command.</p>

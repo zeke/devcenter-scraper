@@ -1,0 +1,61 @@
+<p>The <code>kensa create</code> command will clone a template add-on from GitHub (or any git url) and create an <code>addon-manifest.json</code> file for you and a matching <code>.env</code> file you can use to boot up your app with correct credentials via <code>foreman start</code></p>
+
+<p>To clone the sinatra add-on template into the directory <code>my_addon</code>. You would use the following command:</p>
+
+<pre><code class="term">$ gem install kensa
+$ kensa create my_addon --template sinatra
+Cloning into my_addon...
+remote: Counting objects: 92, done.
+...
+Created my_addon from sinatra template
+Initialized new addon manifest in addon-manifest.json
+Initialized new .env file for foreman</code></pre>
+
+<p>The templates are cloned from their GitHub repository at:</p>
+
+<pre><code>http://github.com/heroku/kensa-create-&lt;template&gt;</code></pre>
+
+<p>Or from a full git url if it is passed in. We currently have three, fully open sourced templates:</p>
+
+<ul>
+<li>
+<code>sinatra</code> (a Ruby sinatra application)</li>
+
+<li>
+<code>node</code> (using express)</li>
+
+<li>
+<code>clojure</code> (using compojure)</li>
+</ul><p>After cloning the template, you can start it with foreman. Heroku uses the credentials provided in your <code>addon-manifest.json</code> for API authentication. Your app also needs to be aware of these credentials. Because we don’t recommend checking the manifest into version control, the template app is designed to read the credentials from the environment.</p>
+
+<p><code>kensa create</code> writes a <code>.env</code> file that matches the credentials in <code>addon-manifest.json</code>. The <code>HEROKU_USERNAME</code> matches the <code>id</code>, the <code>HEROKU_PASSWORD</code> matches the api <code>passsword</code>, and the <code>SSO_SALT</code> matches the api <code>sso_salt</code>.</p>
+
+<p><code>foreman start</code> uses the <code>.env</code> file to create an environment for its applications. Refer to <code>foreman help</code> for more advanced <code>.env</code> file usage.</p>
+
+<pre><code class="term">$ cd my_addon
+$ #npm install or bundle install or lein deps
+$ gem install foreman
+$ foreman start
+17:57:39 web.1     | started with pid 12966</code></pre>
+
+<p>This will start your freshly cloned add-on on port 5000. You can now test your add-on with the <code>kensa</code> gem.</p>
+
+<p>In a new shell:</p>
+
+<pre><code class="term">$ cd path/to/my_addon
+$ kensa test provision  #look at the output for the id of the provisioned resource
+
+Testing POST /heroku/resources
+  Check response [PASS]
+  Check valid JSON [PASS]
+  Check authentication [PASS]
+
+Testing response
+  Check contains an id [PASS] (id 1)
+
+$ kensa test planchange &lt;id&gt; &lt;newplan&gt;
+$ kensa test sso &lt;id&gt;
+$ kensa sso &lt;id&gt;
+$ kensa test deprovision &lt;id&gt;</code></pre>
+
+<p>After you’ve confirmed everything is working, you can rename your add-on by editing the <code>addon-manifest.json</code> and <code>.env</code> files and concentrate on your application logic.</p>

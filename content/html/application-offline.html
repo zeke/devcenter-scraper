@@ -1,0 +1,72 @@
+<p>Your application may be experiencing downtime for a number of reasons. This article will help you discover why and what you can do to remedy the problem.</p>
+
+<h2 id="check-your-application-logs">Check your application logs</h2>
+
+<p>The first step is to check your <a href="https://devcenter.heroku.com/articles/logging">application’s logs</a>. Many common application errors as well as Heroku’s errors are printed to your applications logs. To view your logs, run:</p>
+
+<pre><code class="term">$ heroku logs</code></pre>
+
+<p>Note that many frameworks, including Ruby on Rails, will serve a default error page for your application when there are errors. You can compare this to <a href="http://s3.amazonaws.com/heroku_pages/error.html">Heroku’s error page</a> which is used when one of <a href="https://devcenter.heroku.com/articles/error-codes">Heroku’s error codes</a> is the cause of the issue.</p>
+
+<p>If your logs show one of Heroku’s error codes, you should investigate the cause of this issue. Our <a href="https://devcenter.heroku.com/articles/error-codes">descriptions of these errors</a> is the best place to start.</p>
+
+<h2 id="restart-your-application">Restart your application</h2>
+
+<p>If the problem is not immediately present, it can also be helpful to restart your application, <a href="https://devcenter.heroku.com/articles/logging">tail your logs</a>, and then try viewing your application in a web browser.</p>
+
+<pre><code class="term">$ heroku restart
+$ heroku logs --tail</code></pre>
+
+<p>Some application issues are solved by restart. For example, your application may need to be restarted after a schema change to your database, or if <a href="https://status.heroku.com/">recent Heroku maintenance</a> affected your application.</p>
+
+<h2 id="test-using-curl">Test using curl</h2>
+<p class="callout">If you do not have curl on your computer, you can use <a href="http://hurl.it">http://hurl.it/</a> to run curl from your web browser.</p>
+<p>A number of issues can be detected using curl:</p>
+
+<pre><code class="term">$ curl -v http://example.herokuapp.com/</code></pre>
+<p class="note">Testing your <code>herokuapp.com</code> hostname in addition to your custom domains will help determine if the issue is specific to your custom domain or your application.</p>
+<p>Some common issues you may discover are:</p>
+
+<ul>
+<li>
+<p>An HTTP 500 error code indicates an error returned by your application. Check your Heroku logs for more details.</p>
+</li>
+
+<li>
+<p>An HTTP 503 error code indicates a Heroku error code. Check your logs for the error code you received and reference our <a href="https://devcenter.heroku.com/articles/error-codes">Heroku error code documentation</a> for further information.</p>
+</li>
+
+<li>
+<p>DNS errors (<code>could not resolve host</code>) should be resolved by correctly <a href="https://devcenter.heroku.com/articles/custom-domains">setting up your custom domain</a> for use on Heroku. Note that <a href="https://devcenter.heroku.com/articles/ssl-endpoint">alternate instructions apply if you are using SSL</a>.</p>
+</li>
+
+<li>
+<p>Certificate errors, or other errors relating to using SSL, should refer to our <a href="https://devcenter.heroku.com/articles/ssl-endpoint">SSL documentation</a>.</p>
+</li>
+</ul><h2 id="check-application-health">Check application health</h2>
+
+<p>Heroku provides several additional tools to check the health of your application.</p>
+
+<ul>
+<li>
+<p>Use <code>heroku ps</code> to check the current status of your dynos. You can adjust your <a href="https://devcenter.heroku.com/articles/scaling">dyno formation</a> using <code>heroku scale</code>.</p>
+</li>
+
+<li>
+<p>Check <code>heroku releases</code> for recent changes made to your application. You can <a href="https://devcenter.heroku.com/articles/releases">rollback to an older release</a> if necessary.</p>
+</li>
+
+<li>
+<p>A monitoring add-on like <a href="https://devcenter.heroku.com/articles/newrelic">New Relic</a> is an excellent way of keeping an eye on your application’s health. A large change in requests recieved or response time may indicate that you need to <a href="https://devcenter.heroku.com/articles/scaling">scale your application</a> or <a href="https://devcenter.heroku.com/articles/cache-size">migrate to a larger database</a>.</p>
+</li>
+</ul><h2 id="review-advice-for-production-applications">Review advice for production applications</h2>
+
+<p>Your application may be affected by an issue that would best be mitigated by modifying how your Heroku application is running on the platform. <a href="https://devcenter.heroku.com/articles/production-check">Production Check</a> is a great tool for ensuring that your app is ready to run on the platform in production.</p>
+
+<h2 id="check-platform-status">Check platform status</h2>
+
+<p>An active or recent incident could cause your application to be unavailable or unstable. You should check <a href="https://status.heroku.com/">Heroku’s status site</a> to see if your application is affected.</p>
+
+<h2 id="ask-for-help">Ask for help</h2>
+
+<p>If you are still unable to determine why your application is down, get in touch with us via our <a href="https://devcenter.heroku.com/articles/support-channels">support channels</a>.</p>

@@ -1,0 +1,25 @@
+<p>Heroku is available in multiple geographic <a href="/articles/regions">regions</a>.  As an add-on provider, your service may need to work under low-latency conditions, in which case it should be available in the same region as the app provisioning it.</p>
+
+<h2 id="latency">Latency</h2>
+
+<p>Cloud services intended to be consumed in realtime will need low-latency connections. These include:</p>
+
+<ul>
+<li>Databases such MySQL, CouchDB, or Casandra</li>
+<li>Cache stores such as Memcache</li>
+<li>Search services such as Websolr or Cloudquery<br>
+</li>
+</ul><p>On the other hand, many services can tolerate an extra few hundred milliseconds of latency. Usually these are asynchronous services. For example:</p>
+
+<ul>
+<li>Email sending services such as Sendgrid and Authsmtp</li>
+<li>Outbound message services such as Messagepub or Chatterous</li>
+<li>Monitoring services like New Relic, Exceptional, or Airbrake</li>
+<li>DNS management services such as Zerigo DNS</li>
+</ul><h2 id="provisioning-with-latency">Provisioning with latency</h2>
+
+<p>If your add-on service requires low latency then you should provision resources for Heroku apps within the same <a href="/articles/regions">region</a> as specified in the provision request <code>region</code> attribute. </p>
+
+<p>If your add-on is latency sensitive and does not support that region, you should not provision the resource and instead <a href="https://devcenter.heroku.com/articles/add-on-provider-api#exceptions">return an error</a>.              </p>
+
+<p>If normal internet latency is acceptable, you can run your service anywhere with a public hostname/IP.</p>

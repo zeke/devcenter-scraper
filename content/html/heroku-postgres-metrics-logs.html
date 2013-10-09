@@ -1,0 +1,29 @@
+<p>Heroku Postgres <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans#production-tier">Production Tier database</a> users will see database-related events on their app’s log stream. This can be useful for recording and analyzing usage over time.</p>
+
+<h2 id="log-format">Log format</h2>
+
+<pre><code class="term">2013-05-07T17:41:06+00:00 source=HEROKU_POSTGRESQL_VIOLET sample#current_transaction=1873 sample#db_size=26219348792bytes sample#tables=13 sample#active-connections=92 sample#waiting-connections=1 sample#index-cache-hit-rate=0.99723 sample#table-cache-hit-rate=0.99118
+</code></pre>
+
+<p>The attributes found on the log are:</p>
+
+<ul>
+<li>
+<code>sample#db_size</code>: The number of bytes contained in the database. This includes all
+table and index data on disk, including database bloat.</li>
+<li>
+<code>sample#tables</code>: The number of tables in the database.</li>
+<li>
+<code>sample#active-connections</code>: The number of <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans#production-tier">connections</a> established on the database.</li>
+<li>
+<code>sample#current_transaction</code>: The current transaction ID, which can be used to track writes over time.</li>
+<li>
+<code>sample#index-cache-hit-rate</code>: Rate of index lookups served from <a href="https://devcenter.heroku.com/articles/understanding-postgres-data-caching">shared buffer cache</a>, rounded to five decimal points.</li>
+<li>
+<code>sample#table-cache-hit-rate</code>: Rate of table lookups served from <a href="https://devcenter.heroku.com/articles/understanding-postgres-data-caching">shared buffer cache</a>, rounded to five decimal points.</li>
+<li>
+<code>sample#waiting-connections</code>: Number of connections waiting on a lock to be acquired. If many connections are waiting, this can be a sign of mishandled <a href="https://devcenter.heroku.com/articles/postgresql-concurrency">database concurrency</a>. </li>
+<li>
+<code>source</code>: The database name the measurements relate to.</li>
+<li>The log line’s timestamp is the time at which the measurements were taken.</li>
+</ul>

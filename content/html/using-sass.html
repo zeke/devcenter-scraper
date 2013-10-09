@@ -1,0 +1,32 @@
+<div class="deprecated">
+<p>This article applies to apps on the <a href="/articles/bamboo">Bamboo</a> stack. For the most recent stack, <a href="/articles/cedar">Cedar</a>, see <a href="/articles/rails3x-asset-pipeline-cedar">Rails 3.1 on Heroku Cedar</a>.</p>
+</div>
+<p>If you’d like to use Sass in your Heroku app on the Bamboo stack, you’ll need to do some configuration - by default, Sass generates CSS files in <code>public/stylesheets</code>, which isn’t writable on Heroku.</p>
+
+<h2 id="gems">Gems</h2>
+
+<p>The first step is to require the gem that you’ll need. In your <code>Gemfile</code>, add the following:</p>
+
+<pre><code class="ruby">gem 'sass'</code></pre>
+
+<h2 id="configuration">Configuration</h2>
+<div class="callout">
+<p>Please note that if you use this technique, all stylesheet requests will be redirected to <code>tmp</code> – which means that any CSS files you leave in <code>public/stylesheets</code> will be ignored.</p>
+</div>
+<p>Next, you’ll need to direct Sass to save the generated files to <code>tmp</code> and tell Rails how to access them. In <code>config/initializers/sass.rb</code>:</p>
+
+<pre><code class="ruby">Sass::Plugin.options.merge!(
+  :template_location =&gt; 'public/stylesheets/sass',
+  :css_location =&gt; 'tmp/stylesheets'
+)
+
+Rails.configuration.middleware.delete('Sass::Plugin::Rack')
+Rails.configuration.middleware.insert_before('Rack::Sendfile', 'Sass::Plugin::Rack')
+
+Rails.configuration.middleware.insert_before('Rack::Sendfile', 'Rack::Static',
+    :urls =&gt; ['/stylesheets'],
+    :root =&gt; "#{Rails.root}/tmp")</code></pre>
+
+<h2 id="start-using-sass">Start using Sass</h2>
+
+<p>Once your configuration is complete, you’re free to start using Sass. For detailed instructions, check out the <a href="http://sass-lang.com/">Sass documentation</a>.</p>

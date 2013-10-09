@@ -1,0 +1,59 @@
+<p>The Heroku Cedar stack is capable of running a variety of types of Java applications.</p>
+
+<p>This document describes the general behavior of the <a href="/articles/cedar">Heroku Cedar stack</a> as it relates to the recognition and execution of Java applications. General Java support on Heroku refers to the support for all frameworks except for Play. You can read about Play framework support in the <a href="/articles/play-support">Play framework support reference</a>.</p>
+
+<p>For framework specific tutorials visit:</p>
+
+<ul>
+<li><a href="/articles/java">Getting Started with Java on Heroku/Cedar</a></li>
+
+<li><a href="/categories/java">Java Tutorials</a></li>
+</ul><p>You can also find template applications that can be cloned directly into your Heroku account at <a href="http://java.heroku.com">java.heroku.com</a></p>
+
+<h3 id="activation">Activation</h3>
+
+<p>The default build system for Java application on Heroku is Maven. Heroku Java support for Maven will be applied to applications that contain a pom.xml.</p>
+
+<p>When a deployed application is recognized as a Java application, Heroku responds with <code>-----&gt; Java app detected</code>.</p>
+
+<pre><code class="term">$ git push heroku master
+-----&gt; Java app detected</code></pre>
+
+<h3 id="build-behavior">Build behavior</h3>
+
+<p>The following command is run to build your app:</p>
+
+<pre><code class="term">$ mvn -B -DskipTests=true clean install</code></pre>
+
+<p>The local repo is cached between builds to improve performance.</p>
+
+<h3 id="environment">Environment</h3>
+
+<p>The following environment variables will be set at first push:</p>
+
+<ul>
+<li>
+<code>PATH</code>: /usr/local/bin:/usr/bin:/bin</li>
+
+<li>
+<code>JAVA_OPTS</code>: -Xmx384m -Xss512k -XX:+UseCompressedOops</li>
+
+<li>
+<code>MAVEN_OPTS</code>: -Xmx384m -Xss512k -XX:+UseCompressedOops</li>
+
+<li>
+<code>PORT</code>: HTTP port to which the web process should bind</li>
+
+<li>
+<code>DATABASE_URL</code>: URL of the database connection</li>
+</ul><h3 id="runtime-behavior">Runtime behavior</h3>
+
+<p>Heroku currently uses OpenJDK to run your application. OpenJDK versions 6 and 7 are available using a <code>system.properties</code> file. OpenJDK 8 with Lambdas is also available as an early preview. See the <a href="/categories/java">Java Tutorials</a> for more information.</p>
+
+<p>No default <code>web</code> process type is defined for Java applications. See one of the <a href="/categories/java">Java tutorials</a> for information on setting up your <code>Procfile</code>.</p>
+
+<p>The JDK that your app uses will be included in the slug, which will affect your slug size.</p>
+
+<h3 id="add-ons">Add-ons</h3>
+
+<p>A Postgres database is automatically provisioned for Java applications. This populates the DATABASE_URL environment variable.</p>

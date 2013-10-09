@@ -1,0 +1,114 @@
+<p>This guide outlines how to fully utilize Heroku’s support for specifying dependencies for your Python application via pip.</p>
+<div class="note">
+<p>If you have questions about Python on Heroku, consider discussing it in the <a href="https://discussion.heroku.com/category/python">Python on Heroku forums</a>. Both Heroku and community-based Python experts are available.</p>
+</div>
+<p>Heroku’s pip support is very transparent. Any requirements that install locally with the following command will behave as expected on Heroku:</p>
+
+<pre><code>$ pip install -r requirements.txt</code></pre>
+
+<p>We have made a few minor fixes to pip, but these patches are actively being pushed upstream.</p>
+
+<h2 id="the-basics">The basics</h2>
+
+<p>To specify Python module dependencies on Heroku, add a <a href="http://www.pip-installer.org/en/latest/requirements.html">pip requirements file</a> named <code>requirements.txt</code> to the root of your repository.</p>
+
+<p>Example <code>requirements.txt</code>:</p>
+
+<pre><code>Flask==0.8
+Jinja2==2.6
+Werkzeug==0.8.3
+certifi==0.0.8
+chardet==1.0.1
+distribute==0.6.24
+gunicorn==0.14.2
+requests==0.11.1</code></pre>
+
+<h2 id="best-practices">Best practices</h2>
+
+<p>If you follow these simple recommendations, your application builds will be deterministic:</p>
+
+<ul>
+<li>All package versions should be explicitly specified.</li>
+
+<li>All secondary dependencies should be explicitly specified.</li>
+</ul><p>This will ensure consistent build behavior when newer package versions are released.</p>
+
+<h2 id="git-backed-distributions">Git-backed distributions</h2>
+
+<p>Anything that works with a standard pip requirements file will work as expected on Heroku.</p>
+
+<p>Thanks to pip’s Git support, you can install a Python package that is hosted on a remote Git repository.</p>
+
+<p>For example:</p>
+
+<pre><code>git+git://github.com/kennethreitz/requests.git</code></pre>
+
+<p>If your package is hosted in a private Git repository, you can use HTTP Basic Authentication:</p>
+
+<pre><code>git+https://user:password@github.com/nsa/secret.git</code></pre>
+
+<p>You can also specify any Git reference (e.g. branch, tag, or commit) by appending an <code>@</code> to your URL:</p>
+
+<pre><code>git+git://github.com/kennethreitz/requests.git@develop</code></pre>
+
+<p>Optionally, you can install a dependency in “editable” mode, which will link to a full clone of the repository. This is useful for larger distributions, like Django:</p>
+<div class="callout">
+<p>The <code>egg</code> fragment is only valid with editable requirements.</p>
+</div>
+<pre><code>-e git+http://github.com/django/django.git#egg=django</code></pre>
+
+<h2 id="remote-file-backed-distributions">Remote file-backed distributions</h2>
+
+<p>You can also install packages from remote archives.</p>
+
+<p>For example:</p>
+
+<pre><code>https://site.org/files/package.zip</code></pre>
+
+<p>This can be useful in many situations. For example, you can utilize GitHub’s tarball generation for repositories with large histories:</p>
+
+<pre><code>https://github.com/django/django/tarball/master</code></pre>
+
+<h2 id="local-file-backed-distributions">Local file-backed distributions</h2>
+
+<p>Pip can also install a dependency from your local codebase. This is useful with making custom tweaks to an existing package.</p>
+<div class="callout">
+<p>You can use Git Submodules to maintain separate repositories for your File-backed dependencies. Git modules will automatically be resolved when you push your code to Heroku.</p>
+</div>
+<p>To add a local dependency in <code>requirements.txt</code>, specify the relative path to the directory containing <code>setup.py</code>:</p>
+
+<pre><code>./path/to/distribution</code></pre>
+
+<p>If you make changes to the library without bumping the required version number, however, the changes will not be updated at runtime. You can get around this by installing the package in editable mode:</p>
+
+<pre><code>-e ./path/to/distribution</code></pre>
+
+<h2 id="private-indexes">Private indexes</h2>
+
+<p>In order to minimize points of failure, it is considered best practice within the Python community for development shops to host their own instances of the “Cheeseshop” containing their dependencies.</p>
+
+<p>To point to a custom Cheeseshop’s index, you can add the following to the top of your requirements file:</p>
+
+<pre><code>-i https://simple.crate.io/</code></pre>
+
+<p>All dependencies specified in that requirements file will resolve against that index.</p>
+
+<h2 id="cascading-requirements-files">Cascading requirements files</h2>
+
+<p>If you would like to utilize multiple requirements files in your codebase, you can <em>include</em> the contents of another requirements file with pip:</p>
+
+<pre><code>-r ./path/to/prod-requirements.txt</code></pre>
+
+<h2 id="traditional-distributions">Traditional distributions</h2>
+
+<p>Heroku also supports traditional Python package distribution, powered by <code>setup.py</code>.</p>
+
+<p>If your Python application contains a <code>setup.py</code> file but excludes a <code>requirements.txt</code> file, <code>python setup.py develop</code> will be used to install your package and resolve your dependencies.</p>
+<div class="callout">
+<p>This works best with distribute or setuptools. Projects that use distutils directly will be installed, but not linked. The module won’t get updated until there’s a version bump.</p>
+</div>
+<p>If you already have a requirements file but would like to utilize this feature, you can add the following to your requirements file:</p>
+
+<pre><code>-e . </code></pre>
+
+<p>This causes pip to run <code>python setup.py develop</code> on your application.</p>

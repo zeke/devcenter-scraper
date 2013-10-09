@@ -1,0 +1,181 @@
+<p>Procfile is a mechanism for declaring what commands are run by your application’s dynos on the Heroku platform. It follows the <a href="/articles/process-model">process model</a>. You can use a Procfile to declare various process types, such as multiple types of workers, a singleton process like a <a href="/articles/scheduled-jobs-custom-clock-processes">clock</a>, or a consumer of the Twitter streaming API.</p>
+
+<h2 id="process-types-as-templates">Process types as templates</h2>
+
+<p>A Procfile is a text file named <code>Procfile</code> placed in the root of your application, that lists the process types in an application. Each process type is a declaration of a command that is executed when a dyno of that process type is started.</p>
+
+<p>All the language and frameworks on the <a href="/articles/cedar">Cedar</a> stack declare a <code>web</code> process type, which starts the application server. <a href="/articles/rails3">Rails 3</a> has the following process type:</p>
+
+<pre><code>web: bundle exec rails server -p $PORT</code></pre>
+
+<p><a href="/articles/clojure">Clojure</a>’s <code>web</code> process type looks something like this:</p>
+
+<pre><code>web: lein run -m demo.web $PORT</code></pre>
+<div class="callout">
+<p>You can reference other environment variables populated by Heroku, most usefully the $PORT variable, in the command.</p>
+</div>
+<p>A Maven-generated batch file executing the <a href="/articles/create-a-java-web-application-using-embedded-tomcat">Tomcat</a> Java application server:</p>
+
+<pre><code>web: sh target/bin/webapp</code></pre>
+
+<p>For many apps, these defaults will be sufficient. For more sophisticated apps, and to adhere to the recommended approach of more explicitly declaring of your application’s required runtime processes, you may wish to define your process types. For example, Rails applications are supplied with an additional process type of this sort:</p>
+
+<pre><code>worker:  bundle exec rake jobs:work</code></pre>
+
+<h2 id="declaring-process-types">Declaring process types</h2>
+
+<p>Process types are declared via a file named <code>Procfile</code> placed in the root of your app. Its format is one process type per line, with each line containing:</p>
+
+<pre><code>&lt;process type&gt;: &lt;command&gt;</code></pre>
+
+<p>The syntax is defined as:</p>
+
+<ul>
+<li>
+<em>&lt;process type&gt;</em> – an alphanumeric string, is a name for your command, such as <code>web</code>, <code>worker</code>, <code>urgentworker</code>, <code>clock</code>, etc.</li>
+
+<li>
+<em>&lt;command&gt;</em> – a command line to launch the process, such as <code>rake jobs:work</code>.</li>
+</ul><p class="note">The <code>web</code> process type is special as it’s the only process type that will receive HTTP traffic from Heroku’s routers. Other process types can be named arbitrarily.</p>
+<h2 id="developing-locally-with-foreman">Developing locally with Foreman</h2>
+
+<p>It’s important when developing and debugging an application that the local development environment is executed in the same manner as the remote environments. This ensures that incompatibilities and hard to find bugs are caught before deploying to production and treats the application as a holistic unit instead of a series of individual commands working independently.</p>
+
+<p><a href="http://blog.daviddollar.org/2011/05/06/introducing-foreman.html">Foreman</a> is a command-line tool for running <code>Procfile</code>-backed apps. It’s installed automatically by the <a href="https://toolbelt.heroku.com">Heroku Toolbelt</a>.</p>
+
+<p>If you had a Procfile with both <code>web</code> and <code>worker</code> process types, Foreman will start one of each process type, with the output interleaved on your terminal:</p>
+
+<p>Run your app locally with Foreman:</p>
+
+<pre><code class="term">$ foreman start
+18:06:23 web.1     | started with pid 47219
+18:06:23 worker.1  | started with pid 47220
+18:06:25 worker.1  | (in /Users/adam/myapp)
+18:06:27 web.1     | =&gt; Awesome web application server output</code></pre>
+<div class="callout">
+<p>Your web process loads on port 5000 because this is what Foreman provides as a default in the <code>$PORT</code> env var. It’s important that your web process respect this value, since it’s used by the Heroku platform when you deploy.</p>
+</div>
+<p>You can now test the app locally. Press Ctrl-C when done to shut it down.</p>
+
+<h2 id="setting-local-environment-variables">Setting local environment variables</h2>
+
+<p><a href="/articles/config-vars">Config vars</a> saved in the <code>.env</code> file of a project directory will be added to the environment when run by Foreman. For example we can set the <code>RACK_ENV</code> to development in your environment.</p>
+
+<pre><code class="term">$ echo "RACK_ENV=development" &gt;&gt;.env
+$ foreman run irb
+&gt; puts ENV["RACK_ENV"]
+&gt; development</code></pre>
+
+<p>Do not commit the <code>.env</code> file to source control–it should only be used for local configuration.</p>
+
+<h2 id="deploying-to-heroku">Deploying to Heroku</h2>
+
+<p>A <code>Procfile</code> is not necessary to deploy apps written in most languages supported by Heroku. The platform automatically detects the language, and creates a default <code>web</code> process type to boot the application server.</p>
+
+<p>Creating an explicit <code>Procfile</code> is recommended for greater control and flexibility over your app.</p>
+
+<p>For Heroku to use your Procfile, add the <code>Procfile</code> to the root of your application, then push to Heroku:</p>
+
+<pre><code class="term">$ git add .
+$ git commit -m "Procfile"
+$ git push heroku
+...
+-----&gt; Procfile declares process types: web, worker
+       Compiled slug size is 10.4MB
+-----&gt; Launching... done
+       http://strong-stone-297.herokuapp.com deployed to Heroku
+
+To git@heroku.com:strong-stone-297.git
+ * [new branch]      master -&gt; master</code></pre>
+
+<p>Use <code>heroku ps</code> to determine the number of dynos that are executing. The list indicates the process type in the left column, and the command corresponding to that process type in the right column:</p>
+
+<pre><code class="term">$ heroku ps
+=== web: `bundle exec rails server -p $PORT`
+web.1: up for 2m</code></pre>
+
+<p>Use <code>heroku logs</code> to view an aggregated list of log messages from all dynos across all process types.</p>
+
+<pre><code class="term">$ heroku logs
+2011-04-26T01:24:20-07:00 heroku[slugc]: Slug compilation finished
+2011-04-26T01:24:22+00:00 heroku[web.1]: Running process with command: `bundle exec rails server mongrel -p 46999`
+2011-04-25T18:24:22-07:00 heroku[web.1]: State changed from created to starting
+2011-04-25T18:24:29-07:00 heroku[web.1]: State changed from starting to up
+2011-04-26T01:24:29+00:00 app[web.1]: =&gt; Booting Mongrel
+2011-04-26T01:24:29+00:00 app[web.1]: =&gt; Rails 3.0.5 application starting in production on http://0.0.0.0:46999
+2011-04-26T01:24:29+00:00 app[web.1]: =&gt; Call with -d to detach
+2011-04-26T01:24:29+00:00 app[web.1]: =&gt; Ctrl-C to shutdown server</code></pre>
+
+<h2 id="scaling-a-process-type">Scaling a process type</h2>
+
+<p>Heroku runs one <code>web</code> dyno for you automatically, but other process types don’t start by default. To launch a worker, you need to scale it up to one dyno:</p>
+
+<pre><code class="term">$ heroku ps:scale worker=1
+Scaling worker processes... done, now running 1</code></pre>
+
+<p>You can also scale the <a href="https://devcenter.heroku.com/articles/dyno-size">size of a dyno</a>:</p>
+
+<pre><code class="term">$ heroku ps:resize worker=2X
+Resizing dynos and restarting specified processes... done
+worker dynos now 2X ($0.10/dyno-hour)</code></pre>
+
+<p>Check <code>ps</code> to see the new process type running, for example:</p>
+
+<pre><code class="term">$ heroku ps
+=== web: `bundle exec rails server -p $PORT`
+web.1: up for 2m
+
+=== worker: `env QUEUE=* bundle exec rake resque:work`
+worker.1: up for 5s</code></pre>
+
+<p>Use <code>heroku logs --ps worker</code> to view just the messages from the worker process type:</p>
+
+<pre><code class="term">$ heroku logs --ps worker
+2011-04-25T18:33:25-07:00 heroku[worker.1]: State changed from created to starting
+2011-04-26T01:33:26+00:00 heroku[worker.1]: Running process with command: `env QUEUE=* bundle exec rake resque:work`
+2011-04-25T18:33:29-07:00 heroku[worker.1]: State changed from starting to up
+2011-04-26T01:33:29+00:00 app[worker.1]: (in /app)</code></pre>
+
+<p>The output we see here matches our local output from Foreman, interleaved with system messages from Heroku’s system components such as the router and dyno manager.</p>
+
+<p>You can scale up higher with the same command. For example, two web dynos and four worker dynos:</p>
+
+<pre><code class="term">$ heroku ps:scale web=2 worker=4
+Scaling web processes... done, now running 2
+Scaling worker processes... done, now running 4
+
+$ heroku ps
+=== web: `bundle exec rails server -p $PORT`
+web.1: up for 7m
+web.2: up for 2s
+
+=== worker: `env QUEUE=* bundle exec rake resque:work`
+worker.1: up for 7m
+worker.2: up for 3s
+worker.3: up for 2s
+worker.4: up for 3s</code></pre>
+
+<p><a href="/articles/scaling">Read more about scaling.</a></p>
+
+<h2 id="more-process-type-examples">More process type examples</h2>
+
+<p>The <code>Procfile</code> model of running processes types is extremely flexible. You can run any number of dynos with whatever arbitrary commands you want, and scale each independently.</p>
+
+<p>For example, using Ruby you could run two types of queue workers, each consuming different queues:</p>
+
+<pre><code>worker:        env QUEUE=* bundle exec rake resque:work
+urgentworker:  env QUEUE=urgent bundle exec rake resque:work</code></pre>
+
+<p>These can then be scaled independently.</p>
+
+<pre><code class="term">$ heroku ps:scale worker=1 urgentworker=5</code></pre>
+
+<h2 id="further-reading">Further reading</h2>
+
+<ul>
+<li><a href="http://adam.heroku.com/past/2011/5/9/applying_the_unix_process_model_to_web_apps/">Applying the Unix Process Model to Web Apps</a></li>
+
+<li><a href="http://blog.daviddollar.org/2011/05/06/introducing-foreman.html">Introducing Foreman</a></li>
+
+<li><a href="http://ddollar.github.com/foreman/">Foreman man page</a></li>
+</ul>

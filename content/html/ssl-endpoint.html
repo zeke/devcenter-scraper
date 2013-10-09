@@ -1,0 +1,366 @@
+<p>SSL is a cryptographic protocol that provides end-to-end encryption and integrity for all web requests. Apps that transmit sensitive data should enable SSL to ensure all information is transmitted securely.</p>
+
+<p>To enable SSL on a custom domain, e.g., <code>www.example.com</code>, use the SSL Endpoint add-on. (<a href="https://addons.heroku.com/ssl">SSL Endpoint</a> is a paid add-on service. Please keep this in mind when provisioning the service).</p>
+
+<h2 id="overview">Overview</h2>
+
+<p>Because of the unique nature of SSL validation, provisioning SSL for your application is a multi-step process that involves several third-parties. You will need to:</p>
+
+<ol>
+<li>Purchase an SSL certificate from your SSL provider</li>
+<li>Provision an SSL Endpoint from Heroku</li>
+<li>Upload the cert to Heroku</li>
+<li>Update your DNS settings to reference the new SSL Endpoint URL</li>
+</ol><h2 id="acquire-ssl-certificate">Acquire SSL certificate</h2>
+
+<div class="callout">
+<p>Staging, and other non-production, apps can use a free <a href="https://devcenter.heroku.com/articles/ssl-certificate-self">self-signed SSL certificate</a> instead of purchasing one.</p>
+</div>
+
+<p>Purchasing an SSL cert varies in cost and process depending on the vendor. <a href="https://dnsimple.com/">DNSimple</a> offers the simplest way to purchase a certificate and is highly recommended. If you’re able to use DNSimple, see <a href="https://devcenter.heroku.com/articles/ssl-certificate">purchasing an SSL cert with DNSimple</a> for instructions.</p>
+
+<p>Otherwise, using other SSL providers will require some or all of the following steps.</p>
+
+<h3 id="generate-private-key">Generate private key</h3>
+
+<p>Before requesting an SSL cert, you need to generate a private key in your local environment using the <code>openssl</code> tool. If you aren’t able to execute the <code>openssl</code> command from the terminal you may need to install it.</p>
+
+<table>
+<tr>
+<th width="25%">If you have…</th>
+    <th>Install with…</th>
+  </tr>
+<tr>
+<td>Mac OS X</td>
+    <td style="text-align: left">
+<a href="http://mxcl.github.com/homebrew/">Homebrew</a>: <code>brew install openssl</code>
+</td>
+  </tr>
+<tr>
+<td>Windows</td>
+    <td style="text-align: left"><a href="http://gnuwin32.sourceforge.net/packages/openssl.htm">Windows complete package .exe installer</a></td>
+  </tr>
+<tr>
+<td>Ubuntu Linux</td>
+    <td style="text-align: left"><code>apt-get install openssl</code></td>
+  </tr>
+</table><p>Use <code>openssl</code> to generate a new private key.</p>
+
+<div class="callout">
+<p>When prompted, enter an easy password value as it will only be used when generating the CSR and not by your app at runtime.</p>
+</div>
+
+<pre><code class="term">$ openssl genrsa -des3 -out server.pass.key 2048
+...
+Enter pass phrase for server.pass.key:
+Verifying - Enter pass phrase for server.pass.key:
+</code></pre>
+
+<p>The private key needs to be stripped of its password so it can be loaded without manually entering the password.</p>
+
+<pre><code class="term">$ openssl rsa -in server.pass.key -out server.key
+</code></pre>
+
+<p>You now have a <code>server.key</code> private key file in your current working directory.</p>
+
+<h3 id="generate-csr">Generate CSR</h3>
+
+<p>A CSR is a certificate signing request and is also required when purchasing an SSL cert. Using the private key from the previous step, generate the CSR. This will require you to enter identifying information about your organization and domain.</p>
+
+<p>Though most fields are self-explanatory, pay close attention to the following:</p>
+
+<table>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>Country Name</td>
+<td style="text-align: left;">The two letter code, in <a href="http://www.iso.org/iso/country_codes/iso_3166_code_lists/country_names_and_code_elements.htm">ISO 3166-1 format</a>, of the country in which your organization is based.</td>
+</tr>
+<tr>
+<td>Common Name</td>
+<td style="text-align: left;">This is the <em>fully qualified domain name</em> that you wish to secure.
+<ul>
+<li>For a single subdomain: <code>www.example.com</code>
+</li>
+<li>For all subdomains, specify the wildcard URL: <code>*.example.com</code>
+</li>
+<li>For the root domain: <code>example.com</code>
+</li>
+</ul>
+</td>
+</tr>
+</table><div class="warning">
+<p>The <code>Common Name</code> field must match the secure domain. You cannot purchase a certificate for the root domain, e.g., <code>example.com</code>, and expect to secure <code>www.example.com</code>. The inverse is also true.
+Additionally, SSL Endpoint only supports one certificate per app. Please keep this in mind for multi-domain applications and specify a <code>Common Domain</code> that matches all required domains.</p>
+</div>
+
+<p>Generate the CSR:</p>
+
+<pre><code class="term">$ openssl req -nodes -new -key server.key -out server.csr
+...
+Country Name (2 letter code) [AU]:US
+Common Name (eg, YOUR name) []:www.example.com
+...
+</code></pre>
+
+<p>The result of this operation will be a <code>server.csr</code> file in your local directory (alongside the <code>server.key</code> private key file from the previous step).</p>
+
+<h3 id="submit-csr-to-ssl-provider">Submit CSR to SSL provider</h3>
+
+<p>Next, begin the process of creating a new SSL certificate with your chosen certificate provider. This will vary depending on your provider, but at some point you will need to upload the CSR generated in the previous step.</p>
+
+<p>You may also be asked for what web server to create the certificate. If so, select Nginx as the web server for use on Heroku. If Nginx is not an option, Apache 2.x will also suffice.</p>
+
+<p>If you’re given an option of what certificate format to use (PKCS, X.509 etc…) choose X.509.</p>
+
+<p>If you want to secure more than one subdomain you will need to purchase a wildcard certificate from your provider. While these certificates are typically more expensive, they allow you to serve requests for all subdomains of <code>*.example.com</code> over SSL.</p>
+
+<p>On completion of the SSL certificate purchase process you should  have several files including:</p>
+
+<ul>
+<li>The SSL certificate for the domain specified in your CSR, downloaded from your certificate provider. This file will have either a <code>.pem</code> or <code>.crt</code> extension.</li>
+<li>The private key you generated in the first step, <code>server.key</code>.</li>
+</ul><p>If your certificate provider requires, you may also have an intermediate certificate or certificate bundle. This file usually has a <code>.pem</code> extension.</p>
+
+<h2 id="provision-the-add-on">Provision the add-on</h2>
+
+<p>Once you have the SSL certificate file, private key and any additional intermediate certificate bundles you are ready to configure SSL Endpoint for your app. First, provision an endpoint.</p>
+
+<pre><code class="term">$ heroku addons:add ssl:endpoint
+Adding ssl:endpoint on example... done, v1 ($20/mo)
+</code></pre>
+
+<p>Next add your certificate, any intermediate certificates, and private key to the endpoint with the <code>certs:add</code> command.</p>
+
+<div class="callout">
+<p>Heroku automatically strips out unnecessary parts of the certificate chain as part of the <code>certs:add</code> command. In some scenarios, this may not be desired. To avoid this automatic manipulation of the chain, include the <code>--bypass</code> flag.</p>
+</div>
+
+<pre><code class="term">$ heroku certs:add server.crt bundle.pem server.key
+Adding SSL Endpoint to example... done
+example now served by tokyo-2121.herokussl.com.
+Certificate details:
+Expires At: 2012-10-31 21:53:18 GMT
+Issuer: C=US; ST=CA; L=SF; O=Heroku; CN=www.example.com
+Starts At: 2011-11-01 21:53:18 GMT
+...
+</code></pre>
+
+<p>The endpoint URL assigned to your app will be listed in the output, <code>tokyo-2121.herokussl.com</code> in this example. Visiting this URL will result in a “no such app” message – this is expected. Read further for proper verification steps.</p>
+
+<div class="note">
+<p>Apps located in a non-default <a href="/articles/regions">region</a>, e.g., Europe, will not have a distinct <code>herokussl.com</code> SSL endpoint URL. Instead, the endpoint URL will just be your app’s <code>herokuapp</code> domain, e.g., <code>example.herokuapp.com</code>. The output of the <code>certs:add</code> command will accurately reflect this.</p>
+</div>
+
+<h2 id="endpoint-details">Endpoint details</h2>
+
+<p>You can verify the details of the SSL endpoint configuration with <code>heroku certs</code>.</p>
+
+<pre><code class="term">$ heroku certs
+Endpoint                    Common Name         Expires                    Trusted
+------------------------    ----------------    -----------------------    -------
+tokyo-2121.herokussl.com    www.example.com    2012-10-31 21:53:18 GMT    False
+</code></pre>
+
+<p>To get the detailed information about a certificate at any time use <code>certs:info</code>.</p>
+
+<pre><code class="term">$ heroku certs:info
+Fetching SSL Endpoint tokyo-2121.herokussl.com info for example... done
+Certificate details:
+Expires At: 2012-10-31 21:53:18 GMT
+Issuer: C=US; ST=CA; L=SF; O=Heroku; CN=www.example.com
+Starts At: 2011-11-01 21:53:18 GMT
+Subject: C=US; ST=CA; L=SF; O=Heroku; CN=www.example.com
+...
+</code></pre>
+
+<div class="callout">
+<p>In rare circumstances, it can take an SSL endpoint up to 30 minutes before it’s provisioned. If you are unable to hit the endpoint URL, please wait that amount of time before proceeding.</p>
+</div>
+
+<p>If you have a <code>herokussl.com</code> endpoint URL, visit it via https, e.g., <code>https://tokyo-2121.herokussl.com</code>. This should throw a cert error saying that the certificate at www.example.com doesn’t match tokyo-2121.herokussl.com. This means that you are serving up the cert that you’d expect to serve (just not for the requested <code>herokussl.com</code> domain).</p>
+
+<h2 id="dns-and-domain-configuration">DNS and domain configuration</h2>
+
+<p>Once the SSL Endpoint is provisioned and your cert confirmed, you must route requests for you secure domain through the endpoint URL. Unless you’ve already done so, add the domain specified when generating the CSR to your app with:</p>
+
+<pre><code class="term">$ heroku domains:add www.example.com
+Added www.example.com to example... done
+</code></pre>
+
+<div class="note">
+<p>Assuming proper <a href="https://devcenter.heroku.com/articles/custom-domains#custom-subdomains">custom domain DNS configuration</a> already, apps located in a non-default <a href="/articles/regions">region</a>, e.g., Europe, will not have to make any additional DNS modifications. Such apps can skip the remainder of this DNS section.</p>
+</div>
+
+<h3 id="subdomain">Subdomain</h3>
+
+<p>If you’re securing a subdomain, e.g., <code>www.example.com</code>, modify your DNS settings and create a CNAME record to the endpoint.</p>
+
+<table>
+<tr>
+<th>Record</th>
+    <th>Name</th>
+    <th>Target</th>
+  </tr>
+<tr>
+<td><code>CNAME</code></td>
+    <td><code>www</code></td>
+    <td><code>tokyo-2121.herokussl.com.</code></td>
+  </tr>
+</table><p>If you’re using a wildcard certificate your DNS setup will look similar.</p>
+
+<table>
+<tr>
+<th>Record</th>
+    <th>Name</th>
+    <th>Target</th>
+  </tr>
+<tr>
+<td><code>CNAME</code></td>
+    <td><code>*</code></td>
+    <td><code>tokyo-2121.herokussl.com.</code></td>
+  </tr>
+</table><h3 id="root-domain">Root domain</h3>
+
+<p>If you’re securing a root domain, e.g., <code>example.com</code>, you must be using a <a href="https://devcenter.heroku.com/articles/custom-domains#cname-functionality-at-the-apex">DNS provider that provides CNAME-like functionality at the zone apex</a>.</p>
+
+<p>Modify your DNS settings and create an ALIAS or ANAME record to the endpoint.</p>
+
+<table>
+<tr>
+<th>Record</th>
+    <th>Name</th>
+    <th>Target</th>
+  </tr>
+<tr>
+<td>
+<code>ALIAS</code> or <code>ANAME</code>
+</td>
+    <td>&lt;empty&gt; or <code>@</code>
+</td>
+    <td><code>tokyo-2121.herokussl.com.</code></td>
+  </tr>
+</table><h2 id="testing-ssl">Testing SSL</h2>
+
+<p>Use a command line utility like <code>curl</code> to test that everything is configured correctly for your secure domain.</p>
+
+<div class="callout">
+<p>The <code>-k</code> option tells curl to ignore untrusted certificates.</p>
+</div>
+
+<pre><code class="term">$ curl -kvI https://www.example.com
+* About to connect() to www.example.com port 443 (#0)
+*   Trying 50.16.234.21... connected
+* Connected to www.example.com (50.16.234.21) port 443 (#0)
+* SSLv3, TLS handshake, Client hello (1):
+* SSLv3, TLS handshake, Server hello (2):
+* SSLv3, TLS handshake, CERT (11):
+* SSLv3, TLS handshake, Server finished (14):
+* SSLv3, TLS handshake, Client key exchange (16):
+* SSLv3, TLS change cipher, Client hello (1):
+* SSLv3, TLS handshake, Finished (20):
+* SSLv3, TLS change cipher, Client hello (1):
+* SSLv3, TLS handshake, Finished (20):
+* SSL connection using AES256-SHA
+* Server certificate:
+*    subject: C=US; ST=CA; L=SF; O=SFDC; OU=Heroku; CN=www.example.com
+*    start date: 2011-11-01 17:18:11 GMT
+*    expire date: 2012-10-31 17:18:11 GMT
+*    common name: www.example.com (matched)
+*    issuer: C=US; ST=CA; L=SF; O=SFDC; OU=Heroku; CN=www.heroku.com
+*    SSL certificate verify ok.
+&gt; GET / HTTP/1.1
+&gt; User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8r zlib/1.2.3
+&gt; Host: www.example.com
+&gt; Accept: */*
+...
+</code></pre>
+
+<p>Pay attention to the output. It should print <code>SSL certificate verify ok</code>. If it prints something like <code>common name: www.example.com (does not match 'www.somedomain.com')</code> then something is not configured correctly.</p>
+
+<h2 id="update-certificate">Update certificate</h2>
+
+<div class="callout">
+<p>Heroku automatically strips out unnecessary parts of the certificate chain as part of the <code>certs:update</code> command. In some scenarios, this may not be desired. To avoid this automatic manipulation of the chain, include the <code>--bypass</code> flag.</p>
+</div>
+
+<p>You can update a certificate using the <code>certs:update</code> command with the new cert and existing private key:</p>
+
+<pre><code class="term">$ heroku certs:update server.crt server.key
+Updating SSL Endpoint endpoint tokyo-2121.herokussl.com for example... done
+</code></pre>
+
+<h3 id="undo">Undo</h3>
+
+<p>If, for some reason, the new certificate is not working properly and traffic to your app is being disrupted, you can roll back to the previous certificate:</p>
+
+<pre><code class="term">$ heroku certs:rollback
+Rolling back SSL Endpoint endpoint tokoy-2121.herokussl.com on example... done
+</code></pre>
+
+<p>If there is no previous certificate, this command will fail.</p>
+
+<h2 id="remove-certificate">Remove certificate</h2>
+
+<p>You can remove a certificate using the <code>certs:remove</code> command:</p>
+
+<pre><code class="term">$ heroku certs:remove
+Removing SSL Endpoint endpoint tokyo-2121.herokussl.com on example... done
+</code></pre>
+
+<div class="warning">
+<p>Removing an endpoint does not stop billing. To stop billing, you must remove the SSL endpoint add-on. Remove the add-on with <code>heroku addons:remove ssl:endpoint</code>.</p>
+</div>
+
+<p>If you try to remove the SSL endpoint add-on before the certificate is removed, you will receive an error.</p>
+
+<h2 id="client-ip-address">Client IP address</h2>
+
+<p>When an end-client (often the browser) initiates an SSL request, the request must be decrypted before being sent to your app. This extra SSL termination step obfuscates the originating IP address of the request. As a workaround, the IP address of the external client is added to the <a href="http://en.wikipedia.org/wiki/X-Forwarded-For"><code>X-Forwarded-For</code> HTTP request header</a>.</p>
+
+<h2 id="performance">Performance</h2>
+
+<p>SSL Endpoint infrastructure is elastic and scales automatically based on historical traffic levels. However, if you plan to switch a lot of traffic to a newly created SSL endpoint or if you expect large spikes, <a href="https://devcenter.heroku.com/articles/support-channels#heroku-help">contact Heroku support</a> so we can help with preemptive scaling.</p>
+
+<p>An initial request rate of greater than 150 requests/sec or a doubling of the existing requests/second within a 5 minute period are the thresholds at which you should consider contacting support to pre-warm your endpoint. Please give us at least 1 day advanced notice for these types of requests.</p>
+
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+<h3 id="untrusted-certificate">Untrusted certificate</h3>
+
+<p>In some cases, when running <code>heroku certs</code> it may list your certificate as untrusted. </p>
+
+<pre><code class="term">$ heroku certs
+Endpoint                    Common Name         Expires                    Trusted
+------------------------    ----------------    -----------------------    -------
+tokyo-2121.herokussl.com    www.example.com    2012-10-31 21:53:18 GMT    False
+</code></pre>
+
+<p>If this occurs it may be because it is not trusted by Mozilla’s list of <a href="http://www.mozilla.org/projects/security/certs/included/">root CA’s</a>. If this is the case your certificate should work as you expect for many browsers. </p>
+
+<p>If you have uploaded a certificate that was signed by a root authority but you get the message that it is not trusted, then something is wrong with the certificate. For example, it may be missing <a href="http://en.wikipedia.org/wiki/Intermediate_certificate_authorities">intermediary certificates</a>. If so, download the intermediary certificates from your SSL provider and re-run the <code>certs:add</code> command.</p>
+
+<h3 id="internal-server-error">Internal server error</h3>
+
+<p>If you get an <code>Internal server error</code> when adding your cert it may be that you have an outdated version of the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a>.</p>
+
+<pre><code class="term">$ heroku certs:add server.crt server.key 
+Adding SSL endpoint to example... failed 
+! Internal server error. 
+! Run 'heroku status' to check for known platform issues.
+</code></pre>
+
+<p><a href="https://devcenter.heroku.com/articles/heroku-command#installing-the-heroku-cli">Verify your toolbelt installation</a> and update it to the latest version with <code>heroku update</code>.</p>
+
+<h2 id="ssl-file-types">SSL file types</h2>
+
+<p>Many different file types are produced and consumed when creating an SSL certificate.</p>
+
+<ul>
+<li>A <code>.csr</code> file is a certificate signing request which initiates your certificate request with a certificate provider and contains administrative information about your organization.</li>
+<li>A <code>.key</code> file is the private key used for your site’s SSL-enabled requests.</li>
+<li>
+<code>.pem</code> and <code>.crt</code> extensions are often used interchangeably and are both base64 ASCII encoded files. The technical difference is that <code>.pem</code> files contain both the certificate <em>and</em> key whereas a <code>.crt</code> file only contains the certificate. In reality this distinction is often ignored.</li>
+</ul>

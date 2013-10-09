@@ -1,0 +1,60 @@
+<p>The add-on manifest is a JSON document which describes the interface between Heroku and your cloud service. You write the manifest and use it with the Kensa testing tool in your d
+evelopment environment, then send the final manifest to Heroku when you’re ready to submit your add-on to our marketplace.</p>
+
+<h2 id="generating-a-manifest">Generating a manifest</h2>
+
+<p>You can initialize a new manifest using the <code>kensa</code> tool:</p>
+
+<pre><code class="term">$ kensa init
+Initialized new addon manifest in addon-manifest.json
+</code></pre>
+
+<h2 id="example-manifest">Example manifest</h2>
+
+<pre><code class="json">{
+  "id": "errorbucket",
+  "api": {
+    "config_vars": [
+      "ERRORBUCKET_URL"
+    ],
+    "password": "GqAGAmdrnkDFcvR9",
+    "sso_salt": "7CwqmJLEjv8YZTXK",
+    "regions": ["us","eu"],
+    "production": {
+      "base_url": "https://errorbucket.com/heroku/resources",
+      "sso_url": "https://errorbucket.com/sso/login"
+    },
+    "test": {
+      "base_url": "http://localhost:4567/heroku/resources",
+      "sso_url": "http://localhost:4567/sso/login"
+    }
+  }
+}
+</code></pre>
+
+<h2 id="fields">Fields</h2>
+
+<ul>
+<li>
+<strong>id</strong> - An id for your add-on. This is what users will enter when they type “heroku addons:add [youraddon]” All lower case, no spaces or punctuation. This can’t be changed after the first push to Heroku. It is also used for HTTP basic auth when making provisioning calls.</li>
+<li>
+<strong>name</strong> - The name of your add-on.</li>
+<li>
+<strong>api/config_vars</strong> - A list of config vars that will be returned on provisioning calls. Typically you will have exactly one, the resource URL.</li>
+<li>
+<strong>api/password</strong> - Password that Heroku will send in HTTP basic auth when making provisioning calls.</li>
+<li>
+<strong>api/sso_salt</strong> - Shared secret used in single sign-on between the Heroku admin panel and your service’s admin panel.</li>
+<li>
+<strong>api/regions</strong> - The list of geographical regions supported by your add-on.  It cannot be empty.  It must either contain the elements “us”, “eu”, or both “us” and “eu”.</li>
+<li>
+<strong>api/production/base_url</strong> - The production endpoint for heroku api actions (provision, deprovision, and plan change)</li>
+<li>
+<strong>api/production/sso_url</strong> - The production endpoint for single sign-on</li>
+<li>
+<strong>api/test</strong> - The root URL of your development host, typically local, or a map of URLs.</li>
+<li>
+<strong>api/test/base_url</strong> - The test endpoint for heroku api actions</li>
+<li>
+<strong>api/test/sso_url</strong> - The test endpoint for single sign-on</li>
+</ul>

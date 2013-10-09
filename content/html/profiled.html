@@ -1,0 +1,27 @@
+<p>During startup, the container starts a <code>bash</code> shell that runs scripts in the <code>.profile.d/</code> directory before executing the dyno’s command.  </p>
+
+<p>These scripts let you manipulate the initial environment, at runtime, for all dyno types in the app - an application can gain explicit control over its startup environment. Buildpacks can use these scripts to set up a <a href="/articles/buildpack-api#default-config-values">default environment</a>.</p>
+
+<p>The scripts must be <code>bash</code> scripts, and their filenames must end in <code>.sh</code>.</p>
+
+<h2 id="example-profile-d-path-sh">Example <code>.profile.d/path.sh</code>
+</h2>
+
+<div class="callout">
+<p><code>.profile.d</code> scripts are sourced <em>after</em> the app’s config vars are added to the environment. To have the app’s config vars take precedence, use a technique like that shown here with <code>LANG</code>.</p>
+</div>
+
+<pre><code class="term"># add vendor binaries to the path
+PATH=$PATH:$HOME/vendor/bin
+
+# set a default LANG if it does not exist in the environment
+LANG=${LANG:-en_US.UTF-8}
+</code></pre>
+
+<div class="warning">
+<p>If you find yourself making frequent changes to your <code>.profile.d</code> scripts, you should probably be using <a href="/articles/config-vars">config vars</a>.</p>
+</div>
+
+<h2 id="order">Order</h2>
+
+<p>Scripts in the <code>.profile.d/</code> directory will be executed in an arbitrary order.</p>

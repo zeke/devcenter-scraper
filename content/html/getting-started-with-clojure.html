@@ -1,0 +1,259 @@
+<p>This quickstart will get you going with <a href="http://clojure.org/">Clojure</a> and the <a href="https://github.com/ring-clojure/ring#readme">Ring</a> web library, deployed to Heroku. For general information on how to develop and architect apps for use on Heroku, see <a href="https://devcenter.heroku.com/articles/architecting-apps">Architecting Applications for Heroku</a>.</p>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<ul>
+<li>Basic Clojure knowledge, including an installed version of <a href="https://github.com/technomancy/leiningen#readme">Leiningen</a> and a JVM.</li>
+
+<li>Your application must use <a href="http://leiningen.org">Leiningen</a>. This article assumes the use of Leiningen 2.x, but 1.x is <a href="/articles/clojure-support">also available</a>.</li>
+
+<li>Your application must run on the <a href="http://openjdk.java.net/">OpenJDK</a> <a href="/articles/customizing-the-jdk">version 6 or 7</a>.</li>
+
+<li>A Heroku user account. <a href="https://api.heroku.com/signup/devcenter">Signup is free and instant</a>.</li>
+</ul><h2 id="local-workstation-setup">Local workstation setup</h2>
+
+<p>Install the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a> on your local workstation. This ensures that you have access to the <a href="/categories/command-line">Heroku command-line client</a>, Foreman, and the Git revision control system.</p>
+
+<p>Once installed, you’ll have access to the <code>heroku</code> command from your shell. Log in using the email address and password you used when creating your Heroku account:</p>
+
+<pre><code class="term">$ heroku login
+Enter your Heroku credentials.
+Email: adam@example.com
+Password (typing will be hidden):
+Could not find an existing public key.
+Would you like to generate one? [Yn] 
+Generating new SSH public key.
+Uploading ssh public key /Users/adam/.ssh/id_rsa.pub</code></pre>
+
+<p>Press enter at the prompt to upload your existing <code>ssh</code> key or create a new one, used for pushing code later on.</p>
+
+<h2 id="write-your-app">Write your app</h2>
+
+<p>You may be starting from an existing app. If not, here’s a simple “hello, world” source file you can use:</p>
+
+<h3 id="src-hello-world-clj">src/hello/world.clj</h3>
+
+<pre><code class="clojure">(ns hello.world
+  (:require [ring.adapter.jetty :as jetty]))
+
+(defn app [req]
+  {:status 200
+   :headers {"Content-Type" "text/plain"}
+   :body "Hello, world"})
+
+(defn -main [port]
+  (jetty/run-jetty app {:port (Integer. port) :join? false}))</code></pre>
+
+<p>You can also run <code>lein new heroku helloworld</code> to generate a project skeleton that has <a href="https://github.com/technomancy/lein-heroku/tree/master/lein-template">some extra convenience features</a> useful for Heroku development.</p>
+
+<h2 id="declare-dependencies-in-project-clj">Declare dependencies in <code>project.clj</code>
+</h2>
+
+<p>Heroku recognizes an app as Clojure by the existence of a <code>project.clj</code> file.</p>
+
+<p>Here’s an example <code>project.clj</code> for the Clojure/Ring app we created above:</p>
+
+<h3 id="project-clj">project.clj</h3>
+
+<pre><code class="clojure">(defproject helloworld "0.0.1"
+  :dependencies [[org.clojure/clojure "1.5.1"]
+                 [ring/ring-jetty-adapter "1.1.6"]]
+  :uberjar-name "helloworld-standalone.jar"
+  :min-lein-version "2.0.0")</code></pre>
+
+<p>Prevent build artifacts from going into revision control by creating this file:</p>
+
+<h3 id="gitignore">.gitignore</h3>
+
+<pre><code class="term">/target
+/pom.xml
+/.lein-*
+/.env</code></pre>
+
+<p>Projects that depend on dependencies that aren’t available in public repositories can deploy them to private repositories. The easiest way to do this is using a private S3 bucket with the <a href="https://github.com/technomancy/s3-wagon-private">s3-wagon-private</a> Leiningen plugin.</p>
+
+<h2 id="declare-process-types-with-procfile">Declare process types with Procfile</h2>
+
+<p>Use a <a href="/articles/procfile">Procfile</a>, a text file in the root directory of your application, to explicitly declare what command should be executed to start a web <a href="/articles/dynos">dyno</a>. In this case, you need to execute the single Clojure namespace.</p>
+
+<p>Here’s a <code>Procfile</code> for the sample app we’ve been working on:</p>
+
+<pre><code class="term">web: java $JVM_OPTS -cp target/helloworld-standalone.jar clojure.main -m hello.world $PORT</code></pre>
+
+<p>This declares a single process type, <code>web</code>, and the command needed to run it. The name “web” is important here. It declares that this process type will be attached to the <a href="http-routing">HTTP routing</a> stack of Heroku, and receive web traffic when deployed.</p>
+
+<p>You can run your app locally with <code>lein run -m hello.world 5000</code> for a quick check, or you can launch the server from a repl for interactive development:</p>
+
+<pre><code class="term">$ lein repl
+[...]
+user=&gt; (require 'hello.world)
+nil
+user=&gt; (hello.world/-main 5000)
+2013-07-01 13:52:49.575:INFO:oejs.Server:jetty-7.6.1.v20120215
+2013-07-01 13:52:49.627:INFO:oejs.AbstractConnector:Started SelectChannelConnector@0.0.0.0:5000
+#&lt;Server org.eclipse.jetty.server.Server@2f26f304&gt;</code></pre>
+
+<p>Your app will come up on port 5000, and you can hit it with <code>curl</code> or a web browser.</p>
+
+<h2 id="store-your-app-in-git">Store your app in Git</h2>
+
+<p>We now have the three major components of our app: dependencies in <code>project.clj</code>, process types in <code>Procfile</code>, and our application source in <code>src/hello/world.clj</code>. Let’s put it into Git:</p>
+
+<pre><code class="term">$ git init
+$ git add .
+$ git commit -m init</code></pre>
+
+<h2 id="deploy-your-application-to-heroku">Deploy your application to Heroku</h2>
+
+<p>Create the app:</p>
+
+<pre><code class="term">$ heroku apps:create
+Creating glowing-snow-27... done
+Created http://glowing-snow-27.herokuapp.com/ | git@heroku.com:glowing-snow-27.git
+Git remote heroku added</code></pre>
+
+<p>Deploy your code:</p>
+
+<pre><code class="term">$ git push heroku master
+Counting objects: 7, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (4/4), done.
+Writing objects: 100% (7/7), 710 bytes, done.
+Total 7 (delta 0), reused 0 (delta 0)
+
+-----&gt; Heroku receiving push
+-----&gt; Clojure (Leiningen 2) app detected
+-----&gt; Installing OpenJDK 1.6...done
+-----&gt; Installing Leiningen
+       Downloading: leiningen-2.2.0-standalone.jar
+       Writing: lein script
+-----&gt; Building with Leiningen
+       Running: lein uberjar
+       Retrieving org/clojure/clojure/1.5.1/clojure-1.5.1.pom from
+           from http://s3pository.herokuapp.com/clojure/
+       [...]
+       Created /tmp/build_1y7nbplmlxu87/target/helloworld.jar
+-----&gt; Discovering process types
+       Procfile declares types -&gt; web
+-----&gt; Compiled slug size: 51.4MB
+-----&gt; Launching... done, v1
+       http://glowing-snow-27.herokuapp.com deployed to Heroku
+
+To git@heroku.com:glowing-snow-27.git
+ * [new branch]      master -&gt; master</code></pre>
+
+<h2 id="visit-your-application">Visit your application</h2>
+
+<p>You’ve deployed your code to Heroku, and specified the process types in a <code>Procfile</code>. You can now instruct Heroku to execute a process type. Heroku does this by running the associated command in a <a href="/articles/dynos">dyno</a> - a lightweight container which is the basic unit of composition on Heroku.</p>
+
+<p>Let’s ensure we have one dyno running the <code>web</code> process type:</p>
+
+<pre><code class="term">$ heroku ps:scale web=1</code></pre>
+
+<p>You can check the state of the app’s dynos. The <code>heroku ps</code> command lists the running dynos of your application:</p>
+
+<pre><code class="term">$ heroku ps
+=== web: `java $JVM_OPTS -cp target/helloworld-standalone.jar clojure.main -m hello.world $PORT`
+web.1: up for 5s</code></pre>
+
+<p>Here, one dyno is running.</p>
+
+<p>We can now visit the app in our browser with <code>heroku open</code>.</p>
+
+<pre><code class="term">$ heroku open
+Opening glowing-snow-27... done</code></pre>
+
+<h2 id="dyno-sleeping-and-scaling">Dyno sleeping and scaling</h2>
+
+<p>Having only a single web dyno running will result in the dyno <a href="/articles/dynos#dyno-sleeping">going to sleep</a> after one hour of inactivity. This causes a delay of a few seconds for the first request upon waking. Subsequent requests will perform normally.</p>
+
+<p>To avoid this, you can scale to more than one web dyno. For example:</p>
+
+<pre><code class="term">$ heroku ps:scale web=2</code></pre>
+
+<p>For each application, Heroku provides <a href="/articles/usage-and-billing#750-free-dyno-hours-per-app">750 free dyno-hours</a>. Running your app at 2 dynos would exceed this free, monthly allowance, so let’s scale back:</p>
+
+<pre><code class="term">$ heroku ps:scale web=1</code></pre>
+
+<h2 id="view-the-logs">View the logs</h2>
+
+<p>Heroku treats logs as streams of time-ordered events aggregated from the output streams of all the dynos running the components of your application. Heroku’s <a href="/articles/logplex">Logplex</a> provides a single channel for all of these events.</p>
+
+<p>View information about your running app using one of the <a href="/articles/logging">logging commands</a>, <code>heroku logs</code>:</p>
+
+<pre><code class="term">$ heroku logs
+2011-03-16T03:28:32-07:00 heroku[web.1]: Running process with command: `java $JVM_OPTS -cp target/helloworld-standalone.jar clojure.main -m hello.world $PORT
+2011-03-16T03:28:37-07:00 app[web.1]: 2011-03-16 10:28:37.181:INFO::Logging to STDERR via org.mortbay.log.StdErrLog
+2011-03-16T03:28:37-07:00 app[web.1]: 2011-03-16 10:28:37.182:INFO::jetty-6.1.26
+2011-03-16T03:28:40-07:00 app[web.1]: 2011-03-16 10:28:40.223:INFO::Started SocketConnector@0.0.0.0:20184
+2011-03-16T03:28:40-07:00 heroku[web.1]: State changed from starting to up</code></pre>
+
+<h2 id="console">Console</h2>
+
+<p>Heroku allows you to run <a href="/articles/oneoff-admin-ps">one-off proceses</a> - scripts and applications that only need to be executed when needed - using the <code>heroku run</code> command. Use this to launch a REPL process attached to your local terminal for experimenting in your app’s environment:</p>
+<div class="callout">
+<p>Running <code>heroku run lein repl</code> uses a simplified version of the <code>repl</code> task provided by Leiningen.</p>
+</div>
+<pre><code class="term">$ heroku run lein repl
+Running lein repl attached to terminal... up, run.1
+Downloading Leiningen to .lein/leiningen-2.2.0-standalone.jar now...
+[...]
+Clojure 1.5.1
+user=&gt; </code></pre>
+
+<p>Since Leiningen is not included in your slug for size reasons, it’s downloaded on-demand here. The repl has your app’s namespaces available. For example:</p>
+
+<pre><code class="term">user=&gt; (require 'hello.world)
+nil
+user=&gt; (hello.world/app {})
+{:status 200, :headers {"Content-Type" "text/plain"}, :body "Hello, world"}</code></pre>
+
+<p>For more details about using a REPL on Heroku, see the <a href="/articles/debugging-clojure">live debugging Clojure apps</a> article.</p>
+
+<h2 id="one-off-scripts">One-off scripts</h2>
+
+<p>You can run a one-off Clojure script attached to the terminal in the same way, as long as the script exists in your deployed app. Try making a small script that prints to the console and exits:</p>
+
+<h3 id="src-hello-hi-clj">src/hello/hi.clj</h3>
+
+<pre><code class="clojure">(ns hello.hi)
+
+(defn -main [&amp; args]
+  (println "Hello there"))</code></pre>
+
+<p>Commit and deploy this new code:</p>
+
+<pre><code class="term">$ git add src/hello/hi.clj
+$ git commit -m hi
+$ git push heroku master</code></pre>
+
+<p>Run the script in a <a href="/articles/oneoff-admin-ps">one-off dyno</a> with <code>heroku run</code>:</p>
+
+<pre><code class="term">$ heroku run lein run -m hello.hi
+Running lein run -m hello.hi attached to terminal... up, run.2
+Hello there</code></pre>
+
+<h2 id="using-a-sql-database">Using a SQL database</h2>
+
+<p>By default, Clojure apps aren’t provisioned a database. This is because you might want to use a NoSQL database like Redis or CouchDB, or (as in the case of our sample app above) you don’t need any database at all.</p>
+
+<p>If you do need a SQL database for your app, request one explicitly:</p>
+
+<pre><code class="term">$ heroku addons:add heroku-postgresql:dev</code></pre>
+
+<h2 id="next-steps">Next steps</h2>
+
+<ul>
+<li>Visit the <a href="/categories/clojure">Clojure category</a> to learn more about developing and deploying Clojure applications.</li>
+
+<li>Extend the app by reading <a href="/articles/clojure-web-application">Building a Database-Backed Clojure Web Application</a>
+</li>
+
+<li>Read the technical aspects of <a href="/articles/clojure-support">Heroku’s Clojure support</a>
+</li>
+
+<li>Learn to debug in <a href="/articles/debugging-clojure">Live-Debugging Remote Clojure apps with Drawbridge</a>
+</li>
+
+<li>Read <a href="/articles/how-heroku-works">How Heroku Works</a> for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.</li>
+</ul>

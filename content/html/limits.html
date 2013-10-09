@@ -1,0 +1,165 @@
+<p>This is an aggregation of the limits imposed on various components of the Heroku platform.  It lists only the limits (number of connections, for example) not the features (this database plan has that capability). </p>
+
+<p>Limits exist for several reasons.  Sometimes limits are present because of how the underlying platform is constructed: for example, Heroku stores only 1500 lines of log history (the rest being available via a logging add-on). Sometimes limits are present because they enforce good citizenship: for example, you can’t make more than 1200 API requests an hour. </p>
+
+<p>Each limit here is documented with a link to the source document that documents the limit, and which provides a lot more context to the limit.  </p>
+
+<h2 id="logplex">Logplex</h2>
+
+<h3 id="log-history-limits">Log history limits</h3>
+
+<p>Heroku only stores the last 1500 lines of log history. If you’d like to persist more than 1500 lines, use a logging add-on or create your own syslog drain.</p>
+
+<p><a href="/articles/logging#log-history-limits">Source</a></p>
+
+<h2 id="router">Router</h2>
+
+<h3 id="http-timeouts">HTTP timeouts</h3>
+
+<p>HTTP requests have an initial 30 second window in which the web process must return response data (either the completed response or some amount of response data to indicate that the process is active). Processes that do not send response data within the initial 30-second window will see an H12 error in their logs.</p>
+
+<p>After the initial response, each byte sent (either from the client or from your app process) resets a rolling 55 second window. If no data is sent during this 55 second window then the connection is terminated and a H15 error is logged.</p>
+
+<p><a href="http-routing#timeouts">Source</a></p>
+
+<h3 id="http-response-buffering">HTTP response buffering</h3>
+
+<p>The router maintains a 1MB buffer for responses from the dyno per connection.</p>
+
+<p><a href="http-routing#response-buffering">Source</a></p>
+
+<h3 id="http-request-buffering">HTTP request buffering</h3>
+
+<p>When processing an incoming request, a router sets up an 8KB receive buffer and begins reading the HTTP request line and request headers. Each of these can be at most 8KB in length, but together can be more than 8KB in total. Requests containing a request line or header line longer than 8KB will be dropped by the router without being dispatched.</p>
+
+<p><a href="http-routing#request-buffering">Source</a></p>
+
+<h2 id="dynos">Dynos</h2>
+
+<h3 id="dyno-memory">Dyno memory</h3>
+
+<p>Dynos are available in 1X or 2X sizes and are allocated 512MB or 1024MB respectively.</p>
+
+<p>If the memory size of your dyno keeps growing until it reaches three times its quota (for a 1X dyno, 512MB x 3 = 1.5GB), the dyno manager will restart your dyno with an R15 error.</p>
+
+<p><a href="/articles/dynos#memory-behavior">Source</a></p>
+
+<h3 id="attached-one-off-dyno-timeout">Attached one-off dyno timeout</h3>
+
+<p>Connections to one-off dynos will be closed after one hour of inactivity (in both input and output). When the connection is closed, the dyno will be sent SIGHUP. This idle timeout helps prevent unintended charges from leaving interactive console sessions open and unused.</p>
+
+<p><a href="/articles/one-off-dynos#one-off-dyno-timeout">Source</a></p>
+
+<h3 id="concurrent-one-off-dynos">Concurrent one-off dynos</h3>
+
+<p>Heroku accounts <a href="https://devcenter.heroku.com/articles/account-verification">that aren’t verified</a> cannot have more than 3 one-off dynos running concurrently.</p>
+
+<p><a href="https://devcenter.heroku.com/articles/one-off-dynos#limits">Source</a></p>
+
+<h3 id="config-vars">Config vars</h3>
+
+<p>Config var data (the collection of all keys and values) is limited to 16kb for each app.</p>
+
+<p><a href="/articles/config-vars#limits">Source</a></p>
+
+<h3 id="boot-timeout">Boot timeout</h3>
+
+<p>The web process in a dyno may not take more than 60 seconds to bind to its assigned $PORT. </p>
+
+<p><a href="/articles/error-codes#r10-boot-timeout">Source</a></p>
+
+<h3 id="exit-timeout">Exit timeout</h3>
+
+<p>When a dyno is killed or restarted, the processes within the dyno have 10 seconds in which to exit on receiving a SIGTERM. The process is sent SIGKILL to force an exit after this 10 seconds.</p>
+
+<p><a href="/articles/error-codes#r12-exit-timeout">Source</a></p>
+
+<h3 id="dyno-restart-limits">Dyno restart limits</h3>
+
+<p>Heroku’s dyno restart policy is to try to restart crashed dynos by spawning new dynos once every ten minutes. This means that if you push bad code that prevents your app from booting, your app dynos will be started once, then restarted, then get a cool-off of ten minutes. In the normal case of a long-running web or worker process getting an occasional crash, the dyno will be restarted instantly without any intervention on your part. If your dyno crashes twice in a row, it will stay down for ten minutes before the system retries.</p>
+
+<p><a href="/articles/dynos#automatic-dyno-restarts">Source</a></p>
+
+<h3 id="dyno-scale">Dyno scale</h3>
+
+<p>By default, a process type can’t be scaled to more than 100 dynos.  Contact support to raise this limit for your application.</p>
+
+<p><a href="/articles/scaling#limits">Source</a></p>
+
+<h3 id="processes-threads">Processes / threads</h3>
+
+<p>1X Dynos are limited a combined sum of 256 processes and threads. 2X Dynos are limited to 512. This limit applies whether they are executing, sleeping, or in any other state. </p>
+
+<p><a href="/articles/dynos">Source</a></p>
+
+<h2 id="build">Build</h2>
+
+<h3 id="git-requests">Git requests</h3>
+
+<p>Users are <a href="/articles/git#other-limits">limited</a> to a rolling window of 75 requests to <a href="/articles/git">Heroku Git repos</a> per hour, per app.</p>
+
+<p><a href="/articles/git#other-limits">Source</a></p>
+
+<h3 id="slug-size">Slug size</h3>
+
+<p>Your slug size is displayed at the end of a successful compile. The maximum slug size is 300MB; most apps should be far below this limit.</p>
+
+<p><a href="/articles/slug-compiler#slug-size">Source</a></p>
+
+<h3 id="slug-compilation">Slug compilation</h3>
+
+<p>Slug compilation is limited to 15 minutes.</p>
+
+<p><a href="/articles/slug-compiler#time-limit">Source</a></p>
+
+<h2 id="heroku-postgres">Heroku Postgres</h2>
+
+<h3 id="dataclips-row-limits">Dataclips row limits</h3>
+
+<p>Dataclips may return up to 29,999 rows.</p>
+
+<p><a href="/articles/dataclips#limits">Source</a></p>
+
+<h3 id="dataclips-query-limit-timeout">Dataclips query limit timeout</h3>
+
+<p>Dataclips will cancel queries after 10 minutes.</p>
+
+<p><a href="/articles/dataclips#limits">Source</a></p>
+
+<h3 id="production-tier">Production tier</h3>
+
+<ul>
+<li>1 TB of storage</li>
+<li>Maximum of 500 connections</li>
+<li>In-memory cache (<a href="https://postgres.heroku.com/pricing">size dependent on plan</a>)</li>
+</ul><p><a href="/articles/heroku-postgres-plans#production-tier">Source</a></p>
+
+<h3 id="starter-tier">Starter tier</h3>
+
+<ul>
+<li>Enforced row limits of 10,000 rows for <code>dev</code> and 10,000,000 for <code>basic</code> plans</li>
+<li>Maximum of 20 connections</li>
+<li>No in-memory cache</li>
+</ul><p><a href="/articles/heroku-postgres-plans#starter-tier">Source</a></p>
+
+<h2 id="api">API</h2>
+
+<h3 id="heroku-api-limits">Heroku API limits</h3>
+
+<p>The rate limit on calls to the Heroku API is 1200 calls per hour.</p>
+
+<p><a href="https://devcenter.heroku.com/articles/platform-api-reference#rate-limits">Source</a></p>
+
+<h2 id="bamboo">Bamboo</h2>
+
+<p>The Bamboo <code>heroku.com</code> stack has a 30 megabyte request body size limit.</p>
+
+<p><a href="https://devcenter.heroku.com/articles/http-routing-bamboo#request-body-size-limit">Source</a></p>
+
+<h2 id="other">Other</h2>
+
+<h3 id="maximum-number-of-applications">Maximum number of applications</h3>
+
+<p>Unverified accounts can create at most 5 apps. Verified accounts can create no more than 100 applications.</p>
+
+<p><a href="https://devcenter.heroku.com/articles/account-management#application-limit">Source</a></p>

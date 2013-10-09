@@ -1,0 +1,14 @@
+<p>Older Heroku accounts may be asked to confirm that you agree to be billed before performing your first paid action such as adding a paid add-on or scaling your app’s dynos.</p>
+
+<p>From the command line, you will see:</p>
+
+<pre><code class="term">$ heroku addons:add heroku-postgresql:crane
+Adding heroku-postgresql:crane to sushi... 
+This action will cause your account to be billed at the end of the month
+Are you sure you want to do this? (y/n)</code></pre>
+
+<p>and from the web UI, you will see a checkbox or a popup to confirm billing.</p>
+
+<p>Alternatively, you can also use the heroku command line tool to confirm your account:</p>
+
+<pre><code class="term">$ heroku account:confirm_billing</code></pre>

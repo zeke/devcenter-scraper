@@ -1,0 +1,77 @@
+<p>The Dev Center CLI lets authors edit and preview Dev Center articles locally.</p>
+
+<h2 id="installation">Installation</h2>
+
+<p>You’ll need to <a href="http://www.ruby-lang.org/en/downloads/">set up Ruby</a> on your local machine. Then install the Dev Center CLI gem:</p>
+
+<pre><code class="term">$ gem install devcenter
+</code></pre>
+
+<h2 id="pull-your-article">Pull your article</h2>
+
+<p>Download a local copy of an article with <code>devcenter pull</code> followed by the article URL:</p>
+
+<pre><code class="term">$ devcenter pull https://devcenter.heroku.com/articles/dev-center-cli
+"Dev Center CLI" article saved as ~/.../dev-center-cli.md
+</code></pre>
+
+<p>This will save a <code>dev-center-cli.md</code> text file in your local directory.</p>
+
+<h2 id="edit-and-preview-locally">Edit and preview locally</h2>
+
+<p>Open the file with your text editor: you will see that the file includes some metadata followed by the article content in markdown format.</p>
+
+<p>The following command will open a preview in your default browser:</p>
+
+<pre><code class="term">$ devcenter preview dev-center-cli
+Live preview for error-pages available in  http://127.0.0.1:3000/dev-center-cli
+It will refresh when you save ~/.../dev-center-cli.md
+Press Ctrl+C to exit...
+</code></pre>
+
+<p>Now start editing the article’s content: the preview will auto-refresh whenever you save the file, so you can see the content you’re editing and its preview side by side.</p>
+
+<h3 id="metadata">Metadata</h3>
+
+<p>The markdown file includes some metadata fields, the following ones can be edited:</p>
+
+<ul>
+<li>
+<code>title</code>: it can be edited freely</li>
+<li>
+<code>markdown_flavour</code>: indicates which of the two markdown parsers available in Dev Center should be used to parse the content. The available values are <code>maruku</code> (applied by default if no flavour is specified) and <code>github</code> (corresponding to a new experimental parser).</li>
+</ul><div class="warning">
+<p>Never overwrite the id: you’ll need it to save your changes in Dev Center.</p>
+</div>
+
+<h2 id="save-the-article-to-dev-center">Save the article to Dev Center</h2>
+
+<p>At the end of the preview, you will see a button to save your changes in the Dev Center website:</p>
+
+<p><img src="https://s3.amazonaws.com/heroku.devcenter/heroku_assets/images/171-original.jpg?1367999232" alt="Save button" title="Save button"></p>
+
+<div class="warning">
+<p>You need to be logged in into Dev Center to save the article.</p>
+</div>
+
+<p>After clicking the button you will be redirected to the editing form in Dev Center, prepopulated with your local changes, ready to save the article.</p>
+
+<h2 id="stop-the-preview">Stop the preview</h2>
+
+<p>To stop the <code>preview</code> command, press Ctrl+C.</p>
+
+<h2 id="additional-help">Additional help</h2>
+
+<p>Get a list of all the available commands with:</p>
+
+<pre><code class="term">$ devcenter help
+</code></pre>
+
+<p>To get help for a specific command and its available options, e.g: <code>preview</code>:</p>
+
+<pre><code class="term">$ devcenter help preview
+</code></pre>
+
+<h2 id="issues-and-pull-requests">Issues and pull requests</h2>
+
+<p>The Dev Center CLI is open source, you can access <a href="https://github.com/heroku/devcenter-cli">its repo</a> to get the code, report issues or send pull requests.        </p>

@@ -1,0 +1,169 @@
+<p>Git is a powerful decentralized revision control system, and is the
+means for deploying apps to Heroku. You don’t need to be proficient with Git to
+use it for deploying code to Heroku, but you may find it valuable to learn the
+basics of this excellent tool for managing source code.  </p>
+
+<h2 id="tracking-your-app-in-git">Tracking your app in git</h2>
+
+<div class="callout">
+<p>Heroku apps expect the app directory structure at the root of the repository.  If your app is inside a subdirectory in your repository, it won’t run when pushed to Heroku.</p>
+</div>
+
+<p>Before you can push an app to Heroku, you’ll need to initialize a local Git repo
+and commit your files to it.  For example, if you have an app in a directory, myapp, then create a new repo for it:</p>
+
+<pre><code class="term">$ cd myapp
+$ git init
+Initialized empty Git repository in .git/
+$ git add .
+$ git commit -m "my first commit"
+Created initial commit 5df2d09: my first commit
+ 44 files changed, 8393 insertions(+), 0 deletions(-)
+ create mode 100644 README
+ create mode 100644 Procfile
+ create mode 100644 app/controllers/source_file
+...
+</code></pre>
+
+<p>This is a local repository, now residing inside the <code>.git</code> directory.  Nothing has
+been sent anywhere yet; you’ll need to create a remote and do a push to deploy
+your code to Heroku.</p>
+
+<h2 id="creating-a-heroku-remote">Creating a Heroku remote</h2>
+
+<p><a href="http://progit.org/book/ch2-5.html">Git remotes</a> are references to remote repositories.  You can have any number of
+these, but for now we’ll focus on just the remote to Heroku.  The <code>heroku create</code> command creates a new application on Heroku – along with a git remote that must be used to receive your application source.</p>
+
+<pre><code class="term">$ heroku create
+Creating falling-wind-1624... done, stack is cedar
+http://falling-wind-1624.herokuapp.com/ | git@heroku.com:falling-wind-1624.git
+Git remote heroku added
+</code></pre>
+
+<p>You can verify the remote in your git configuration as well:</p>
+
+<pre><code class="term">$ git remote -v
+heroku     git@heroku.com:falling-wind-1624.git (fetch)
+heroku     git@heroku.com:falling-wind-1624.git (push)
+</code></pre>
+
+<p>You can also take an existing Git repo and add a remote using the git URL provided
+when you created your app.  You may need to do this to associate a Git repo with an existing application.  The <code>heroku git:remote</code> command will add this remote for you based on your applications git url.</p>
+
+<pre><code class="term">$ heroku git:remote -a falling-wind-1624
+Git remote heroku added.
+</code></pre>
+
+<p>The remote is named <code>heroku</code> in this example, but you can name the remote
+anything you want by passing <code>-r other_remote_name</code>.  You may find it easier to follow the examples if you stick to using the <code>heroku</code> remote rather than using one with a different name.</p>
+
+<p>There is one special remote name: <code>origin</code>, which is the default for pushes.
+Using origin as the remote name will allow you to type just <code>git push</code> instead
+of <code>git push heroku</code>, but we recommend using an explicitly named remote.</p>
+
+<h2 id="deploying-code">Deploying code</h2>
+
+<p>Your Heroku app starts with a blank repository – it has no branches and no
+code. So the first time you deploy, you’ll need to specify a remote branch to
+push to. You can do your first push:</p>
+
+<pre><code class="term">$ git push heroku master
+updating 'refs/heads/master'
+...
+</code></pre>
+
+<p>This will push your code to the <code>heroku</code> remote, created earlier. Use this whenever you want to deploy the latest code committed in Git to Heroku.</p>
+
+<p>Branches pushed to Heroku other than <code>master</code> will be ignored by this command.  If you’re
+working out of another branch locally, you can either merge to master before
+pushing, or specify that you want to push your local branch to a remote master.
+To push a branch other than master, use this syntax:</p>
+
+<pre><code class="term">$ git push heroku yourbranch:master
+</code></pre>
+
+<div class="note">
+<p>Applications that rely on git submodules are supported, in addition to many other <a href="/articles/git-submodules">dependency resolution strategies</a>.</p>
+</div>
+
+<h2 id="multiple-remotes-and-environments">Multiple remotes and environments</h2>
+
+<p>The same techniques used to deploy to production can be used to deploy a development branch of your application to a staging application on Heroku, as described in <a href="/articles/multiple-environments">Managing Multiple Environments for an App</a>.</p>
+
+<h2 id="repo-size">Repo size</h2>
+
+<p>While there is not a hard limit on your repository size, very large
+repositories (over 600MB) are not recommended; they may cause timeouts
+and slow pushes overall. Running <code>heroku apps:info</code> will show you your
+repository size. Your build cache is stored inside your repository, so
+don’t be surprised if it’s larger remotely than locally.</p>
+
+<p>Common causes of large repositories are binary files checked into the
+repo (git is notoriously bad at handling binaries) or
+constantly-changing development logs. Removing files committed by
+accident can be done with
+<a href="http://git-scm.com/book/en/Git-Internals-Maintenance-and-Data-Recovery#Removing-Objects">git filter-branch</a>,
+though after running it you will have to push with the <code>--force</code>
+option, which is something that requires coordination among your team.</p>
+
+<h2 id="other-limits">Other limits</h2>
+
+<p>To protect the Git service, users are limited to a rolling window of 75 Git requests per hour, per SSH key. Once this limit is reached, Git requests are denied until request levels dropped below the limit for a few minutes, with the error message:</p>
+
+<pre><code> !  Too many requests for this Git repo. Please try again later.
+</code></pre>
+
+<p>If you reach this limit, ensure there are not automated processes or scripts polling the Git repo.</p>
+
+<h2 id="using-subversion-or-other-revision-control-systems">Using subversion or other revision control systems</h2>
+
+<p>What if you’re already using Subversion or another revision control system to
+track your source code? Although we believe that Git is one of the best choices
+available for revision control, you don’t need to stop using your current
+revision control system. Git can be purely a deployment mechanism, existing
+side-by-side with your other tool.</p>
+
+<div class="callout">
+<p>You can learn much more about <code>.gitignore</code> in <a href="/articles/gitignore">our article on the topic</a>.</p>
+</div>
+
+<p>For example, if you are using Subversion, initialize your Git repo as described above. Then, add a <code>.gitignore</code> file to tell Git to ignore your Subversion directories.</p>
+
+<pre><code class="term">$ git init
+$ echo .svn &gt; .gitignore
+$ git add .
+$ git commit -m "using git for heroku deployment"
+</code></pre>
+
+<p>Now tell Subversion to ignore Git:</p>
+
+<pre><code class="term">$ svn propset svn:ignore .git .
+property 'svn:ignore' set on '.'
+$ svn commit -m "ignoring git folder (git is used for heroku deployment)"
+</code></pre>
+
+<div class="callout">
+<p>The <code>-f</code> (force flag) is recommended in order to avoid conflicts with other developers' pushes. Since you are not using Git for your revision control, but as a transport only, using the force flag is a reasonable practice.</p>
+</div>
+
+<p>Each time you wish to deploy to Heroku:</p>
+
+<pre><code class="term">$ git add -A
+$ git commit -m "commit for deploy to heroku"
+...
+
+$ git push -f heroku
+</code></pre>
+
+<h2 id="additional-resources">Additional resources</h2>
+
+<ul>
+<li>
+<a href="http://railscasts.com/episodes/96">Git on Rails</a> shows common conventions
+for using Git to track Rails apps.</li>
+<li>Git cheat sheets for <a href="http://cheat.errtheblog.com/s/git">web</a> and
+<a href="https://na1.salesforce.com/help/doc/en/salesforce_git_developer_cheatsheet.pdf">print</a> consumption.</li>
+<li><a href="http://git.or.cz/course/svn.html">Git - SVN Crash Course</a></li>
+<li>
+<a href="http://progit.org/book/">Pro Git</a> and <a href="http://book.git-scm.com/">The Git Community Book</a> are great books covering all of Git.</li>
+</ul>

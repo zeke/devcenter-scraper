@@ -1,0 +1,327 @@
+<p>This quickstart will get you going with Scala and the <a href="http://github.com/twitter/finagle">Finagle</a> web library, deployed to Heroku.</p>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<ul>
+<li>Basic knowledge of <a href="http://scala-lang.org">Scala</a> and <a href="http://www.scala-sbt.org/">sbt</a>.</li>
+
+<li>Your application must be compatible with a <a href="/articles/scala-support#build-behavior">supported SBT version</a>.</li>
+
+<li>Your application must run on the <a href="http://openjdk.java.net/">OpenJDK</a> version 6.</li>
+
+<li>A Heroku user account. <a href="https://api.heroku.com/signup/devcenter">Signup is free and instant.</a>
+</li>
+</ul><h2 id="local-workstation-setup">Local workstation setup</h2>
+
+<p>Install the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a> on your local workstation. This ensures that you have access to the <a href="/categories/command-line">Heroku command-line client</a>, Foreman, and the Git revision control system.</p>
+
+<p>Once installed, you can use the <code>heroku</code> command from your command shell. Log in using the email address and password you used when creating your Heroku account:</p>
+
+<pre><code class="term">$ heroku login
+Enter your Heroku credentials.
+Email: adam@example.com
+Password: 
+Could not find an existing public key.
+Would you like to generate one? [Yn] 
+Generating new SSH public key.
+Uploading ssh public key /Users/adam/.ssh/id_rsa.pub</code></pre>
+
+<p>Press enter at the prompt to upload your existing <code>ssh</code> key or create a new one, used for pushing code later on. For more information about keys, see <a href="/articles/keys">Managing Your SSH Keys</a>.</p>
+
+<h2 id="write-your-app">Write your app</h2>
+
+<p>You may be starting from an existing app. If not, here’s a simple “hello, world” sourcefile you can use:</p>
+
+<h3 id="src-main-scala-web-scala">src/main/scala/Web.scala</h3>
+
+<pre><code class="scala">import org.jboss.netty.handler.codec.http.{HttpRequest, HttpResponse}
+import com.twitter.finagle.builder.ServerBuilder
+import com.twitter.finagle.http.{Http, Response}
+import com.twitter.finagle.Service
+import com.twitter.util.Future
+import java.net.InetSocketAddress
+import util.Properties
+
+object Web {
+  def main(args: Array[String]) {
+    val port = Properties.envOrElse("PORT", "8080").toInt
+    println("Starting on port:"+port)
+    ServerBuilder()
+      .codec(Http())
+      .name("hello-server")
+      .bindTo(new InetSocketAddress(port))
+      .build(new Hello)
+    println("Started.")
+  }
+}
+
+class Hello extends Service[HttpRequest, HttpResponse] {
+  def apply(req: HttpRequest): Future[HttpResponse] = {
+    val response = Response()
+    response.setStatusCode(200)
+    response.setContentString("Hello World")
+    Future(response)
+  }
+}</code></pre>
+
+<h2 id="declare-dependencies-with-sbt">Declare dependencies with sbt</h2>
+
+<p>Heroku recognizes an app as Scala by the existence of <code>project/build.properties</code>.</p>
+
+<h3 id="project-build-properties">project/build.properties</h3>
+
+<pre><code class="scala">sbt.version=0.12.0</code></pre>
+
+<p>You can use <a href="https://github.com/harrah/xsbt/wiki/Basic-Configuration">light</a> or <a href="https://github.com/harrah/xsbt/wiki/Full-Configuration">full</a> build configurations with sbt. We’ll use a light configuration, declaring dependencies <code>build.sbt</code> in the root directory:</p>
+
+<h3 id="build-sbt">build.sbt</h3>
+
+<pre><code class="scala">import com.typesafe.startscript.StartScriptPlugin
+
+seq(StartScriptPlugin.startScriptForClassesSettings: _*)
+
+name := "hello"
+
+version := "1.0"
+
+scalaVersion := "2.9.2"
+
+resolvers += "twitter-repo" at "http://maven.twttr.com"
+
+libraryDependencies ++= Seq("com.twitter" % "finagle-core" % "1.9.0", "com.twitter" % "finagle-http" % "1.9.0")</code></pre>
+
+<h2 id="add-the-start-script-plugin">Add the start script plugin</h2>
+
+<p>At deploy time, Heroku runs <code>sbt clean compile stage</code> to build your Scala app. <a href="http://typesafe.com/">Typesafe</a>’s <a href="http://github.com/typesafehub/xsbt-start-script-plugin"><code>xbst-start-script-plugin</code></a> adds a <code>stage</code> task to sbt that generates start scripts for your application.</p>
+
+<p>To use the plugin, create this file:</p>
+
+<h4 id="project-build-sbt">project/build.sbt</h4>
+
+<pre><code class="scala">resolvers += Classpaths.typesafeResolver
+
+addSbtPlugin("com.typesafe.startscript" % "xsbt-start-script-plugin" % "0.5.3")</code></pre>
+
+<p>The <code>stage</code> task, by convention, performs any tasks needed to prepare an app to be run in-place. Other plugins that use a different approach to prepare an app to run could define <code>stage</code> as well.</p>
+
+<h2 id="optionally-choose-a-jdk">Optionally Choose a JDK</h2>
+
+<p>By default, OpenJDK 1.6 is installed with your app. However, you can choose to use a newer JDK by specifying <code>java.runtime.version=1.7</code> in the <a href="/articles/add-java-version-to-an-existing-maven-app"><code>system.properties</code></a> file in the root of your project.</p>
+
+<p>Here’s what a <code>system.properties</code> file looks like:</p>
+
+<pre><code class="term">java.runtime.version=1.7</code></pre>
+
+<p>You can specify 1.6, 1.7, or 1.8 (1.8 is in beta) for Java 6, 7, or 8 (with lambdas), respectively.</p>
+
+<h2 id="build-your-app">Build your app</h2>
+
+<p>Build your app locally:</p>
+
+<pre><code class="term">$ sbt clean compile stage
+...
+[info] Compiling 1 Scala source to .../target/scala-2.9.2/classes...
+[success] Total time: 5 s, completed Sep 5, 2012 12:42:56 PM
+[info] Wrote start script for mainClass := Some(Web) to .../target/start
+[success] Total time: 0 s, completed Sep 5, 2012 12:42:56 PM</code></pre>
+
+<h2 id="declare-process-types-with-procfile">Declare process types with Procfile</h2>
+
+<p>Use a <a href="/articles/procfile">Procfile</a>, a text file in the root directory of your application, to explicitly declare what command should be executed to start a web <a href="/articles/dynos">dyno</a>. In this case, you need to execute the <code>Web</code> main method.</p>
+
+<p>The <code>xsbt-start-script-plugin</code> we added above generates a start script in <code>target/start</code>. This simple shell script sets the <code>CLASSPATH</code> and executes the main method for the object you specify. Invoke it from your Procfile:</p>
+
+<h3 id="procfile">Procfile</h3>
+
+<pre><code>web: target/start Web</code></pre>
+
+<p>This declares a single process type, <code>web</code>, and the command needed to run it. The name “web” is important here. It declares that this process type will be attached to the <a href="http-routing">HTTP routing</a> stack of Heroku, and receive web traffic when deployed.</p>
+
+<p>You can now start your application locally using <a href="http://blog.daviddollar.org/2011/05/06/introducing-foreman.html">Foreman</a> (installed as part of the Toolbelt):</p>
+
+<pre><code class="term">$ foreman start
+11:53:15 web.1     | started with pid 2281
+11:53:15 web.1     | Starting on port:5000
+11:53:15 web.1     | Started.</code></pre>
+
+<p>Your app will come up on port 5000. Test that it’s working with <code>curl</code> or a web browser, then Ctrl-C to exit.</p>
+
+<h2 id="store-your-app-in-git">Store your app in Git</h2>
+
+<p>Prevent build artifacts from going into revision control by creating a <code>.gitignore</code> file:</p>
+
+<h3 id="gitignore">.gitignore</h3>
+
+<pre><code>target
+project/boot
+project/target
+project/plugins/target</code></pre>
+
+<p>We now have the three major components of our app: dependencies in <code>build.sbt</code>, process types in <code>Procfile</code>, and our application source in <code>src/main/Web.scala</code>. Let’s put it into Git:</p>
+
+<pre><code class="term">$ git init
+$ git add .
+$ git commit -m "init"</code></pre>
+
+<h2 id="deploy-your-application-to-heroku">Deploy your application to Heroku</h2>
+
+<p>Create the app:</p>
+
+<pre><code class="term">$ heroku create
+Creating warm-frost-1289... done, stack is cedar
+http://warm-frost-1289.herokuapp.com/ | git@heroku.com:warm-frost-1289.git
+Git remote heroku added</code></pre>
+
+<p>Deploy your code:</p>
+
+<pre><code class="term">$ git push heroku master
+Counting objects: 14, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (9/9), done.
+Writing objects: 100% (14/14), 1.51 KiB, done.
+Total 14 (delta 1), reused 0 (delta 0)
+
+-----&gt; Heroku receiving push
+-----&gt; Scala app detected
+-----&gt; Building app with sbt
+-----&gt; Running: sbt clean compile stage
+       Getting net.java.dev.jna jna 3.2.3 ...
+       ...
+       [info] Compiling 1 Scala source to /tmp/build_1otpp7ujqznr3/target/scala-2.9.2/classes...
+       [success] Total time: 1 s, completed Sep 5, 2012 7:26:27 PM
+       [info] Wrote start script for mainClass := Some(Web) to /tmp/build_1otpp7ujqznr3/target/start
+       [success] Total time: 0 s, completed Sep 5, 2012 7:26:27 PM
+-----&gt; Discovering process types
+       Procfile declares types -&gt; web
+-----&gt; Compiled slug size is 43.1MB
+-----&gt; Launching... done, v3
+       http://warm-frost-1289.herokuapp.com deployed to Heroku
+
+To git@heroku.com:warm-frost-1289.git
+ * [new branch]      master -&gt; master</code></pre>
+
+<h2 id="visit-your-application">Visit your application</h2>
+
+<p>You’ve deployed your code to Heroku, and specified the process types in a <code>Procfile</code>. You can now instruct Heroku to execute a process type. Heroku does this by running the associated command in a <a href="/articles/dynos">dyno</a> - a lightweight container which is the basic unit of composition on Heroku.</p>
+
+<p>Let’s ensure we have one dyno running the <code>web</code> process type:</p>
+
+<pre><code class="term">$ heroku ps:scale web=1</code></pre>
+
+<p>You can check the state of the app’s dynos. The <code>heroku ps</code> command lists the running dynos of your application:</p>
+
+<pre><code class="term">$ heroku ps
+=== web: `target/start Web`
+web.1: up for 5s</code></pre>
+
+<p>Here, one dyno is running.</p>
+
+<p>We can now visit the app in our browser with <code>heroku open</code>.</p>
+
+<pre><code class="term">$ heroku open
+Opening warm-frost-1289... done</code></pre>
+
+<h2 id="dyno-sleeping-and-scaling">Dyno sleeping and scaling</h2>
+
+<p>Having only a single web dyno running will result in the dyno <a href="/articles/dynos#dyno-sleeping">going to sleep</a> after one hour of inactivity. This causes a delay of a few seconds for the first request upon waking. Subsequent requests will perform normally.</p>
+
+<p>To avoid this, you can scale to more than one web dyno. For example:</p>
+
+<pre><code class="term">$ heroku ps:scale web=2</code></pre>
+
+<p>For each application, Heroku provides <a href="/articles/usage-and-billing#750-free-dyno-hours-per-app">750 free dyno-hours</a>. Running your app at 2 dynos would exceed this free, monthly allowance, so let’s scale back:</p>
+
+<pre><code class="term">$ heroku ps:scale web=1</code></pre>
+
+<h2 id="view-the-logs">View the logs</h2>
+
+<p>Heroku treats logs as streams of time-ordered events aggregated from the output streams of all the dynos running the components of your application. Heroku’s <a href="/articles/logplex">Logplex</a> provides a single channel for all of these events.</p>
+
+<p>View information about your running app using one of the <a href="/articles/logging">logging commands</a>, <code>heroku logs</code>:</p>
+
+<pre><code class="term">$ heroku logs
+2011-08-18T00:13:41+00:00 heroku[web.1]: Starting process with command `target/start Web `
+2011-08-18T00:14:18+00:00 app[web.1]: Starting on port:28328
+2011-08-18T00:14:18+00:00 app[web.1]: Started.
+2011-08-18T00:14:19+00:00 heroku[web.1]: State changed from starting to up</code></pre>
+
+<h2 id="console">Console</h2>
+
+<p>Heroku allows you to run <a href="/articles/oneoff-admin-ps">one-off proceses</a> - scripts and applications that only need to be executed when needed - using the <code>heroku run</code> command. Use this to launch a REPL process attached to your local terminal for experimenting in your app’s environment:</p>
+
+<pre><code class="term">$ heroku run sbt console
+Running sbt console attached to terminal... up, run.1
+[info] Loading global plugins from /app/.sbt_home/.sbt/plugins
+[info] Updating {file:/app/.sbt_home/.sbt/plugins/}default-0f55ac...
+...
+[info] Done updating.
+[info] Compiling 1 Scala source to /app/.sbt_home/.sbt/plugins/target/scala-2.9.2/sbt-0.12/classes...
+[info] Loading project definition from /app/project
+[info] Updating {file:/app/project/}default-525df6...
+...
+[info] Done updating.
+[info] Set current project to hello (in build file:/app/)
+[info] Updating {file:/app/}default-0c35ee...
+[info] Done updating.
+[info] Compiling 1 Scala source to /app/target/scala-2.9.2/classes...
+[info] Starting scala interpreter...
+[info] 
+Welcome to Scala version 2.9.2 (OpenJDK 64-Bit Server VM, Java 1.6.0_20)
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala&gt; </code></pre>
+
+<p>The console has your application code available. For example:</p>
+
+<pre><code>scala&gt; Web.main(Array())
+Starting on port:33418
+Started.</code></pre>
+
+<h2 id="one-off-dynos">One-off dynos</h2>
+
+<p>You can run any of your app’s objects in a one-off dyno attached to a terminal, as long as the <code>main</code> method exists on that object. For example:</p>
+
+<h3 id="src-main-scala-demo-scala">src/main/scala/Demo.scala</h3>
+
+<pre><code class="scala">object Demo {
+  def main(args:Array[String]){
+    println("Hello From Demo")
+  }
+}</code></pre>
+
+<p>Commit and deploy:</p>
+
+<pre><code class="term">$ git add src/main/scala/Demo.scala
+$ git commit -m "demo class"
+$ git push heroku master</code></pre>
+
+<p>And run the one-off process:</p>
+
+<pre><code class="term">$ heroku run 'target/start Demo'
+Running target/start Demo attached to terminal... up, run.1
+Hello From Demo</code></pre>
+
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+<p>sbt has been under rapid development during the past year, and major releases are not compatible with each other. Most issues will be related to mismatched versions of sbt.</p>
+
+<ul>
+<li>If you already have sbt 0.7.x or sbt 0.10.x installed as a script on your path called <code>sbt</code>, you should rename that script to something like <code>sbt7</code> or <code>sbt10</code>.</li>
+
+<li>If you attempt to build this project with sbt 0.7.x you will see project creation prompts. If you see these prompts, quit sbt, and make sure your <code>sbt</code> script launches sbt 0.11.0 or later.</li>
+
+<li>If you attempt to build this project with sbt 0.10.x you will get an error due to unresolved dependencies, <code>org.scala-tools.sbt#sbt_2.9.2;0.11.0: not found</code>. If you see this error, make sure your <code>sbt</code> script launches sbt 0.11.0 or later.</li>
+</ul><h2 id="next-steps">Next steps</h2>
+
+<ul>
+<li>Visit the <a href="/categories/scala">Scala category</a> to learn more about developing and deploying Scala applications.</li>
+
+<li>
+<a href="/articles/scaling-out-with-scala-and-akka">Scaling Out with Scala and Akka on Heroku</a> looks at using Akka with Scala.</li>
+
+<li>
+<a href="/articles/scala-support">Heroku Scala Support</a> provides the reference documentation for Heroku’s Scala support.</li>
+
+<li>Read <a href="/articles/how-heroku-works">How Heroku Works</a> for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.</li>
+</ul>

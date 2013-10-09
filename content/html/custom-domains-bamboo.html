@@ -1,0 +1,76 @@
+<div class="deprecated">
+<p>This article applies to apps on the <a href="/articles/bamboo">Bamboo</a> stack. For the most recent stack, <a href="/articles/cedar">Cedar</a>, see <a href="/articles/custom-domains">Custom Domains</a>.</p>
+</div>
+<p>All Bamboo apps on Heroku are accessible via their per-app subdomain: <code>example.heroku.com</code>. In addition, you can assign custom domains to an app.</p>
+
+<p>After assigning a custom domain to your app, you must also point DNS to Heroku. You can use one of the <a href="https://addons.heroku.com/?q=dns">DNS management add-ons</a>, or use your own DNS provider and manually configure the records for your domains.</p>
+
+<h2 id="heroku-setup">Heroku setup</h2>
+
+<p>The first step is to tell Heroku to route requests for your domain to your app:</p>
+
+<pre><code class="term">$ heroku domains:add www.example.com
+Adding www.example.com to example... done</code></pre>
+
+<p>You can add any number of domains to a single app by repeating the add command with different values.</p>
+
+<p>Remove domains with:</p>
+
+<pre><code class="term">$ heroku domains:remove www.example.com
+Removing www.example.com from example... done</code></pre>
+
+<p>You can also clear all domains at once:</p>
+
+<pre><code class="term">$ heroku domains:clear
+Removing all domains from example... done</code></pre>
+
+<h2 id="dns-setup">DNS setup</h2>
+
+<p>Next, you must configure your DNS to point your application hostnames to Heroku.</p>
+
+<h3 id="subdomains-www-example-com">Subdomains (www.example.com)</h3>
+
+<p>For each subdomain you want to set up, configure your DNS with a CNAME record pointing the subdomain to the applicable Heroku hostname, for example <code>example.heroku.com</code>.</p>
+
+<p>You can confirm that your DNS is configured correctly with the <code>host</code> command:</p>
+
+<pre><code class="term">$ host www.example.com
+www.example.com is an alias for example.heroku.com.
+example.heroku.com is an alias for proxy.heroku.com.
+...</code></pre>
+
+<p>Output of this command varies by Unix flavor, but it should indicate that your host name is a CNAME of <code>example.heroku.com</code>.</p>
+
+<h3 id="apex-domains-example-com">Apex domains (example.com)</h3>
+
+<p>Zone apex domains (aka “naked” domains or “bare” domains), for example <code>example.com</code>, are not supported on Heroku apps, because DNS forbids CNAME records on the zone apex. However, some DNS hosts provide a way to get CNAME-like functionality at the zone apex. Known providers:</p>
+
+<ul>
+<li><a href="http://www.dnsmadeeasy.com/technology/aname-records/">ANAME at DNS Made Easy</a></li>
+
+<li><a href="http://support.dnsimple.com/questions/32826-What-is-an-ALIAS-record">ALIAS at DNSimple</a></li>
+</ul><p>For each provider, the setup is similar: point the ALIAS or ANAME entry for your apex domain to <code>example.heroku.com</code>, just as you would with a CNAME record.</p>
+
+<h2 id="wildcard-domains">Wildcard domains</h2>
+
+<p>If you’d like your app to respond to any subdomain under your custom domain name (as in <code>*.example.com</code>), you can set up a wildcard domain.</p>
+
+<p>First, add the wildcard domain on Heroku:</p>
+
+<pre><code class="term">$ heroku domains:add *.example.com
+Adding *.example.com to example... done</code></pre>
+
+<p>Then, configure your DNS registrar to point <code>*.example.com</code> at <code>example.heroku.com</code>.</p>
+
+<p>If things are set up correctly you should be able to look up any subdomain:</p>
+
+<pre><code class="term">$ host any-subdomain.example.com
+any-subdomain.example.com is an alias for example.heroku.com.
+...
+
+$ curl http://any-subdomain.example.com/
+HTTP/1.1 200 OK</code></pre>
+
+<h2 id="ip-addresses">IP addresses</h2>
+
+<p>The Heroku routing stack uses a collection of IP addresses that can change at any time, and using <code>A</code> records to point to your app is not supported. Instead, use <code>CNAME</code> records as described above.</p>

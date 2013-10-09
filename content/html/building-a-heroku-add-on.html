@@ -1,0 +1,508 @@
+<p>This document is a hands-on guide to turning your existing cloud service into a Heroku add-on.</p>
+
+<h2 id="overview">Overview</h2>
+
+<p>There are two ways to create a Heroku add-on: you can either implement the HTTP calls directly in an app you already have or you can start an new application from a template.</p>
+
+<div class="callout">
+<p><code>kensa create</code></p>
+</div>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<blockquote>
+<p>The <a href="/articles/building-a-heroku-add-on">kensa create</a> command allows you to clone an add-on from a template.</p>
+</blockquote>
+
+<p>If you would like to start your add-on from a template, use the <a href="/articles/building-a-heroku-add-on">kensa create</a> command.</p>
+
+<p>If you would like to start your add-on by implementing the HTTP API directly, follow the walkthrough provided in this section of the site.</p>
+
+<p>You’ll begin by implementing a <a href="/articles/building-a-heroku-add-on#provisioning">provisioning API</a> for your service, which Heroku will call when your add-on is installed by a customer.  We provide you with a command-line tool to test your API in your development environment.  You will also create a JSON document that will serve as the add-on manifest (link). The manifest describes to Heroku how your add-on should appear in our catalog and important information about your add-on like configuration information.</p>
+
+<p>Next you’ll write docs explaining install and use of your add-on.</p>
+
+<p>With the manifest and docs, you can <a href="https://devcenter.heroku.com/articles/submitting-an-add-on">submit the add-on</a> to Heroku for inclusion in the add-ons catalog.</p>
+
+<p>An optional final step would be to <a href="https://devcenter.heroku.com/articles/add-on-single-sign-on">implement single sign-on</a> to allow Heroku customers to access the web-based admin panel for their private resource.</p>
+
+<h2 id="getting-started">Getting started</h2>
+
+<p>First we need to install some software and create your add-on manifest.</p>
+
+<h3 id="prerequistes">Prerequistes</h3>
+
+<p>Your service can be written in any language. You’ll need Ruby to run Kensa, the manifest validation tool. In both cases you only need Ruby in your development environment, not on your production system.</p>
+
+<p>OS X comes with Ruby installed. Ubuntu users can install with:</p>
+
+<pre><code class="term">$ sudo apt-get install ruby rubygems irb libopenssl-ruby
+</code></pre>
+
+<p>Windows users can use <a href="http://rubyinstaller.org/">Ruby Installer</a>.</p>
+
+<h3 id="1-install-kensa">1. Install Kensa</h3>
+
+<p>Everything in this document will take place in your local development environment. We’ll simulate the calls from Heroku using the Kensa command-line tool. To install:</p>
+
+<pre><code class="term">$ sudo gem install kensa
+</code></pre>
+
+<p>Run <code>kensa</code> with no arguments for a quick reference to the commands available.</p>
+
+<h3 id="2-run-your-development-service">2. Run your development service</h3>
+
+<p>Launch a development version of your service in your local dev environment through your usual means. For the purpose of this document we’ll assume the web portion of your service is listening on localhost port 5000.</p>
+
+<h3 id="3-generate-an-add-on-manifest">3. Generate an add-on manifest</h3>
+
+<div class="callout">
+<p><strong>Manifest</strong><br>
+The add-on manifest is a JSON document that describes your add-on. <a href="/articles/add-on-manifest">Read the full reference</a></p>
+</div>
+
+<p>Now you’ll create a new manifest describing your add-on with kensa.</p>
+
+<p>Run:</p>
+
+<pre><code class="term">$ kensa init
+Initialized new addon manifest in addon-manifest.json
+</code></pre>
+
+<p>or: </p>
+
+<pre><code class="term">$ kensa create myaddon --template sinatra|node|clojure
+Initialized new addon manifest in addon-manifest.json
+Initialized new .env file for foreman
+</code></pre>
+
+<p>If you are using <code>create</code>, <a href="/articles/kensa-create">follow the instructions</a> to start and test your add-on before changing the manifest.</p>
+
+<p>Open addon-manifest.json in your editor:</p>
+
+<pre><code class="json">{
+  "id": "myaddon",
+  "api": {
+    "config_vars": [ "MYADDON_URL" ],
+    "password": "tYpx1jt652dRGIcK",
+    "sso_salt": "zPzckKkGf3XiJaD0",
+    "regions": ["us"],
+    "production": {
+      "base_url": "https://yourapp.com/heroku/resources",
+      "sso_url": "https://yourapp.com/sso/login"
+    },
+    "test": {
+      "base_url": "http://localhost:4567/heroku/resources",
+      "sso_url": "http://localhost:4567/sso/login"
+    }
+  }
+}
+</code></pre>
+
+<div class="callout">
+<p><strong>Plans</strong></p>
+</div>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<blockquote>
+<p>Your add-on will eventually be able to support several different subscription plans. Through alpha and beta testing, however, you should simply support a single plan called “test”. The Heroku provisioning API will automatically look for it.</p>
+</blockquote>
+
+<p>The add-on manifest starts mostly blank, with a few defaults. Start by changing the <code>id</code> field. For example, if your product is called “MySQL-o-Matic”, then use “mysqlomatic” for <code>id</code>. Later on, you’ll be able to add a human-friendly display name for the <a href="http://addons.heroku.com">Add-on Catalog</a> through the <a href="https://addons.heroku.com/provider">Provider Portal</a></p>
+
+<p>The only field you must change is the test URLs, at the bottom. If your service is running at localhost:5000, then change it to <code>http://localhost:5000/</code>.</p>
+
+<h2 id="provisioning">Provisioning</h2>
+
+<div class="callout">
+<p><strong>Resource</strong></p>
+</div>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<blockquote>
+<p>A private resource is created for each app that adds your add-on.</p>
+</blockquote>
+
+<p>When a Heroku customer installs your add-on, Heroku makes a REST call to your cloud service to <a href="https://devcenter.heroku.com/articles/how-addons-work#provisioning">provision</a> a private resource for their app.</p>
+
+<p>This document is a hands-on guide to adding the functionality to your service to handle these calls.</p>
+
+<h3 id="1-test-provision-fail">1. Test provision - fail</h3>
+
+<p>Heroku will call your service via a POST to <code>/heroku/resources</code> to provision a new resource. You haven’t yet implemented this call, so we’ll expect that the kensa tool can detect this. Run the test for provisioning:</p>
+
+<pre><code class="term">$ kensa test provision
+Testing POST /heroku/resources
+  Check response [FAIL]
+    ! expected 200, got 404
+</code></pre>
+
+<div class="callout">
+<p><strong>Red first</strong></p>
+</div>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<blockquote>
+<p>You may notice the way we’re using the Kensa tests here is similar to the way you would use unit tests in TDD. Run the test before implementation to confirm a fail (red); run again after implementation to see success (green). <a href="http://userstories.blogspot.com/2007/10/tdd-red-green-refactor-red-as-important.html">read more</a></p>
+</blockquote>
+
+<p>As expected, the test got a 404 Not Found response, since you haven’t implemented this call yet. (If you get another error, such as connection refused, check your test URL in the manifest, and make sure your service is running.)</p>
+
+<h3 id="2-implement-provision-call">2. Implement provision call</h3>
+
+<p>Now you can edit the code of your service and add support for the provision call. Here’s an example of how your code might look if your service is a MySQL cloud service with the web portion written using the Sinatra framework:</p>
+
+<pre><code class="ruby">post '/heroku/resources' do
+  db = Database.create!
+  result = { id: db.id, config: { "MYSQL_URL" =&gt; db.url } }
+  result.to_json
+end
+</code></pre>
+
+<div class="callout">
+<p><strong>URL</strong></p>
+</div>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<blockquote>
+<p>Any provisioned resource should be referenced by a unique URL, which is how the customer’s app consumes the resource. <a href="https://devcenter.heroku.com/articles/how-addons-work#consumption">read more</a></p>
+</blockquote>
+
+<p>This code responds to the incoming request by provisioning a database in the service, and returning the ID and a config var hash containing a URL to the database. The resource has been provisioned and a URL is returned to Heroku, to be embedded into the environment of the customer’s app.</p>
+
+<h3 id="3-authentication">3. Authentication</h3>
+
+<p>Running the test again with this code added to your server:</p>
+
+<div class="callout">
+<p><strong>Password</strong></p>
+</div>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<blockquote>
+<p>When you run kensa init to generate an add-on manifest, a password (auto-generated) is filled in for you. You can use the defaults, or change these values to anything you like.</p>
+</blockquote>
+
+<pre><code class="term">$ kensa test provision
+Testing POST /heroku/resources
+  Check response [PASS]
+  Check valid JSON [PASS]
+  Check authentication [FAIL]
+    ! expected 401, got 200
+</code></pre>
+
+<p>…and you’ll see that we get further this time, before failing on authentication. Your service is expected to authenticate all provisioning calls with the add-on id and password found in the add-on manifest. A failed authentication should return 401 Not Authorized.</p>
+
+<div class="callout">
+<p><strong>HTTP basic auth</strong></p>
+</div>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<blockquote>
+<p>Some web frameworks such as Rails, Sinatra, and CherryPy make it easy to check HTTP basic auth from within your code. For frameworks which don’t directly support basic auth, like Django, you’ll need to <a href="http://noah.heroku.com/past/2010/2/19/django_http_basic_auth/">parse the HTTP headers yourself</a>, or wrap the path in an Apache AuthType Basic directive or equivalent.</p>
+</blockquote>
+
+<p>Continuing the Sinatra example, we can add this code:</p>
+
+<pre><code class="ruby">use Rack::Auth::Basic do |username, password|
+  username == 'errorbucket' &amp;&amp; password == 'tYpx1jt652dRGIcK'
+end
+</code></pre>
+
+<h3 id="4-config-vars">4. Config vars</h3>
+
+<p>Running the provision test once again, we see it gets quite a bit further:</p>
+
+<pre><code class="term">Testing POST /heroku/resources
+  Check response [PASS]
+  Check valid JSON [PASS]
+  Check authentication [PASS]
+
+Testing response
+  Check contains an id [PASS]
+
+Testing config data
+  Check is a hash [PASS]
+  Check all config keys were previously defined in the manifest [FAIL]
+    ! MYSQL_URL is not in the manifest
+</code></pre>
+
+<div class="callout">
+<p><strong>Config vars</strong></p>
+</div>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<blockquote>
+<p>Your service can return any number of config vars, but in most cases you should need exactly one, a URL which is named after your service type and ends in the postfix _URL.</p>
+</blockquote>
+
+<p>Now the failure is happening in validating the config vars. Our service returns a MYSQL_URL, but we haven’t defined this in the add-on manifest. Open addon-manifest.json in your editor again and change this:</p>
+
+<pre><code class="json">  "config_vars": [
+    "MYADDON_URL"
+  ],
+</code></pre>
+
+<p>…to this:</p>
+
+<pre><code class="json">  "config_vars": [
+    "MYSQL_URL"
+  ],
+</code></pre>
+
+<h3 id="5-test-provision-pass">5. Test provision - pass</h3>
+
+<p>Now that we’ve added code for provisioning, authentication, and have set our add-on manifest to declare the config vars we need, our tests should pass. Run it a final time:</p>
+
+<pre><code class="term">$ kensa test provision
+Testing POST /heroku/resources
+  Check response [PASS]
+  Check valid JSON [PASS]
+  Check authentication [PASS]
+
+Testing response
+  Check contains an id [PASS]
+
+Testing config data
+  Check is a hash [PASS]
+  Check all config keys were previously defined in the manifest [PASS]
+  Check all config values are strings [PASS]
+
+done.
+</code></pre>
+
+<p>Congratulations, your service now successfully provisions resources based on the simulated call from Heroku.</p>
+
+<h3 id="6-regions">6. Regions</h3>
+
+<p>The provisioning call contains a region parameter that indicates the geographical placement of the app that the add-on is being provisioned for. You can use this information to create the resource in geographical proximity to the app, you can ignore it (if your add-on is not latency sensitive, for example) or you can deny the provision request by returning 422 with an error (see “Exceptions” below).</p>
+
+<p>In our Sinatra example, you would get the region information like this:</p>
+
+<pre><code class="ruby">region = JSON.parse(request.body.read)['region']
+</code></pre>
+
+<p>You can use the <a href="https://devcenter.heroku.com/articles/add-on-manifest">manifest</a> submitted to Heroku to specify what regions your add-on supports.</p>
+
+<h3 id="7-implement-deprovision-call">7. Implement deprovision call</h3>
+
+<p>When a user removes an add-on, we make a call to deprovision the resource. Continuing the MySQL cloud service example, we’ll implement a Sinatra call like this:</p>
+
+<pre><code class="ruby">delete '/heroku/resources/:id' do
+  Database.find(params[:id]).destroy
+  "ok"
+end
+</code></pre>
+
+<p>Test this using the deprovision test, passing an additional argument which is the ID of a previously provisioned resource to be destroyed.</p>
+
+<pre><code class="term">$ kensa test deprovision 123
+Testing DELETE /heroku/resources/123
+  Check response [PASS]
+</code></pre>
+
+<p>The service can now handle both adding and removing of an add-on.</p>
+
+<h3 id="8-plan-changes">8. Plan changes</h3>
+
+<p>If your add-on offers multiple plans, you should also implement support for instant plan changes. A plan change maps to the HTTP PUT verb. In your code, this would look like:</p>
+
+<pre><code class="ruby">put '/heroku/resources/:id' do
+  db = Database.find(params[:id])
+  plan = JSON.parse(request.body.read)['plan']
+  db.change_plan(plan)
+  result = { config: { "MYSQL_URL" =&gt; db.url },
+         message: "your message here" }
+  result.to_json
+end
+</code></pre>
+
+<p>If the resource changed location or credentials, you can once again render new config vars, just like you would for the provision call.</p>
+
+<p>To test it:</p>
+
+<pre><code class="term">$ kensa test planchange 123 premium
+Testing PUT /heroku/resources/123
+  ...
+</code></pre>
+
+<p>In this case Kensa will try to update the plan for the resource 123 to “premium”.</p>
+
+<p>In some cases an add-on will be unable to support instant plan changes. Examples of this would be where large, time-consuming data migrations are involved, or where the requested resources takes more than a minute to provision. In such cases, you should do the following:</p>
+
+<ul>
+<li>Render a 503 response</li>
+<li>Supply a custom message</li>
+<li>In the message, provide a link to a section in your add-on documentation providing instructions for changing plans manually.</li>
+</ul><h3 id="9-exceptions">9. Exceptions</h3>
+
+<p>If your service is unable to fulfill a provision or plan change request, you should render a <a href="https://devcenter.heroku.com/articles/add-on-provider-api#exceptions">503 response with a custom message</a>. Doing so will pass the message through to the client.</p>
+
+<p>Optionally, you can render a custom message to be displayed to the user, like:</p>
+
+<pre><code class="ruby">post '/heroku/resources' do
+  if on_maintenance?
+    halt 503, { message: "We're under scheduled maintenance. The service is unavailable until 4pm PST" }
+  end
+  ...
+</code></pre>
+
+<p>The same pattern can be used for <a href="https://devcenter.heroku.com/articles/add-on-provider-api#plan-change">Plan change API calls</a>.</p>
+
+<p>If a non-200 response code is returned, Heroku will assume an intermittent error occurred and display a standard error message.</p>
+
+<h3 id="10-next-step">10. Next step</h3>
+
+<p>Your server-side integration is now complete. The next step is to implement a code-sample that demonstrates how to consume a provisioned resource from a customer’s app. Read about this in <a href="https://devcenter.heroku.com/articles/building-a-heroku-add-on#consumer">Part 2: Consumer</a>.</p>
+
+<h2 id="consumer">Consumer</h2>
+
+<p>A running Heroku app consumes your cloud service via the tools and
+instructions you provide to the customer. This section will show you how to
+build those tools and instructions, centering around a consumer test you’ll
+write in Ruby.</p>
+
+<p>This section assumes you’ve already implemented <a href="#provisioning">provisioning</a> as described in this guide.</p>
+
+<h3 id="1-create-a-consumer-test-in-ruby">1. Create a consumer test in Ruby</h3>
+
+<p>In order for Heroku apps to <a href="https://devcenter.heroku.com/articles/how-addons-work#consumption">consume your service</a> once the add-on is installed,
+you’ll need to write a sample that demonstates how to consume your service
+from Ruby, using a URL passed in through the environment.</p>
+
+<div class="callout">
+<p><strong>URL</strong></p>
+</div>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<blockquote>
+<p>During provisioning, your service returns
+a URL which provides all the information the customer’s app will need to
+connect to their private resource.</p>
+</blockquote>
+
+<p>This URL is the same one that was generated and returned in the response to
+Heroku during the provisioning call.  Heroku bundles this value (along with
+anything else you wish to pass through to the client app) into the app’s
+environment so that it is easily accessible from the application code.</p>
+
+<p>As an example, let’s assume your service is a MySQL cloud service, similar to
+Amazon RDS.  You might chose to use the <a href="http://sequel.rubyforge.org/">Sequel</a>
+database adapter to demonstrate consuming your service from Ruby.  Your test
+script would then look something like this:</p>
+
+<pre><code class="ruby">require 'sequel'
+
+url = ENV['MYSQL_URL']
+puts "Connecting to #{url}"
+
+begin
+  db = Sequel.connect(url)
+  puts "This database has the following tables: #{db.tables.inspect}"
+rescue =&gt; e
+  abort "Failed to access database: #{e.message}"
+end
+</code></pre>
+
+<div class="callout">
+<p><strong>Passing environment variables</strong></p>
+</div>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<blockquote>
+<p>Simulate config vars available in the Heroku app by passing shell environment variables, in the
+format: <code>VARIABLE=value command</code></p>
+</blockquote>
+
+<p>Start by testing it against an invalid URL.  You should get an error:</p>
+
+<pre><code class="term">$ MYSQL_URL=mysql://root@localhost/nonexistentdb ruby use_mysql.rb
+Connecting to mysql://root@localhost/nonexistentdb Failed to access
+database: Mysql::Error: Unknown database 'nonexistentdb'
+</code></pre>
+
+<p>As expected, the library complains that this database does not exist.  Now try
+it against a known working resource:</p>
+
+<pre><code class="term">$ mysqladmin5 create db
+$ MYSQL_URL=mysql://root@localhost/db ruby use_mysql.rb
+Connecting to mysql://root@localhost/db
+This database has the following tables: []
+</code></pre>
+
+<p>It connects successfully to the database and correctly reports that it is a
+fresh database with no tables.</p>
+
+<h3 id="2-test-against-an-automatically-provisioned-resource">2. Test against an automatically provisioned resource</h3>
+
+<p>The kensa tool used to test provisioning of resources in the first part of this
+guide can also be used to do an end-to-end test.  The steps on this are:</p>
+
+<ol>
+<li>Provision the resource, returning a URL</li>
+<li>Run the consumer test with the URL passed via the environment (simulating how it will run in a Heroku dyno or worker)</li>
+<li>Deprovision the resource</li>
+</ol><p>We can run this sequence using the run command in kensa.  Here’s how it will
+look:</p>
+
+<pre><code class="term">$ kensa run ruby use_mysql.rb
+Testing POST /heroku/resources
+
+Starting ruby... 
+Connecting to mysql://1ba348f9ea:e6efd15da88149782c2be2@localhost:3306/1ba348f9ea
+This database has the following tables: []
+End of ruby
+
+Testing DELETE /heroku/resources/1ba348f9ea
+
+done.
+</code></pre>
+
+<div class="callout">
+<p><strong>Generating resource names</strong>
+Your service should auto-generate usernames, passwords, and names of resources such as databases. The user doesn’t care what these values are, as long as they are secure and
+passed along in the URL.</p>
+</div>
+
+<p>The example output above shows a resource being provisioned and the resulting
+MySQL URL being passed into the consumer test.  The program connected cleanly
+and returned success, so kensa continued with a deprovision call, passing in
+the ID it received from the original provision.</p>
+
+<p>Once this full test passes, you’ve completed the most fundamental parts of both
+sides of the add-on: provisioning in your service, and consuming from a client.</p>
+
+<h3 id="3-docs-and-libraries">3. Docs and libraries</h3>
+
+<p>Cloud services each have their own protocol and matching libraries for
+consuming them.  In this example we showed consuming of a MySQL resource, which
+has the benefit of having existing Ruby database libraries that can connect to
+it via the MySQL protocol.  A RESTful service can likewise use a standard HTTP
+library like <a href="http://rdoc.info/projects/archiloque/rest-client">RestClient</a> or
+<a href="http://httparty.rubyforge.org/">HTTParty</a>.</p>
+
+<p>If your service has its own protocol, or if you provide app integration by way
+of a Rails plugin or Ruby gem installed into the user’s code, you may need
+package and provide that separately.  Websolr is a stellar example of a service
+that provides <a href="http://websolr.com/guides/heroku-add-on">Heroku-specific
+documentation and libraries</a>, in addition to their <a href="http://websolr.com/guides">general docs</a>.</p>
+
+<p>Clear, concise docs and easy-to-install and use libraries are crucial for
+adoption of your add-on, so give plenty of attention this part of the process.</p>
+
+<h3 id="4-next-step">4. Next step</h3>
+
+<p>If you’ve made it this far, you’ve done the bulk of the technical integration
+needed to make your cloud service into a Heroku add-on.  Congratulations!</p>
+
+<p>The next step will be to <a href="https://devcenter.heroku.com/articles/submitting-an-add-on">Submit your
+add-on</a> to the add-ons catalog.</p>

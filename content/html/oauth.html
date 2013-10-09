@@ -1,0 +1,245 @@
+<p>OAuth provides a way to authorize and revoke access to your account to yourself and third parties. Third parties can use this to provide services, such as monitoring and scaling your applications. You can also use these keys to grant access for your own scripts on your machine or applications.</p>
+
+<p>The Heroku Platform API implements OAuth version 2.0 as the preferred authentication mechanism. For further details of the specific API endpoints see the <a href="https://devcenter.heroku.com/articles/platform-api-reference">Platform API Reference</a>.</p>
+
+<p>Third parties who wish to provide services to Heroku users should implement <a href="#web-application-authorization">web application authorization</a>. Users who would like to use a personal OAuth token should instead use <a href="#direct-authorization">direct authorization</a>.</p>
+
+<h2 id="web-application-authorization">Web application authorization</h2>
+
+<p>Web application authorization allows third parties to ask for and gain access to the resources of a Heroku user, which they can then use to provide services and features on top of the Heroku platform.</p>
+
+<h3 id="register-client">Register client</h3>
+
+<p>The client is what identifies you, the third-party integrator, to Heroku and to authorizing users. When you register a client, you provide a callback URL and a name. The name is displayed to users when authorization is requested, so choose a name that identifies your site or application.</p>
+
+<p>There are three ways to register a client: on <a href="https://dashboard.heroku.com/account">dashboard</a> (easiest), using the <a href="https://github.com/heroku/heroku-oauth">heroku-oauth</a> CLI plugin or <a href="/articles/platform-api-reference#oauth-client">using the API directly</a>.</p>
+
+<p>When you register a client, you get an ID and a secret that you use to authorize Heroku users against.</p>
+
+<h3 id="oauth-flow">OAuth flow</h3>
+
+<p>This section describes the flow required to authorize your app to get access to a Heroku user’s account.</p>
+
+<h4 id="redirect-to-heroku">Redirect to Heroku</h4>
+
+<p>From your app, redirect the user to authorize:</p>
+
+<pre><code>GET https://id.heroku.com/oauth/authorize?client_id={client-id}&amp;response_type=code&amp;scope={scopes}
+</code></pre>
+
+<p>The <code>scope</code> URL parameter is a space-delimited (and url-encoded) list of the authorization scopes you are requesting. See <a href="#scopes">available scopes below</a>.</p>
+
+<h4 id="redirect-back">Redirect back</h4>
+
+<p>The user will then be redirected back, based on the client redirect uri:</p>
+
+<pre><code>GET {redirect-uri}?code={code}
+</code></pre>
+
+<h4 id="token-exchange">Token exchange</h4>
+
+<p>Given the code from the redirect url, a token may now be acquired.</p>
+
+<pre><code>POST /oauth/token
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -X POST https://id.heroku.com/oauth/token \
+-d "grant_type=authorization_code&amp;code=01234567-89ab-cdef-0123-456789abcdef&amp;client_secret=01234567-89ab-cdef-0123-456789abcdef"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Type: application/json;charset=utf-8
+</code></pre>
+
+<pre><code class="javascript">{
+  "access_token":"01234567-89ab-cdef-0123-456789abcdef",
+  "expires_in":28799,
+  "refresh_token":"01234567-89ab-cdef-0123-456789abcdef",
+  "token_type":"Bearer",
+  "user_id":"01234567-89ab-cdef-0123-456789abcdef",
+  "session_nonce":"2bf3ec81701ec291"
+}
+</code></pre>
+
+<p>Subsequent requests should authenticate by adding the access token’s <code>token</code> value to the <code>Authorization</code> header and specifying type <code>Bearer</code>. For example, given the access token <code>01234567-89ab-cdef-0123-456789abcdef</code>, request headers should be set to <code>Authorization: Bearer 01234567-89ab-cdef-0123-456789abcdef</code>.</p>
+
+<h3 id="token-refresh">Token refresh</h3>
+
+<p>Access tokens expire 8 hours after they are issued. The refresh token can be used to make a request for a new access token, similar to the initial access token exchange. Refresh tokens don’t expire.</p>
+
+<pre><code>POST /oauth/token
+</code></pre>
+
+<h4 id="curl-example">Curl example</h4>
+
+<pre><code class="term">$ curl -X POST https://id.heroku.com/oauth/token \ 
+-d "grant_type=refresh_token&amp;refresh_token=036b9495-b39d-4626-b53a-34399e7bc737&amp;client_secret=fa86a593-d854-4a3f-b68c-c6cc45fb6704"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 201 Created
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "access_token":"811235f4-16d3-476e-b940-ed5dfc7d6513",
+  "expires_in":7199,
+  "refresh_token":"036b9495-b39d-4626-b53a-34399e7bc737",
+  "token_type":"Bearer",
+  "user_id":"01234567-89ab-cdef-0123-456789abcdef",
+  "session_nonce":"2bf3ec81701ec291"
+}
+</code></pre>
+
+<p>Subsequent requests should authenticate by adding the access token’s <code>token</code> value to the <code>Authorization</code> header and specifying type <code>Bearer</code>. For example, given the access token <code>01234567-89ab-cdef-0123-456789abcdef</code>, request headers should be set to <code>Authorization: Bearer 01234567-89ab-cdef-0123-456789abcdef</code>.</p>
+
+<h2 id="scopes">Scopes</h2>
+
+<p>The following scopes are supported by the API:</p>
+
+<ul>
+<li>
+<code>global</code>: Read and write access to all of your account, apps and resources. Equivalent to API key.</li>
+<li>
+<code>identity</code>: Read-only access to your <a href="https://devcenter.heroku.com/articles/platform-api-reference#account">account information</a>.</li>
+<li>
+<code>read</code> and <code>write</code>: Read and write access to all of your apps and resources, excluding account information and configuration variables. This scope lets you request access to an account without necessarily getting access to runtime secrets such as database connection strings.</li>
+<li>
+<code>read-protected</code> and <code>write-protected</code>: Read and write access to all of your apps and resources, excluding account information. This scope lets you request access to an account including access to runtime secrets such as database connection strings.</li>
+</ul><h2 id="direct-authorization">Direct authorization</h2>
+
+<p>Direct authorization is used to provide a simpler workflow when users are creating authorizations for themself. It allows the exchange of username and password for a non-expiring token. These authorizations should be used in place of API keys in order to provide better granularity and the possibility of revocation.</p>
+
+<h3 id="token-exchange">Token exchange</h3>
+
+<p>In order to acquire a direct authorization, a request is made to create an authorization while passing username and password in basic auth. A description may also be included to help distinguish this authorization from others, and like the web flow, the authorization can also be scoped to particular permissions on the account.</p>
+
+<p>HTTP basic authentication must be constructed from the <a href="https://devcenter.heroku.com/articles/authentication">api token</a> as <code>:{api-token}</code> (note the pre-pended colon), base64 encoded and passed as the Authorization header for each request, for example <code>Authorization: Basic 0123456789ABCDEF=</code>.</p>
+
+<pre><code>POST /oauth/authorizations
+</code></pre>
+
+<h4 id="curl-example">Curl example</h4>
+
+<pre><code class="term">$ curl -X POST https://api.heroku.com/oauth/authorizations \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Authorization: Basic 0123456789ABCDEF=" \
+-H "Content-Type: application/json" \
+-d "{\"description\":\"sample authorization\"}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 201 Created
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "access_token": {
+    "expires_in": null,
+    "id":         "01234567-89ab-cdef-0123-456789abcdef",
+    "token":      "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "client": {
+    "id":           null,
+    "name":         null,
+    "redirect_uri": null
+  },
+  "created_at":    "2012-01-01T12:00:00-00:00",
+  "description":   "sample authorization",
+  "grant": {
+    "code":       null,
+    "expires_in": null,
+    "id":         null
+  },
+  "id":            "01234567-89ab-cdef-0123-456789abcdef",
+  "refresh_token": {
+    "expires_in": null,
+    "id":         null,
+    "token":      null
+  },
+  "scope":         "global",
+  "updated_at":    "2012-01-01T12:00:00-00:00"
+}
+</code></pre>
+
+<p>Subsequent requests should use the access token’s <code>token</code> value base64 encoded and prepended with a colon in the Authorization header. For example, given the token <code>01234567-89ab-cdef-0123-456789abcdef</code>, you’d base64 encode the string <code>:01234567-89ab-cdef-0123-456789abcdef</code> and set the header to <code>Authorization: Bearer MDEyMzQ1NjctODlhYi1jZGVmLTAxMjMtNDU2Nzg5YWJjZGVm</code></p>
+
+<p>Access tokens acquired through the direct authorization flow do not expire.</p>
+
+<h2 id="revoking-authorization">Revoking authorization</h2>
+
+<p>Revoking an authorization will block associated tokens from making further requests.</p>
+
+<pre><code>DELETE /oauth/authorizations/{authorization-id}
+</code></pre>
+
+<h4 id="curl-example">Curl example</h4>
+
+<pre><code class="term">$ curl -X DELETE https://api.heroku.com/oauth/authorizations/$AUTHORIZATION_ID \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Authorization: Bearer 0123456789ABCDEF="
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "access_token": {
+    "expires_in": null,
+    "id":         "01234567-89ab-cdef-0123-456789abcdef",
+    "token":      "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "client": {
+    "id":           null,
+    "name":         null,
+    "redirect_uri": null
+  },
+  "created_at":    "2012-01-01T12:00:00-00:00",
+  "description":   "sample authorization",
+  "grant": {
+    "code":       null,
+    "expires_in": null,
+    "id":         null
+  },
+  "id":            "01234567-89ab-cdef-0123-456789abcdef",
+  "refresh_token": {
+    "expires_in": null,
+    "id":         null,
+    "token":      null
+  },
+  "scope":         "global",
+  "updated_at":    "2012-01-01T12:00:00-00:00"
+}
+</code></pre>
+
+<h2 id="resources-and-examples">Resources and examples</h2>
+
+<ul>
+<li><a href="/articles/platform-api-reference">Platform API Reference</a></li>
+<li><a href="https://github.com/heroku/heroku-oauth">Heroku CLI plugin to manage OAuth clients and authorizations</a></li>
+<li>
+<a href="https://github.com/heroku/heroku-oauth-example-ruby">Ruby sample app</a> demonstrating OAuth</li>
+<li>
+<a href="https://github.com/heroku/heroku-oauth-example-go">Go sample app</a> demonstrating OAuth</li>
+<li><a href="https://github.com/heroku/omniauth-heroku">OmniAuth Strategy for Heroku</a></li>
+<li>Ruby Rack middleware <a href="https://github.com/heroku/heroku-bouncer">Heroku Bouncer</a>
+</li>
+<li><a href="https://github.com/heroku/heroku-bouncer-python">Python WSGI middleware</a></li>
+<li>
+<a href="https://github.com/heroku/log2viz">log2viz</a> log analyzer that uses OAuth</li>
+</ul>

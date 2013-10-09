@@ -1,0 +1,37 @@
+<div class="deprecated">
+<p>This article applies to apps on the <a href="/articles/bamboo">Bamboo</a> stack. For the most recent stack, <a href="/articles/cedar">Cedar</a>, see the note on the <a href="/articles/dynos#ephemeral-filesystem">ephemeral writeable filesystem</a>.</p>
+</div>
+<p>Your app is <a href="/articles/slug-compiler">compiled into a slug</a> for fast distribution by the <a href="/articles/dynos#the-dyno-manager">dyno manager</a>. The filesystem for the slug is read-only, which means you cannot dynamically write to the filesystem for semi-permanent storage. The following types of behaviors are <em>not</em> supported:</p>
+
+<ul>
+<li>Caching pages in the <code>public</code> directory</li>
+
+<li>Saving uploaded assets to local disk (e.g. with attachment_fu or paperclip)</li>
+
+<li>Writing full-text indexes with Ferret</li>
+
+<li>Writing to a filesystem database like SQLite or GDBM</li>
+
+<li>Accessing a git repo for an app like git-wiki</li>
+</ul><p>There are two directories that <em>are</em> writeable: <code>./tmp</code> and <code>./log</code> (under your application root). If you wish to drop a file temporarily for the duration of the request, you can write to a filename like <code>#{RAILS_ROOT}/tmp/myfile_#{Process.pid}</code>. There is no guarantee that this file will be there on subsequent requests (although it might be), so this should not be used for any kind of permanent storage.</p>
+
+<p>So how do you accomplish each of the following in a way that is compatible with a cloud environment?</p>
+
+<ul>
+<li>
+<strong>Caching</strong> - Use HTTP headers instead of writing to the filesystem. See our discussion of <a href="http-caching">HTTP caching</a> for more information.</li>
+
+<li>
+<strong>Saving uploaded assets</strong> - Use an asset store system like Amazon S3. See <a href="/articles/s3">large static assets</a> for further discussion.</li>
+
+<li>
+<strong>SQLite or GDBM</strong> - Use the provided PostgreSQL database instead of a filesystem database.</li>
+
+<li>
+<strong>Accessing a git repo</strong> - Sorry, but git-wiki and apps that use a similar technique won’t work on Heroku. As clever as git-wiki is, it is fundamentally non-scalable and non-replicatable.</li>
+</ul><h3 id="further-reading">Further reading</h3>
+
+<ul>
+<li>Adam Wiggins’s <a href="http://adam.heroku.com/past/2008/7/2/readonly_source_trees/">Read-only Source Trees</a>
+</li>
+</ul>

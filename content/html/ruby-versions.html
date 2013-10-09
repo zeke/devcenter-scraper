@@ -1,0 +1,59 @@
+<h2 id="selecting-a-version-of-ruby">Selecting a version of Ruby</h2>
+<div class="callout">
+<p>You’ll need to install <code>1.2.0</code> of bundler to use the <code>ruby</code> keyword.</p>
+</div><div class="callout">
+<p>See a complete list of supported</p>
+<a href="https://devcenter.heroku.com/articles/ruby-support#ruby-versions">
+<p>Ruby versions</p>
+</a>
+</div>
+<p>You can use the <code>ruby</code> keyword of your app’s <code>Gemfile</code> to specify a particular version of Ruby.</p>
+
+<pre><code class="ruby">source "https://rubygems.org"
+ruby "1.9.3"
+# ...</code></pre>
+
+<p>When you commit and push to Heroku you’ll see that Ruby <code>1.9.3</code> is detected:</p>
+
+<pre><code>-----&gt; Heroku receiving push
+-----&gt; Ruby/Rack app detected
+-----&gt; Using Ruby version: 1.9.3
+-----&gt; Installing dependencies using Bundler version 1.2.1
+...</code></pre>
+
+<p>Please see <a href="/articles/ruby-support#ruby-versions">Ruby Support</a> for a list of available versions.</p>
+<div class="warning">
+<p>If you were previously using <code>RUBY_VERSION</code> to select a version of Ruby, please follow the instructions above to specify your desired version of Ruby using Bundler.</p>
+</div>
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+<h3 id="migration">Migration</h3>
+
+<p>Applications that migrate to a non-default version of Ruby should have <code>bin</code> be the first entry in their <code>PATH</code> config var. This var’s current value can be determined using <code>heroku config</code>.</p>
+
+<pre><code class="term">$ heroku config -s | grep PATH
+PATH=vendor/bundle/ruby/1.9.1/bin:/usr/local/bin:/usr/bin:/bin</code></pre>
+
+<p>If absent or not the first entry, add <code>bin:</code> to the config with <code>heroku config:set</code>.</p>
+
+<pre><code class="term">$ heroku config:set PATH=bin:vendor/bundle/ruby/1.9.1/bin:/usr/local/bin:/usr/bin:/bin</code></pre>
+
+<p>If the <code>PATH</code> is set correctly you will see the expected version using <code>heroku run</code>:</p>
+
+<pre><code class="term">$ heroku run "ruby -v"
+Running `ruby -v` attached to terminal... up, run.1
+ruby 1.9.2p290 (2011-07-09 revision 32553) [x86_64-linux]</code></pre>
+
+<p>If the <code>PATH</code> is not setup correctly, you might see this error:</p>
+
+<pre><code>Your Ruby version is 1.9.2, but your Gemfile specified 1.9.3</code></pre>
+
+<h3 id="bundler">Bundler</h3>
+
+<p>If you’re using a Bundler <code>1.1.4</code> or lower you’ll see the following error:</p>
+
+<pre><code>undefined method `ruby' for #&lt;Bundler::Dsl:0x0000000250acb0&gt; (NoMethodError)</code></pre>
+
+<p>You’ll need to install bundler <code>1.2.0</code> or greater to use the <code>ruby</code> keyword.</p>
+
+<pre><code>$ gem install bundler</code></pre>

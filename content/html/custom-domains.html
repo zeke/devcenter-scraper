@@ -1,0 +1,217 @@
+<p>All apps on Heroku are accessible via their <code>herokuapp.com</code> app subdomain. E.g., for an app named <code>example</code> it’s available at <code>example.herokuapp.com</code>. To serve traffic on a non-herokuapp.com domain, e.g., <code>www.example.com</code>, you need to configure your application with a custom domain.</p>
+
+<p>The process to add a custom domain to your application can vary slightly, depending on the type of domain(s).</p>
+
+<div class="note">
+<p>DNS changes can take several minutes to several days to take effect. Lowering your DNS TTL ahead of time can minimize, but not eliminate, this propagation time.</p>
+</div>
+
+<h2 id="domain-types">Domain types</h2>
+
+<p>There are several domain configurations available to your app including:</p>
+
+<ul>
+<li>One or more subdomains like <code>www.example.com</code>
+</li>
+<li>A root domain like <code>example.com</code> or <code>example.co.uk</code>
+</li>
+<li>Wildcard domains that match any subdomain, represented as <code>*.example.com</code>
+</li>
+</ul><p>A single application can utilize one or more of the above domain setups using the same basic process:</p>
+
+<ol>
+<li>Tell Heroku which custom domains are specific to your application</li>
+<li>Configure your application’s DNS to point to Heroku</li>
+</ol><p>Specific instructions for each configuration are detailed below.</p>
+
+<h2 id="custom-subdomains">Custom subdomains</h2>
+
+<p>For each custom subdomain you want attached to your app, e.g., <code>www.example.com</code>, use the <code>domains:add</code> command from the Heroku CLI:</p>
+
+<div class="callout">
+<p>See the <a href="#domain-precedence">domain precedence</a> section if you receive the error message <code>example.com is currently in use by another app</code>.</p>
+</div>
+
+<pre><code class="term">$ heroku domains:add www.example.com
+Adding www.example.com to example... done
+</code></pre>
+
+<h3 id="subdomain-dns">Subdomain DNS</h3>
+
+<p>Next, for each subdomain, configure your DNS with a CNAME record pointing the subdomain to your app’s Heroku <code>herokuapp.com</code> hostname (shown here resolving <code>www.example.com</code> to the <code>example</code> app).</p>
+
+<div class="callout">
+<p>The trailing <code>.</code> on the target domain may or may not be required, depending on your DNS provider.</p>
+</div>
+
+<table>
+<tr>
+<th>Record</th>
+    <th>Name</th>
+    <th>Target</th>
+  </tr>
+<tr>
+<td><code>CNAME</code></td>
+    <td><code>www</code></td>
+    <td><code>example.herokuapp.com.</code></td>
+  </tr>
+</table><p>You can confirm that your DNS is configured correctly with the <code>host</code> command:</p>
+
+<pre><code class="term">$ host www.example.com
+www.example.com is an alias for example.herokuapp.com.
+...
+</code></pre>
+
+<p>Output of this command varies by Unix flavor, but should indicate that your hostname is either an alias or CNAME of <code>example.herokuapp.com</code>.</p>
+
+<h2 id="root-domain">Root domain</h2>
+
+<p>If you intend to use a root domain, e.g., <code>example.com</code> or <code>example.co.uk</code>, you must add it in addition to any custom subdomains.</p>
+
+<pre><code class="term">$ heroku domains:add example.com
+Adding example.com to example... done
+</code></pre>
+
+<p>Zone apex domains (aka “naked”, “bare” or “root” domains), e.g., <code>example.com</code>, using conventional DNS A-records are <a href="/articles/apex-domains">not supported on Heroku</a>. However, there are alternative configurations that allow for root domains while still being resilient in a dynamic runtime environment.</p>
+
+<h3 id="cname-functionality-at-the-apex">CNAME functionality at the apex</h3>
+
+<p>Some DNS hosts provide a way to get CNAME-like functionality at the zone apex using a custom record type. Such records include:</p>
+
+<ul>
+<li><a href="http://support.dnsimple.com/articles/alias-record">ALIAS at DNSimple</a></li>
+<li><a href="http://www.dnsmadeeasy.com/technology/aname-records/">ANAME at DNS Made Easy</a></li>
+</ul><p>For each provider, the setup is similar: point the ALIAS or ANAME entry for your apex domain to example.herokuapp.com, just as you would with a CNAME record.</p>
+
+<div class="callout">
+<p>Depending on the DNS provider, an empty or <code>@</code> Name value identifies the zone apex.</p>
+</div>
+
+<table>
+<tr>
+<th>Record</th>
+    <th>Name</th>
+    <th>Target</th>
+  </tr>
+<tr>
+<td>
+<code>ALIAS</code> or <code>ANAME</code>
+</td>
+    <td>&lt;empty&gt; or <code>@</code>
+</td>
+    <td><code>example.herokuapp.com.</code></td>
+  </tr>
+</table><p>If your DNS provider does not support such a record-type, and you are unable to switch to one that does, you will need to use subdomain redirection to send root domain requests to your app on Heroku.</p>
+
+<h3 id="subdomain-redirection">Subdomain redirection</h3>
+
+<p>For users without access to a modern DNS configuration, subdomain redirection is a viable alternative. Subdomain redirection results in a <a href="http://en.wikipedia.org/wiki/HTTP_301">301 permanent redirect</a> to the specified subdomain for all root domain requests.</p>
+
+<p>Almost all DNS providers offer  domain redirection services – sometimes also called domain forwarding. However, be aware that, using this method, a <a href="/articles/ssl-endpoint">secure request</a> to the root domain, e.g., <code>https://example.com</code>, will result in an error or warning being displayed to the user. If you’re not using SSL, or are only distributing URLs in subdomain SSL form, e.g., <code>https://www.example.com</code>, this error won’t affect you.</p>
+
+<p>Establish a redirect/forward from the root domain to the <code>www</code> subdomain:</p>
+
+<div class="callout">
+<p>Users of AWS’s Route 53 DNS should follow <a href="https://devcenter.heroku.com/articles/route-53#naked-root-domain">these instructions</a> to establish proper root domain redirection.</p>
+</div>
+
+<table>
+<tr>
+<th>Record</th>
+    <th>Name</th>
+    <th>Target</th>
+  </tr>
+<tr>
+<td>
+<code>URL</code> or <code>Forward</code>
+</td>
+    <td><code>example.com</code></td>
+    <td><code>www.example.com.</code></td>
+  </tr>
+<tr>
+<td><code>CNAME</code></td>
+    <td><code>www</code></td>
+    <td><code>example.herokuapp.com.</code></td>
+  </tr>
+</table><p>If not already configured, the <code>www</code> subdomain should then be a CNAME record reference to <code>example.herokuapp.com</code>.</p>
+
+<h2 id="wildcard-domains">Wildcard domains</h2>
+
+<p>Wildcard domains allow you to map any and all subdomains to your app with a single record. A common use of a wildcard domain is with applications that use a personalized subdomain for each user or account.</p>
+
+<p>You can add a wildcard domain if you own all existing apps already using the same top level domain (TLD). For example if an app is already using <code>www.example.com</code> you must own it to add <code>*.example.com</code>.</p>
+
+<p>Add the wildcard domain to your app as you do any other domain, but use the <code>*</code> wildcard subdomain notation:</p>
+
+<pre><code class="term">$ heroku domains:add *.example.com
+Adding *.example.com to example... done
+</code></pre>
+
+<p>If one of your apps has a wildcard domain, you can still add specific subdomains of the same TLD (top level domain) to any of your other apps. Specific subdomains are evaluated before wildcard domains when routing requests.</p>
+
+<div class="warning">
+<p>It’s important to make sure your DNS configuration agrees with the custom domains you’ve added to Heroku. In particular, if you have configured your DNS for <code>*.example.com</code> to point to <code>example.herokuapp.com</code>, be sure you also run <code>heroku domains:add *.example.com</code>. Otherwise, a malicious person could add <code>baddomain.example.com</code> to their Heroku app and receive traffic intended for your application.</p>
+</div>
+
+<h3 id="wildcard-dns">Wildcard DNS</h3>
+
+<p>Use the <code>*</code> wildcard subdomain notation to add a CNAME record to <code>example.herokuapp.com</code> with your DNS provider.</p>
+
+<table>
+<tr>
+<th>Record</th>
+    <th>Name</th>
+    <th>Target</th>
+  </tr>
+<tr>
+<td><code>CNAME</code></td>
+    <td><code>*</code></td>
+    <td><code>example.herokuapp.com.</code></td>
+  </tr>
+</table><p>After your DNS changes have propagated you will be able to look up and access any subdomain:</p>
+
+<pre><code class="term">$ host any-subdomain.example.com
+any-subdomain.example.com is an alias for example.herokuapp.com
+...
+
+$ curl -I http://any-subdomain.example.com/
+HTTP/1.1 200 OK
+...
+</code></pre>
+
+<h2 id="remove-domain">Remove domain</h2>
+
+<p>Remove a domain with <code>domains:remove</code>:</p>
+
+<pre><code class="term">$ heroku domains:remove www.example.com
+Removing www.example.com from example... done
+</code></pre>
+
+<p>If you destroy the app, any custom domains assigned to it will be freed. You can subsequently assign them to other apps.</p>
+
+<h2 id="domain-precedence">Domain precedence</h2>
+
+<p>Any user on Heroku can attempt to add any domain to their app. Instead of explicitly verifying domain ownership, Heroku enforces these rules to ensure that domains claimed by one user aren’t used by other users on different apps:</p>
+
+<ul>
+<li>You can only add a domain to one app. For example if <code>www.example.com</code> is added to app <code>example-1</code> you can’t also add it to app <code>example-2</code>. One app, however, can have multiple domains assigned.</li>
+<li>You can add a <a href="#wildcard-domains">wildcard domain</a> if you own all
+existing apps already using a corresponding subdomain. For example if
+an app is already using <code>www.example.com</code> you must own it to add
+<code>*.example.com</code>.</li>
+<li>You can add a subdomain or apex domain if you own the app assigned
+the corresponding wildcard domain. For example to add
+<code>www.example.com</code> or <code>example.com</code> you must own the app with
+<code>*.example.com</code>, if such a custom domain exists.</li>
+</ul><p>If you’re unable to add a domain that you own, please <a href="https://help.heroku.com/search?utf8=%E2%9C%93&amp;q=can%27t+add+domain">file a support ticket</a>.</p>
+
+<h2 id="the-herokuapp-com-domain">The herokuapp.com domain</h2>
+
+<p>The domain <code>example.herokuapp.com</code> will always remain active, even if you’ve set up a custom domain. If you want users to use the custom domain exclusively, your app should send <a href="http://tools.ietf.org/html/rfc2616#section-10.3.2">HTTP status 301 Moved Permanently</a> to tell web browsers to use the custom domain. The <code>Host</code> HTTP request header field will show which domain the user is trying to access; send a redirect if that field is <code>example.herokuapp.com</code>.</p>
+
+<h2 id="utf-8-domain-names">UTF-8 domain names</h2>
+
+<p>Domain names that contain accented, or other non-ASCII, characters should be added using <a href="http://en.wikipedia.org/wiki/Punycode">punycode</a>. For instance, the <code>éste.com</code> domain name should be <a href="http://www.charset.org/punycode.php?decoded=%C3%A9ste.com&amp;encode=Normal+text+to+Punycode">converted</a> to <code>xn--ste-9la.com</code> when passed to <code>heroku domains:add</code>:</p>
+
+<pre><code class="term">$ heroku domains:add xn--ste-9la.com
+</code></pre>

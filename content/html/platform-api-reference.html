@@ -1,0 +1,4877 @@
+<!--
+DON'T EDIT THIS ARTICLE.
+It is auto-generated, so please leave comments instead.
+-->
+
+<div class="warning">The Platform API is a <a href="https://devcenter.heroku.com/articles/heroku-beta-features">beta feature</a>. Functionality may change prior to general availability.</div>
+
+<h2 id="overview">Overview</h2>
+
+<p>The platform API empowers developers to automate, extend and combine Heroku with other services. You can use the platform API to programmatically create apps, provision add-ons and perform other tasks that could previously only be accomplished with Heroku toolbelt or dashboard. For details on getting started, see the <a href="https://devcenter.heroku.com/articles/platform-api-quickstart">quickstart</a>.</p>
+
+<h3 id="authentication">Authentication</h3>
+
+<p>HTTP basic authentication must be constructed from email address and <a href="https://devcenter.heroku.com/articles/authentication">api token</a> as <code>{email-address}:{api-token}</code>, base64 encoded and passed as the Authorization header for each request, for example <code>Authorization: Basic 0123456789ABCDEF=</code>.</p>
+
+<p>API token authentication works well for personal scripts, but is not recommended for third party services. We plan to deliver OAuth later in the beta to provide better granularity and control when providing access to third party services.</p>
+
+<h3 id="caching">Caching</h3>
+
+<p>All responses include an <code>ETag</code> (or Entity Tag) header, identifying the specific version of a returned resource. You may use this value to check for changes to a resource by repeating the request and passing the <code>ETag</code> value in the <code>If-None-Match</code> header. If the resource has not changed, a <code>304 Not Modified</code> status will be returned with an empty body. If the resource has changed, the request will proceed normally.</p>
+
+<h3 id="clients">Clients</h3>
+
+<p>Clients must address requests to <code>api.heroku.com</code> using HTTPS and specify the <code>Accept: application/vnd.heroku+json; version=3</code> Accept header. Clients should specify a <code>User-Agent</code> header to facilitate tracking and debugging.</p>
+
+<h3 id="curl-examples">cURL Examples</h3>
+
+<p>cURL examples are provided to facilitate experimentation. Variable values are represented as <code>$SOMETHING</code> so that you can manipulate them using environment variables. Examples use the <code>-n</code> option to fetch credentials from a <code>~/.netrc</code> file, which should include an entry for <code>api.heroku.com</code> similar to the following:</p>
+
+<pre><code>machine api.heroku.com
+  login {your-email}
+  password {your-api-token}
+</code></pre>
+
+<h3 id="custom-types">Custom Types</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>JSON Type</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>datetime</td>
+<td>string</td>
+<td>timestamp in iso8601 format</td>
+</tr>
+<tr>
+<td>uuid</td>
+<td>string</td>
+<td>uuid in 8-4-4-4-12 format</td>
+</tr>
+</table><h3 id="data-integrity">Data Integrity</h3>
+
+<p>Both unique id and more human-friendly attributes can be used reference resources. For example you can use <code>name</code> or <code>id</code> to refer to an app. Though the human-friendly version may be more convenient, <code>id</code> should be preferred to avoid ambiguity.</p>
+
+<p>You may pass the <code>If-Match</code> header with an <code>ETag</code> value from a previous response to ensure a resource has not changed since you last received it. If the resource has changed, you will receive a <code>412 Precondition Failed</code> response. If the resource has not changed, the request will proceed normally.</p>
+
+<h3 id="errors">Errors</h3>
+
+<p>Failing responses will have an appropriate <a href="#statuses">status</a> and a JSON body.</p>
+
+<h3 id="error-attributes">Error Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>id of error raised</td>
+<td><code>"rate_limit"</code></td>
+</tr>
+<tr>
+<td>message</td>
+<td>string</td>
+<td>end user message of error raised </td>
+<td><code>"Your account reached the API limit. Please wait a few minutes before making new requests"</code></td>
+</tr>
+</table><h3 id="error-response">Error Response</h3>
+
+<pre><code>HTTP/1.1 429 Too Many Requests
+</code></pre>
+
+<pre><code class="javascript">{
+  "id":       "rate_limit",
+  "message":  "Your account reached the API rate limit\nPlease wait a few minutes before making new requests"
+}
+</code></pre>
+
+<h3 id="legacy-api">Legacy API</h3>
+
+<p>Those utilizing the legacy, v2 API should instead consult <a href="https://legacy-api-docs.heroku.com">legacy-api-docs.heroku.com</a></p>
+
+<h3 id="methods">Methods</h3>
+
+<table>
+<tr>
+<th>Method</th>
+<th>Usage</th>
+</tr>
+<tr>
+<td>DELETE</td>
+<td>used for destroying existing objects</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>used for retrieving lists and individual objects</td>
+</tr>
+<tr>
+<td>HEAD</td>
+<td>used for retrieving metadata about existing objects</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td>used for updating existing objects</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td>used for replacing existing objects</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>used for creating new objects</td>
+</tr>
+</table><h3 id="method-override">Method Override</h3>
+
+<p>When using a client that does not support all of the <a href="#methods">methods</a>, you can override by using a <code>POST</code> and setting the <code>X-Http-Method-Override</code> header to the desired methed. For instance, to do a <code>PATCH</code> request, do a <code>POST</code> with header <code>X-Http-Method-Override: PATCH</code>.</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<p>Values that can be provided for an action are divided between optional and required values. The expected type for each value is specified and unlisted values should be considered immutable. Parameters should be JSON encoded and passed in the request body.</p>
+
+<h3 id="ranges">Ranges</h3>
+
+<p>List requests will return a <code>Content-Range</code> header indicating the range of values returned. Large lists may require additional requests to retrieve. If a list response has been truncated you will receive a <code>206 Partial Content</code> status and one or both of <code>Next-Range</code> and <code>Prev-Range</code> headers if there are next and previous ranges respectively. To retrieve the next or previous range, repeat the request with the <code>Range</code> header set to either the <code>Next-Range</code> or <code>Prev-Range</code> value from the previous request.</p>
+
+<p>The number of values returned in a range can be controlled using a <code>max</code> key in the <code>Range</code> header. For example, to get only the first 10 values, set this header: <code>Range: ids ..; max=10;</code>. <code>max</code> can also be passed when iterating over <code>Next-Range</code> and <code>Prev-Range</code>. The default page size is 200 and maximum page size is 1000.</p>
+
+<h3 id="limits">Limits</h3>
+
+<p>The API limits the number of requests each user can make per hour to protect against abuse and buggy code. Each account has a pool of request tokens that can hold at most 1200 tokens. Each API call removes one token from the pool. Tokens are added to the account pool at a rate of 1200 per hour, up to a maximum of 1200. If no tokens remain, further calls will return 429 <code>Too Many Requests</code> until more tokens become available.</p>
+
+<p>You can use the <code>RateLimit-Remaining</code> response header to check your current token count. You can also query the <a href="#rate-limits">rate limit</a> endpoint to get your token count. Requests to the rate limit endpoint do not count toward the limit. If you find your account is being rate limited but don’t know the cause, consider cycling your API key on the account page on Heroku dashboard.</p>
+
+<h3 id="request-id">Request Id</h3>
+
+<p>Each API response contains a unique request id in the <code>Request-Id</code> header to facilitate tracking. When reporting issues, providing this value makes it easier to pinpoint problems and provide solutions more quickly.</p>
+
+<h3 id="responses">Responses</h3>
+
+<p>Values returned by the API are split into a section with example status code and relevant headers (with common http headers omitted) and a section with an example JSON body (if any).</p>
+
+<h3 id="response-headers">Response Headers</h3>
+
+<table>
+<tr>
+<th>Header</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>RateLimit-Remaining</td>
+<td>allowed requests remaining in current interval</td>
+</tr>
+</table><h3 id="statuses">Statuses</h3>
+
+<table>
+<tr>
+<th>Code</th>
+<th>Culprit</th>
+<th>Id</th>
+<th>Message</th>
+</tr>
+<tr>
+<td>200</td>
+<td>Both</td>
+<td>OK</td>
+<td>request succeeded</td>
+</tr>
+<tr>
+<td>201</td>
+<td>Both</td>
+<td>Created</td>
+<td>resource created, for example a new app was created or an add-on was provisioned</td>
+</tr>
+<tr>
+<td>202</td>
+<td>Both</td>
+<td>Accepted</td>
+<td>request accepted, but the processing has not been completed</td>
+</tr>
+<tr>
+<td>206</td>
+<td>Both</td>
+<td>Partial Content</td>
+<td>request succeeded, but this is only a partial response, see <a href="#ranges">ranges</a>
+</td>
+</tr>
+<tr>
+<td>400</td>
+<td>Client</td>
+<td>Bad Request</td>
+<td>request invalid, validate usage and try again</td>
+</tr>
+<tr>
+<td>401</td>
+<td>Client</td>
+<td>Unauthorized</td>
+<td>request not authenticated, validate credentials and try again</td>
+</tr>
+<tr>
+<td>402</td>
+<td>Client</td>
+<td>Payment Required</td>
+<td>request could not be billed, validate billing information and try again</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Client</td>
+<td>Forbidden</td>
+<td>request not authorized, provided credentials do not provide access to specified resource</td>
+</tr>
+<tr>
+<td>404</td>
+<td>Client</td>
+<td>Not Found</td>
+<td>request failed, the specified resource does not exist</td>
+</tr>
+<tr>
+<td>406</td>
+<td>Client</td>
+<td>Not Acceptable</td>
+<td>request failed, set <code>Accept: application/vnd.heroku+json; version=3</code> header and try again</td>
+</tr>
+<tr>
+<td>416</td>
+<td>Client</td>
+<td>Requested Range Not Satisfiable</td>
+<td>request failed, validate <code>Content-Range</code> header and try again</td>
+</tr>
+<tr>
+<td>422</td>
+<td>Client</td>
+<td>Unprocessable Entity</td>
+<td>request failed, validate parameters try again</td>
+</tr>
+<tr>
+<td>429</td>
+<td>Client</td>
+<td>Too Many Requests</td>
+<td>request failed, wait for rate limits to reset and try again, see <a href="#rate-limits">rate limits</a>
+</td>
+</tr>
+<tr>
+<td>500</td>
+<td>Heroku</td>
+<td>Internal Server Error</td>
+<td>error occurred, we are notified, but contact <a href="https://help.heroku.com">support</a> if the issue persists</td>
+</tr>
+<tr>
+<td>503</td>
+<td>Heroku</td>
+<td>Service Unavailable</td>
+<td>API is unavailable, check response body or <a href="https://status.heroku.com">Heroku status</a> for details</td>
+</tr>
+</table><h3 id="versioning">Versioning</h3>
+
+<p>The beta and release of the api will all occur within version 3. We will provide warning and migration strategies for any backwards incompatible changes we might make during the beta and will commit to no backwards incompatible changes to version 3 after the release.</p>
+
+<h3 id="warnings">Warnings</h3>
+
+<p>Responses with warnings will have add headers describing the warning.</p>
+
+<h3 id="warning-headers">Warning Headers</h3>
+
+<table>
+<tr>
+<th>Header</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td>id</td>
+<td>id of warning</td>
+<td><code>"stack_deprecated"</code></td>
+</tr>
+</table><h2 id="account">Account</h2>
+
+<p>An account represents you on Heroku.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>allow_tracking</strong></td>
+<td><em>boolean</em></td>
+<td>whether to allow web activity tracking with third-party services like Google Analytics</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><strong>beta</strong></td>
+<td><em>boolean</em></td>
+<td>whether to utilize beta Heroku features</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when account was created</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>email</strong></td>
+<td><em>string</em></td>
+<td>email address of account</td>
+<td><code>"username@example.com"</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of account</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>last_login</strong></td>
+<td><em>datetime</em></td>
+<td>when account last authorized with Heroku</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when account was updated</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>verified</strong></td>
+<td><em>boolean</em></td>
+<td>whether the account has been verified with billing information</td>
+<td><code>false</code></td>
+</tr>
+</table><h3 id="account-info">Account Info</h3>
+
+<pre><code>GET /account
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/account \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "allow_tracking": true,
+  "beta":           false,
+  "created_at":     "2012-01-01T12:00:00Z",
+  "email":          "username@example.com",
+  "id":             "01234567-89ab-cdef-0123-456789abcdef",
+  "last_login":     "2012-01-01T12:00:00Z",
+  "updated_at":     "2012-01-01T12:00:00Z",
+  "verified":       false
+}
+</code></pre>
+
+<h3 id="account-update">Account Update</h3>
+
+<pre><code>PATCH /account
+</code></pre>
+
+<h4 id="optional-parameters">Optional Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>allow_tracking</strong></td>
+<td><em>boolean</em></td>
+<td>whether to allow web activity tracking with third-party services like Google Analytics</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><strong>email</strong></td>
+<td><em>string</em></td>
+<td>email address of account</td>
+<td><code>"username@example.com"</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/account \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"allow_tracking\":true,\"email\":\"username@example.com\"}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "allow_tracking": true,
+  "beta":           false,
+  "created_at":     "2012-01-01T12:00:00Z",
+  "email":          "username@example.com",
+  "id":             "01234567-89ab-cdef-0123-456789abcdef",
+  "last_login":     "2012-01-01T12:00:00Z",
+  "updated_at":     "2012-01-01T12:00:00Z",
+  "verified":       false
+}
+</code></pre>
+
+<h2 id="account-feature">Account Feature</h2>
+
+<p>An account feature represents a Heroku labs capability that can be enabled or disabled for an account on Heroku.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when account feature was created</td>
+<td><code>2012-01-01T12:00:00-00:00</code></td>
+</tr>
+<tr>
+<td><strong>description</strong></td>
+<td><em>string</em></td>
+<td>description of account feature</td>
+<td><code>"Causes account to example."</code></td>
+</tr>
+<tr>
+<td><strong>doc_url</strong></td>
+<td><em>string</em></td>
+<td>documentation URL of account feature</td>
+<td><code>"http://devcenter.heroku.com/articles/example"</code></td>
+</tr>
+<tr>
+<td><strong>enabled</strong></td>
+<td><em>boolean</em></td>
+<td>whether or not account feature has been enabled</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of account feature</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>name</strong></td>
+<td><em>string</em></td>
+<td>unique name of account feature</td>
+<td><code>"example"</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when account feature was updated</td>
+<td><code>2012-01-01T12:00:00-00:00</code></td>
+</tr>
+</table><h3 id="account-feature-list">Account Feature List</h3>
+
+<pre><code>GET /account/features
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/account/features \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "created_at":  "2012-01-01T12:00:00-00:00",
+    "description": "Causes account to example.",
+    "doc_url":     "http://devcenter.heroku.com/articles/example",
+    "enabled":     true,
+    "id":          "01234567-89ab-cdef-0123-456789abcdef",
+    "name":        "example",
+    "updated_at":  "2012-01-01T12:00:00-00:00"
+  }
+]
+</code></pre>
+
+<h3 id="account-feature-info">Account Feature Info</h3>
+
+<pre><code>GET /account/features/{feature_id_or_name}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/account/features/$FEATURE_ID_OR_NAME \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at":  "2012-01-01T12:00:00-00:00",
+  "description": "Causes account to example.",
+  "doc_url":     "http://devcenter.heroku.com/articles/example",
+  "enabled":     true,
+  "id":          "01234567-89ab-cdef-0123-456789abcdef",
+  "name":        "example",
+  "updated_at":  "2012-01-01T12:00:00-00:00"
+}
+</code></pre>
+
+<h3 id="account-feature-update">Account Feature Update</h3>
+
+<pre><code>PATCH /account/features/{feature_id_or_name}
+</code></pre>
+
+<h4 id="required-parameters">Required Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>enabled</strong></td>
+<td><em>boolean</em></td>
+<td>whether or not account feature has been enabled</td>
+<td><code>true</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/account/features/$FEATURE_ID_OR_NAME \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"enabled\":true}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at":  "2012-01-01T12:00:00-00:00",
+  "description": "Causes account to example.",
+  "doc_url":     "http://devcenter.heroku.com/articles/example",
+  "enabled":     true,
+  "id":          "01234567-89ab-cdef-0123-456789abcdef",
+  "name":        "example",
+  "updated_at":  "2012-01-01T12:00:00-00:00"
+}
+</code></pre>
+
+<h2 id="account-password">Account Password</h2>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>current_password</strong></td>
+<td><em>string</em></td>
+<td>existing password value</td>
+<td><code>"0123456789abcdef"</code></td>
+</tr>
+<tr>
+<td><strong>password</strong></td>
+<td><em>string</em></td>
+<td>new password value</td>
+<td><code>"abcdef0123456789"</code></td>
+</tr>
+</table><h3 id="account-password-update">Account Password Update</h3>
+
+<pre><code>PUT /account/password
+</code></pre>
+
+<h4 id="required-parameters">Required Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>current_password</strong></td>
+<td><em>string</em></td>
+<td>existing password value</td>
+<td><code>"0123456789abcdef"</code></td>
+</tr>
+<tr>
+<td><strong>password</strong></td>
+<td><em>string</em></td>
+<td>new password value</td>
+<td><code>"abcdef0123456789"</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X PUT https://api.heroku.com/account/password \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"current_password\":\"0123456789abcdef\",\"password\":\"abcdef0123456789\"}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+}
+</code></pre>
+
+<h2 id="add-on">Add-on</h2>
+
+<p>Add-ons represent add-ons that have been provisioned for an app.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>config</strong></td>
+<td><em>object</em></td>
+<td>additional add-on service specific configuration</td>
+<td><code>{}</code></td>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when add-on was created</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of this add-on</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>plan:id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier for plan</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>plan:name</strong></td>
+<td><em>string</em></td>
+<td>unique name for plan</td>
+<td><code>"heroku-postgresql:dev"</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when add-on was updated</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+</table><h3 id="add-on-create">Add-on Create</h3>
+
+<pre><code>POST /apps/{app_id_or_name}/addons
+</code></pre>
+
+<h4 id="optional-parameters">Optional Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>config</strong></td>
+<td><em>object</em></td>
+<td>additional add-on service specific configuration</td>
+<td><code>{}</code></td>
+</tr>
+<tr>
+<td><strong>plan:id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier for plan</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>plan:name</strong></td>
+<td><em>string</em></td>
+<td>unique name for plan</td>
+<td><code>"heroku-postgresql:dev"</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/addons \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"config\":{},\"plan\":{\"id\":\"01234567-89ab-cdef-0123-456789abcdef\",\"name\":\"heroku-postgresql:dev\"}}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 201 Created
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at": "2012-01-01T12:00:00Z",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "plan": {
+    "id":   "01234567-89ab-cdef-0123-456789abcdef",
+    "name": "heroku-postgresql:dev"
+  },
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="add-on-list">Add-on List</h3>
+
+<pre><code>GET /apps/{app_id_or_name}/addons
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/addons \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "created_at": "2012-01-01T12:00:00Z",
+    "id":         "01234567-89ab-cdef-0123-456789abcdef",
+    "plan": {
+      "id":   "01234567-89ab-cdef-0123-456789abcdef",
+      "name": "heroku-postgresql:dev"
+    },
+    "updated_at": "2012-01-01T12:00:00Z"
+  }
+]
+</code></pre>
+
+<h3 id="add-on-info">Add-on Info</h3>
+
+<pre><code>GET /apps/{app_id_or_name}/addons/{addon_id}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/addons/$ADDON_ID \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at": "2012-01-01T12:00:00Z",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "plan": {
+    "id":   "01234567-89ab-cdef-0123-456789abcdef",
+    "name": "heroku-postgresql:dev"
+  },
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="add-on-update">Add-on Update</h3>
+
+<pre><code>PATCH /apps/{app_id_or_name}/addons/{addon_id}
+</code></pre>
+
+<h4 id="optional-parameters">Optional Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>config</strong></td>
+<td><em>object</em></td>
+<td>additional add-on service specific configuration</td>
+<td><code>{}</code></td>
+</tr>
+<tr>
+<td><strong>plan:id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier for plan</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>plan:name</strong></td>
+<td><em>string</em></td>
+<td>unique name for plan</td>
+<td><code>"heroku-postgresql:dev"</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME/addons/$ADDON_ID \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"config\":{},\"plan\":{\"id\":\"01234567-89ab-cdef-0123-456789abcdef\",\"name\":\"heroku-postgresql:dev\"}}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at": "2012-01-01T12:00:00Z",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "plan": {
+    "id":   "01234567-89ab-cdef-0123-456789abcdef",
+    "name": "heroku-postgresql:dev"
+  },
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="add-on-delete">Add-on Delete</h3>
+
+<pre><code>DELETE /apps/{app_id_or_name}/addons/{addon_id}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/addons/$ADDON_ID \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at": "2012-01-01T12:00:00Z",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "plan": {
+    "id":   "01234567-89ab-cdef-0123-456789abcdef",
+    "name": "heroku-postgresql:dev"
+  },
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h2 id="add-on-service">Add-on Service</h2>
+
+<p>Add-on services represent add-ons that may be provisioned for apps.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when add-on service was created</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of service</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>name</strong></td>
+<td><em>string</em></td>
+<td>unique name for add-on service</td>
+<td><code>"heroku-postgresql"</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when add-on service was updated</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+</table><h3 id="add-on-service-list">Add-on Service List</h3>
+
+<pre><code>GET /addon-services
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/addon-services \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "created_at": "2012-01-01T12:00:00Z",
+    "id":         "01234567-89ab-cdef-0123-456789abcdef",
+    "name":       "heroku-postgresql",
+    "updated_at": "2012-01-01T12:00:00Z"
+  }
+]
+</code></pre>
+
+<h3 id="add-on-service-info">Add-on Service Info</h3>
+
+<pre><code>GET /addon-services/{addon_service_id_or_name}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/addon-services/$ADDON_SERVICE_ID_OR_NAME \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at": "2012-01-01T12:00:00Z",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "name":       "heroku-postgresql",
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h2 id="app">App</h2>
+
+<p>An app represents the program that you would like to deploy and run on Heroku.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>archived_at</strong></td>
+<td><em>datetime</em></td>
+<td>when app was archived</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>buildpack_provided_description</strong></td>
+<td><em>string</em></td>
+<td>description from buildpack of app</td>
+<td><code>"Ruby/Rack"</code></td>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when app was created</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>git_url</strong></td>
+<td><em>string</em></td>
+<td>git repo URL of app</td>
+<td><code>"git@heroku.com/example.git"</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of app</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>maintenance</strong></td>
+<td><em>boolean</em></td>
+<td>maintenance status of app</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><strong>name</strong></td>
+<td><em>string</em></td>
+<td>unique name of app</td>
+<td><code>"example"</code></td>
+</tr>
+<tr>
+<td><strong>owner:email</strong></td>
+<td><em>string</em></td>
+<td>email address of app owner</td>
+<td><code>"username@example.com"</code></td>
+</tr>
+<tr>
+<td><strong>owner:id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of app owner</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>region:id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of app region</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>region:name</strong></td>
+<td><em>string</em></td>
+<td>name of app region</td>
+<td><code>"us"</code></td>
+</tr>
+<tr>
+<td><strong>released_at</strong></td>
+<td><em>datetime</em></td>
+<td>when app was last released</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>repo_size</strong></td>
+<td><em>number</em></td>
+<td>app git repo size in bytes</td>
+<td><code>1024</code></td>
+</tr>
+<tr>
+<td><strong>slug_size</strong></td>
+<td><em>number</em></td>
+<td>app slug size in bytes</td>
+<td><code>512</code></td>
+</tr>
+<tr>
+<td><strong>stack</strong></td>
+<td><em>string</em></td>
+<td>stack of app</td>
+<td><code>"cedar"</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when app was updated</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>web_url</strong></td>
+<td><em>string</em></td>
+<td>web URL of app</td>
+<td><code>"http://example.herokuapp.com"</code></td>
+</tr>
+</table><h3 id="app-create">App Create</h3>
+
+<pre><code>POST /apps
+</code></pre>
+
+<h4 id="optional-parameters">Optional Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>name</strong></td>
+<td><em>string</em></td>
+<td>unique name of app</td>
+<td><code>"example"</code></td>
+</tr>
+<tr>
+<td><strong>region:id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of app region</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>region:name</strong></td>
+<td><em>string</em></td>
+<td>name of app region</td>
+<td><code>"us"</code></td>
+</tr>
+<tr>
+<td><strong>stack</strong></td>
+<td><em>string</em></td>
+<td>stack of app</td>
+<td><code>"cedar"</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"name\":\"example\",\"region\":{\"id\":\"01234567-89ab-cdef-0123-456789abcdef\",\"name\":\"us\"},\"stack\":\"cedar\"}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 201 Created
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "archived_at":                    "2012-01-01T12:00:00Z",
+  "buildpack_provided_description": "Ruby/Rack",
+  "created_at":                     "2012-01-01T12:00:00Z",
+  "git_url":                        "git@heroku.com/example.git",
+  "id":                             "01234567-89ab-cdef-0123-456789abcdef",
+  "maintenance":                    false,
+  "name":                           "example",
+  "owner": {
+    "email": "username@example.com",
+    "id":    "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "region": {
+    "id":   "01234567-89ab-cdef-0123-456789abcdef",
+    "name": "us"
+  },
+  "released_at":                    "2012-01-01T12:00:00Z",
+  "repo_size":                      1024,
+  "slug_size":                      512,
+  "stack":                          "cedar",
+  "updated_at":                     "2012-01-01T12:00:00Z",
+  "web_url":                        "http://example.herokuapp.com"
+}
+</code></pre>
+
+<h3 id="app-list">App List</h3>
+
+<pre><code>GET /apps
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "archived_at":                    "2012-01-01T12:00:00Z",
+    "buildpack_provided_description": "Ruby/Rack",
+    "created_at":                     "2012-01-01T12:00:00Z",
+    "git_url":                        "git@heroku.com/example.git",
+    "id":                             "01234567-89ab-cdef-0123-456789abcdef",
+    "maintenance":                    false,
+    "name":                           "example",
+    "owner": {
+      "email": "username@example.com",
+      "id":    "01234567-89ab-cdef-0123-456789abcdef"
+    },
+    "region": {
+      "id":   "01234567-89ab-cdef-0123-456789abcdef",
+      "name": "us"
+    },
+    "released_at":                    "2012-01-01T12:00:00Z",
+    "repo_size":                      1024,
+    "slug_size":                      512,
+    "stack":                          "cedar",
+    "updated_at":                     "2012-01-01T12:00:00Z",
+    "web_url":                        "http://example.herokuapp.com"
+  }
+]
+</code></pre>
+
+<h3 id="app-info">App Info</h3>
+
+<pre><code>GET /apps/{app_id_or_name}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "archived_at":                    "2012-01-01T12:00:00Z",
+  "buildpack_provided_description": "Ruby/Rack",
+  "created_at":                     "2012-01-01T12:00:00Z",
+  "git_url":                        "git@heroku.com/example.git",
+  "id":                             "01234567-89ab-cdef-0123-456789abcdef",
+  "maintenance":                    false,
+  "name":                           "example",
+  "owner": {
+    "email": "username@example.com",
+    "id":    "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "region": {
+    "id":   "01234567-89ab-cdef-0123-456789abcdef",
+    "name": "us"
+  },
+  "released_at":                    "2012-01-01T12:00:00Z",
+  "repo_size":                      1024,
+  "slug_size":                      512,
+  "stack":                          "cedar",
+  "updated_at":                     "2012-01-01T12:00:00Z",
+  "web_url":                        "http://example.herokuapp.com"
+}
+</code></pre>
+
+<h3 id="app-update">App Update</h3>
+
+<pre><code>PATCH /apps/{app_id_or_name}
+</code></pre>
+
+<h4 id="optional-parameters">Optional Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>maintenance</strong></td>
+<td><em>boolean</em></td>
+<td>maintenance status of app</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><strong>name</strong></td>
+<td><em>string</em></td>
+<td>unique name of app</td>
+<td><code>"example"</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"maintenance\":false,\"name\":\"example\"}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "archived_at":                    "2012-01-01T12:00:00Z",
+  "buildpack_provided_description": "Ruby/Rack",
+  "created_at":                     "2012-01-01T12:00:00Z",
+  "git_url":                        "git@heroku.com/example.git",
+  "id":                             "01234567-89ab-cdef-0123-456789abcdef",
+  "maintenance":                    false,
+  "name":                           "example",
+  "owner": {
+    "email": "username@example.com",
+    "id":    "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "region": {
+    "id":   "01234567-89ab-cdef-0123-456789abcdef",
+    "name": "us"
+  },
+  "released_at":                    "2012-01-01T12:00:00Z",
+  "repo_size":                      1024,
+  "slug_size":                      512,
+  "stack":                          "cedar",
+  "updated_at":                     "2012-01-01T12:00:00Z",
+  "web_url":                        "http://example.herokuapp.com"
+}
+</code></pre>
+
+<h3 id="app-delete">App Delete</h3>
+
+<pre><code>DELETE /apps/{app_id_or_name}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "archived_at":                    "2012-01-01T12:00:00Z",
+  "buildpack_provided_description": "Ruby/Rack",
+  "created_at":                     "2012-01-01T12:00:00Z",
+  "git_url":                        "git@heroku.com/example.git",
+  "id":                             "01234567-89ab-cdef-0123-456789abcdef",
+  "maintenance":                    false,
+  "name":                           "example",
+  "owner": {
+    "email": "username@example.com",
+    "id":    "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "region": {
+    "id":   "01234567-89ab-cdef-0123-456789abcdef",
+    "name": "us"
+  },
+  "released_at":                    "2012-01-01T12:00:00Z",
+  "repo_size":                      1024,
+  "slug_size":                      512,
+  "stack":                          "cedar",
+  "updated_at":                     "2012-01-01T12:00:00Z",
+  "web_url":                        "http://example.herokuapp.com"
+}
+</code></pre>
+
+<h2 id="app-feature">App Feature</h2>
+
+<p>An app feature represents a Heroku labs capability that can be enabled or disabled for an app on Heroku.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when app feature was created</td>
+<td><code>2012-01-01T12:00:00-00:00</code></td>
+</tr>
+<tr>
+<td><strong>description</strong></td>
+<td><em>string</em></td>
+<td>description of app feature</td>
+<td><code>"Causes app to example."</code></td>
+</tr>
+<tr>
+<td><strong>doc_url</strong></td>
+<td><em>string</em></td>
+<td>documentation URL of app feature</td>
+<td><code>"http://devcenter.heroku.com/articles/example"</code></td>
+</tr>
+<tr>
+<td><strong>enabled</strong></td>
+<td><em>boolean</em></td>
+<td>whether or not app feature has been enabled</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of app feature</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>name</strong></td>
+<td><em>string</em></td>
+<td>unique name of app feature</td>
+<td><code>"example"</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when app feature was updated</td>
+<td><code>2012-01-01T12:00:00-00:00</code></td>
+</tr>
+</table><h3 id="app-feature-list">App Feature List</h3>
+
+<pre><code>GET /apps/{app_id_or_name}/features
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/features \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "created_at":  "2012-01-01T12:00:00-00:00",
+    "description": "Causes app to example.",
+    "doc_url":     "http://devcenter.heroku.com/articles/example",
+    "enabled":     true,
+    "id":          "01234567-89ab-cdef-0123-456789abcdef",
+    "name":        "example",
+    "updated_at":  "2012-01-01T12:00:00-00:00"
+  }
+]
+</code></pre>
+
+<h3 id="app-feature-info">App Feature Info</h3>
+
+<pre><code>GET /apps/{app_id_or_name}/features/{feature_id_or_name}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/features/$FEATURE_ID_OR_NAME \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at":  "2012-01-01T12:00:00-00:00",
+  "description": "Causes app to example.",
+  "doc_url":     "http://devcenter.heroku.com/articles/example",
+  "enabled":     true,
+  "id":          "01234567-89ab-cdef-0123-456789abcdef",
+  "name":        "example",
+  "updated_at":  "2012-01-01T12:00:00-00:00"
+}
+</code></pre>
+
+<h3 id="app-feature-update">App Feature Update</h3>
+
+<pre><code>PATCH /apps/{app_id_or_name}/features/{feature_id_or_name}
+</code></pre>
+
+<h4 id="required-parameters">Required Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>enabled</strong></td>
+<td><em>boolean</em></td>
+<td>whether or not app feature has been enabled</td>
+<td><code>true</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME/features/$FEATURE_ID_OR_NAME \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"enabled\":true}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at":  "2012-01-01T12:00:00-00:00",
+  "description": "Causes app to example.",
+  "doc_url":     "http://devcenter.heroku.com/articles/example",
+  "enabled":     true,
+  "id":          "01234567-89ab-cdef-0123-456789abcdef",
+  "name":        "example",
+  "updated_at":  "2012-01-01T12:00:00-00:00"
+}
+</code></pre>
+
+<h2 id="app-transfer">App Transfer</h2>
+
+<p><a href="https://devcenter.heroku.com/articles/transferring-apps">Transfers</a> allow a user to transfer ownership of their app to another user. Apps being transferred may be free or have paid resources, but if they are paid, the receiving user must have a <a href="https://devcenter.heroku.com/articles/account-verification">verified account</a>.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when the transfer was created</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>app:id</strong></td>
+<td><em>string</em></td>
+<td>unique identifier of the app being transferred</td>
+<td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+</tr>
+<tr>
+<td><strong>app:name</strong></td>
+<td><em>string</em></td>
+<td>name of the app being transferred</td>
+<td><code>"example"</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of this transfer</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>owner:id</strong></td>
+<td><em>string</em></td>
+<td>unique identifier of the sending user</td>
+<td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+</tr>
+<tr>
+<td><strong>owner:email</strong></td>
+<td><em>string</em></td>
+<td>email of the sending user</td>
+<td><code>"username@example.com"</code></td>
+</tr>
+<tr>
+<td><strong>recipient:id</strong></td>
+<td><em>string</em></td>
+<td>unique identifier of the receiving user</td>
+<td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+</tr>
+<tr>
+<td><strong>recipient:email</strong></td>
+<td><em>string</em></td>
+<td>email of the receiving user</td>
+<td><code>"username@example.com"</code></td>
+</tr>
+<tr>
+<td><strong>state</strong></td>
+<td><em>string</em></td>
+<td>new state of the transfer; accepted/declined/pending</td>
+<td><code>"pending"</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when the transfer was updated</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+</table><h3 id="app-transfer-create">App Transfer Create</h3>
+
+<pre><code>POST /account/app-transfers
+</code></pre>
+
+<h4 id="optional-parameters">Optional Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>app:id</strong></td>
+<td><em>string</em></td>
+<td>unique identifier of the app being transferred</td>
+<td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+</tr>
+<tr>
+<td><strong>app:name</strong></td>
+<td><em>string</em></td>
+<td>name of the app being transferred</td>
+<td><code>"example"</code></td>
+</tr>
+<tr>
+<td><strong>recipient:id</strong></td>
+<td><em>string</em></td>
+<td>unique identifier of the receiving user</td>
+<td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+</tr>
+<tr>
+<td><strong>recipient:email</strong></td>
+<td><em>string</em></td>
+<td>email of the receiving user</td>
+<td><code>"username@example.com"</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X POST https://api.heroku.com/account/app-transfers \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"app\":{\"id\":\"01234567-89ab-cdef-0123-456789abcdef\",\"name\":\"example\"},\"recipient\":{\"email\":\"username@example.com\",\"id\":\"01234567-89ab-cdef-0123-456789abcdef\"}}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 201 Created
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at": "2012-01-01T12:00:00Z",
+  "app": {
+    "id":   "01234567-89ab-cdef-0123-456789abcdef",
+    "name": "example"
+  },
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "owner": {
+    "id":    "01234567-89ab-cdef-0123-456789abcdef",
+    "email": "username@example.com"
+  },
+  "recipient": {
+    "id":    "01234567-89ab-cdef-0123-456789abcdef",
+    "email": "username@example.com"
+  },
+  "state":      "pending",
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="app-transfer-list">App Transfer List</h3>
+
+<pre><code>GET /account/app-transfers
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/account/app-transfers \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "created_at": "2012-01-01T12:00:00Z",
+    "app": {
+      "id":   "01234567-89ab-cdef-0123-456789abcdef",
+      "name": "example"
+    },
+    "id":         "01234567-89ab-cdef-0123-456789abcdef",
+    "owner": {
+      "id":    "01234567-89ab-cdef-0123-456789abcdef",
+      "email": "username@example.com"
+    },
+    "recipient": {
+      "id":    "01234567-89ab-cdef-0123-456789abcdef",
+      "email": "username@example.com"
+    },
+    "state":      "pending",
+    "updated_at": "2012-01-01T12:00:00Z"
+  }
+]
+</code></pre>
+
+<h3 id="app-transfer-info">App Transfer Info</h3>
+
+<pre><code>GET /account/app-transfers/{transfer_id}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/account/app-transfers/$TRANSFER_ID \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at": "2012-01-01T12:00:00Z",
+  "app": {
+    "id":   "01234567-89ab-cdef-0123-456789abcdef",
+    "name": "example"
+  },
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "owner": {
+    "id":    "01234567-89ab-cdef-0123-456789abcdef",
+    "email": "username@example.com"
+  },
+  "recipient": {
+    "id":    "01234567-89ab-cdef-0123-456789abcdef",
+    "email": "username@example.com"
+  },
+  "state":      "pending",
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="app-transfer-update">App Transfer Update</h3>
+
+<pre><code>PATCH /account/app-transfers/{transfer_id}
+</code></pre>
+
+<h4 id="required-parameters">Required Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>state</strong></td>
+<td><em>string</em></td>
+<td>new state of the transfer; accepted/declined/pending</td>
+<td><code>"pending"</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/account/app-transfers/$TRANSFER_ID \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"state\":\"pending\"}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at": "2012-01-01T12:00:00Z",
+  "app": {
+    "id":   "01234567-89ab-cdef-0123-456789abcdef",
+    "name": "example"
+  },
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "owner": {
+    "id":    "01234567-89ab-cdef-0123-456789abcdef",
+    "email": "username@example.com"
+  },
+  "recipient": {
+    "id":    "01234567-89ab-cdef-0123-456789abcdef",
+    "email": "username@example.com"
+  },
+  "state":      "pending",
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="app-transfer-delete">App Transfer Delete</h3>
+
+<pre><code>DELETE /account/app-transfers/{transfer_id}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/account/app-transfers/$TRANSFER_ID \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at": "2012-01-01T12:00:00Z",
+  "app": {
+    "id":   "01234567-89ab-cdef-0123-456789abcdef",
+    "name": "example"
+  },
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "owner": {
+    "id":    "01234567-89ab-cdef-0123-456789abcdef",
+    "email": "username@example.com"
+  },
+  "recipient": {
+    "id":    "01234567-89ab-cdef-0123-456789abcdef",
+    "email": "username@example.com"
+  },
+  "state":      "pending",
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h2 id="collaborator">Collaborator</h2>
+
+<p>Collaborators are other users who have been given access to an app on Heroku.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when collaborator was created</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of this collaborator</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>silent</strong></td>
+<td><em>boolean</em></td>
+<td>when true, suppresses the invitation to collaborate e-mail</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when collaborator was updated</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>user:email</strong></td>
+<td><em>string</em></td>
+<td>collaborator email address</td>
+<td><code>"collaborator@example.com"</code></td>
+</tr>
+<tr>
+<td><strong>user:id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of the user</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+</table><h3 id="collaborator-create">Collaborator Create</h3>
+
+<pre><code>POST /apps/{app_id_or_name}/collaborators
+</code></pre>
+
+<h4 id="optional-parameters">Optional Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>silent</strong></td>
+<td><em>boolean</em></td>
+<td>when true, suppresses the invitation to collaborate e-mail</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><strong>user:email</strong></td>
+<td><em>string</em></td>
+<td>collaborator email address</td>
+<td><code>"collaborator@example.com"</code></td>
+</tr>
+<tr>
+<td><strong>user:id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of the user</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/collaborators \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"silent\":false,\"user\":{\"email\":\"collaborator@example.com\",\"id\":\"01234567-89ab-cdef-0123-456789abcdef\"}}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 201 Created
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at": "2012-01-01T12:00:00Z",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "updated_at": "2012-01-01T12:00:00Z",
+  "user": {
+    "email": "collaborator@example.com",
+    "id":    "01234567-89ab-cdef-0123-456789abcdef"
+  }
+}
+</code></pre>
+
+<h3 id="collaborator-list">Collaborator List</h3>
+
+<pre><code>GET /apps/{app_id_or_name}/collaborators
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/collaborators \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "created_at": "2012-01-01T12:00:00Z",
+    "id":         "01234567-89ab-cdef-0123-456789abcdef",
+    "updated_at": "2012-01-01T12:00:00Z",
+    "user": {
+      "email": "collaborator@example.com",
+      "id":    "01234567-89ab-cdef-0123-456789abcdef"
+    }
+  }
+]
+</code></pre>
+
+<h3 id="collaborator-info">Collaborator Info</h3>
+
+<pre><code>GET /apps/{app_id_or_name}/collaborators/{collaborator_id_or_email}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/collaborators/$COLLABORATOR_ID_OR_EMAIL \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at": "2012-01-01T12:00:00Z",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "updated_at": "2012-01-01T12:00:00Z",
+  "user": {
+    "email": "collaborator@example.com",
+    "id":    "01234567-89ab-cdef-0123-456789abcdef"
+  }
+}
+</code></pre>
+
+<h3 id="collaborator-delete">Collaborator Delete</h3>
+
+<pre><code>DELETE /apps/{app_id_or_name}/collaborators/{collaborator_id_or_email}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/collaborators/$COLLABORATOR_ID_OR_EMAIL \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at": "2012-01-01T12:00:00Z",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "updated_at": "2012-01-01T12:00:00Z",
+  "user": {
+    "email": "collaborator@example.com",
+    "id":    "01234567-89ab-cdef-0123-456789abcdef"
+  }
+}
+</code></pre>
+
+<h2 id="config-var">Config Var</h2>
+
+<p>Config Vars allow you to manage the configuration information provided to an app on Heroku.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>{key}</strong></td>
+<td><em>string</em></td>
+<td>key/value pair for dyno env</td>
+<td><code>"{value}"</code></td>
+</tr>
+</table><h3 id="config-var-info">Config Var Info</h3>
+
+<pre><code>GET /apps/{app_id_or_name}/config-vars
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/config-vars \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "FOO":  "bar",
+  "BAZ":  "qux",
+  "QUUX": "corge"
+}
+</code></pre>
+
+<h3 id="config-var-update">Config Var Update</h3>
+
+<pre><code>PATCH /apps/{app_id_or_name}/config-vars
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME/config-vars \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "BAZ":  "grault",
+  "QUUX": "corge"
+}
+</code></pre>
+
+<h2 id="domain">Domain</h2>
+
+<p>Domains define what web routes should be routed to an app on Heroku.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when domain was created</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>hostname</strong></td>
+<td><em>string</em></td>
+<td>full hostname</td>
+<td><code>"subdomain.example.com"</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of this domain</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when domain was updated</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+</table><h3 id="domain-create">Domain Create</h3>
+
+<pre><code>POST /apps/{app_id_or_name}/domains
+</code></pre>
+
+<h4 id="required-parameters">Required Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>hostname</strong></td>
+<td><em>string</em></td>
+<td>full hostname</td>
+<td><code>"subdomain.example.com"</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/domains \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"hostname\":\"subdomain.example.com\"}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 201 Created
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at": "2012-01-01T12:00:00Z",
+  "hostname":   "subdomain.example.com",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="domain-list">Domain List</h3>
+
+<pre><code>GET /apps/{app_id_or_name}/domains
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/domains \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "created_at": "2012-01-01T12:00:00Z",
+    "hostname":   "subdomain.example.com",
+    "id":         "01234567-89ab-cdef-0123-456789abcdef",
+    "updated_at": "2012-01-01T12:00:00Z"
+  }
+]
+</code></pre>
+
+<h3 id="domain-info">Domain Info</h3>
+
+<pre><code>GET /apps/{app_id_or_name}/domains/{domain_id_or_hostname}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/domains/$DOMAIN_ID_OR_HOSTNAME \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at": "2012-01-01T12:00:00Z",
+  "hostname":   "subdomain.example.com",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="domain-delete">Domain Delete</h3>
+
+<pre><code>DELETE /apps/{app_id_or_name}/domains/{domain_id_or_hostname}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/domains/$DOMAIN_ID_OR_HOSTNAME \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at": "2012-01-01T12:00:00Z",
+  "hostname":   "subdomain.example.com",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h2 id="dyno">Dyno</h2>
+
+<p>Dynos represent running processes of an app on Heroku.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>attach</strong></td>
+<td><em>boolean</em></td>
+<td>whether to stream output or not</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><strong>attach_url</strong></td>
+<td><em>string</em></td>
+<td>a URL to stream output from for attached processes or null for non-attached processes</td>
+<td><code>"rendezvous://rendezvous.runtime.heroku.com:5000/{rendezvous-id}"</code></td>
+</tr>
+<tr>
+<td><strong>command</strong></td>
+<td><em>string</em></td>
+<td>command used to start this process</td>
+<td><code>"bash"</code></td>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when domain was created</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>env</strong></td>
+<td><em>hash</em></td>
+<td>additional environment variables for the dyno execution</td>
+<td><code>{"COLUMNS"=&gt;80, "LINES"=&gt;24}</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of this dyno</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>name</strong></td>
+<td><em>string</em></td>
+<td>the name of this process on this app</td>
+<td><code>"run.1"</code></td>
+</tr>
+<tr>
+<td><strong>release:id</strong></td>
+<td><em>uuid</em></td>
+<td>the unique identifier of the release this process was started with</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>release:version</strong></td>
+<td><em>number</em></td>
+<td>the unique version of the release this process was started with</td>
+<td><code>456</code></td>
+</tr>
+<tr>
+<td><strong>size</strong></td>
+<td><em>number</em></td>
+<td>dyno size (default: 1)</td>
+<td><code>1</code></td>
+</tr>
+<tr>
+<td><strong>state</strong></td>
+<td><em>string</em></td>
+<td>current status of process (either: crashed, down, idle, starting, or up)</td>
+<td><code>"up"</code></td>
+</tr>
+<tr>
+<td><strong>type</strong></td>
+<td><em>string</em></td>
+<td>type of process</td>
+<td><code>"run"</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when process last changed state</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+</table><h3 id="dyno-create">Dyno Create</h3>
+
+<pre><code>POST /apps/{app_id_or_name}/dynos
+</code></pre>
+
+<h4 id="required-parameters">Required Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>command</strong></td>
+<td><em>string</em></td>
+<td>command used to start this process</td>
+<td><code>"bash"</code></td>
+</tr>
+</table><h4 id="optional-parameters">Optional Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>attach</strong></td>
+<td><em>boolean</em></td>
+<td>whether to stream output or not</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><strong>env</strong></td>
+<td><em>hash</em></td>
+<td>additional environment variables for the dyno execution</td>
+<td><code>{"COLUMNS"=&gt;80, "LINES"=&gt;24}</code></td>
+</tr>
+<tr>
+<td><strong>size</strong></td>
+<td><em>number</em></td>
+<td>dyno size (default: 1)</td>
+<td><code>1</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/dynos \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"attach\":true,\"env\":{\"COLUMNS\":80,\"LINES\":24},\"size\":1,\"command\":\"bash\"}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 201 Created
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "attach_url": "rendezvous://rendezvous.runtime.heroku.com:5000/{rendezvous-id}",
+  "command":    "bash",
+  "created_at": "2012-01-01T12:00:00Z",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "name":       "run.1",
+  "release": {
+    "id":      "01234567-89ab-cdef-0123-456789abcdef",
+    "version": 456
+  },
+  "size":       1,
+  "state":      "up",
+  "type":       "run",
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="dyno-list">Dyno List</h3>
+
+<pre><code>GET /apps/{app_id_or_name}/dynos
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/dynos \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "attach_url": "rendezvous://rendezvous.runtime.heroku.com:5000/{rendezvous-id}",
+    "command":    "bash",
+    "created_at": "2012-01-01T12:00:00Z",
+    "id":         "01234567-89ab-cdef-0123-456789abcdef",
+    "name":       "run.1",
+    "release": {
+      "id":      "01234567-89ab-cdef-0123-456789abcdef",
+      "version": 456
+    },
+    "size":       1,
+    "state":      "up",
+    "type":       "run",
+    "updated_at": "2012-01-01T12:00:00Z"
+  }
+]
+</code></pre>
+
+<h3 id="dyno-info">Dyno Info</h3>
+
+<pre><code>GET /apps/{app_id_or_name}/dynos/{dyno_id_or_name}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/dynos/$DYNO_ID_OR_NAME \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "attach_url": "rendezvous://rendezvous.runtime.heroku.com:5000/{rendezvous-id}",
+  "command":    "bash",
+  "created_at": "2012-01-01T12:00:00Z",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "name":       "run.1",
+  "release": {
+    "id":      "01234567-89ab-cdef-0123-456789abcdef",
+    "version": 456
+  },
+  "size":       1,
+  "state":      "up",
+  "type":       "run",
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="dyno-delete">Dyno Delete</h3>
+
+<p>Restart single dyno.</p>
+
+<pre><code>DELETE /apps/{app_id_or_name}/dynos/{dyno_id_or_name}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/dynos/$DYNO_ID_OR_NAME \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "attach_url": "rendezvous://rendezvous.runtime.heroku.com:5000/{rendezvous-id}",
+  "command":    "bash",
+  "created_at": "2012-01-01T12:00:00Z",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "name":       "run.1",
+  "release": {
+    "id":      "01234567-89ab-cdef-0123-456789abcdef",
+    "version": 456
+  },
+  "size":       1,
+  "state":      "up",
+  "type":       "run",
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="dyno-delete-all">Dyno Delete All</h3>
+
+<p>Restart all dynos.</p>
+
+<pre><code>DELETE /apps/{app_id_or_name}/dynos
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/dynos \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "attach_url": "rendezvous://rendezvous.runtime.heroku.com:5000/{rendezvous-id}",
+  "command":    "bash",
+  "created_at": "2012-01-01T12:00:00Z",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "name":       "run.1",
+  "release": {
+    "id":      "01234567-89ab-cdef-0123-456789abcdef",
+    "version": 456
+  },
+  "size":       1,
+  "state":      "up",
+  "type":       "run",
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h2 id="formation">Formation</h2>
+
+<p>The formation of processes that should be maintained for your application. Commands and types are defined by the Procfile uploaded with an app.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>command</strong></td>
+<td><em>string</em></td>
+<td>command to use for process type</td>
+<td><code>"bundle exec rails server -p $PORT"</code></td>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when process type was created</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of this process type</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>quantity</strong></td>
+<td><em>number</em></td>
+<td>number of processes to maintain</td>
+<td><code>1</code></td>
+</tr>
+<tr>
+<td><strong>size</strong></td>
+<td><em>number</em></td>
+<td>dyno size (default: 1)</td>
+<td><code>1</code></td>
+</tr>
+<tr>
+<td><strong>type</strong></td>
+<td><em>string</em></td>
+<td>type of process to maintain</td>
+<td><code>"web"</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when dyno type was updated</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+</table><h3 id="formation-list">Formation List</h3>
+
+<pre><code>GET /apps/{app_id_or_name}/formation
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/formation \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "command":    "bundle exec rails server -p $PORT",
+    "created_at": "2012-01-01T12:00:00Z",
+    "id":         "01234567-89ab-cdef-0123-456789abcdef",
+    "quantity":   1,
+    "size":       1,
+    "type":       "web",
+    "updated_at": "2012-01-01T12:00:00Z"
+  }
+]
+</code></pre>
+
+<h3 id="formation-info">Formation Info</h3>
+
+<pre><code>GET /apps/{app_id_or_name}/formation/{formation_id_or_type}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/formation/$FORMATION_ID_OR_TYPE \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "command":    "bundle exec rails server -p $PORT",
+  "created_at": "2012-01-01T12:00:00Z",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "quantity":   1,
+  "size":       1,
+  "type":       "web",
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="formation-update">Formation Update</h3>
+
+<pre><code>PATCH /apps/{app_id_or_name}/formation/{formation_id_or_type}
+</code></pre>
+
+<h4 id="optional-parameters">Optional Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>quantity</strong></td>
+<td><em>number</em></td>
+<td>number of processes to maintain</td>
+<td><code>1</code></td>
+</tr>
+<tr>
+<td><strong>size</strong></td>
+<td><em>number</em></td>
+<td>dyno size (default: 1)</td>
+<td><code>1</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME/formation/$FORMATION_ID_OR_TYPE \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"quantity\":1,\"size\":1}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "command":    "bundle exec rails server -p $PORT",
+  "created_at": "2012-01-01T12:00:00Z",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "quantity":   1,
+  "size":       1,
+  "type":       "web",
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h2 id="key">Key</h2>
+
+<p>Keys represent public SSH keys associated with an account and are used to authorize users as they are performing git operations.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when key was created</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>email</strong></td>
+<td><em>string</em></td>
+<td>email address provided in key contents</td>
+<td><code>"username@example.com"</code></td>
+</tr>
+<tr>
+<td><strong>fingerprint</strong></td>
+<td><em>string</em></td>
+<td>a unique identifying string based on contents</td>
+<td><code>"17:63:a4:ba:24:d3:7f:af:17:c8:94:82:7e:80:56:bf"</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of this key</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>public_key</strong></td>
+<td><em>string</em></td>
+<td>full public_key as uploaded</td>
+<td><code>"ssh-rsa AAAAB3NzaC1ycVc/../839Uv username@example.com"</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when key was updated</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+</table><h3 id="key-create">Key Create</h3>
+
+<pre><code>POST /account/keys
+</code></pre>
+
+<h4 id="required-parameters">Required Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>public_key</strong></td>
+<td><em>string</em></td>
+<td>full public_key as uploaded</td>
+<td><code>"ssh-rsa AAAAB3NzaC1ycVc/../839Uv username@example.com"</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X POST https://api.heroku.com/account/keys \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"public_key\":\"ssh-rsa AAAAB3NzaC1ycVc/../839Uv username@example.com\"}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 201 Created
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at":  "2012-01-01T12:00:00Z",
+  "email":       "username@example.com",
+  "fingerprint": "17:63:a4:ba:24:d3:7f:af:17:c8:94:82:7e:80:56:bf",
+  "id":          "01234567-89ab-cdef-0123-456789abcdef",
+  "public_key":  "ssh-rsa AAAAB3NzaC1ycVc/../839Uv username@example.com",
+  "updated_at":  "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="key-list">Key List</h3>
+
+<pre><code>GET /account/keys
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/account/keys \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "created_at":  "2012-01-01T12:00:00Z",
+    "email":       "username@example.com",
+    "fingerprint": "17:63:a4:ba:24:d3:7f:af:17:c8:94:82:7e:80:56:bf",
+    "id":          "01234567-89ab-cdef-0123-456789abcdef",
+    "public_key":  "ssh-rsa AAAAB3NzaC1ycVc/../839Uv username@example.com",
+    "updated_at":  "2012-01-01T12:00:00Z"
+  }
+]
+</code></pre>
+
+<h3 id="key-info">Key Info</h3>
+
+<pre><code>GET /account/keys/{key_id_or_fingerprint}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/account/keys/$KEY_ID_OR_FINGERPRINT \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at":  "2012-01-01T12:00:00Z",
+  "email":       "username@example.com",
+  "fingerprint": "17:63:a4:ba:24:d3:7f:af:17:c8:94:82:7e:80:56:bf",
+  "id":          "01234567-89ab-cdef-0123-456789abcdef",
+  "public_key":  "ssh-rsa AAAAB3NzaC1ycVc/../839Uv username@example.com",
+  "updated_at":  "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="key-delete">Key Delete</h3>
+
+<pre><code>DELETE /account/keys/{key_id_or_fingerprint}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/account/keys/$KEY_ID_OR_FINGERPRINT \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at":  "2012-01-01T12:00:00Z",
+  "email":       "username@example.com",
+  "fingerprint": "17:63:a4:ba:24:d3:7f:af:17:c8:94:82:7e:80:56:bf",
+  "id":          "01234567-89ab-cdef-0123-456789abcdef",
+  "public_key":  "ssh-rsa AAAAB3NzaC1ycVc/../839Uv username@example.com",
+  "updated_at":  "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h2 id="log-drain">Log Drain</h2>
+
+<p><a href="https://devcenter.heroku.com/articles/logging#syslog-drains">Log drains</a> provide a way to forward your Heroku logs to an external syslog server for long-term archiving. This external service must be configured to receive syslog packets from Heroku, whereupon its URL can be added to an app using this API.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>addon:id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of the addon that provides the drain</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when log drain was created</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of this log drain</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when log session was updated</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>url</strong></td>
+<td><em>string</em></td>
+<td>url associated with the log drain</td>
+<td><code>"https://example.com/drain"</code></td>
+</tr>
+</table><h3 id="log-drain-create">Log Drain Create</h3>
+
+<pre><code>POST /apps/{app_id_or_name}/log-drains
+</code></pre>
+
+<h4 id="required-parameters">Required Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>url</strong></td>
+<td><em>string</em></td>
+<td>url associated with the log drain</td>
+<td><code>"https://example.com/drain"</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/log-drains \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"url\":\"https://example.com/drain\"}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 201 Created
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "addon": {
+    "id": "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "created_at": "2012-01-01T12:00:00Z",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "updated_at": "2012-01-01T12:00:00Z",
+  "url":        "https://example.com/drain"
+}
+</code></pre>
+
+<h3 id="log-drain-list">Log Drain List</h3>
+
+<pre><code>GET /apps/{app_id_or_name}/log-drains
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/log-drains \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "addon": {
+      "id": "01234567-89ab-cdef-0123-456789abcdef"
+    },
+    "created_at": "2012-01-01T12:00:00Z",
+    "id":         "01234567-89ab-cdef-0123-456789abcdef",
+    "updated_at": "2012-01-01T12:00:00Z",
+    "url":        "https://example.com/drain"
+  }
+]
+</code></pre>
+
+<h3 id="log-drain-info">Log Drain Info</h3>
+
+<pre><code>GET /apps/{app_id_or_name}/log-drains/{drain_id_or_url}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/log-drains/$DRAIN_ID_OR_URL \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "addon": {
+    "id": "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "created_at": "2012-01-01T12:00:00Z",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "updated_at": "2012-01-01T12:00:00Z",
+  "url":        "https://example.com/drain"
+}
+</code></pre>
+
+<h3 id="log-drain-delete">Log Drain Delete</h3>
+
+<pre><code>DELETE /apps/{app_id_or_name}/log-drains/{drain_id_or_url}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/log-drains/$DRAIN_ID_OR_URL \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "addon": {
+    "id": "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "created_at": "2012-01-01T12:00:00Z",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "updated_at": "2012-01-01T12:00:00Z",
+  "url":        "https://example.com/drain"
+}
+</code></pre>
+
+<h2 id="log-session">Log Session</h2>
+
+<p>Log sessions provide a URL to stream data from your app logs. Streaming is performed by doing an HTTP GET method on the provided Logplex URL and then repeatedly reading from the socket. Sessions remain available for about 5 minutes after creation or about one hour after connecting. For continuous access to an app’s log, you should set up a <a href="https://devcenter.heroku.com/articles/logging#syslog-drains">log drain</a>.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when log connection was created</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>dyno</strong></td>
+<td><em>string</em></td>
+<td>dyno to limit results to</td>
+<td><code>"web.1"</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of this log session</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>lines</strong></td>
+<td><em>number</em></td>
+<td>number of log lines to stream at once</td>
+<td><code>10</code></td>
+</tr>
+<tr>
+<td><strong>logplex_url</strong></td>
+<td><em>string</em></td>
+<td>URL for log streaming session</td>
+<td><code>"https://logplex.heroku.com/sessions/01234567-89ab-cdef-0123-456789abcdef?srv=1325419200"</code></td>
+</tr>
+<tr>
+<td><strong>source</strong></td>
+<td><em>string</em></td>
+<td>log source to limit results to</td>
+<td><code>"app"</code></td>
+</tr>
+<tr>
+<td><strong>tail</strong></td>
+<td><em>boolean</em></td>
+<td>whether to stream ongoing logs</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when log session was updated</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+</table><h3 id="log-session-create">Log Session Create</h3>
+
+<pre><code>POST /apps/{app_id_or_name}/log-sessions
+</code></pre>
+
+<h4 id="optional-parameters">Optional Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>dyno</strong></td>
+<td><em>string</em></td>
+<td>dyno to limit results to</td>
+<td><code>"web.1"</code></td>
+</tr>
+<tr>
+<td><strong>lines</strong></td>
+<td><em>number</em></td>
+<td>number of log lines to stream at once</td>
+<td><code>10</code></td>
+</tr>
+<tr>
+<td><strong>source</strong></td>
+<td><em>string</em></td>
+<td>log source to limit results to</td>
+<td><code>"app"</code></td>
+</tr>
+<tr>
+<td><strong>tail</strong></td>
+<td><em>boolean</em></td>
+<td>whether to stream ongoing logs</td>
+<td><code>true</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/log-sessions \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"dyno\":\"web.1\",\"lines\":10,\"source\":\"app\",\"tail\":true}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 201 Created
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at":  "2012-01-01T12:00:00Z",
+  "id":          "01234567-89ab-cdef-0123-456789abcdef",
+  "logplex_url": "https://logplex.heroku.com/sessions/01234567-89ab-cdef-0123-456789abcdef?srv=1325419200",
+  "updated_at":  "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h2 id="oauth-authorization">OAuth Authorization</h2>
+
+<p>OAuth authorizations represent clients that a Heroku user has authorized to automate, customize or extend their usage of the platform. For more information please refer to the <a href="https://devcenter.heroku.com/articles/oauth">Heroku OAuth documentation</a></p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>access_token:expires_in</strong></td>
+<td><em>number</em></td>
+<td>seconds until OAuth access token expires</td>
+<td><code>7200</code></td>
+</tr>
+<tr>
+<td><strong>access_token:id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of this authorization’s OAuth access token</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>access_token:token</strong></td>
+<td><em>string</em></td>
+<td>the actual OAuth access token</td>
+<td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+</tr>
+<tr>
+<td><strong>client:id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of this OAuth authorization client</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>client:name</strong></td>
+<td><em>string</em></td>
+<td>OAuth authorization client name</td>
+<td><code>"example"</code></td>
+</tr>
+<tr>
+<td><strong>client:redirect_uri</strong></td>
+<td><em>string</em></td>
+<td>endpoint for redirection after authorization with OAuth authorization client</td>
+<td><code>"https://example.com/auth/heroku/callback"</code></td>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when OAuth authorization was created</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>description</strong></td>
+<td><em>string</em></td>
+<td>human-friendly description of this OAuth authorization</td>
+<td><code>"sample authorization"</code></td>
+</tr>
+<tr>
+<td><strong>grant:code</strong></td>
+<td><em>string</em></td>
+<td>code for the OAuth authorization grant</td>
+<td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+</tr>
+<tr>
+<td><strong>grant:expires_in</strong></td>
+<td><em>datetime</em></td>
+<td>date in which this authorization grant is no longer valid</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>grant:id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier for this authorization’s grant</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of OAuth authorization</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>refresh_token:expires_in</strong></td>
+<td><em>number</em></td>
+<td>seconds until OAuth refresh token expires; may be `null` for a refresh token with indefinite lifetime</td>
+<td><code>7200</code></td>
+</tr>
+<tr>
+<td><strong>refresh_token:id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of this authorization’s OAuth refresh token</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>refresh_token:token</strong></td>
+<td><em>string</em></td>
+<td>the actual OAuth refresh token</td>
+<td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+</tr>
+<tr>
+<td><strong>scope</strong></td>
+<td><em>array[string]</em></td>
+<td>The scope of access OAuth authorization allows</td>
+<td><code>["global"]</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when OAuth authorization was updated</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+</table><h3 id="oauth-authorization-create">OAuth Authorization Create</h3>
+
+<pre><code>POST /oauth/authorizations
+</code></pre>
+
+<h4 id="required-parameters">Required Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>scope</strong></td>
+<td><em>array[string]</em></td>
+<td>The scope of access OAuth authorization allows</td>
+<td><code>["global"]</code></td>
+</tr>
+</table><h4 id="optional-parameters">Optional Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>client:id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of this OAuth authorization client</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>description</strong></td>
+<td><em>string</em></td>
+<td>human-friendly description of this OAuth authorization</td>
+<td><code>"sample authorization"</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X POST https://api.heroku.com/oauth/authorizations \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"client\":{\"id\":\"01234567-89ab-cdef-0123-456789abcdef\"},\"description\":\"sample authorization\",\"scope\":[\"global\"]}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 201 Created
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "access_token": {
+    "expires_in": "7200",
+    "id":         "01234567-89ab-cdef-0123-456789abcdef",
+    "token":      "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "client": {
+    "id":           "01234567-89ab-cdef-0123-456789abcdef",
+    "name":         "example",
+    "redirect_uri": "https://example.com/auth/heroku/callback"
+  },
+  "created_at":    "2012-01-01T12:00:00Z",
+  "description":   "sample authorization",
+  "grant": {
+    "code":       "01234567-89ab-cdef-0123-456789abcdef",
+    "expires_in": "2012-01-01T12:00:00Z",
+    "id":         "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "id":            "01234567-89ab-cdef-0123-456789abcdef",
+  "refresh_token": {
+    "expires_in": "7200",
+    "id":         "01234567-89ab-cdef-0123-456789abcdef",
+    "token":      "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "scope":         ["global"],
+  "updated_at":    "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="oauth-authorization-list">OAuth Authorization List</h3>
+
+<pre><code>GET /oauth/authorizations
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/oauth/authorizations \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "access_token": {
+      "expires_in": "7200",
+      "id":         "01234567-89ab-cdef-0123-456789abcdef",
+      "token":      "01234567-89ab-cdef-0123-456789abcdef"
+    },
+    "client": {
+      "id":           "01234567-89ab-cdef-0123-456789abcdef",
+      "name":         "example",
+      "redirect_uri": "https://example.com/auth/heroku/callback"
+    },
+    "created_at":    "2012-01-01T12:00:00Z",
+    "description":   "sample authorization",
+    "grant": {
+      "code":       "01234567-89ab-cdef-0123-456789abcdef",
+      "expires_in": "2012-01-01T12:00:00Z",
+      "id":         "01234567-89ab-cdef-0123-456789abcdef"
+    },
+    "id":            "01234567-89ab-cdef-0123-456789abcdef",
+    "refresh_token": {
+      "expires_in": "7200",
+      "id":         "01234567-89ab-cdef-0123-456789abcdef",
+      "token":      "01234567-89ab-cdef-0123-456789abcdef"
+    },
+    "scope":         ["global"],
+    "updated_at":    "2012-01-01T12:00:00Z"
+  }
+]
+</code></pre>
+
+<h3 id="oauth-authorization-info">OAuth Authorization Info</h3>
+
+<pre><code>GET /oauth/authorizations/{authorization_id}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/oauth/authorizations/$AUTHORIZATION_ID \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "access_token": {
+    "expires_in": "7200",
+    "id":         "01234567-89ab-cdef-0123-456789abcdef",
+    "token":      "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "client": {
+    "id":           "01234567-89ab-cdef-0123-456789abcdef",
+    "name":         "example",
+    "redirect_uri": "https://example.com/auth/heroku/callback"
+  },
+  "created_at":    "2012-01-01T12:00:00Z",
+  "description":   "sample authorization",
+  "grant": {
+    "code":       "01234567-89ab-cdef-0123-456789abcdef",
+    "expires_in": "2012-01-01T12:00:00Z",
+    "id":         "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "id":            "01234567-89ab-cdef-0123-456789abcdef",
+  "refresh_token": {
+    "expires_in": "7200",
+    "id":         "01234567-89ab-cdef-0123-456789abcdef",
+    "token":      "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "scope":         ["global"],
+  "updated_at":    "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="oauth-authorization-delete">OAuth Authorization Delete</h3>
+
+<pre><code>DELETE /oauth/authorizations/{authorization_id}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/oauth/authorizations/$AUTHORIZATION_ID \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "access_token": {
+    "expires_in": "7200",
+    "id":         "01234567-89ab-cdef-0123-456789abcdef",
+    "token":      "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "client": {
+    "id":           "01234567-89ab-cdef-0123-456789abcdef",
+    "name":         "example",
+    "redirect_uri": "https://example.com/auth/heroku/callback"
+  },
+  "created_at":    "2012-01-01T12:00:00Z",
+  "description":   "sample authorization",
+  "grant": {
+    "code":       "01234567-89ab-cdef-0123-456789abcdef",
+    "expires_in": "2012-01-01T12:00:00Z",
+    "id":         "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "id":            "01234567-89ab-cdef-0123-456789abcdef",
+  "refresh_token": {
+    "expires_in": "7200",
+    "id":         "01234567-89ab-cdef-0123-456789abcdef",
+    "token":      "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "scope":         ["global"],
+  "updated_at":    "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h2 id="oauth-client">OAuth Client</h2>
+
+<p>OAuth clients are applications that Heroku users can authorize to automate, customize or extend their usage of the platform. For more information please refer to the <a href="https://devcenter.heroku.com/articles/oauth">Heroku OAuth documentation</a></p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when OAuth client was created</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of this OAuth client</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>name</strong></td>
+<td><em>string</em></td>
+<td>OAuth client name</td>
+<td><code>"example"</code></td>
+</tr>
+<tr>
+<td><strong>redirect_uri</strong></td>
+<td><em>string</em></td>
+<td>endpoint for redirection after authorization with OAuth client</td>
+<td><code>"https://example.com/auth/heroku/callback"</code></td>
+</tr>
+<tr>
+<td><strong>secret</strong></td>
+<td><em>string</em></td>
+<td>secret used to obtain OAuth authorizations under this client</td>
+<td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when OAuth client was updated</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+</table><h3 id="oauth-client-create">OAuth Client Create</h3>
+
+<pre><code>POST /oauth/clients
+</code></pre>
+
+<h4 id="required-parameters">Required Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>name</strong></td>
+<td><em>string</em></td>
+<td>OAuth client name</td>
+<td><code>"example"</code></td>
+</tr>
+<tr>
+<td><strong>redirect_uri</strong></td>
+<td><em>string</em></td>
+<td>endpoint for redirection after authorization with OAuth client</td>
+<td><code>"https://example.com/auth/heroku/callback"</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X POST https://api.heroku.com/oauth/clients \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"name\":\"example\",\"redirect_uri\":\"https://example.com/auth/heroku/callback\"}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 201 Created
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at":   "2012-01-01T12:00:00Z",
+  "id":           "01234567-89ab-cdef-0123-456789abcdef",
+  "name":         "example",
+  "redirect_uri": "https://example.com/auth/heroku/callback",
+  "secret":       "01234567-89ab-cdef-0123-456789abcdef",
+  "updated_at":   "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="oauth-client-list">OAuth Client List</h3>
+
+<pre><code>GET /oauth/clients
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/oauth/clients \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "created_at":   "2012-01-01T12:00:00Z",
+    "id":           "01234567-89ab-cdef-0123-456789abcdef",
+    "name":         "example",
+    "redirect_uri": "https://example.com/auth/heroku/callback",
+    "secret":       "01234567-89ab-cdef-0123-456789abcdef",
+    "updated_at":   "2012-01-01T12:00:00Z"
+  }
+]
+</code></pre>
+
+<h3 id="oauth-client-info">OAuth Client Info</h3>
+
+<pre><code>GET /oauth/clients/{client_id}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/oauth/clients/$CLIENT_ID \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at":   "2012-01-01T12:00:00Z",
+  "id":           "01234567-89ab-cdef-0123-456789abcdef",
+  "name":         "example",
+  "redirect_uri": "https://example.com/auth/heroku/callback",
+  "secret":       "01234567-89ab-cdef-0123-456789abcdef",
+  "updated_at":   "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="oauth-client-update">OAuth Client Update</h3>
+
+<pre><code>PATCH /oauth/clients/{client_id}
+</code></pre>
+
+<h4 id="optional-parameters">Optional Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>name</strong></td>
+<td><em>string</em></td>
+<td>OAuth client name</td>
+<td><code>"example"</code></td>
+</tr>
+<tr>
+<td><strong>redirect_uri</strong></td>
+<td><em>string</em></td>
+<td>endpoint for redirection after authorization with OAuth client</td>
+<td><code>"https://example.com/auth/heroku/callback"</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/oauth/clients/$CLIENT_ID \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"name\":\"example\",\"redirect_uri\":\"https://example.com/auth/heroku/callback\"}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at":   "2012-01-01T12:00:00Z",
+  "id":           "01234567-89ab-cdef-0123-456789abcdef",
+  "name":         "example",
+  "redirect_uri": "https://example.com/auth/heroku/callback",
+  "secret":       "01234567-89ab-cdef-0123-456789abcdef",
+  "updated_at":   "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="oauth-client-delete">OAuth Client Delete</h3>
+
+<pre><code>DELETE /oauth/clients/{client_id}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/oauth/clients/$CLIENT_ID \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at":   "2012-01-01T12:00:00Z",
+  "id":           "01234567-89ab-cdef-0123-456789abcdef",
+  "name":         "example",
+  "redirect_uri": "https://example.com/auth/heroku/callback",
+  "secret":       "01234567-89ab-cdef-0123-456789abcdef",
+  "updated_at":   "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h2 id="oauth-token">OAuth Token</h2>
+
+<p>OAuth tokens provide access for authorized clients to act on behalf of a Heroku user to automate, customize or extend their usage of the platform. For more information please refer to the <a href="https://devcenter.heroku.com/articles/oauth">Heroku OAuth documentation</a></p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>authorization:id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of OAuth token authorization</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>access_token:expires_in</strong></td>
+<td><em>number</em></td>
+<td>seconds until OAuth access token expires</td>
+<td><code>2592000</code></td>
+</tr>
+<tr>
+<td><strong>access_token:id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of OAuth access token</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>access_token:token</strong></td>
+<td><em>string</em></td>
+<td>content of OAuth access token</td>
+<td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+</tr>
+<tr>
+<td><strong>client:secret</strong></td>
+<td><em>string</em></td>
+<td>OAuth client secret used to obtain token</td>
+<td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when OAuth token was created</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>grant:code</strong></td>
+<td><em>string</em></td>
+<td>grant code recieved from OAuth web application authorization</td>
+<td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+</tr>
+<tr>
+<td><strong>grant:type</strong></td>
+<td><em>string</em></td>
+<td>type of grant requested, one of `authorization_code` or `refresh_token`</td>
+<td><code>"authorization_code"</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of OAuth token</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>refresh_token:expires_in</strong></td>
+<td><em>number</em></td>
+<td>seconds until OAuth refresh token expires; may be `null` for a refresh token with indefinite lifetime</td>
+<td><code>2592000</code></td>
+</tr>
+<tr>
+<td><strong>refresh_token:id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of OAuth refresh token</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>refresh_token:token</strong></td>
+<td><em>string</em></td>
+<td>content of OAuth refresh token</td>
+<td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+</tr>
+<tr>
+<td><strong>session:id</strong></td>
+<td><em>string</em></td>
+<td>unique identifier of OAuth token session</td>
+<td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when OAuth token was updated</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>user:id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of the user</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+</table><h3 id="oauth-token-create">OAuth Token Create</h3>
+
+<pre><code>POST /oauth/tokens
+</code></pre>
+
+<h4 id="required-parameters">Required Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>grant:type</strong></td>
+<td><em>string</em></td>
+<td>type of grant requested, one of `authorization_code` or `refresh_token`</td>
+<td><code>"authorization_code"</code></td>
+</tr>
+</table><h4 id="optional-parameters">Optional Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>client:secret</strong></td>
+<td><em>string</em></td>
+<td>OAuth client secret used to obtain token</td>
+<td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+</tr>
+<tr>
+<td><strong>grant:code</strong></td>
+<td><em>string</em></td>
+<td>grant code recieved from OAuth web application authorization</td>
+<td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+</tr>
+<tr>
+<td><strong>refresh_token:token</strong></td>
+<td><em>string</em></td>
+<td>content of OAuth refresh token</td>
+<td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X POST https://api.heroku.com/oauth/tokens \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"client\":{\"secret\":\"01234567-89ab-cdef-0123-456789abcdef\"},\"grant\":{\"code\":\"01234567-89ab-cdef-0123-456789abcdef\",\"type\":\"authorization_code\"},\"refresh_token\":{\"token\":\"01234567-89ab-cdef-0123-456789abcdef\"}}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 201 Created
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "authorization": {
+    "id": "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "access_token": {
+    "expires_in": 2592000,
+    "id":         "01234567-89ab-cdef-0123-456789abcdef",
+    "token":      "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "created_at":    "2012-01-01T12:00:00Z",
+  "id":            "01234567-89ab-cdef-0123-456789abcdef",
+  "refresh_token": {
+    "expires_in": 2592000,
+    "id":         "01234567-89ab-cdef-0123-456789abcdef",
+    "token":      "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "session": {
+    "id": "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "updated_at":    "2012-01-01T12:00:00Z",
+  "user": {
+    "id": "01234567-89ab-cdef-0123-456789abcdef"
+  }
+}
+</code></pre>
+
+<h2 id="plan">Plan</h2>
+
+<p>Plans represent different configurations of add-ons that may be added to apps.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when plan was created</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>description</strong></td>
+<td><em>string</em></td>
+<td>description of plan</td>
+<td><code>"Heroku Postgres Dev"</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of plan</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>name</strong></td>
+<td><em>string</em></td>
+<td>unique name for plan</td>
+<td><code>"heroku-postgresql:dev"</code></td>
+</tr>
+<tr>
+<td><strong>price:cents</strong></td>
+<td><em>number</em></td>
+<td>price in cents per unit of plan</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td><strong>price:unit</strong></td>
+<td><em>string</em></td>
+<td>unit of price for plan</td>
+<td><code>"month"</code></td>
+</tr>
+<tr>
+<td><strong>state</strong></td>
+<td><em>string</em></td>
+<td>release status for plan</td>
+<td><code>"public"</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when plan was updated</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+</table><h3 id="plan-list">Plan List</h3>
+
+<pre><code>GET /addon-services/{addon_service_id_or_name}/plans
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/addon-services/$ADDON_SERVICE_ID_OR_NAME/plans \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "created_at":  "2012-01-01T12:00:00Z",
+    "description": "Heroku Postgres Dev",
+    "id":          "01234567-89ab-cdef-0123-456789abcdef",
+    "name":        "heroku-postgresql:dev",
+    "price": {
+      "cents": 0,
+      "unit":  "month"
+    },
+    "state":       "public",
+    "updated_at":  "2012-01-01T12:00:00Z"
+  }
+]
+</code></pre>
+
+<h3 id="plan-info">Plan Info</h3>
+
+<pre><code>GET /addon-services/{addon_service_id_or_name}/plans/{plan_id_or_name}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/addon-services/$ADDON_SERVICE_ID_OR_NAME/plans/$PLAN_ID_OR_NAME \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at":  "2012-01-01T12:00:00Z",
+  "description": "Heroku Postgres Dev",
+  "id":          "01234567-89ab-cdef-0123-456789abcdef",
+  "name":        "heroku-postgresql:dev",
+  "price": {
+    "cents": 0,
+    "unit":  "month"
+  },
+  "state":       "public",
+  "updated_at":  "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h2 id="rate-limits">Rate Limits</h2>
+
+<p>Rate Limits represent the number of request tokens each account holds. Requests to this endpoint do not count towards the rate limit.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>remaining</strong></td>
+<td><em>number</em></td>
+<td>allowed requests remaining in current interval</td>
+<td><code>2399</code></td>
+</tr>
+</table><h3 id="rate-limits-list">Rate Limits List</h3>
+
+<pre><code>GET /account/rate-limits
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/account/rate-limits \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "remaining": 2399
+  }
+]
+</code></pre>
+
+<h2 id="region">Region</h2>
+
+<p>Regions represent geographic locations in which your application may run.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when region was created</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>description</strong></td>
+<td><em>string</em></td>
+<td>description of the region</td>
+<td><code>"United States"</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of this region</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>name</strong></td>
+<td><em>string</em></td>
+<td>unique name of the region</td>
+<td><code>"us"</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when region was updated</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+</table><h3 id="region-list">Region List</h3>
+
+<pre><code>GET /regions
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/regions \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "created_at":  "2012-01-01T12:00:00Z",
+    "description": "United States",
+    "id":          "01234567-89ab-cdef-0123-456789abcdef",
+    "name":        "us",
+    "updated_at":  "2012-01-01T12:00:00Z"
+  }
+]
+</code></pre>
+
+<h3 id="region-info">Region Info</h3>
+
+<pre><code>GET /regions/{region_id_or_name}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/regions/$REGION_ID_OR_NAME \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at":  "2012-01-01T12:00:00Z",
+  "description": "United States",
+  "id":          "01234567-89ab-cdef-0123-456789abcdef",
+  "name":        "us",
+  "updated_at":  "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h2 id="release">Release</h2>
+
+<p>A release represents a combination of code, config vars and add-ons for an app on Heroku.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when release was created</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>description</strong></td>
+<td><em>string</em></td>
+<td>description of changes in this release</td>
+<td><code>"Added new feature"</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of this release</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when region was updated</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>user:email</strong></td>
+<td><em>string</em></td>
+<td>email address of user that created the release</td>
+<td><code>"username@example.com"</code></td>
+</tr>
+<tr>
+<td><strong>user:id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of the user that created the release</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>version</strong></td>
+<td><em>number</em></td>
+<td>unique version assigned to the release</td>
+<td><code>456</code></td>
+</tr>
+</table><h3 id="release-list">Release List</h3>
+
+<pre><code>GET /apps/{app_id_or_name}/releases
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/releases \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "created_at":  "2012-01-01T12:00:00Z",
+    "description": "Added new feature",
+    "id":          "01234567-89ab-cdef-0123-456789abcdef",
+    "updated_at":  "2012-01-01T12:00:00Z",
+    "user": {
+      "email": "username@example.com",
+      "id":    "01234567-89ab-cdef-0123-456789abcdef"
+    },
+    "version":     456
+  }
+]
+</code></pre>
+
+<h3 id="release-info">Release Info</h3>
+
+<pre><code>GET /apps/{app_id_or_name}/releases/{release_id_or_version}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/releases/$RELEASE_ID_OR_VERSION \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at":  "2012-01-01T12:00:00Z",
+  "description": "Added new feature",
+  "id":          "01234567-89ab-cdef-0123-456789abcdef",
+  "updated_at":  "2012-01-01T12:00:00Z",
+  "user": {
+    "email": "username@example.com",
+    "id":    "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "version":     456
+}
+</code></pre>
+
+<h2 id="ssl-endpoint">SSL Endpoint</h2>
+
+<p><a href="https://devcenter.heroku.com/articles/ssl-endpoint">SSL Endpoints</a> are public addresses serving custom SSL certs for HTTPS traffic to Heroku apps. Note that an app must have the <code>ssl:endpoint</code> addon installed before it can provision an SSL Endpoint using these APIs.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>certificate_chain</strong></td>
+<td><em>string</em></td>
+<td>raw contents of the public certificate chain (eg: .crt or .pem file)</td>
+<td><code>"-----BEGIN CERTIFICATE----- ..."</code></td>
+</tr>
+<tr>
+<td><strong>cname</strong></td>
+<td><em>string</em></td>
+<td>canonical name record, the address to point a domain at</td>
+<td><code>"example.herokussl.com"</code></td>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when endpoint was created</td>
+<td><code>2012-01-01T12:00:00-00:00</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of this SSL endpoint</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>name</strong></td>
+<td><em>string</em></td>
+<td>unique name for SSL endpoint</td>
+<td><code>"tokyo-1234"</code></td>
+</tr>
+<tr>
+<td><strong>private_key</strong></td>
+<td><em>string</em></td>
+<td>contents of the private key (eg .key file)</td>
+<td><code>"-----BEGIN RSA PRIVATE KEY----- ..."</code></td>
+</tr>
+<tr>
+<td><strong>rollback</strong></td>
+<td><em>boolean</em></td>
+<td>indicates that a rollback should be performed</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when endpoint was updated</td>
+<td><code>2012-01-01T12:00:00-00:00</code></td>
+</tr>
+</table><h3 id="ssl-endpoint-create">SSL Endpoint Create</h3>
+
+<pre><code>POST /apps/{app_id_or_name}/ssl-endpoints
+</code></pre>
+
+<h4 id="required-parameters">Required Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>certificate_chain</strong></td>
+<td><em>string</em></td>
+<td>raw contents of the public certificate chain (eg: .crt or .pem file)</td>
+<td><code>"-----BEGIN CERTIFICATE----- ..."</code></td>
+</tr>
+<tr>
+<td><strong>private_key</strong></td>
+<td><em>string</em></td>
+<td>contents of the private key (eg .key file)</td>
+<td><code>"-----BEGIN RSA PRIVATE KEY----- ..."</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/ssl-endpoints \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"certificate_chain\":\"-----BEGIN CERTIFICATE----- ...\",\"private_key\":\"-----BEGIN RSA PRIVATE KEY----- ...\"}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 201 Created
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "certificate_chain": "-----BEGIN CERTIFICATE----- ...",
+  "cname":             "example.herokussl.com",
+  "created_at":        "2012-01-01T12:00:00-00:00",
+  "id":                "01234567-89ab-cdef-0123-456789abcdef",
+  "name":              "tokyo-1234",
+  "updated_at":        "2012-01-01T12:00:00-00:00"
+}
+</code></pre>
+
+<h3 id="ssl-endpoint-list">SSL Endpoint List</h3>
+
+<pre><code>GET /apps/{app_id_or_name}/ssl-endpoints
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/ssl-endpoints \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "certificate_chain": "-----BEGIN CERTIFICATE----- ...",
+    "cname":             "example.herokussl.com",
+    "created_at":        "2012-01-01T12:00:00-00:00",
+    "id":                "01234567-89ab-cdef-0123-456789abcdef",
+    "name":              "tokyo-1234",
+    "updated_at":        "2012-01-01T12:00:00-00:00"
+  }
+]
+</code></pre>
+
+<h3 id="ssl-endpoint-info">SSL Endpoint Info</h3>
+
+<pre><code>GET /apps/{app_id_or_name}/ssl-endpoints/{ssl_endpoint_id_or_name}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/ssl-endpoints/$SSL_ENDPOINT_ID_OR_NAME \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "certificate_chain": "-----BEGIN CERTIFICATE----- ...",
+  "cname":             "example.herokussl.com",
+  "created_at":        "2012-01-01T12:00:00-00:00",
+  "id":                "01234567-89ab-cdef-0123-456789abcdef",
+  "name":              "tokyo-1234",
+  "updated_at":        "2012-01-01T12:00:00-00:00"
+}
+</code></pre>
+
+<h3 id="ssl-endpoint-update">SSL Endpoint Update</h3>
+
+<p>Updates an SSL Endpoint with a new certificate and private key or <a href="https://devcenter.heroku.com/articles/ssl-endpoint#undo">rolls back an SSL Endpoint</a> when the <code>rollback</code> parameter is given a value of <code>true</code>.</p>
+
+<pre><code>PATCH /apps/{app_id_or_name}/ssl-endpoints/{ssl_endpoint_id_or_name}
+</code></pre>
+
+<h4 id="optional-parameters">Optional Parameters</h4>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>certificate_chain</strong></td>
+<td><em>string</em></td>
+<td>raw contents of the public certificate chain (eg: .crt or .pem file)</td>
+<td><code>"-----BEGIN CERTIFICATE----- ..."</code></td>
+</tr>
+<tr>
+<td><strong>private_key</strong></td>
+<td><em>string</em></td>
+<td>contents of the private key (eg .key file)</td>
+<td><code>"-----BEGIN RSA PRIVATE KEY----- ..."</code></td>
+</tr>
+<tr>
+<td><strong>rollback</strong></td>
+<td><em>boolean</em></td>
+<td>indicates that a rollback should be performed</td>
+<td><code>true</code></td>
+</tr>
+</table><h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME/ssl-endpoints/$SSL_ENDPOINT_ID_OR_NAME \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d "{\"certificate_chain\":\"-----BEGIN CERTIFICATE----- ...\",\"private_key\":\"-----BEGIN RSA PRIVATE KEY----- ...\",\"rollback\":true}"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "certificate_chain": "-----BEGIN CERTIFICATE----- ...",
+  "cname":             "example.herokussl.com",
+  "created_at":        "2012-01-01T12:00:00-00:00",
+  "id":                "01234567-89ab-cdef-0123-456789abcdef",
+  "name":              "tokyo-1234",
+  "updated_at":        "2012-01-01T12:00:00-00:00"
+}
+</code></pre>
+
+<h3 id="ssl-endpoint-delete">SSL Endpoint Delete</h3>
+
+<pre><code>DELETE /apps/{app_id_or_name}/ssl-endpoints/{ssl_endpoint_id_or_name}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/ssl-endpoints/$SSL_ENDPOINT_ID_OR_NAME \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "certificate_chain": "-----BEGIN CERTIFICATE----- ...",
+  "cname":             "example.herokussl.com",
+  "created_at":        "2012-01-01T12:00:00-00:00",
+  "id":                "01234567-89ab-cdef-0123-456789abcdef",
+  "name":              "tokyo-1234",
+  "updated_at":        "2012-01-01T12:00:00-00:00"
+}
+</code></pre>
+
+<h2 id="stack">Stack</h2>
+
+<p>A stack represents an application execution environment.</p>
+
+<h3 id="attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td><strong>created_at</strong></td>
+<td><em>datetime</em></td>
+<td>when stack was created</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+<tr>
+<td><strong>id</strong></td>
+<td><em>uuid</em></td>
+<td>unique identifier of this stack</td>
+<td><code>01234567-89ab-cdef-0123-456789abcdef</code></td>
+</tr>
+<tr>
+<td><strong>name</strong></td>
+<td><em>string</em></td>
+<td>unique name of stack</td>
+<td><code>"example"</code></td>
+</tr>
+<tr>
+<td><strong>state</strong></td>
+<td><em>string</em></td>
+<td>state of the stack; beta/deprecated/public</td>
+<td><code>"public"</code></td>
+</tr>
+<tr>
+<td><strong>updated_at</strong></td>
+<td><em>datetime</em></td>
+<td>when stack was updated</td>
+<td><code>2012-01-01T12:00:00Z</code></td>
+</tr>
+</table><h3 id="stack-list">Stack List</h3>
+
+<pre><code>GET /stacks
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/stacks \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Content-Range: ids 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">[
+  {
+    "created_at": "2012-01-01T12:00:00Z",
+    "id":         "01234567-89ab-cdef-0123-456789abcdef",
+    "name":       "example",
+    "state":      "public",
+    "updated_at": "2012-01-01T12:00:00Z"
+  }
+]
+</code></pre>
+
+<h3 id="stack-info">Stack Info</h3>
+
+<pre><code>GET /stacks/{stack_id_or_name}
+</code></pre>
+
+<h4 id="curl-example">Curl Example</h4>
+
+<pre><code class="term">$ curl -n -X GET https://api.heroku.com/stacks/$STACK_ID_OR_NAME \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="response">Response</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 1200
+</code></pre>
+
+<pre><code class="javascript">{
+  "created_at": "2012-01-01T12:00:00Z",
+  "id":         "01234567-89ab-cdef-0123-456789abcdef",
+  "name":       "example",
+  "state":      "public",
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>

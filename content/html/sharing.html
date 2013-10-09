@@ -1,0 +1,74 @@
+<h2 id="adding-collaborators">Adding collaborators</h2>
+
+<p>Other developers (identified by email address) can be invited to collaborate on your app:</p>
+
+<pre><code class="term">$ heroku sharing:add joe@example.com
+Adding joe@example.com to myapp collaborators... done
+</code></pre>
+
+<p>When you invite a collaborator, they’ll be sent an email to let them know they were granted access
+to the app. If no existing Heroku account matches the email specified, an invitation email is sent.</p>
+
+<h2 id="collaborator-privileges">Collaborator privileges</h2>
+
+<p>All actions are supported for collaborators as they are for app owners except for the following, which are only support for app owners:</p>
+
+<ul>
+<li>Adding or removing paid add-ons</li>
+<li>Deleting or renaming the app</li>
+<li>Viewing invoices</li>
+</ul><div class="warning">
+<p>These are the only actions that are restricted.  Outside of those actions, collaborators can perform any other action that an owner can, including scaling applications.</p>
+</div>
+
+<h2 id="accessing-an-app-as-a-collaborator">Accessing an app as a collaborator</h2>
+
+<p>When someone grants you access to an app, you will receive an email with
+the app name and some other information to help you get started:</p>
+
+<pre><code class="term">$ heroku info --app theirapp
+=== theirapp
+Web URL:        http://theirapp.herokuapp.com/
+Git Repo:       git@heroku.com:theirapp.git
+Repo Size:      960k
+Slug Size:      512k
+Owner Email:    owner@example.com
+Collaborators:  adam@example.com 
+                      joe@example.com
+</code></pre>
+
+<p>Next you should clone the app locally. You can use <code>heroku git:clone --app theirapp</code> for this, but it’s recommended that you get access to their canonical repository (for instance on GitHub) and then use <code>heroku git:remote</code> to add a git remote to your checkout.</p>
+
+<p>At this point you can use <code>git push heroku</code> to deploy local commits. Be sure your changes get pushed to the canonical repository (typically with <code>git push origin master</code>) as well as the Heroku remote to avoid getting out of sync with your collaborators.</p>
+
+<h2 id="viewing-collaborators">Viewing collaborators</h2>
+
+<p>Use the <code>heroku sharing</code> command to see the list of current collaborators:</p>
+
+<pre><code class="term">$ heroku sharing
+=== theirapp Collaborators
+adam@example.com
+joe@example.com
+</code></pre>
+
+<h2 id="revoking-access">Revoking access</h2>
+
+<p>You can revoke a collaborator’s access using the <code>heroku sharing:remove</code> command:</p>
+
+<pre><code class="term">$ heroku sharing:remove joe@example.com
+Removing joe@example.com from myapp collaborators... done
+</code></pre>
+
+<p>Once access has been revoked, the user is no longer able to deploy changes or
+modify the app’s configuration.</p>
+
+<h2 id="merging-code-changes">Merging code changes</h2>
+
+<p>Once you’re collaborating with other developers, you may find that you’re prevented from pushing to the repo with a message like this:</p>
+
+<pre><code class="term">$ git push heroku
+error: remote 'refs/heads/master' is not a strict subset of local ref 'refs/heads/master'.
+maybe you are not up-to-date and need to pull first?
+</code></pre>
+
+<p>This means that other developers have pushed up changes that you need to pull down and merge with your local repository. The easiest way to do this is to run <code>git pull --rebase</code>. Ensure your changes don’t conflict with what you pulled down before deploying.</p>
