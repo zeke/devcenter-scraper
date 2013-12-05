@@ -1,7 +1,8 @@
 <p>A stack is a complete deployment environment including the base operating system, the language runtime and associated libraries. As a result, different stacks support different runtime environments.</p>
 
 <h2 id="stack-summary">Stack summary</h2>
-<table class="compare" id="stack-compare">
+
+<table id="stack-compare" class="compare">
 <tr>
 <th class="icon"> </th>
 <th class="tech">Base Technology</th>
@@ -17,7 +18,7 @@
 <th>Scala</th>
   </tr>
 <tr id="celadon-cedar">
-<td class="icon"><a href="/articles/cedar">Celadon Cedar</a></td>
+<td class="icon"><a href="https://devcenter.heroku.com/articles/cedar">Celadon Cedar</a></td>
     <td class="tech">Ubuntu 10.04</td>
     <td> </td>
     <td><span class="check">•</span></td>
@@ -31,7 +32,7 @@
     <td><span class="check">•</span></td>
   </tr>
 <tr id="badious-bamboo">
-<td class="icon"><a href="/articles/bamboo">Badious Bamboo</a></td>
+<td class="icon"><a href="https://devcenter.heroku.com/articles/bamboo">Badious Bamboo</a></td>
     <td class="tech">Debian Lenny 5.0</td>
     <td><span class="check">•</span></td>
     <td> </td>
@@ -44,17 +45,18 @@
     <td> </td>
     <td> </td>
   </tr>
-</table><p>The only stack on which you can provision new apps is <a href="/articles/cedar">Cedar</a>. The stack for existing apps can be determined using the <code>stack</code> <a href="/articles/using-the-cli">CLI</a> command.</p>
+</table><p>The only stack on which you can provision new apps is <a href="https://devcenter.heroku.com/articles/cedar">Cedar</a>. The stack for existing apps can be determined using the <code>stack</code> <a href="https://devcenter.heroku.com/articles/using-the-cli">CLI</a> command.</p>
 
 <pre><code class="term">$ heroku stack
   bamboo-mri-1.9.2
   bamboo-ree-1.8.7
-* cedar</code></pre>
+* cedar
+</code></pre>
 
-<p>Here, the app is running on <a href="/articles/cedar">Celadon Cedar</a>.</p>
+<p>Here, the app is running on <a href="https://devcenter.heroku.com/articles/cedar">Celadon Cedar</a>.</p>
 
 <h2 id="migrating-to-cedar">Migrating to Cedar</h2>
 
 <p>Migrating from previous stacks to Cedar allows an application to take advantage of a much more flexible and powerful runtime. Because the significant architectural differences, migrating to Cedar is a largely manual process.</p>
 
-<p>You can find instructions for <a href="/articles/cedar-migration">migrating to Cedar</a> here.</p>
+<p>You can find instructions for <a href="https://devcenter.heroku.com/articles/cedar-migration">migrating to Cedar</a> here.</p>

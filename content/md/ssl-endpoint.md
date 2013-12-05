@@ -9,6 +9,9 @@ SSL is a cryptographic protocol that provides end-to-end encryption and integrit
 
 To enable SSL on a custom domain, e.g., `www.example.com`, use the SSL Endpoint add-on. ([SSL Endpoint](https://addons.heroku.com/ssl) is a paid add-on service. Please keep this in mind when provisioning the service).
 
+> callout
+> SSL Endpoint is only useful for custom domains. All default `appname.herokuapp.com` domains are SSL-enabled already and can be accessed simply by using `https`, e.g., `https://appname.herokuapp.com`.
+
 ## Overview
 
 Because of the unique nature of SSL validation, provisioning SSL for your application is a multi-step process that involves several third-parties. You will need to:
@@ -42,7 +45,7 @@ Before requesting an SSL cert, you need to generate a private key in your local 
   </tr>
   <tr>
     <td>Windows</td>
-    <td style="text-align: left"><a href="http://gnuwin32.sourceforge.net/packages/openssl.htm">Windows complete package .exe installer</a></td>
+    <td style="text-align: left"><a href="http://slproweb.com/products/Win32OpenSSL.html">Windows complete package .exe installer</a></td>
   </tr>
   <tr>
     <td>Ubuntu Linux</td>

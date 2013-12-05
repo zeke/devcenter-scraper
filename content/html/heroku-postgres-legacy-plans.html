@@ -1,0 +1,136 @@
+<p><a href="https://devcenter.heroku.com/articles/heroku-postgresql">Heroku Postgres</a> is Heroku’s database-as-a-service running an unmodified PostgreSQL installation. If you’re looking for Heroku Postgres' current plans please visit the pricing page. The below pertains to the legacy plans for Heroku Postgres. These legacy plans are still available and provisionable, but not listed in <code>heroku addons:list</code> or within dashboard provisioning.</p>
+
+<p>The legacy plans consist of two tiers, starter and production, across a variety of plans.</p>
+
+<table>
+<tr>
+<th>Tier</th>
+  <th style="width: 26em;">Plans</th>
+  <th>Description</th>
+</tr>
+<tr>
+<td><b><a href="https://devcenter.heroku.com/articles/heroku-postgres-legacy-plans#starter-tier">Starter</a></b></td>
+  <td>
+<code>dev</code>, <code>basic</code>
+</td>
+  <td>Free and low-cost database plans for evaluation, application development, and testing.</td>
+</tr>
+<tr>
+<td><b><a href="https://devcenter.heroku.com/articles/heroku-postgres-legacy-plans#production-tier">Production</a></b></td>
+  <td>
+<code>crane</code>, <code>kappa</code>, <code>ronin</code>, <code>fugu</code>,<br><br><code>ika</code>,<code>zilla</code>, <code>baku</code>, <code>mecha</code>
+</td>
+  <td>Production-grade monitoring, operations, and support.</td>
+</tr>
+</table><h3 id="starter-tier">Starter Tier</h3>
+
+<p class="warning">
+The starter tier database plans are not intended for
+production-caliber applications or applications with high-uptime
+requirements.
+</p>
+
+<p>The starter tier, which includes the <a href="https://addons.heroku.com/heroku-postgresql"><code>dev</code> and <code>basic</code>
+plans</a>, has the following
+limitations:</p>
+
+<ul>
+<li>Enforced row limits of 10,000 rows for <code>dev</code> and 10,000,000 for <code>basic</code> plans</li>
+<li>Max of 20 connections</li>
+<li>No in-memory cache: The lack of an in-memory cache limits the
+performance capabilities since the data can’t be accessed on
+low-latency storage.</li>
+<li>No <a href="https://devcenter.heroku.com/articles/heroku-postgres-follower-databases">fork/follow</a> support: Fork
+and follow, used to create replica databases and master-slave
+setups, are not supported.</li>
+<li>Expected uptime of 99.5% each month</li>
+<li>No postgres logs</li>
+</ul><h3 id="production-tier">Production Tier</h3>
+
+<p>As the name implies, the production tier of Heroku Postgres is
+intended for production applications and includes the following
+feature additions to the starter tier:</p>
+
+<ul>
+<li>No row limitations</li>
+<li>Increasing amounts of in-memory cache</li>
+<li>
+<a href="https://devcenter.heroku.com/articles/heroku-postgres-follower-databases">Fork and follow</a> support</li>
+<li>Max of 500 connections</li>
+<li>1 TB of storage (if you need beyond 1 TB please contact us)</li>
+<li>Expected uptime of 99.95% each month</li>
+<li>
+<a href="https://devcenter.heroku.com/articles/heroku-postgres-metrics-logs">Database metrics published</a> to application log stream for further analysis</li>
+</ul><p>Management of production tier database plans is also much more robust including:</p>
+
+<ul>
+<li>Eligible for automatic daily snapshots with 1-month retention (see
+the <a href="https://devcenter.heroku.com/articles/pgbackups">PGBackups add-on</a>
+for more details)</li>
+<li>Priority service restoration on disruptions</li>
+</ul><p>Non-production applications, or applications with minimal data
+storage, performance or availability requirements can choose between
+one of the two starter tier plans, <code>dev</code> and <code>basic</code>, depending on row
+requirements. However, production applications, or apps that require
+the features of a production tier database plan, have a variety of
+plans to choose from. These plans vary primarily by the size of their
+in-memory data cache.</p>
+
+<p>The cache and price for each legacy production plan is:</p>
+
+<table>
+<tr>
+<td>Plan Name</td>
+<td>Provisioning name</td>
+<td>Memory</td>
+<td>Price per month</td>
+</tr>
+<tr>
+<td>Crane</td>
+<td>heroku-postgresql:crane</td>
+<td>400 MB</td>
+<td>$50</td>
+</tr>
+<tr>
+<td>Kappa</td>
+<td>heroku-postgresql:kappa</td>
+<td>800 MB</td>
+<td>$100</td>
+</tr>
+<tr>
+<td>Ronin</td>
+<td>heroku-postgresql:ronin</td>
+<td>1.7GB</td>
+<td>$200</td>
+</tr>
+<tr>
+<td>Fugu</td>
+<td>heroku-postgresql:fugu</td>
+<td>3.75 GB</td>
+<td>$400</td>
+</tr>
+<tr>
+<td>Ika</td>
+<td>heroku-postgresql:ika</td>
+<td>7.5 GB</td>
+<td>$800</td>
+</tr>
+<tr>
+<td>Zilla</td>
+<td>heroku-postgresql:zilla</td>
+<td>17 GB</td>
+<td>$1600</td>
+</tr>
+<tr>
+<td>Baku</td>
+<td>heroku-postgresql:baku</td>
+<td>34 GB</td>
+<td>$3200</td>
+</tr>
+<tr>
+<td>Mecha</td>
+<td>heroku-postgresql:mecha</td>
+<td>64 GB</td>
+<td>$6400</td>
+</tr>
+</table>

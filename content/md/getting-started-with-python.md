@@ -121,7 +121,7 @@ You can now start the processes in your Procfile locally using [Foreman](http://
     2013-04-03 16:11:22 [8469] [INFO] Starting gunicorn 0.14.6
     2013-04-03 16:11:22 [8469] [INFO] Listening at: http://127.0.0.1:8000 (8469)
 
-Make sure things are working properly `curl` or a web browser, then Ctrl-C to exit.
+Make sure things are working properly with `curl` or a web browser, then Ctrl-C to exit.
 
 ## Specify dependencies with Pip
 
@@ -149,11 +149,7 @@ Now that we've written and tested our application, we need to store the project 
 
 Since our current directory contains a lof of extra files, we'll want to configure our repository to ignore these files with a `.gitignore` file:
 
-<div class="callout" markdown="1">
-    GitHub provides an excellent
-    [Python gitignore file](https://github.com/github/gitignore/blob/master/Python.gitignore)
-    that can be
-    [installed system-wide](https://github.com/github/gitignore#readme).
+<div class="callout" markdown="1">GitHub provides an excellent [Python gitignore file](https://github.com/github/gitignore/blob/master/Python.gitignore)that can be [installed system-wide](https://github.com/github/gitignore#readme).
 </div>
 
 ### .gitignore

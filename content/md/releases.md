@@ -89,6 +89,6 @@ You may choose to specify another release to target:
     $ heroku rollback v40
     Rolled back to v40
 
-Rolling back will create a new release which is a copy of the state of code and config vars contained in the targeted release.  The state of the database or external state held in add-ons (for example, the contents of memcache) will **not** be affected and are up to you to reconcile with the rollback.
+Rolling back will create a new release which is a copy of the state of the compiled slug and config vars of the release specified in the command.  The state of your `heroku` Git remote, database, and external state held in add-ons (for example, the contents of memcache) will **not** be affected and is your responsibility to reconcile with the rollback.
 
-Running on rolled-back code is meant as a **temporary fix** to a bad deployment. If you are on rolled-back code and your slug is recompiled (for any reason other than a new deployment) your app will be moved back to running on the most recent release. Subscribing to a new add-on or adding/removing a config var will result in your slug being recompiled.
+Running on a rolled-back release is meant as a **temporary fix** to a bad deployment. If you are on a rolled-back release, fix and commit the problem locally, and re-push to Heroku to update the `heroku` Git remote and create a new release.

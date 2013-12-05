@@ -36,42 +36,42 @@ consumes logs.
   </tr>
 </table>
 
-<div class="callout" markdown="1">
-  **2X dynos consume twice as many free dyno-hours per hour** as 1X dynos. Example: A 2X one dyno app will run for free for 375 hours compared to 750 hours for a 1X one dyno app.
-
-  If your app has only a **single 2X web dyno** running, it **will sleep**.
-</div>
+> callout
+> **2X dynos consume twice as many free dyno-hours per hour** as 1X dynos. Example: A 2X one dyno app will run for free for 375 hours compared to 750 hours for a 1X one dyno app.
+>
+>  If your app has only a **single 2X web dyno** running, it **will sleep**.
 
 ## Setting dyno size
 
-<div class="warning" markdown="1">
-  **Important:** Resizing dynos restarts the affected dynos.
-</div>
+> warning
+> **Important:** Resizing dynos restarts the affected dynos.
 
 ### CLI
 
 Using the [Heroku Toolbelt][toolbelt], resize your dynos
 with the `resize` command:
 
-    :::term
-    $ heroku ps:resize web=2X worker=1X
-    Resizing dynos and restarting specified processes... done
-    web dynos now 2X ($0.10/dyno-hour)
-    worker dynos now 1X ($0.05/dyno-hour)
+``` term
+$ heroku ps:resize web=2X worker=1X
+Resizing dynos and restarting specified processes... done
+web dynos now 2X ($0.10/dyno-hour)
+worker dynos now 1X ($0.05/dyno-hour)
+```
 
 To view the dyno size of a process type, use the `ps` command:
 
-    :::term
-    $ heroku ps
-    === web (2X): `bundle exec unicorn -p $PORT -c ./config/unicorn.rb`
-    web.1: up 2013/03/27 14:27:58 (~ 6h ago)
-    web.2: up 2013/03/27 14:47:04 (~ 6h ago)
-    web.3: up 2013/03/27 15:08:23 (~ 5h ago)
+```term
+$ heroku ps
+=== web (2X): `bundle exec unicorn -p $PORT -c ./config/unicorn.rb`
+web.1: up 2013/03/27 14:27:58 (~ 6h ago)
+web.2: up 2013/03/27 14:47:04 (~ 6h ago)
+web.3: up 2013/03/27 15:08:23 (~ 5h ago)
 
-    === worker (1X): `bundle exec rake worker:job`
-    worker.1: up 2013/03/27 14:39:04 (~ 6h ago)
-    worker.2: up 2013/03/27 15:08:24 (~ 5h ago)
-    worker.3: up 2013/03/27 14:30:55 (~ 6h ago)
+=== worker (1X): `bundle exec rake worker:job`
+worker.1: up 2013/03/27 14:39:04 (~ 6h ago)
+worker.2: up 2013/03/27 15:08:24 (~ 5h ago)
+worker.3: up 2013/03/27 14:30:55 (~ 6h ago)
+```
 
 ### Dashboard
 
@@ -83,8 +83,9 @@ Using the app's resources page on [Dashboard][dashboard]:
 
 Memory intensive one-off dynos can also be sized:
 
-    :::term
-    $ heroku run --size=2X rake heavy:job
+```term
+$ heroku run --size=2X rake heavy:job
+```
 
 [Scheduler][scheduler] also supports running one-off 2X dynos.
 

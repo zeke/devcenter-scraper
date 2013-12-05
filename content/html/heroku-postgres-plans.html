@@ -1,12 +1,81 @@
-<p><a href="/articles/heroku-postgresql">Heroku Postgres</a> offers a wide spectrum of plans appropriate for everything from personal blogs all the way to large-dataset and high-transaction applications. Choosing the right plan depends on the unique usage characteristics of your app as well as your organization’s availability and uptime expectations.</p>
+
+<p><a href="https://devcenter.heroku.com/articles/heroku-postgresql">Heroku Postgres</a> offers a wide spectrum of plans appropriate for everything from personal blogs all the way to large-dataset and high-transaction applications. Choosing the right plan depends on the unique usage characteristics of your app as well as your organization’s availability and uptime expectations.</p>
 
 <h2 id="plan-tiers">Plan tiers</h2>
 
-<p><a href="https://postgres.heroku.com/pricing">Heroku Postgres’s many plans</a> are segmented in two broad tiers: Starter and production. Each tier then contains several individual plans. While these two tiers share many features there are several differences that will determine what database plan is most appropriate for your use-case.</p>
+<p><a href="https://postgres.heroku.com/pricing">Heroku Postgres’s many plans</a> are segmented in four broad tiers. While each tier has a few differences, the key factor in each tier is the uptime expectation for your database. The four tiers are designed as:</p>
 
-<h3 id="shared-features">Shared features</h3>
+<ul>
+<li>
+<strong>Hobby Tier</strong> designed for apps that can tolerate up to 4 hrs of downtime</li>
 
-<p>The starter and production tier database plans all share the following features:</p>
+<li>
+<strong>Standard Tier</strong> designed for apps that can tolerate up to 1 hr of downtime</li>
+
+<li>
+<strong>Premium Tier</strong> designed for apps that can tolerate up to 15 minutes of downtime</li>
+
+<li>
+<strong>Enterprise Tier</strong> designed for apps where an SLA is needed</li>
+</ul><p><em>All uptime expectations are given based on a 30 day month</em></p>
+
+<p>For a full breakdown of the differences between tiers:</p>
+<table>
+<thead><tr>
+<th>Heroku Postgres tier</th>
+<th>Downtime Tolerance</th>
+<th>Backups Available</th>
+<th>Fork</th>
+<th>Follow</th>
+<th>Rollback</th>
+<th>HA</th>
+<th>SLA</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Hobby</td>
+<td style="text-align: left;">Up to 4 hrs downtime per mo.</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">No</td>
+</tr>
+<tr>
+<td style="text-align: left;">Standard</td>
+<td style="text-align: left;">Up to 1 hr downtime per mo.</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">1 hour</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">No</td>
+</tr>
+<tr>
+<td style="text-align: left;">Premium</td>
+<td style="text-align: left;">Up to 15 min downtime per mo.</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">1 week</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">No</td>
+</tr>
+<tr>
+<td style="text-align: left;">Enterprise</td>
+<td style="text-align: left;">Up to 15 min downtime per mo.</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">1 month</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Yes</td>
+</tr>
+</tbody>
+</table><h3 id="shared-features">Shared features</h3>
+
+<p>All tiers share the following features:</p>
 
 <ul>
 <li>Fully managed database service with automatic health checks</li>
@@ -18,48 +87,48 @@
 
 <li>SSL-protected psql/libpq access</li>
 
-<li>Running unmodified Postgres v9.1 or v9.2 (v9.0 is available on production tier only) for guaranteed compatibility</li>
+<li>Running unmodified Postgres v9.1, v9.2, v9.3 (v9.0 is available on production tier only) for guaranteed compatibility</li>
 
-<li>Postgres <a href="/articles/heroku-postgres-extensions-postgis-full-text-search">extensions</a>
+<li>Postgres <a href="https://devcenter.heroku.com/articles/heroku-postgres-extensions-postgis-full-text-search">extensions</a>
 </li>
 
 <li>A full-featured <a href="https://postgres.heroku.com/databases">web UI</a>
 </li>
-</ul><h3 id="starter-tier">Starter tier</h3>
-<p class="warning">The starter tier database plans are not intended for production-caliber applications or applications with high-uptime requirements.</p>
-<p>The starter tier, which includes the <a href="https://addons.heroku.com/heroku-postgresql"><code>dev</code> and <code>basic</code> plans</a>, has the following limitations:</p>
+</ul><h2 id="hobby-tier">Hobby tier</h2>
+
+<p>The hobby tier, which includes the <a href="https://addons.heroku.com/heroku-postgresql"><code>hobby-dev</code> and <code>hobby-basic</code> plans</a>, has the following limitations:</p>
 
 <ul>
-<li>Enforced row limits of 10,000 rows for <code>dev</code> and 10,000,000 for <code>basic</code> plans</li>
+<li>Enforced row limits of 10,000 rows for <code>hobby-dev</code> and 10,000,000 for <code>hobby-basic</code> plans</li>
 
 <li>Max of 20 connections</li>
 
 <li>No in-memory cache: The lack of an in-memory cache limits the performance capabilities since the data can’t be accessed on low-latency storage.</li>
 
-<li>No <a href="/articles/heroku-postgres-follower-databases">fork/follow</a> support: Fork and follow, used to create replica databases and master-slave setups, are not supported.</li>
+<li>No <a href="https://devcenter.heroku.com/articles/heroku-postgres-follower-databases">fork/follow</a> support: Fork and follow, used to create replica databases and master-slave setups, are not supported.</li>
 
 <li>Expected uptime of 99.5% each month</li>
 
 <li>No postgres logs</li>
 </ul><h3 id="row-limit-enforcement">Row limit enforcement</h3>
 
-<p>When you are over the starter tier row limits and try to insert you will see a Postgres error:</p>
+<p>When you are over the hobby tier row limits and try to insert you will see a Postgres error:</p>
 
 <pre><code>permission denied for relation &lt;table name&gt;</code></pre>
 
-<p>The row limits of the starter tier database plans are enforced with the following mechanism:</p>
+<p>The row limits of the hobby tier database plans are enforced with the following mechanism:</p>
 
 <ol>
-<li>When a <code>dev</code> database hits 7,000 rows, or a <code>basic</code> database hits 1 million rows , the owner receives a warning e-mail stating they are nearing their row limits.</li>
+<li>When a <code>hobby-dev</code> database hits 7,000 rows, or a <code>hobby-basic</code> database hits 1 million rows , the owner receives a warning e-mail stating they are nearing their row limits.</li>
 
-<li>When the database exceeds its row capacity, the owner will receive an additional notification. At this point, the database will receive a 24-hour grace period to either reduce the number of records, or <a href="/articles/heroku-postgres-follower-databases#database-upgrades-and-migrations-with-changeovers">migrate to another plan</a>.</li>
+<li>When the database exceeds its row capacity, the owner will receive an additional notification. At this point, the database will receive a 7 day grace period to either reduce the number of records, or <a href="https://devcenter.heroku.com/articles/heroku-postgres-follower-databases#database-upgrades-and-migrations-with-changeovers">migrate to another plan</a>.</li>
 
-<li>If the number of rows still exceeds the plan capacity after 24 hours, <code>INSERT</code> privileges will be revoked on the database. Data can still be read, updated or deleted from database. This ensures that users still have the ability to bring their database into compliance, and retain access to their data.</li>
+<li>If the number of rows still exceeds the plan capacity after 7 days, <code>INSERT</code> privileges will be revoked on the database. Data can still be read, updated or deleted from database. This ensures that users still have the ability to bring their database into compliance, and retain access to their data.</li>
 
 <li>Once the number of rows is again in compliance with the plan limit, <code>INSERT</code> privileges are automatically restored to the database. Note that the database sizes are checked asynchronously, so it may take a few minutes for the privileges to be restored.</li>
-</ol><h3 id="production-tier">Production tier</h3>
+</ol><h2 id="standard-tier">Standard tier</h2>
 
-<p>As the name implies, the production tier of Heroku Postgres is intended for production applications and includes the following feature additions to the starter tier:</p>
+<p>The Standard tier is designed for production applications, where while uptime is important, are able to tolerate up to 1 hour of downtime in a given month. All standard tier databases include:</p>
 
 <ul>
 <li>No row limitations</li>
@@ -67,29 +136,139 @@
 <li>Increasing amounts of in-memory cache</li>
 
 <li>
-<a href="/articles/heroku-postgres-follower-databases">Fork and follow</a> support</li>
+<a href="https://devcenter.heroku.com/articles/heroku-postgres-follower-databases">Fork and follow</a> support</li>
 
-<li>Max of 500 connections</li>
-
-<li>1 TB of storage</li>
-
-<li>Expected uptime of 99.95% each month</li>
+<li><a href="https://devcenter.heroku.com/articles/heroku-postgres-rollback">Rollback</a></li>
 
 <li>
 <a href="https://devcenter.heroku.com/articles/heroku-postgres-metrics-logs">Database metrics published</a> to application log stream for further analysis</li>
-</ul><p>Management of production tier database plans is also much more robust including:</p>
-
-<ul>
-<li>Eligible for automatic daily snapshots with 1-month retention (see the <a href="https://devcenter.heroku.com/articles/pgbackups">PGBackups add-on</a> for more details)</li>
 
 <li>Priority service restoration on disruptions</li>
-</ul><h2 id="production-plans">Production plans</h2>
+</ul><p>Within the Standard tier plans have differing memory, connection limits, and storage limits. The plans for the standard tier are:</p>
+<table>
+<thead><tr>
+<th>Plan Name</th>
+<th>Provisioning name</th>
+<th>Cache Size</th>
+<th>Storage limit</th>
+<th>Connection limit</th>
+<th>Monthly Price</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Yanari</td>
+<td style="text-align: left;">heroku-postgresql:standard-yanari</td>
+<td style="text-align: left;">400 MB</td>
+<td style="text-align: left;">64 GB</td>
+<td style="text-align: left;">60</td>
+<td style="text-align: left;">$50</td>
+</tr>
+<tr>
+<td style="text-align: left;">Tengu</td>
+<td style="text-align: left;">heroku-postgresql:standard-tengu</td>
+<td style="text-align: left;">1.7 GB</td>
+<td style="text-align: left;">256 GB</td>
+<td style="text-align: left;">200</td>
+<td style="text-align: left;">$200</td>
+</tr>
+<tr>
+<td style="text-align: left;">Ika</td>
+<td style="text-align: left;">heroku-postgresql:standard-ika</td>
+<td style="text-align: left;">7.5 GB</td>
+<td style="text-align: left;">512 GB</td>
+<td style="text-align: left;">400</td>
+<td style="text-align: left;">$750</td>
+</tr>
+<tr>
+<td style="text-align: left;">Baku</td>
+<td style="text-align: left;">heroku-postgresql:standard-baku</td>
+<td style="text-align: left;">34 GB</td>
+<td style="text-align: left;">1 TB</td>
+<td style="text-align: left;">500</td>
+<td style="text-align: left;">$2000</td>
+</tr>
+<tr>
+<td style="text-align: left;">Mecha</td>
+<td style="text-align: left;">heroku-postgresql:standard-mecha</td>
+<td style="text-align: left;">64 GB</td>
+<td style="text-align: left;">1 TB</td>
+<td style="text-align: left;">500</td>
+<td style="text-align: left;">$3500</td>
+</tr>
+</tbody>
+</table><h2 id="premium-tier">Premium tier</h2>
 
-<p>Non-production applications, or applications with minimal data storage, performance or availability requirements can choose between one of the two starter tier plans, <code>dev</code> and <code>basic</code>, depending on row requirements. However, production applications, or apps that require the features of a production tier database plan, have a variety of plans to choose from. These plans vary primarily by the size of their in-memory data cache.</p>
+<p>The Premium tier is designed for production applications, where while uptime is important, are able to tolerate up to 15 minutes of downtime in a given month. All premium tier databases include:</p>
 
-<h3 id="cache-size">Cache size</h3>
+<ul>
+<li>No row limitations</li>
 
-<p>Each <a href="https://postgres.heroku.com/pricing">production tier plan’s</a> RAM size constitutes the total amount of System Memory on the underlying instance’s hardware, most of which is given to Postgres and used for caching.. While a small amount of RAM is used for managing each connection and other tasks, Postgres will take advantage of almost all this RAM for its cache. Learn more about how this works <a href="https://devcenter.heroku.com/articles/understanding-postgres-data-caching">in this article</a></p>
+<li>Increasing amounts of in-memory cache</li>
+
+<li>
+<a href="https://devcenter.heroku.com/articles/heroku-postgres-follower-databases">Fork and follow</a> support</li>
+
+<li><a href="https://devcenter.heroku.com/articles/heroku-postgres-rollback">Rollback</a></li>
+
+<li>
+<a href="https://devcenter.heroku.com/articles/heroku-postgres-metrics-logs">Database metrics published</a> to application log stream for further analysis</li>
+
+<li>Priority service restoration on disruptions</li>
+</ul><p>Within the premium tier plans have differing memory, connection limits, and storage limits. The plans for the premium tier are:</p>
+<table>
+<thead><tr>
+<th>Plan Name</th>
+<th>Provisioning name</th>
+<th>Cache Size</th>
+<th>Storage limit</th>
+<th>Connection limit</th>
+<th>Monthly Price</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Yanari</td>
+<td style="text-align: left;">heroku-postgresql:premium-yanari</td>
+<td style="text-align: left;">400 MB</td>
+<td style="text-align: left;">64 GB</td>
+<td style="text-align: left;">60</td>
+<td style="text-align: left;">$200</td>
+</tr>
+<tr>
+<td style="text-align: left;">Tengu</td>
+<td style="text-align: left;">heroku-postgresql:premium-tengu</td>
+<td style="text-align: left;">1.7 GB</td>
+<td style="text-align: left;">256 GB</td>
+<td style="text-align: left;">200</td>
+<td style="text-align: left;">$350</td>
+</tr>
+<tr>
+<td style="text-align: left;">Ika</td>
+<td style="text-align: left;">heroku-postgresql:premium-ika</td>
+<td style="text-align: left;">7.5 GB</td>
+<td style="text-align: left;">512 GB</td>
+<td style="text-align: left;">400</td>
+<td style="text-align: left;">$1200</td>
+</tr>
+<tr>
+<td style="text-align: left;">Baku</td>
+<td style="text-align: left;">heroku-postgresql:premium-baku</td>
+<td style="text-align: left;">34 GB</td>
+<td style="text-align: left;">1 TB</td>
+<td style="text-align: left;">500</td>
+<td style="text-align: left;">$3500</td>
+</tr>
+<tr>
+<td style="text-align: left;">Mecha</td>
+<td style="text-align: left;">heroku-postgresql:premium-mecha</td>
+<td style="text-align: left;">68 GB</td>
+<td style="text-align: left;">1 TB</td>
+<td style="text-align: left;">500</td>
+<td style="text-align: left;">$6000</td>
+</tr>
+</tbody>
+</table><h2 id="cache-size">Cache size</h2>
+
+<p>Each <a href="https://www.heroku.com/pricing">production tier plan’s</a> RAM size constitutes the total amount of System Memory on the underlying instance’s hardware, most of which is given to Postgres and used for caching.. While a small amount of RAM is used for managing each connection and other tasks, Postgres will take advantage of almost all this RAM for its cache. Learn more about how this works <a href="https://devcenter.heroku.com/articles/understanding-postgres-data-caching">in this article</a></p>
 
 <p>Postgres constantly manages the cache of your data: rows you’ve written, indexes you’ve made, and metadata Postgres keeps. When the data needed for a query is entirely in that cache, performance is very fast. Queries made from cached data are often 100-1000x faster than from the full data set.</p>
 <p class="note">Well engineered, high performance web applications will have 99% or more of their queries be served from cache.</p>
@@ -134,22 +313,22 @@ FROM pg_statio_user_indexes</code></pre>
 </div>
 <p>Both queries should indicate a <code>ratio</code> near <code>0.99</code>:</p>
 
-<pre><code class="sql">heap_read | heap_hit |         ratio          
+<pre><code class="sql">heap_read | heap_hit |         ratio
 -----------+----------+------------------------
        171 |   503551 | 0.99966041175571094090</code></pre>
 
-<p>When the cache hit ratio begins to decrease, upgrading your database will generally put it back in the green. The best way is to use the <a href="/articles/fast-database-changeovers">fast-changeover technique</a> to move between plans, watch <a href="https://addons.heroku.com/newrelic">New Relic</a>, and see what works best for your application’s access patterns.</p>
+<p>When the cache hit ratio begins to decrease, upgrading your database will generally put it back in the green. The best way is to use the <a href="https://devcenter.heroku.com/articles/fast-database-changeovers">fast-changeover technique</a> to move between plans, watch <a href="https://addons.heroku.com/newrelic">New Relic</a>, and see what works best for your application’s access patterns.</p>
 
 <h2 id="stand-alone-vs-add-on-provisioning">Stand-alone vs. add-on provisioning</h2>
 
-<p>Heroku Postgres can be provisioned as a <a href="https://postgres.heroku.com/">stand-alone service</a> or attached to an application on Heroku <a href="/articles/heroku-postgresql">as an add-on</a>. Though the same plans are available across both services and the underlying technology and management infrastructure is the same there are some key differences.</p>
+<p>Heroku Postgres can be provisioned as a <a href="https://postgres.heroku.com/">stand-alone service</a> or attached to an application on Heroku <a href="https://devcenter.heroku.com/articles/heroku-postgresql">as an add-on</a>. Though the same plans are available across both services and the underlying technology and management infrastructure is the same there are some key differences.</p>
 
 <p>When you provision a database from <a href="http://postgres.heroku.com">postgres.heroku.com</a>, you do not have direct CLI access for database administration. Administration of these databases is only supported through the web interface.</p>
 
-<p>Many features will first be accessible via the heroku CLI for add-on databases and may not manifest in the web UI until much later. Such examples include <a href="https://postgres.heroku.com/blog/past/2012/7/17/rotate_database_credentials_on_heroku_postgres_/">automatic credential rotation</a> and <a href="/articles/heroku-postgresql#pg-reset">pg:reset</a>.</p>
+<p>Many features will first be accessible via the heroku CLI for add-on databases and may not manifest in the web UI until much later. Such examples include <a href="https://postgres.heroku.com/blog/past/2012/7/17/rotate_database_credentials_on_heroku_postgres_/">automatic credential rotation</a> and <a href="https://devcenter.heroku.com/articles/heroku-postgresql#pg-reset">pg:reset</a>.</p>
 
 <p>Heroku Postgres databases created with the <code>heroku addons:add</code> command are provisioned as add-ons and are tied to a specific application on Heroku. Though they are listed and available for management in the Heroku Postgres web UI their management features can also be accessed via the heroku CLI. They retain all the features of the stand-alone service and include features only accessible via the CLI.</p>
 
 <p>If you are interested in CLI administration, you should create the database via the CLI, even if you intend to principally access it via <a href="https://postgres.heroku.com/">postgres.heroku.com</a>.</p>
-<p class="note">Applications on Heroku requiring a SQL database should <a href="/articles/heroku-postgresql">provision Heroku Postgres as an add-on</a> with the <code>heroku
+<p class="note">Applications on Heroku requiring a SQL database should <a href="https://devcenter.heroku.com/articles/heroku-postgresql">provision Heroku Postgres as an add-on</a> with the <code>heroku
 addons:add heroku-postgresql</code> command.</p>

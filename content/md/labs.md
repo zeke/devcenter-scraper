@@ -8,7 +8,7 @@ description: Heroku Labs allows you to try out experimental features that are un
 Heroku Labs allows you to try out experimental features that are under consideration for inclusion into the platform.
 
 > warning
-> The features added through labs are experimental and may change or be removed without notice.
+>Features added through Heroku Labs are experimental and subject to change.
 
 ### Usage
 

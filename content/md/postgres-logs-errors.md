@@ -7,7 +7,7 @@ description: Heroku Postgres log statements and common errors.
 
 [Heroku Postgres](heroku-postgresql) logs to the [logplex](logplex) which collates and publishes your application's log-stream. You can isolate Heroku Postgres events [with the `heroku logs` command](logging) by filtering for the `postgres` process.
 
-<p class="warning">Logs are a production-tier feature. They are not available on starter-tier databases.</p>
+<p class="warning">Logs are a production-tier feature. They are not available on hobby-tier databases.</p>
 
     :::term
     $ heroku logs -p postgres -t
@@ -50,7 +50,7 @@ If you are not seeing your application's backtrace, you may need to ensure that 
 
     FATAL:  too many connections for role "[role name]"
 
-This occurs on Starter Tier (dev and basic) plans, which have a [max connection limit of 20 per user](https://devcenter.heroku.com/articles/heroku-postgres-plans#starter-tier). To resolve this error, close some connections to your database by stopping background workers, reducing the number of dynos, or restarting your application in case it has created connection leaks over time. A discussion on handling connections in a Rails application can be found [here](https://devcenter.heroku.com/articles/concurrency-and-database-connections).
+This occurs on Hobby Tier (hobby-dev and hobby-basic) plans, which have a [max connection limit of 20 per user](https://devcenter.heroku.com/articles/heroku-postgres-plans#hobby-tier). To resolve this error, close some connections to your database by stopping background workers, reducing the number of dynos, or restarting your application in case it has created connection leaks over time. A discussion on handling connections in a Rails application can be found [here](https://devcenter.heroku.com/articles/concurrency-and-database-connections).
 
 ## FATAL: could not receive data ...
 
@@ -71,7 +71,7 @@ You can always find out the current number of commits a follower is behind by us
 
     FATAL: role "u8akd9ajka" is not permitted to log in (PG::Error)
 
-This occurs when you have de-provisioned a [starter tier database](heroku-postgres-plans#starter-tier) but are still trying to connect to it. To resolve:
+This occurs when you have de-provisioned a [hobby tier database](heroku-postgres-plans#hobby-tier) but are still trying to connect to it. To resolve:
 
 * If required, [provision a new database](heroku-postgresql) via `heroku addons:add heroku-postgresql`
 * Use `heroku pg:promote HEROKU_POSTGRESQL_<new-database-color>` to promote it, making it the primary database for your application.
@@ -80,7 +80,7 @@ This occurs when you have de-provisioned a [starter tier database](heroku-postgr
 
     PGError: ERROR:  permission denied for relation table-name
 
-Heroku Postgres [starter tier databases](heroku-postgres-plans#starter-tier) have row limits enforced. When you are [over your row limit](heroku-postgres-plans#row-limit-enforcement) and attempt to insert data you will see this error. [Upgrade to a production tier database](upgrade-heroku-postgres-with-pgbackups) or reduce the number of total rows to remove this constraint.
+Heroku Postgres [hobby tier databases](heroku-postgres-plans#hobby-tier) have row limits enforced. When you are [over your row limit](heroku-postgres-plans#row-limit-enforcement) and attempt to insert data you will see this error. [Upgrade to a production tier database](upgrade-heroku-postgres-with-pgbackups) or reduce the number of total rows to remove this constraint.
 
 ## PGError: operator does not exist
 
@@ -119,6 +119,16 @@ These errors indicate a client side violation of the wire protocol. This happens
 * The Postgres connection is shared between more than one process or thread. Typical offenders are Resque workers or Unicorn. Be sure to [correctly establish the PG connection after the fork or thread has initialized](forked-pg-connections) to resolve this issue.
 * Abrupt client (application side) disconnections. This can happen for many reasons, from your app crashing, to transient network availability. When your app tries to issue a query again against postgres, the connection is just gone, leading to a crash. When Heroku detects a crash, we kill that dyno and start a new one, which re-establishes the connection.
 
+## PGError: prepared statement "a30" already exists
+
+This is similar to the above--there is no protocol violation, but the
+client is mistakenly trying to set up a prepared statement with the
+same name as an existing one without cleaning up the original (the
+name of the prepared statement in the error will, of course, vary).
+
+This is also typically caused by [a Postgres connection shared improperly](forked-pg-connections)
+between more than one process or thread.
+
 ## This database does not support forking and following
 
 Some older Ronin and Fugu databases provisioned on a 32-bit processor architecture don't support forking and following to current plans, all of which are 64-bit. If have one of these databases, you will see an error message such as this:
@@ -129,4 +139,4 @@ Some older Ronin and Fugu databases provisioned on a 32-bit processor architectu
      !    This database does not support forking and following to the ika plan.
      !    Please see http://devcenter.heroku.com/articles/unsupported-fork-follow
 
-Your database is fine and is still supported. However if you'd like to use the fork or follow feature you will need to first create a fresh database with [PG Backups](upgrade-heroku-postgres-with-pgbackups) from which you can then fork or follow.      
+Your database is fine and is still supported. However if you'd like to use the fork or follow feature you will need to first create a fresh database with [PG Backups](upgrade-heroku-postgres-with-pgbackups) from which you can then fork or follow.              

@@ -20,7 +20,7 @@ The samples below use `curl` simply for convenience. We recommend using your fav
 
 ## Authentication
 
-Authentication is passed in the `Authorization` header with a value set to `:{api-key}`, base64 encoded. You can find your api-key on the ["Account" page](https://dashboard.heroku.com/account) on dashboard or by running this command:
+Authentication is passed in the `Authorization` header with a value set to `:{token}`, base64 encoded. You can find a token to use on the ["Account" page](https://dashboard.heroku.com/account)(in the "API Key" section) on dashboard or by running this command:
 
 ```term
 $ heroku auth:token

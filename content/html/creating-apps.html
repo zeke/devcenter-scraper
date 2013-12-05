@@ -1,26 +1,30 @@
 <p>The app is the fundamental unit of organization on Heroku. Each app can be associated with its own set of provisioned add-ons.</p>
 
-<h3 id="creating-a-named-app">Creating a named app</h3>
+<h2 id="creating-a-named-app">Creating a named app</h2>
+
 <div class="callout">
-<p>After creating an app, you will probably want to <a href="/articles/git">git push to deploy</a> and <a href="/articles/sharing">add collaborators</a> so that others can deploy changes as well.</p>
+<p>After creating an app, you will probably want to <a href="https://devcenter.heroku.com/articles/git">git push to deploy</a> and <a href="https://devcenter.heroku.com/articles/sharing">add collaborators</a> so that others can deploy changes as well.</p>
 </div>
+
 <p>To create a new app named “example”, <a href="http://toolbelt.heroku.com">install the Heroku Toolbelt</a> and run the following command:</p>
 
 <pre><code class="term">$ heroku apps:create example
 Creating example... done, stack is cedar
-http://example.herokuapp.com/ | git@heroku.com:example.git</code></pre>
+http://example.herokuapp.com/ | git@heroku.com:example.git
+</code></pre>
 
 <p>The command’s output shows that the app will be available at <code>http://example.herokuapp.com</code>. The second URL, <code>git@heroku.com:example.git</code>, is the remote git repository URL; by default, the <code>heroku create</code> command automatically adds a git remote named “heroku” pointing at this URL.</p>
 
-<h3 id="creating-an-app-without-a-name">Creating an app without a name</h3>
+<h2 id="creating-an-app-without-a-name">Creating an app without a name</h2>
 
 <p>The app name argument (“example”) is optional. If no app name is specified, a random name will be generated.</p>
 
 <pre><code class="term">$ heroku apps:create
-Created http://mystic-wind-83.herokuapp.com/ | git@heroku.com:mystic-wind-83.git</code></pre>
+Created http://mystic-wind-83.herokuapp.com/ | git@heroku.com:mystic-wind-83.git
+</code></pre>
 
-<p>Since Heroku app names are in a global namespace, you can expect that common names, like “blog” or “wiki”, will already be taken. It’s often easier to start with a default name and <a href="/articles/renaming-apps">rename the app</a> later.</p>
+<p>Since Heroku app names are in a global namespace, you can expect that common names, like “blog” or “wiki”, will already be taken. It’s often easier to start with a default name and <a href="https://devcenter.heroku.com/articles/renaming-apps">rename the app</a> later.</p>
 
-<h3 id="welcome-page">Welcome page</h3>
+<h2 id="welcome-page">Welcome page</h2>
 
 <p>Once your new app is created, before any code has been deployed, Heroku will display a generic welcome message to its visitors. This page is served with HTTP status code 502 to indicate that the app is not yet running.</p>

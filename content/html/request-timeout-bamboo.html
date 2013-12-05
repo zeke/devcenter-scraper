@@ -1,9 +1,9 @@
 <div class="deprecated">
-<p>This article applies to apps on the <a href="/articles/bamboo">Bamboo</a> stacks. For the most recent stack, <a href="/articles/cedar">Cedar</a>, see <a href="/articles/request-timeout">Request Timeout</a>.</p>
+<p>This article applies to apps on the <a href="https://devcenter.heroku.com/articles/bamboo">Bamboo</a> stacks. For the most recent stack, <a href="https://devcenter.heroku.com/articles/cedar">Cedar</a>, see <a href="https://devcenter.heroku.com/articles/request-timeout">Request Timeout</a>.</p>
 </div><div class="callout"><p>
 Additional concurrency usually doesn't help much if you are encountering request timeouts, since the most common causes affect only individual requests. You can crank your dynos to the maximum and you'll still get a request timeout, since it is a single request that is failing to serve in the correct amount of time.  Extra dynos increase your concurrency, not the speed of your requests.
 </p></div>
-<p>Heroku’s routers can detect long-running requests. If your dyno takes more than 30 seconds to respond to a request, a router will serve an error page to the user and record an <a href="/articles/error-codes">H12 error</a> in your application logs.</p>
+<p>Heroku’s routers can detect long-running requests. If your dyno takes more than 30 seconds to respond to a request, a router will serve an error page to the user and record an <a href="https://devcenter.heroku.com/articles/error-codes">H12 error</a> in your application logs.</p>
 
 <p>Web requests should be typically processed in no more than 500ms, and ideally under 200ms. So a request which runs 30 seconds is two orders of magnitude slower than a best-practice response!</p>
 
@@ -11,13 +11,13 @@ Additional concurrency usually doesn't help much if you are encountering request
 
 <h2 id="timeouts">Timeouts</h2>
 
-<p>The entire request cycle must be completed in 30 seconds or less. Bamboo does not support long-polling or chunked responses. After 30 seconds your request will be terminated an an <a href="/articles/error-codes">error</a> served to your users.</p>
+<p>The entire request cycle must be completed in 30 seconds or less. Bamboo does not support long-polling or chunked responses. After 30 seconds your request will be terminated an an <a href="https://devcenter.heroku.com/articles/error-codes">error</a> served to your users.</p>
 
 <p>When a connection is terminated, an error page will be issued to the client. The web dyno that was processing the request is left untouched – it will continue to process the request (even though it won’t be able to send any response). Subsequent requests may then be routed to the same process which will be unable to respond (depending on the concurrency behavior of the application’s language/framework) causing further degradation.</p>
 
 <h2 id="debugging-request-timeouts">Debugging request timeouts</h2>
 
-<p>One possibility may be that you have an infinite loop in your code. Test locally (perhaps with a copy of the production database pulled down with <a href="/articles/pgbackups">pgbackups</a>) and see if you can replicate the problem and fix the bug.</p>
+<p>One possibility may be that you have an infinite loop in your code. Test locally (perhaps with a copy of the production database pulled down with <a href="https://devcenter.heroku.com/articles/pgbackups">pgbackups</a>) and see if you can replicate the problem and fix the bug.</p>
 
 <p>Another possibility is that you are trying to do some sort of long-running task inside your web request, such as:</p>
 
@@ -33,7 +33,7 @@ Additional concurrency usually doesn't help much if you are encountering request
 <li>Heavy computation (generating a fractal, computing a fibonacci sequence, etc)</li>
 
 <li>Heavy database usage (slow or numerous queries)</li>
-</ul><p>If so, you should move this heavy lifting into a background job which can run asynchronously from your web request. See <a href="/articles/background-jobs-queueing">Queueing</a> for details.</p>
+</ul><p>If so, you should move this heavy lifting into a background job which can run asynchronously from your web request. See <a href="https://devcenter.heroku.com/articles/background-jobs-queueing">Queueing</a> for details.</p>
 
 <p>Note that if an external service is unavailable or overloaded, your web app is highly likely to timeout unless you move the work to the background. In some cases where you must process these requests during your web request, you should always plan for the failure case.</p>
 

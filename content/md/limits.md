@@ -133,21 +133,21 @@ Dataclips will cancel queries after 10 minutes.
 
 [Source](dataclips#limits)
 
-### Production tier
+### Standard, Premium, and Enterprise tier
 
 * 1 TB of storage
 * Maximum of 500 connections
-* In-memory cache ([size dependent on plan](https://postgres.heroku.com/pricing))
+* In-memory cache ([size dependent on plan](https://www.heroku.com/pricing#postgres))
 
-[Source](heroku-postgres-plans#production-tier)
+[Source](heroku-postgres-plans#standard-tier)
 
-### Starter tier
+### Hobby tier
 
 * Enforced row limits of 10,000 rows for `dev` and 10,000,000 for `basic` plans
 * Maximum of 20 connections
 * No in-memory cache
 
-[Source](heroku-postgres-plans#starter-tier)
+[Source](heroku-postgres-plans#hobby-tier)
 
 ## API
 

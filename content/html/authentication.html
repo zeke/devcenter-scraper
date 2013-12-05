@@ -1,25 +1,35 @@
-<p>Authentication on Heroku uses one of three mechanisms, depending on the situation:</p>
+<p>Authentication on Heroku uses one of three mechanisms,
+depending on the situation:</p>
 
 <ul>
 <li>Email and password</li>
-
 <li>API token</li>
-
 <li>SSH key</li>
-</ul><p>The email address and password are used by the <code>heroku</code> command to obtain an API token. This token is used for authentication in all other Heroku API requests, and can be regenerated at will by the user, in the heroku.com web interface. Regenerating an API token invalidates the current token and creates a new one.</p>
+</ul><p>The email address and password are used by the <code>heroku</code> command
+to obtain an API token. This token is used for authentication in
+all other Heroku API requests, and can be regenerated at will
+by the user, in the heroku.com web interface. Regenerating an
+API token invalidates the current token and creates a new one.</p>
 
 <p>The SSH key is used for git push authentication. When <code>heroku
-login</code> first runs, it will register the user’s existing SSH public key with Heroku. If no SSH key exists, <code>heroku login</code> will create one automatically and registers the new key.</p>
+login</code> first runs, it will register the user’s existing SSH public key
+with Heroku. If no SSH key exists, <code>heroku login</code> will create one
+automatically and registers the new key.</p>
 
 <h2 id="api-token-storage">API token storage</h2>
 
-<p>The Heroku command-line tool stores API tokens in the standard Unix file <code>~/.netrc</code>.</p>
+<p>The Heroku command-line tool stores API tokens in the standard
+Unix file <code>~/.netrc</code>.</p>
 
-<p>The netrc format is well-established and well-supported by various network tools on unix. With Heroku credentials stored in this file, other tools such as <code>curl</code> can access the Heroku API with little or no extra work.</p>
+<p>The netrc format is well-established and well-supported by
+various network tools on unix. With Heroku credentials stored in
+this file, other tools such as <code>curl</code> can access the Heroku API
+with little or no extra work.</p>
 
 <h3 id="usage-examples">Usage examples</h3>
 
-<p>Running <code>heroku login</code> (or any other <code>heroku</code> command that requires authentication) will create or update your<code>~/.netrc</code>:</p>
+<p>Running <code>heroku login</code> (or any other <code>heroku</code> command that
+requires authentication) will create or update your<code>~/.netrc</code>:</p>
 
 <pre><code class="term">$ ls .netrc
 ls: .netrc: No such file or directory
@@ -34,38 +44,48 @@ machine api.heroku.com
 machine code.heroku.com
   login me@example.com
   password c4cd94da15ea0544802c2cfd5ec4ead324327430
-$</code></pre>
+$
+</code></pre>
 
-<h2 id="retrieving-the-token">Retrieving the token</h2>
+<h2 id="retrieving-the-api-token">Retrieving the API token</h2>
 
 <p>You can display the token via the CLI:</p>
 
 <pre><code class="term">$ heroku auth:token
-c4cd94da15ea0544802c2cfd5ec4ead324327430</code></pre>
+c4cd94da15ea0544802c2cfd5ec4ead324327430
+</code></pre>
 
 <h2 id="authenticating-with-the-api-token">Authenticating with the API token</h2>
 
 <p>Having logged in, you can use <code>curl</code> to access the Heroku API:</p>
 
-<pre><code class="term">$ curl -H "Accept: application/json" -n https://api.heroku.com/apps</code></pre>
+<pre><code class="term">$ curl -H "Accept: application/json" -n https://api.heroku.com/apps
+</code></pre>
 
-<p>You can also create a file <code>~/.curlrc</code>, containing extra command-line options for curl:</p>
+<p>You can also create a file <code>~/.curlrc</code>, containing extra command-line
+options for curl:</p>
 
 <h3 id="curlrc">~/.curlrc</h3>
 
 <pre><code>--netrc
---header "Accept: application/json"</code></pre>
+--header "Accept: application/json"
+</code></pre>
 
 <p>With this file, the command is simply:</p>
 
-<pre><code class="term">$ curl https://api.heroku.com/apps</code></pre>
+<pre><code class="term">$ curl https://api.heroku.com/apps
+</code></pre>
 
 <h3 id="file-format">File format</h3>
 
-<p>The file contains a list of free-form records and comments. Comments start with a <code>#</code> (hash) symbol and continue to the end of the line. Each record is of the form:</p>
+<p>The file contains a list of free-form records and comments. Comments
+start with a <code>#</code> (hash) symbol and continue to the end of the line.
+Each record is of the form:</p>
 
 <pre><code>machine api.heroku.com
   login me@example.com
-  password ABC123</code></pre>
+  password ABC123
+</code></pre>
 
-<p>One other type of record, <code>macdef</code>, can appear in <code>.netrc</code> files, but it is not commonly used and is ignored by the <code>heroku</code> command.</p>
+<p>One other type of record, <code>macdef</code>, can appear in <code>.netrc</code> files, but
+it is not commonly used and is ignored by the <code>heroku</code> command.</p>

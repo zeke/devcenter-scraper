@@ -1,7 +1,7 @@
 <p>Git is a powerful decentralized revision control system, and is the
 means for deploying apps to Heroku. You don’t need to be proficient with Git to
 use it for deploying code to Heroku, but you may find it valuable to learn the
-basics of this excellent tool for managing source code.  </p>
+basics.</p>
 
 <h2 id="tracking-your-app-in-git">Tracking your app in git</h2>
 
@@ -39,6 +39,8 @@ Creating falling-wind-1624... done, stack is cedar
 http://falling-wind-1624.herokuapp.com/ | git@heroku.com:falling-wind-1624.git
 Git remote heroku added
 </code></pre>
+
+<p>Heroku’s git remotes use SSH as a transport, so you’ll need to make sure your SSH public key <a href="https://devcenter.heroku.com/articles/keys">has been added to your Heroku account</a>.</p>
 
 <p>You can verify the remote in your git configuration as well:</p>
 
@@ -83,12 +85,16 @@ To push a branch other than master, use this syntax:</p>
 </code></pre>
 
 <div class="note">
-<p>Applications that rely on git submodules are supported, in addition to many other <a href="/articles/git-submodules">dependency resolution strategies</a>.</p>
+<p>Applications that rely on git submodules are supported, in addition to many other <a href="https://devcenter.heroku.com/articles/git-submodules">dependency resolution strategies</a>.</p>
 </div>
+
+<h2 id="cancelling-a-deployment">Cancelling a deployment</h2>
+
+<p>When deploying code using <code>git push</code>, you can interrupt the build process on Heroku by pressing Ctrl + C on your machine.  As long as this is not done as the build process completes (generally around the “Launching…” message), and you’ve taken latency into account, then it will halt the build process and no new release will be generated.</p>
 
 <h2 id="multiple-remotes-and-environments">Multiple remotes and environments</h2>
 
-<p>The same techniques used to deploy to production can be used to deploy a development branch of your application to a staging application on Heroku, as described in <a href="/articles/multiple-environments">Managing Multiple Environments for an App</a>.</p>
+<p>The same techniques used to deploy to production can be used to deploy a development branch of your application to a staging application on Heroku, as described in <a href="https://devcenter.heroku.com/articles/multiple-environments">Managing Multiple Environments for an App</a>.</p>
 
 <h2 id="repo-size">Repo size</h2>
 
@@ -124,7 +130,7 @@ revision control system. Git can be purely a deployment mechanism, existing
 side-by-side with your other tool.</p>
 
 <div class="callout">
-<p>You can learn much more about <code>.gitignore</code> in <a href="/articles/gitignore">our article on the topic</a>.</p>
+<p>You can learn much more about <code>.gitignore</code> in <a href="https://devcenter.heroku.com/articles/gitignore">our article on the topic</a>.</p>
 </div>
 
 <p>For example, if you are using Subversion, initialize your Git repo as described above. Then, add a <code>.gitignore</code> file to tell Git to ignore your Subversion directories.</p>

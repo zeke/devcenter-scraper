@@ -2,6 +2,10 @@
 
 <p>To enable SSL on a custom domain, e.g., <code>www.example.com</code>, use the SSL Endpoint add-on. (<a href="https://addons.heroku.com/ssl">SSL Endpoint</a> is a paid add-on service. Please keep this in mind when provisioning the service).</p>
 
+<div class="callout">
+<p>SSL Endpoint is only useful for custom domains. All default <code>appname.herokuapp.com</code> domains are SSL-enabled already and can be accessed simply by using <code>https</code>, e.g., <code>https://appname.herokuapp.com</code>.</p>
+</div>
+
 <h2 id="overview">Overview</h2>
 
 <p>Because of the unique nature of SSL validation, provisioning SSL for your application is a multi-step process that involves several third-parties. You will need to:</p>
@@ -38,7 +42,7 @@
   </tr>
 <tr>
 <td>Windows</td>
-    <td style="text-align: left"><a href="http://gnuwin32.sourceforge.net/packages/openssl.htm">Windows complete package .exe installer</a></td>
+    <td style="text-align: left"><a href="http://slproweb.com/products/Win32OpenSSL.html">Windows complete package .exe installer</a></td>
   </tr>
 <tr>
 <td>Ubuntu Linux</td>
@@ -151,7 +155,7 @@ Starts At: 2011-11-01 21:53:18 GMT
 <p>The endpoint URL assigned to your app will be listed in the output, <code>tokyo-2121.herokussl.com</code> in this example. Visiting this URL will result in a “no such app” message – this is expected. Read further for proper verification steps.</p>
 
 <div class="note">
-<p>Apps located in a non-default <a href="/articles/regions">region</a>, e.g., Europe, will not have a distinct <code>herokussl.com</code> SSL endpoint URL. Instead, the endpoint URL will just be your app’s <code>herokuapp</code> domain, e.g., <code>example.herokuapp.com</code>. The output of the <code>certs:add</code> command will accurately reflect this.</p>
+<p>Apps located in a non-default <a href="https://devcenter.heroku.com/articles/regions">region</a>, e.g., Europe, will not have a distinct <code>herokussl.com</code> SSL endpoint URL. Instead, the endpoint URL will just be your app’s <code>herokuapp</code> domain, e.g., <code>example.herokuapp.com</code>. The output of the <code>certs:add</code> command will accurately reflect this.</p>
 </div>
 
 <h2 id="endpoint-details">Endpoint details</h2>
@@ -191,7 +195,7 @@ Added www.example.com to example... done
 </code></pre>
 
 <div class="note">
-<p>Assuming proper <a href="https://devcenter.heroku.com/articles/custom-domains#custom-subdomains">custom domain DNS configuration</a> already, apps located in a non-default <a href="/articles/regions">region</a>, e.g., Europe, will not have to make any additional DNS modifications. Such apps can skip the remainder of this DNS section.</p>
+<p>Assuming proper <a href="https://devcenter.heroku.com/articles/custom-domains#custom-subdomains">custom domain DNS configuration</a> already, apps located in a non-default <a href="https://devcenter.heroku.com/articles/regions">region</a>, e.g., Europe, will not have to make any additional DNS modifications. Such apps can skip the remainder of this DNS section.</p>
 </div>
 
 <h3 id="subdomain">Subdomain</h3>
@@ -330,7 +334,7 @@ Removing SSL Endpoint endpoint tokyo-2121.herokussl.com on example... done
 
 <h3 id="untrusted-certificate">Untrusted certificate</h3>
 
-<p>In some cases, when running <code>heroku certs</code> it may list your certificate as untrusted. </p>
+<p>In some cases, when running <code>heroku certs</code> it may list your certificate as untrusted.</p>
 
 <pre><code class="term">$ heroku certs
 Endpoint                    Common Name         Expires                    Trusted
@@ -338,7 +342,7 @@ Endpoint                    Common Name         Expires                    Trust
 tokyo-2121.herokussl.com    www.example.com    2012-10-31 21:53:18 GMT    False
 </code></pre>
 
-<p>If this occurs it may be because it is not trusted by Mozilla’s list of <a href="http://www.mozilla.org/projects/security/certs/included/">root CA’s</a>. If this is the case your certificate should work as you expect for many browsers. </p>
+<p>If this occurs it may be because it is not trusted by Mozilla’s list of <a href="http://www.mozilla.org/projects/security/certs/included/">root CA’s</a>. If this is the case your certificate should work as you expect for many browsers.</p>
 
 <p>If you have uploaded a certificate that was signed by a root authority but you get the message that it is not trusted, then something is wrong with the certificate. For example, it may be missing <a href="http://en.wikipedia.org/wiki/Intermediate_certificate_authorities">intermediary certificates</a>. If so, download the intermediary certificates from your SSL provider and re-run the <code>certs:add</code> command.</p>
 
@@ -346,9 +350,9 @@ tokyo-2121.herokussl.com    www.example.com    2012-10-31 21:53:18 GMT    False
 
 <p>If you get an <code>Internal server error</code> when adding your cert it may be that you have an outdated version of the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a>.</p>
 
-<pre><code class="term">$ heroku certs:add server.crt server.key 
-Adding SSL endpoint to example... failed 
-! Internal server error. 
+<pre><code class="term">$ heroku certs:add server.crt server.key
+Adding SSL endpoint to example... failed
+! Internal server error.
 ! Run 'heroku status' to check for known platform issues.
 </code></pre>
 

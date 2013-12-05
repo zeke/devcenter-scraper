@@ -5,7 +5,7 @@ url: https://devcenter.heroku.com/articles/about-dev-center
 description: Dev Center hosts the most relevant content for developing applications on the Heroku platform.
 ---
 
-Dev Center is part of an ongoing effort to bring the Heroku developer community the best, most relevant content possible – both for developing applications on the Heroku platform and for building applications in general.
+[Dev Center](https://devcenter.heroku.com/) is part of an ongoing effort to bring the Heroku developer community the best, most relevant content possible – both for developing applications on the Heroku platform and for building applications in general.
 
 Here's a little breakdown of how Dev Center is structured, how you can subscribe to updates, and contribute your own content.
 
@@ -19,13 +19,13 @@ Our library of articles has been growing rapidly, and you now have several ways 
 
 * **Reference** is just that: a place for documenting APIs, commands, options, tools, and more. You'll find in-depth discussions of [platform features](/categories/platform-features), articles on the [heroku command line tool](/categories/command-line), [collaboration](/categories/collaboration), [deployment](/categories/deployment), and [troubleshooting your app](/categories/troubleshooting).
 
-* **Tutorials** is where we expect to see the most growth. Currently, it houses information on building [Facebook](/categories/facebook) and [mobile](/categories/mobile) apps, and [adding specific functionality](/categories/features) to your app.
+* **Tutorials** is where we expect to see the most growth. Currently, it houses information on building [Facebook](https://devcenter.heroku.com/articles/facebook) and [mobile](/categories/mobile) apps, [adding specific functionality](/categories/features) to your app and [architecting it to make it scalable](https://devcenter.heroku.com/categories/application-architecture).
 
 * **Languages** holds tutorials that are language specific, covering [Ruby](/categories/ruby), [Java](/categories/java), [Python](/categories/python), [Clojure](/categories/clojure), [Scala](/categories/scala) and [Node.js](/categories/nodejs).
 
 * **Accounts & Billing** holds information about Heroku user account management, [billing policies and procedures](/categories/billing), and [support issues](/categories/support).
 
-* **Add-ons** are a huge part of the Heroku platform, and in this category you'll find an [overview](/categories/addon-overview) of the program, as well as [documentation on the add-ons we offer](/categories/add-on-documentation).
+* **Add-ons** are an important part of the Heroku platform, and in this category you'll find an [overview](https://devcenter.heroku.com/articles/how-addons-work) of the program, as well as [documentation on the add-ons we offer](/categories/add-on-documentation).
 
 ### Search
 
@@ -33,7 +33,7 @@ In addition to reorganizing our articles, we've also been working on search. We 
 
 ## Staying updated
 
-The Dev Center is publishes new content every week.  Here are some of the ways in which you can subscribe:
+Dev Center frequently publishes new content.  Here are some of the ways in which you can subscribe:
 
 * Visit the Dev Center [article listing](https://devcenter.heroku.com/articles)
 * Subscribe to the [article feed](http://feeds.feedburner.com/herokudevcenterarticles)
@@ -41,7 +41,7 @@ The Dev Center is publishes new content every week.  Here are some of the ways i
 
 ## Contributing
 
-One of the biggest changes with Dev Center is that we're actively pursuing content from our partners and community. The [Facebook tutorial](facebook), for instance, was written by our friends at [Envy Labs](http://envylabs.com) - and we've got other articles by top-notch authors in the works.
+One of the biggest changes with Dev Center is that we're actively pursuing content from our partners and community. 
 
 We've got a [list of open topics](/articles/open-topics) if you'd like something to start with.
 

@@ -92,7 +92,9 @@ Images succinctly convey hard to understand concepts or step explanations and ar
 >callout
 >Hosting image files on S3, Github or similar service ensures the portability of the article throughout the authorship process.
 
-    ![Image title](https://s3.amazonaws.com/bucket/image.jpg)
+```
+![Image title](https://s3.amazonaws.com/bucket/image.jpg)
+```
 
 All images (and external assets in general) should be referenced via `https` to ensure readers securely accessing the Dev Center aren't presented with warnings.
 

@@ -5,7 +5,7 @@ url: https://devcenter.heroku.com/articles/forked-pg-connections
 description: Connecting to a Postgres database from a forked environment requires that each connection be established after forking has occurred.
 ---
 
-  By design, connections to Postgres databases are persistent to reduce
+By design, connections to Postgres databases are persistent to reduce
 the performance impact of having to re-establish a connection for
 every invocation. While this increases the performance of your
 application it also requires properly establishing the connection,
@@ -62,28 +62,31 @@ file](http://unicorn.bogomips.org/examples/unicorn.conf.rb).
 In a Rails app or an app using `ActiveRecord` add the following
 `before_fork` and `after_fork` blocks in `unicorn.conf`:
 
-    :::ruby
-    before_fork do |server, worker|
+```ruby
+before_fork do |server, worker|
 
-      Signal.trap 'TERM' do
-        puts 'Unicorn master intercepting TERM and sending myself QUIT instead'
-        Process.kill 'QUIT', Process.pid
-      end
+  Signal.trap 'TERM' do
+    puts 'Unicorn master intercepting TERM and sending myself QUIT instead'
+    Process.kill 'QUIT', Process.pid
+  end
 
-      defined?(ActiveRecord::Base) and
-        ActiveRecord::Base.connection.disconnect!
-    end
+  defined?(ActiveRecord::Base) and
+    ActiveRecord::Base.connection.disconnect!
+end
 
-    after_fork do |server, worker|
+after_fork do |server, worker|
 
-      Signal.trap 'TERM' do
-        puts 'Unicorn worker intercepting TERM and doing nothing. Wait for master to sent QUIT'
-      end
+  Signal.trap 'TERM' do
+    puts 'Unicorn worker intercepting TERM and doing nothing. Wait for master to sent QUIT'
+  end
 
-      defined?(ActiveRecord::Base) and
-        ActiveRecord::Base.establish_connection
+  defined?(ActiveRecord::Base) and
+    ActiveRecord::Base.establish_connection(
+      Rails.application.config.database_configuration[Rails.env]
+    )
 
-    end
+end
+```
 
 ## Resque ruby queuing
 
@@ -96,16 +99,17 @@ occurs](https://github.com/resque/resque/blob/master/docs/HOOKS.md).
 You can specify this behavior by cleaning up and re-establishing
 connections in an initializer:
 
-    :::ruby
-      Resque.before_fork do
-        defined?(ActiveRecord::Base) and
-          ActiveRecord::Base.connection.disconnect!
-      end
+```ruby
+  Resque.before_fork do
+    defined?(ActiveRecord::Base) and
+      ActiveRecord::Base.connection.disconnect!
+  end
 
-      Resque.after_fork do
-        defined?(ActiveRecord::Base) and
-          ActiveRecord::Base.establish_connection
-      end
+  Resque.after_fork do
+    defined?(ActiveRecord::Base) and
+      ActiveRecord::Base.establish_connection
+  end
+```
 
 ## Disabling New Relic EXPLAIN
 
@@ -123,5 +127,3 @@ If using Postgres 9.2 or later, investigating
 is recommended.  Useful in its own right, it can also help mitigate
 some of the loss in visibility caused by disabling New Relic's
 auto-`EXPLAIN`.
-
-        

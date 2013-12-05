@@ -14,14 +14,27 @@ as your organization's availability and uptime expectations.
 ## Plan tiers
 
 [Heroku Postgres's many plans](https://postgres.heroku.com/pricing)
-are segmented in two broad tiers: Starter and production. Each tier
-then contains several individual plans. While these two tiers share
-many features there are several differences that will determine what
-database plan is most appropriate for your use-case.
+are segmented in four broad tiers. While each tier has a few differences, the key factor in each tier is the uptime expectation for your database. The four tiers are designed as:
+
+* **Hobby Tier** designed for apps that can tolerate up to 4 hrs of downtime
+* **Standard Tier** designed for apps that can tolerate up to 1 hr of downtime
+* **Premium Tier** designed for apps that can tolerate up to 15 minutes of downtime
+* **Enterprise Tier** designed for apps where an SLA is needed
+
+*All uptime expectations are given based on a 30 day month*
+
+For a full breakdown of the differences between tiers:
+
+| Heroku Postgres tier   | Downtime Tolerance            | Backups Available | Fork | Follow  | Rollback | HA   | SLA |
+| ---------------------- | ----------------------------- | ----------------- | ---- | ------- | -------- | ---- | --- |
+| Hobby                  | Up to 4 hrs downtime per mo.  | Yes               | No   | No      | No       | No   | No  |
+| Standard               | Up to 1 hr downtime per mo.   | Yes               | Yes  | Yes     | 1 hour   | No   | No  |
+| Premium                | Up to 15 min downtime per mo. | Yes               | Yes  | Yes     | 1 week   | Yes  | No  |
+| Enterprise             | Up to 15 min downtime per mo. | Yes               | Yes  | Yes     | 1 month  | Yes  | Yes |
 
 ### Shared features
 
-The starter and production tier database plans all share the following features:
+All tiers share the following features:
 
 * Fully managed database service with automatic health checks
 * Write-ahead log (WAL) off-premise storage every 60 seconds, ensuring
@@ -29,24 +42,18 @@ The starter and production tier database plans all share the following features:
 * [Data clips](https://postgres.heroku.com/blog/past/2012/1/31/simple_data_sharing_with_data_clips/)
   for easy and secure sharing of data and queries
 * SSL-protected psql/libpq access
-* Running unmodified Postgres v9.1 or v9.2 (v9.0 is available on
+* Running unmodified Postgres v9.1, v9.2, v9.3 (v9.0 is available on
   production tier only) for guaranteed compatibility
 * Postgres [extensions](heroku-postgres-extensions-postgis-full-text-search)
 * A full-featured [web UI](https://postgres.heroku.com/databases)
 
-### Starter tier
+## Hobby tier
 
-<p class="warning" markdown="1">
-The starter tier database plans are not intended for
-production-caliber applications or applications with high-uptime
-requirements.
-</p>
-
-The starter tier, which includes the [`dev` and `basic`
+The hobby tier, which includes the [`hobby-dev` and `hobby-basic`
 plans](https://addons.heroku.com/heroku-postgresql), has the following
 limitations:
 
-* Enforced row limits of 10,000 rows for `dev` and 10,000,000 for `basic` plans
+* Enforced row limits of 10,000 rows for `hobby-dev` and 10,000,000 for `hobby-basic` plans
 * Max of 20 connections
 * No in-memory cache: The lack of an in-memory cache limits the
   performance capabilities since the data can't be accessed on
@@ -59,21 +66,21 @@ limitations:
 
 ### Row limit enforcement
 
-When you are over the starter tier row limits and try to insert you will see a Postgres error:
+When you are over the hobby tier row limits and try to insert you will see a Postgres error:
 
     permission denied for relation <table name>
 
-The row limits of the starter tier database plans are enforced with the following mechanism:
+The row limits of the hobby tier database plans are enforced with the following mechanism:
 
-1. When a `dev` database hits 7,000 rows, or a `basic` database hits 1
+1. When a `hobby-dev` database hits 7,000 rows, or a `hobby-basic` database hits 1
    million rows , the owner receives a warning e-mail stating they are
    nearing their row limits.
 2. When the database exceeds its row capacity, the owner will receive
    an additional notification. At this point, the database will receive a
-   24-hour grace period to either reduce the number of records, or
+   7 day grace period to either reduce the number of records, or
    [migrate to another plan](heroku-postgres-follower-databases#database-upgrades-and-migrations-with-changeovers).
-3. If the number of rows still exceeds the plan capacity after 24
-   hours, `INSERT` privileges will be revoked on the database. Data can
+3. If the number of rows still exceeds the plan capacity after 7
+   days, `INSERT` privileges will be revoked on the database. Data can
    still be read, updated or deleted from database. This ensures that
    users still have the ability to bring their database into compliance,
    and retain access to their data.
@@ -82,40 +89,53 @@ The row limits of the starter tier database plans are enforced with the followin
    that the database sizes are checked asynchronously, so it may take a
    few minutes for the privileges to be restored.
 
-### Production tier
+## Standard tier
 
-As the name implies, the production tier of Heroku Postgres is
-intended for production applications and includes the following
-feature additions to the starter tier:
+The Standard tier is designed for production applications, where while uptime is important, are able to tolerate up to 1 hour of downtime in a given month. All standard tier databases include:
 
 * No row limitations
 * Increasing amounts of in-memory cache
 * [Fork and follow](heroku-postgres-follower-databases) support
-* Max of 500 connections
-* 1 TB of storage
-* Expected uptime of 99.95% each month
+* [Rollback](https://devcenter.heroku.com/articles/heroku-postgres-rollback)
 * [Database metrics published](https://devcenter.heroku.com/articles/heroku-postgres-metrics-logs) to application log stream for further analysis
-
-Management of production tier database plans is also much more robust including:
-
-* Eligible for automatic daily snapshots with 1-month retention (see
-  the [PGBackups add-on](https://devcenter.heroku.com/articles/pgbackups)
-  for more details)
 * Priority service restoration on disruptions
 
-## Production plans
+Within the Standard tier plans have differing memory, connection limits, and storage limits. The plans for the standard tier are:
 
-Non-production applications, or applications with minimal data
-storage, performance or availability requirements can choose between
-one of the two starter tier plans, `dev` and `basic`, depending on row
-requirements. However, production applications, or apps that require
-the features of a production tier database plan, have a variety of
-plans to choose from. These plans vary primarily by the size of their
-in-memory data cache.
+| Plan Name | Provisioning name                    | Cache Size | Storage limit   | Connection limit | Monthly Price |
+| --------- | ------------------------------------ | ---------- | --------------- | ---------------- | ----- |
+| Yanari    | heroku-postgresql:standard-yanari    | 400 MB     | 64 GB           | 60               | $50   |
+| Tengu     | heroku-postgresql:standard-tengu     | 1.7 GB     | 256 GB          | 200              | $200  | 
+| Ika       | heroku-postgresql:standard-ika       | 7.5 GB     | 512 GB          | 400              | $750  |
+| Baku      | heroku-postgresql:standard-baku      | 34 GB      | 1 TB            | 500              | $2000 |
+| Mecha     | heroku-postgresql:standard-mecha     | 64 GB      | 1 TB            | 500              | $3500 |
 
-### Cache size
 
-Each [production tier plan's](https://postgres.heroku.com/pricing)
+## Premium tier
+
+The Premium tier is designed for production applications, where while uptime is important, are able to tolerate up to 15 minutes of downtime in a given month. All premium tier databases include:
+
+* No row limitations
+* Increasing amounts of in-memory cache
+* [Fork and follow](heroku-postgres-follower-databases) support
+* [Rollback](https://devcenter.heroku.com/articles/heroku-postgres-rollback)
+* [Database metrics published](https://devcenter.heroku.com/articles/heroku-postgres-metrics-logs) to application log stream for further analysis
+* Priority service restoration on disruptions
+
+Within the premium tier plans have differing memory, connection limits, and storage limits. The plans for the premium tier are:
+
+| Plan Name | Provisioning name                   | Cache Size | Storage limit   | Connection limit | Monthly Price |
+| --------- | ----------------------------------- | ---------- | --------------- | ---------------- | ----- |
+| Yanari    | heroku-postgresql:premium-yanari    | 400 MB     | 64 GB           | 60               | $200  |
+| Tengu     | heroku-postgresql:premium-tengu     | 1.7 GB     | 256 GB          | 200              | $350  |
+| Ika       | heroku-postgresql:premium-ika       | 7.5 GB     | 512 GB          | 400              | $1200 |
+| Baku      | heroku-postgresql:premium-baku      | 34 GB      | 1 TB            | 500              | $3500 |
+| Mecha     | heroku-postgresql:premium-mecha     | 68 GB      | 1 TB            | 500              | $6000 |
+
+
+## Cache size
+
+Each [production tier plan's](https://www.heroku.com/pricing)
 RAM size constitutes the total amount of System Memory on the 
 underlying instance's hardware, most of which is given to
 Postgres and used for caching.. While a small amount of RAM is

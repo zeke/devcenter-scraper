@@ -8,7 +8,7 @@ description: How to send logs to an app's log stream
 Add-on providers can improve the development experience of their Add-on by inserting data into the app's log stream. This article explains how to connect your service to an app's log stream via [Logplex](https://devcenter.heroku.com/articles/logplex).
 
 ## Setup
-To gain access to the app’s Logplex token, which will give you the capability to write to an app’s log stream, you will first need to store the log drain token that is submitted in the Add-on provision request. More details of the provision request can be found in the [Add-on Provider API Spec](https://devcenter.heroku.com/articles/add-on-provider-api). If you have not previously stored the logplex_token from the provision request, you can use the [App Info API](https://devcenter.heroku.com/articles/add-on-provider-api#app-info) to query for the token.
+To gain access to the app’s Logplex token, which will give you the capability to write to an app’s log stream, you will first need to store the log drain token that is submitted in the Add-on provision request. More details of the provision request can be found in the [Add-on Provider API Spec](https://devcenter.heroku.com/articles/add-on-provider-api). If you have not previously stored the logplex_token from the provision request, you can use the [App Info API](https://devcenter.heroku.com/articles/add-on-app-info) to query for the token.
 
 ## Transport
 Data must be delivered to Logplex via HTTP. Using keep-alive connections and dense payloads, you can efficiently deliver all of your customer’s logs to Logplex via HTTP. Here is cURL example demonstrating a simple HTTP request:
@@ -22,7 +22,7 @@ $ curl "https://east.logplex.io/logs" \
   -H "Content-Type: application/logplex-1"
 ```
 
-Note that basic authentication is required. The username is `token` and the password is the `logplex_token` value returned by the [App Info API](https://devcenter.heroku.com/articles/add-on-provider-api#app-info).
+Note that basic authentication is required. The username is `token` and the password is the `logplex_token` value returned by the [App Info API](https://devcenter.heroku.com/articles/add-on-app-info).
 
 >callout
 >Checkout all of the API details in the <a href="https://github.com/heroku/logplex/blob/master/doc/">Logplex API Docs</a>.
@@ -44,7 +44,7 @@ You can use `<190>` (local7.info) for the **prival** and `1` for the version. Th
 You should format your log messages in a way that is optimized for both human
 readability and machine parsability. With that in mind, log data should:
 
-- Consist of one line of content
+- Consist of a single message
 - Use key-value pairs of the format `status=delivered`
 - Use a `source` key-value pair in log lines for distinguishing machines or
   environments (example: `source=us-east measure#web.latency=4ms`).

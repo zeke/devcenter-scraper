@@ -1,8 +1,10 @@
+<p>Every Heroku app runs in at least two environments: on the Heroku platform (we’ll call that production) and on your local machine (development). If more than one person is working on the app, then you’ve got multiple development environments - one per machine, usually. Usually, each developer will also have a test environment for running tests.</p>
+
 <p>This separation keeps changes from breaking things. You write code and check the site in development, but you run your tests in the test environment to keep them from overwriting your development database. Similarly, you might have broken features in your development environment most of the time, but you only deploy working code to production.</p>
 
-<p>Unfortunately, this approach breaks down as the environments become less similar. Windows and Macs, for instance, both provide different environments than the Linux <a href="/articles/stack">stack</a> on Heroku, so you can’t always be sure that code that works in your local development environment will work the same way when you deploy it to production.</p>
+<p>Unfortunately, this approach breaks down as the environments become less similar. Windows and Macs, for instance, both provide different environments than the Linux <a href="https://devcenter.heroku.com/articles/stack">stack</a> on Heroku, so you can’t always be sure that code that works in your local development environment will work the same way when you deploy it to production.</p>
 
-<p>The solution is to have a staging environment that is as similar to production as is possible. This can be achieved by creating a second Heroku application that hosts your staging application. With staging, you can check your code in a production-like setting before having it affect your actual users. As you already <a href="/articles/git">deploy with git</a>, setting up and managing these multiple remote environments is easy.</p>
+<p>The solution is to have a staging environment that is as similar to production as is possible. This can be achieved by creating a second Heroku application that hosts your staging application.  With staging, you can check your code in a production-like setting before having it affect your actual users.  As you already <a href="https://devcenter.heroku.com/articles/git">deploy with git</a>, setting up and managing these multiple remote environments is easy.</p>
 
 <h2 id="starting-from-scratch">Starting from scratch</h2>
 
@@ -11,11 +13,14 @@
 <pre><code class="term">$ heroku create --remote staging
 Creating strong-river-216.... done
 http://strong-river-216.heroku.com/ | git@heroku.com:strong-river-216.git
-Git remote staging added</code></pre>
+Git remote staging added
+</code></pre>
+
 <div class="callout">
 <p>If you forget the <code>--remote</code> flag, you can always rename the default <code>heroku</code> remote later with <code>git remote rename &lt;old&gt; &lt;new&gt;</code>. </p>
 </div>
-<p>By default, the <a href="/articles/heroku-command">heroku CLI</a> creates projects with a <code>heroku</code> git remote (thus the normal <code>git push heroku master</code>). Here, we’re specifying a different name with the <code>--remote</code> flag, so pushing code to Heroku and running commands against the app look a little different than the normal <code>git push heroku master</code>:</p>
+
+<p>By default, the <a href="https://devcenter.heroku.com/articles/heroku-command">heroku CLI</a> creates projects with a <code>heroku</code> git remote (thus the normal <code>git push heroku master</code>). Here, we’re specifying a different name with the <code>--remote</code> flag, so pushing code to Heroku and running commands against the app look a little different than the normal <code>git push heroku master</code>:</p>
 
 <pre><code class="term">$ git push staging master
 ...
@@ -23,7 +28,8 @@ $ heroku run rake db:migrate --remote staging
 ...
 $ heroku ps --remote staging
 === web: `bundle exec thin start -p $PORT -e production`
-web.1: up for 21s</code></pre>
+web.1: up for 21s
+</code></pre>
 
 <p>Once your staging app is up and running properly, you can create your production app:</p>
 
@@ -37,76 +43,90 @@ $ heroku run rake db:migrate --remote production
 ...
 $ heroku ps --remote production
 === web: `bundle exec thin start -p $PORT -e production`
-web.1: up for 16s</code></pre>
+web.1: up for 16s
+</code></pre>
+
 <div class="callout">
 <p>You will need to do some work to keep these apps in sync as you continue to develop them. You’ll need to add <strong>contributors</strong>, <strong>config vars</strong>, and <strong>add-ons</strong> to each individually, for instance.</p>
 </div>
+
 <p>And with that, you’ve got the same codebase running as two separate Heroku apps – one staging and one production, set up identically.</p>
 
 <p>In the example <code>heroku</code> commands above we’ve specified the target app using the <code>--remote</code> option. In the course of your normal work, however, you may tire of always typing either <code>--remote staging</code> or <code>--remote production</code> at the end of every command. To make things easier, you can use your git config to specify a default app. For example, if you wanted “staging” do be your default remote, you could set it with the following command:</p>
 
-<pre><code class="term">$ git config heroku.remote staging</code></pre>
+<pre><code class="term">$ git config heroku.remote staging
+</code></pre>
 
 <p>This will add a section to the project’s .git/config file that looks something like this:</p>
 
 <pre><code>[heroku]
-  remote = staging</code></pre>
+  remote = staging
+</code></pre>
 
 <p>Once this is set up, all <code>heroku</code> commands will default to the staging app. To run a command on the production app, simply use the <code>--remote production</code> option.</p>
 
 <h2 id="starting-from-an-existing-app">Starting from an existing app</h2>
 
-<p>An alternative way to create a staging application is to <a href="/articles/fork-app">fork</a> an existing application.</p>
+<p>An alternative way to create a staging application is to <a href="https://devcenter.heroku.com/articles/fork-app">fork</a> an existing application.</p>
 
-<p>Imagine you want to duplicate the staging application and use it for integration tests. The following command will do that:</p>
+<p>Imagine you want to duplicate the staging application and use it for integration tests.  The following command will do that:</p>
 
 <pre><code class="term">$ heroku fork -a staging integration
-$ git remote add integration git@heroku.com:integration.git</code></pre>
+$ git remote add integration git@heroku.com:integration.git
+</code></pre>
 
-<p>Forking an application is very powerful: it copies over the config vars, re-provisions all add-ons, and copies all Heroku Postgres data too. See the <a href="/articles/fork-app">documentation on Fork</a> to learn more.</p>
+<p>Forking an application is very powerful: it copies over the config vars, re-provisions all add-ons, and copies all Heroku Postgres data too.  See the <a href="https://devcenter.heroku.com/articles/fork-app">documentation on Fork</a> to learn more.</p>
 
 <h2 id="managing-staging-and-production-configurations">Managing staging and production configurations</h2>
 
-<p>Many languages and frameworks support flipping a development/production switch. For example, when in development mode, you may use a different database, have increased logging levels, and send all emails to yourself instead of to end users.</p>
+<p>Many languages and frameworks support flipping a development/production switch.  For example, when in development mode, you may use a different database, have increased logging levels, and send all emails to yourself instead of to end users.</p>
 
-<p>You typically want to do this for the staging apps. For example, in Ruby you can set the <code>RACK_ENV</code> and <code>RAILS_ENV</code> for your staging app (you’ll also need a <code>config/environments/staging.rb</code> file to make this work, of course.):</p>
+<p>You typically want to do this for the staging apps.  For example, in Ruby you can set the <code>RACK_ENV</code> and <code>RAILS_ENV</code> for your staging app (you’ll also need a <code>config/environments/staging.rb</code> file to make this work, of course.):</p>
 
-<pre><code class="term">$ heroku config:set RACK_ENV=staging RAILS_ENV=staging --remote staging</code></pre>
+<pre><code class="term">$ heroku config:set RACK_ENV=staging RAILS_ENV=staging --remote staging
+</code></pre>
 
-<p>The services and libraries that your application uses may also need their own configuration variables set, mirroring those on production. For example, you may use a different S3 bucket in development than you do on production, so you will use different values for the keys:</p>
+<p>The services and libraries that your application uses may also need their own configuration variables set, mirroring those on production.  For example, you may use a different S3 bucket in development than you do on production, so you will use different values for the keys:</p>
 
 <pre><code class="term">$ heroku config:set S3_KEY=XXX --remote staging
-$ heroku config:set S3_SECRET=YYY --remote staging</code></pre>
+$ heroku config:set S3_SECRET=YYY --remote staging
+</code></pre>
 
 <h2 id="advanced-linking-local-branches-to-remote-apps">Advanced: Linking local branches to remote apps</h2>
 
 <p>It’s simple to type <code>git push staging master</code> and <code>git push production master</code> when you’ve followed the steps above. Many developers like to take advantage of git’s branches to separate in-progress and production-ready code, however. In this sort of setup, you might deploy to production from your <code>master</code> branch, merging in changes from a <code>development</code> branch once they’ve been reviewed on the staging app. With this setup, pushing is a littler trickier:</p>
 
-<pre><code class="term">$ git push staging development:master</code></pre>
+<pre><code class="term">$ git push staging development:master
+</code></pre>
 
 <p>This command tells git that you want to push from your local <code>development</code> branch to the <code>master</code> branch of your <code>staging</code> remote. (It might look a little disorderly, but there’s a lot more going on - take a look at the <a href="http://progit.org/book/ch9-5.html">git book for a very in-depth exploration of refspecs</a>.)</p>
 
 <p>If you want to simplify your git commands, you can make things easier by forcing your local git branches to track your remote applications. Assuming you’ve got git remotes for <code>staging</code> and <code>production</code>, you can do the following:</p>
+
 <div class="callout">
 <p>If you want to set <code>push.default</code> for all git repositories (instead of just this one), add <code>--global</code> to the command.</p>
 </div>
+
 <pre><code class="term">$ git config push.default tracking
 $ git checkout -b staging --track staging/master
 Branch staging set up to track remote branch master from staging.
-Switched to a new branch 'staging'</code></pre>
+Switched to a new branch 'staging'
+</code></pre>
 
 <p>Now, you’re in the <code>staging</code> branch and you’re set up so that <code>git pull</code> and <code>git push</code> will work against your staging environment without any further arguments. Change some code, commit it, and push it up:</p>
 
 <pre><code class="term">$ git commit -a -m "changed code"
 $ git push
 Counting objects: 11, done.
-...</code></pre>
+...
+</code></pre>
 
 <p>Notice that you said <code>git push</code>, not <code>git push staging staging:master</code>. The <code>push.default</code> setting is what makes this possible; with that set to <code>tracking</code>, your local branches will automatically push changes to the remote repositories that they track.</p>
 
 <p>If you’d like your local <code>master</code> branch to point to your <code>production</code> remote (and you’re running git 1.7 or later), you can do the following:</p>
 
 <pre><code class="term">$ git fetch production
-$ git branch --set-upstream master production/master</code></pre>
+$ git branch --set-upstream master production/master
+</code></pre>
 
 <p>And with that, <code>git push</code> from <code>master</code> will update your production app on Heroku.</p>

@@ -16,28 +16,33 @@ For framework specific tutorials visit:
 
 You can also find template applications that can be cloned directly into your Heroku account at [java.heroku.com](http://java.heroku.com)
 
-### Activation
+> note
+> If you have questions about Java on Heroku, consider discussing them in the [Java on Heroku forums](https://discussion.heroku.com/category/java).
+
+## Activation
 
 The default build system for Java application on Heroku is Maven. Heroku Java support for Maven will be applied to applications that contain a pom.xml.
 
 When a deployed application is recognized as a Java application, Heroku responds with `-----> Java app detected`.
 
-    :::term
-    $ git push heroku master
-    -----> Java app detected
+```term
+$ git push heroku master
+-----> Java app detected
+```
 
-### Build behavior
+## Build behavior
 
 The following command is run to build your app:
 
-    :::term
-    $ mvn -B -DskipTests=true clean install
+```term
+$ mvn -B -DskipTests=true clean install
+```
 
 The local repo is cached between builds to improve performance.
 
-### Environment
+## Environment
 
-The following environment variables will be set at first push:
+The following [config vars](config-vars) will be set at first push:
 
 * `PATH`: /usr/local/bin:/usr/bin:/bin
 * `JAVA_OPTS`: -Xmx384m -Xss512k -XX:+UseCompressedOops
@@ -45,7 +50,10 @@ The following environment variables will be set at first push:
 * `PORT`: HTTP port to which the web process should bind
 * `DATABASE_URL`: URL of the database connection
 
-### Runtime behavior
+> note
+> [Resizing dynos](dyno-size) does not automatically change Java memory settings. The `JAVA_OPTS` and `MAVEN_OPTS` [config vars](config-vars) should be manually adjust  resources for the JVM.
+
+## Runtime behavior
 
 Heroku currently uses OpenJDK to run your application. OpenJDK versions 6 and 7 are available using a `system.properties` file. OpenJDK 8 with Lambdas is also available as an early preview. See the [Java Tutorials](/categories/java) for more information.
 
@@ -53,6 +61,6 @@ No default `web` process type is defined for Java applications. See one of the [
 
 The JDK that your app uses will be included in the slug, which will affect your slug size.
 
-### Add-ons
+## Add-ons
 
 A Postgres database is automatically provisioned for Java applications. This populates the DATABASE_URL environment variable.

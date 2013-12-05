@@ -8,7 +8,7 @@ description: This Heroku Labs feature adds experimental support for having an ap
 This [Heroku Labs](http://devcenter.heroku.com/categories/labs) feature adds experimental support for having an app's config vars be present in the environment during slug compilation.
  
 <p class="warning">
-The features added through labs are experimental and may change or be removed without notice.
+Features added through Heroku Labs are experimental and subject to change.
 </p>
 
 <p class='callout'>Using this labs feature is considered counter to Heroku best practices. This labs feature can make your builds less deterministic and require re-deploys after making config changes. Ideally your app should be able to <a href='http://12factor.net/build-release-run'>build without config</a>.</p>

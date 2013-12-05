@@ -12,43 +12,49 @@ Using the command line interface
 
 You can view your current add-ons within an app with the `heroku addons` command.
 
-    :::term
-    $ heroku addons
-    newrelic:gold
-    heroku-postgresql:dev
+```term
+$ heroku addons
+newrelic:gold
+heroku-postgresql:dev
+```
 
 ### Adding an add-on:
 
-    :::term
-    $ heroku addons:add newrelic:standard
-    Adding newrelic:standard on myapp...done, v27 (free)
-    Use `heroku addons:docs newrelic:standard` to view documentation
+```term
+$ heroku addons:add newrelic:standard
+Adding newrelic:standard on myapp...done, v27 (free)
+Use `heroku addons:docs newrelic:standard` to view documentation
+```
 
 ### Removing an add-on:
 
-    :::term
-    $ heroku addons:remove newrelic:standard
-    Removing newrelic:standard from myapp...done, v27 (free)
+```term
+$ heroku addons:remove newrelic:standard
+Removing newrelic:standard from myapp...done, v27 (free)
+```
 
 ### Upgrade an add-on:
 
-    :::term
-    $ heroku addons:upgrade newrelic:professional
-    Upgrading newrelic:professional to myapp... done, v28 ($0.06/dyno/hr)
-    Use `heroku addons:docs newrelic:professional` to view documentation   
+```term
+$ heroku addons:upgrade newrelic:professional
+Upgrading newrelic:professional to myapp... done, v28 ($0.06/dyno/hr)
+Use `heroku addons:docs newrelic:professional` to view documentation   
+```
 
 ### Downgrade an add-on:
 
-    :::term
-    $ heroku addons:downgrade newrelic:standard
-    Downgrading to newrelic:standard on myapp... done, v27 (free)
-    Use `heroku addons:docs newrelic:standard` to view documentation.
+```term
+$ heroku addons:downgrade newrelic:standard
+Downgrading to newrelic:standard on myapp... done, v27 (free)
+Use `heroku addons:docs newrelic:standard` to view documentation.
+```
 
 ### Open an add-on dashboard 
 
-    :::term
-    $ heroku addons:open newrelic
-    Opening newrelic:professional for myapp.
+```term
+$ heroku addons:open newrelic
+Opening newrelic:professional for myapp.
+```
 
 Using the Dashboard
 ---------------

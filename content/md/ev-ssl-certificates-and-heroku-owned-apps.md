@@ -2,10 +2,10 @@
 title: EV SSL Certificates and Heroku-owned Applications
 slug: ev-ssl-certificates-and-heroku-owned-apps
 url: https://devcenter.heroku.com/articles/ev-ssl-certificates-and-heroku-owned-apps
-description: discuss use of EV certs as phishing protection
+description: Heroku uses Extended Validation SSL Certificates on its major web properties, distinguishing them from any other application that may be running on Heroku.
 ---
 
-Heroku now uses Extended Validation SSL Certificates on its major web properties. When you see this certificate, the web application is run and maintained by Heroku itself, distinguishing it from any other application that may be running on the Heroku platform.
+Heroku uses Extended Validation SSL Certificates on its major web properties. When you see this certificate, the web application is run and maintained by Heroku itself, distinguishing it from any other application that may be running on the Heroku platform.
 
 ## Overview
 Heroku-owned applications (e.g. `id.heroku.com`, `dashboard.heroku.com`, `devcenter.heroku.com`) are protected using Extended Validation SSL certificates, also known as EV certs or Fancy Pants certs.  If you see a green box on the left-hand side of your browser's navigation bar saying "Heroku, Inc.", it's us.  If you don't, it's probably a customer of ours.  In Chrome on MacOS, a site with a Fancy Pants cert looks like:

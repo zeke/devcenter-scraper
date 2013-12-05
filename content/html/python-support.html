@@ -1,13 +1,13 @@
-<p>This document describes the general behavior of the <a href="/articles/cedar">Heroku Cedar stack</a> as it relates to the recognition and execution of Python applications. For framework specific tutorials please see:</p>
+<p>This document describes the general behavior of the <a href="https://devcenter.heroku.com/articles/cedar">Heroku Cedar stack</a> as it relates to the recognition and execution of Python applications. For framework specific tutorials please see:</p>
 
 <ul>
-<li><a href="http://devcenter.heroku.com/articles/python">Getting Started with Python on Heroku/Cedar</a></li>
-
+<li><a href="https://devcenter.heroku.com/articles/python">Getting Started with Python on Heroku/Cedar</a></li>
 <li>
-<a href="http://devcenter.heroku.com/articles/django">Getting Started with Django on Heroku/Cedar</a>.</li>
+<a href="https://devcenter.heroku.com/articles/django">Getting Started with Django on Heroku/Cedar</a>.</li>
 </ul><div class="note">
 <p>If you have questions about Python on Heroku, consider discussing it in the <a href="https://discussion.heroku.com/category/python">Python on Heroku forums</a>. Both Heroku and community-based Python experts are available.</p>
 </div>
+
 <h2 id="general-support">General support</h2>
 
 <p>The following support is provided, irrespective of the type of Python application deployed.</p>
@@ -23,7 +23,8 @@
 <p>Optionally, we support arbitrary versions of Python. This functionality is enabled by the presence of a <code>runtime.txt</code> file.</p>
 
 <pre><code class="term">$ cat runtime.txt
-python-2.7.4</code></pre>
+python-2.7.4
+</code></pre>
 
 <p>See <a href="https://devcenter.heroku.com/articles/python-runtimes">Specifying a Python Runtime</a> for more details.</p>
 
@@ -33,13 +34,13 @@ python-2.7.4</code></pre>
 
 <ul>
 <li>Distribute 0.6.36: Python packaging tools.</li>
-
 <li>Pip 1.3.1: Application dependency resolution.</li>
 </ul><h3 id="build-behavior">Build behavior</h3>
 
 <p>The following command is run on your app to resolve dependencies:</p>
 
-<pre><code class="term">$ pip install --use-mirrors -r requirements.txt</code></pre>
+<pre><code class="term">$ pip install --use-mirrors -r requirements.txt
+</code></pre>
 
 <p>The <code>.heroku</code> directory is cached between pushes to speed up package installation.</p>
 
@@ -52,13 +53,16 @@ python-2.7.4</code></pre>
 <p>When a deployed application is recognized as a pure Python application, Heroku responds with <code>-----&gt; Python app detected</code>.</p>
 
 <pre><code class="term">$ git push heroku master
------&gt; Python app detected</code></pre>
+-----&gt; Python app detected
+</code></pre>
 
 <h3 id="add-ons">Add-ons</h3>
 
-<p>No add-ons are automatically provisioned if a pure Python application is detected. If you need a SQL database for your app, add one explicitly:</p>
+<p>No add-ons are automatically provisioned if a pure Python application is detected.
+If you need a SQL database for your app, add one explicitly:</p>
 
-<pre><code class="term">$ heroku addons:add heroku-postgresql:dev</code></pre>
+<pre><code class="term">$ heroku addons:add heroku-postgresql:dev
+</code></pre>
 
 <h3 id="process-types">Process types</h3>
 
@@ -70,4 +74,4 @@ python-2.7.4</code></pre>
 
 <h3 id="add-ons">Add-ons</h3>
 
-<p>A dev database add-on is provisioned automatically for Django applications. This populates the <code>DATABASE_URL</code> environment variable.</p>
+<p>A dev database add-on is provisioned automatically for Django applications.  This  populates the <code>DATABASE_URL</code> environment variable.</p>

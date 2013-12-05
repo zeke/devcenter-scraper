@@ -7,30 +7,33 @@ description: Understand how to declare dependencies with pip on Heroku.
 
 This guide outlines how to fully utilize Heroku's support for specifying dependencies for your Python application via pip.
 
-<div class="note" markdown="1">
-If you have questions about Python on Heroku, consider discussing it in the [Python on Heroku forums](https://discussion.heroku.com/category/python). Both Heroku and community-based Python experts are available.
-</div>
+> note
+> If you have questions about Python on Heroku, consider discussing it in the [Python on Heroku forums](https://discussion.heroku.com/category/python). Both Heroku and community-based Python experts are available.
 
 Heroku's pip support is very transparent. Any requirements that install locally with the following command will behave as expected on Heroku:
 
-	$ pip install -r requirements.txt
+```term
+$ pip install -r requirements.txt
+```
 
 We have made a few minor fixes to pip, but these patches are actively being pushed upstream.
 
 ## The basics
 
-To specify Python module dependencies on Heroku, add a [pip requirements file](http://www.pip-installer.org/en/latest/requirements.html) named `requirements.txt` to the root of your repository.
+To specify Python module dependencies on Heroku, add a [pip requirements file](http://www.pip-installer.org/en/latest/cookbook.html#requirements-files) named `requirements.txt` to the root of your repository.
 
 Example `requirements.txt`:
 
-    Flask==0.8
-    Jinja2==2.6
-    Werkzeug==0.8.3
-    certifi==0.0.8
-    chardet==1.0.1
-    distribute==0.6.24
-    gunicorn==0.14.2
-    requests==0.11.1
+```
+Flask==0.8
+Jinja2==2.6
+Werkzeug==0.8.3
+certifi==0.0.8
+chardet==1.0.1
+distribute==0.6.24
+gunicorn==0.14.2
+requests==0.11.1
+```
 
 ## Best practices
 
@@ -49,53 +52,65 @@ Thanks to pip's Git support, you can install a Python package that is hosted on 
 
 For example:
 
-	git+git://github.com/kennethreitz/requests.git
+```
+git+git://github.com/kennethreitz/requests.git
+```
 
 If your package is hosted in a private Git repository, you can use HTTP Basic Authentication:
 
-	git+https://user:password@github.com/nsa/secret.git
+```
+git+https://user:password@github.com/nsa/secret.git
+```
 
 You can also specify any Git reference (e.g. branch, tag, or commit) by appending an `@` to your URL:
 
-	git+git://github.com/kennethreitz/requests.git@develop
+```
+git+git://github.com/kennethreitz/requests.git@develop
+```
 
 Optionally, you can install a dependency in "editable" mode, which will link to a full clone of the repository. This is useful for larger distributions, like Django:
 
-<div class="callout" markdown="1">
-    The `egg` fragment is only valid with editable requirements.
-</div>
+> callout
+> The `egg` fragment is only valid with editable requirements.
 
-	-e git+http://github.com/django/django.git#egg=django
-
-
-	
+```
+-e git+http://github.com/django/django.git#egg=django
+```
+ 
 ## Remote file-backed distributions
 
 You can also install packages from remote archives. 
 
 For example:
 
-	https://site.org/files/package.zip
+```
+https://site.org/files/package.zip
+```
 
 This can be useful in many situations. For example, you can utilize GitHub's tarball generation for repositories with large histories:
 
-	https://github.com/django/django/tarball/master
+```
+https://github.com/django/django/tarball/master
+```
 
 ## Local file-backed distributions
 
 Pip can also install a dependency from your local codebase. This is useful with making custom tweaks to an existing package.
 
-<div class="callout" markdown="1">
-    You can use Git Submodules to maintain separate repositories for your File-backed dependencies. Git modules will automatically be resolved when you push your code to Heroku.
-</div>
+> callout
+> You can use Git Submodules to maintain separate repositories for your File-backed dependencies. Git modules will automatically be resolved when you push your code to Heroku.
 
 To add a local dependency in `requirements.txt`, specify the relative path to the directory containing `setup.py`:
 
-	./path/to/distribution
+```
+./path/to/distribution
+```
 
 If you make changes to the library without bumping the required version number, however, the changes will not be updated at runtime. You can get around this by installing the package in editable mode:
 
-	-e ./path/to/distribution
+```
+-e ./path/to/distribution
+```
 
 ## Private indexes
 
@@ -103,7 +118,9 @@ In order to minimize points of failure, it is considered best practice within th
 
 To point to a custom Cheeseshop's index, you can add the following to the top of your requirements file:
 
-	-i https://simple.crate.io/
+```
+-i https://simple.crate.io/
+```
 
 All dependencies specified in that requirements file will resolve against that index.
 
@@ -111,7 +128,9 @@ All dependencies specified in that requirements file will resolve against that i
 
 If you would like to utilize multiple requirements files in your codebase, you can *include* the contents of another requirements file with pip:
 
-	-r ./path/to/prod-requirements.txt
+```
+-r ./path/to/prod-requirements.txt
+```
 
 ## Traditional distributions
 
@@ -119,26 +138,13 @@ Heroku also supports traditional Python package distribution, powered by  `setup
 
 If your Python application contains a `setup.py` file but excludes a `requirements.txt` file, `python setup.py develop` will be used to install your package and resolve your dependencies.
 
-<div class="callout" markdown="1">
-    This works best with distribute or setuptools. Projects that use distutils directly will be installed, but not linked. The module won't get updated until there's a version bump.
-</div>
+> callout
+> This works best with distribute or setuptools. Projects that use distutils directly will be installed, but not linked. The module won't get updated until there's a version bump.
 
 If you already have a requirements file but would like to utilize this feature, you can add the following to your requirements file:
 
-	-e . 
+```
+-e . 
+```
 
 This causes pip to run `python setup.py develop` on your application.
-
-<script type="text/javascript">
-  var _gauges = _gauges || [];
-  (function() {
-    var t   = document.createElement('script');
-    t.type  = 'text/javascript';
-    t.async = true;
-    t.id    = 'gauges-tracker';
-    t.setAttribute('data-site-id', '4ef21894f5a1f53a72000009');
-    t.src = '//secure.gaug.es/track.js';
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(t, s);
-  })();
-</script>

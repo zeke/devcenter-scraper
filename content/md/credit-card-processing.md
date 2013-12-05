@@ -23,4 +23,4 @@ You do not have to worry about remembering to pay your bill unless the payment i
 
 Sometimes attempted payments are declined. If this happens, you will receive an e-mail notifying you that we will be re-attempting to charge your card. You may use this time to update your billing information from your [account page](https://dashboard.heroku.com/account) if needed.
 
-Our credit card processing service does not specify the reason for declined charges, so if the payment continues to fail we recommend contacting your credit card provider for further information. You may also want to wait 24 hours and try [paying your balance](https://vault.heroku.com/pay-balance) again, in case the issue was temporary.
+Our credit card processing service does not specify the reason for declined charges, so if the payment continues to fail we recommend contacting your credit card provider for further information. You may also want to wait 24 hours and try [paying your balance](https://dashboard.heroku.com/account/pay-balance) again, in case the issue was temporary.

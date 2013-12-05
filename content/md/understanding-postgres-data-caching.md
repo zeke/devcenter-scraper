@@ -23,7 +23,7 @@ The most noteworthy here are certain kinds of internal operations done to fulfil
 
 Beyond this, there are other operations that require memory, such as running VACUUM by the autovacuum daemon (or yourself) as well as all DDL operations. In the DDL category, it’s worth mentioning the creation of indexes, which tend to consume large amounts of memory, thus also using up memory available for data and index caches, albeit temporarily.
 
-[Heroku Postgres plans](https://postgres.heroku.com/pricing) vary primarily by the amount of System RAM available. The best way to understand what plan is best for your workload is to try them. More information can be found on [this article](https://devcenter.heroku.com/articles/heroku-postgres-plans#production-plans).
+[Heroku Postgres plans](https://postgres.heroku.com/pricing) vary primarily by the amount of System RAM available. The best way to understand what plan is best for your workload is to try them. More information can be found on [this article](https://devcenter.heroku.com/articles/heroku-postgres-plans#standard-tier).
 
 ## What does having a cold cache mean
 

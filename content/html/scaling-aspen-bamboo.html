@@ -1,26 +1,34 @@
-<div class="deprecated">
-<p>This article applies to apps on the <a href="/articles/bamboo">Bamboo</a> stack. For the most recent stack, <a href="/articles/cedar">Cedar</a>, see <a href="/articles/scaling">Scaling Your Dyno Formation on Heroku Cedar</a>.</p>
-</div><div class="callout">
-<p>The <a href="/articles/cedar">Cedar</a> stack is not limited to hard-coded process types and allows for a fully customizable <a href="/articles/process-model">process model</a>.</p>
+<div class="warning">
+<p>This article applies to apps on the <a href="https://devcenter.heroku.com/articles/bamboo">Bamboo</a> stack.  For the most recent stack, <a href="https://devcenter.heroku.com/articles/cedar">Cedar</a>, see <a href="https://devcenter.heroku.com/articles/scaling">Scaling Your Dyno Formation on Heroku Cedar</a>.</p>
 </div>
-<p>On the Bamboo stack there are two types of dynos available. Web dynos are responsible for running the web application processes that receive and respond to HTTP traffic whereas worker dynos run <a href="/articles/delayed-job">background jobs with Delayed Job</a>.</p>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<div class="callout">
+<p>The <a href="https://devcenter.heroku.com/articles/cedar">Cedar</a> stack is not limited to hard-coded process types and allows for a fully customizable <a href="https://devcenter.heroku.com/articles/process-model">process model</a>.</p>
+</div>
+
+<p>On the Bamboo stack there are two types of dynos available. Web dynos are responsible for running the web application processes that receive and respond to HTTP traffic whereas worker dynos run <a href="https://devcenter.heroku.com/articles/delayed-job">background jobs with Delayed Job</a>.</p>
 
 <h2 id="scaling-web-dynos">Scaling web dynos</h2>
 
 <p>Use the <code>heroku ps:scale</code> command to scale web dynos on Bamboo.</p>
 
 <pre><code class="term">$ heroku ps:scale dynos=1
-my-app now running 1 dynos</code></pre>
+my-app now running 1 dynos
+</code></pre>
 
 <p>The CLI accepts either an absolute quantity or an increment from the current number of dynos.</p>
 
 <pre><code class="term">$ heroku ps:scale dynos+2
-my-app now running 3 dynos</code></pre>
+my-app now running 3 dynos
+</code></pre>
 
 <p>Decrements are also recognized.</p>
 
 <pre><code class="term">$ heroku ps:scale dynos-1
-my-app now running 2 dynos</code></pre>
+my-app now running 2 dynos
+</code></pre>
 
 <h2 id="scaling-worker-dynos">Scaling worker dynos</h2>
 
@@ -30,7 +38,8 @@ my-app now running 2 dynos</code></pre>
 my-app now running 2 workers
 
 $ heroku ps:scale workers-1
-my-app now running 1 workers</code></pre>
+my-app now running 1 workers
+</code></pre>
 
 <h2 id="introspection">Introspection</h2>
 
@@ -42,14 +51,17 @@ web.1: idle for 1628h
 web.2: up for 4m
 
 === worker: `bundle exec rake jobs:work`
-worker.1: crashed for 1m</code></pre>
+worker.1: crashed for 1m
+</code></pre>
 
 <h2 id="scaling-via-the-web-ui">Scaling via the web UI</h2>
 
 <p>Though scaling via the CLI is preferred it is also possible to scale dynos and workers on the web interface. <a href="http://www.heroku.com/login">Login to Heroku</a> and view the resources for the application in question. The URL will look something like: <code>https://api.heroku.com/myapps/my-app/resources</code>.</p>
+
 <div class="callout">
 <p>Applications can scale beyond 24 dynos by using the CLI.</p>
 </div>
+
 <p>Use the two vertical sliders to adjust the web and worker dynos up to the UI-limit of 24.</p>
 
-<p><img alt="Heroku scaling sliders" src="https://dl.dropbox.com/u/674401/devcenter/Screen%20shot%202012-03-13%20at%202.38.42%20PM.png"></p>
+<p><img src="https://dl.dropbox.com/u/674401/devcenter/Screen%20shot%202012-03-13%20at%202.38.42%20PM.png" alt="Heroku scaling sliders"></p>

@@ -5,31 +5,52 @@ url: https://devcenter.heroku.com/articles/stages-of-add-on-development
 description: This document describes the 4 stages of Add-on development.
 ---
 
-Before you can start selling your Add-on in the public marketplace, you must complete the alpha and beta stages of Add-on development.
+Before you can start selling your add-on in the marketplace, you must complete
+the Alpha and Beta stages of Add-on development.
 
 ## Alpha
-The goal of the alpha stage is to ensure that your Add-on service works correctly, and that users will have clear instruction on how to use it. The steps of the alpha process are as follows:
 
-* Create [Dev Center documentation](https://devcenter.heroku.com/articles/documenting-an-add-on)
-* Invite alpha users
-* Test and collect feedback
+The goal of the Alpha stage is to ensure that your add-on service works
+correctly, and that it solves a problem for Heroku users.
 
-You can invite Alpha users to start using your add-on by selecting the 'Alpha Users' from the dropdown menu in the top-right of the Provider Portal.
+### Getting from Alpha to Beta
+
+To be approved for the next step, Beta, your tasks are as follows:
+
+* Name your add-on
+* Describe its key benefits
+* Setup a feature list
+* Upload an icon (70 by 70 pixels, PNG format)
+* Provide an email address for support and feedback
+* Create [Dev Center documentation](https://devcenter.heroku.com/articles/documenting-an-add-on) to be reviewed and approved
+* Invite at least 10 alpha users, who accept and provision the add-on
+
+
+You can accomplish these tasks via the [Provider
+Dashboard](https://addons.heroku.com/provider/dashboard). Once you've done so,
+send an email to <provider@heroku.com> to request that your add-on be moved
+into Beta.
 
 ## Beta
-Beta is a two-part phase in which your Add-on will be exposed to hundreds of users in Private Beta, and then subsequently to all tens of thousands of Heroku users in Public Beta.
 
-This testing phase will provide you valuable info on steps need to ensure good performance and reliable operation of your Add-on. It's important that you carefully consider the feedback submitted by users in this stage, and evaluate whether changes are needed. Most add-ons go through a 3-4 week beta process on Heroku before applying for General Availability (GA)
+This stage exposes your add-on to all Heroku users. Use this time to ramp up
+marketing efforts—you can, and should, encourage hundreds of users to install
+your Add-on.
 
-### Private
-Before you can enter private beta, you must have filled in the features & benefits sections for your Add-on in the Add-on provider UI.
+Focus on gathering feedback to ensure good performance and reliable operation
+of your add-on under this increased load. You'll also confirm that your product
+meets the needs and expectations of a wide sample of Heroku customers.
 
-In private beta you can, and should, invite hundreds of users to install your Add-on. The purpose of this phase is mainly to ensure that your Add-on service handles the increased load, and to confirm that your product meets the needs and expectations of a wide sample of Heroku customers.
+This is when you will start to receive requests for support—directly and
+through the Heroku Helpdesk. At the beginning of the Beta phase, you will be
+contacted by the Heroku Add-ons Team to set up integration between our support
+system and yours.
 
-### Public
-This stage exposes the Add-on to all Heroku users and customers. The transition to public beta will let Heroku users know that GA is imminent, and let them have a head start in using your services in their apps. Also, since the Add-on is now available to all Heroku users, this is when you will start to receive requests for support - directly and through the Heroku Helpdesk. At the beginning of the public beta phase, you will be contacted by the Heroku Add-ons Team to set up integration between our support system and yours.
+You can also start [setting up your payment
+plans](https://devcenter.heroku.com/articles/add-on-plan-creation).
 
-You can also start [setting up your payment plans](https://devcenter.heroku.com/articles/add-on-plan-creation).
+Bear in mind that, during the Beta stage, your add-on can regress back to
+Alpha.
 
 ## GA
 At this point your Add-on has hopefully been throughly vetted by a large group of Heroku users. The next step is to finalize your plans & pricing into the Add-on catalog.

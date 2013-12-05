@@ -1,6 +1,9 @@
-<p>This quickstart will get you going with a <a href="http://python.org/">Python</a> application that uses the <a href="http://flask.pocoo.org/">Flask</a> web framework, deployed to Heroku. For Django apps, please see the <a href="/articles/django">Getting Started with Django on Heroku</a>. For general information on how to develop and architect apps for use on Heroku, see <a href="https://devcenter.heroku.com/articles/architecting-apps">Architecting Applications for Heroku</a>.</p>
+
+<p>This quickstart will get you going with a <a href="http://python.org/">Python</a> application that uses the <a href="http://flask.pocoo.org/">Flask</a> web framework, deployed to Heroku. For Django apps, please see the <a href="https://devcenter.heroku.com/articles/django">Getting Started with Django on Heroku</a>. For general information on how to develop and architect apps for use on Heroku, see <a href="https://devcenter.heroku.com/articles/architecting-apps">Architecting Applications for Heroku</a>.</p>
 <div class="note">
+
 <p>If you have questions about Python on Heroku, consider discussing it in the <a href="https://discussion.heroku.com/category/python">Python on Heroku forums</a>. Both Heroku and community-based Python experts are available.</p>
+
 </div>
 <h2 id="prerequisites">Prerequisites</h2>
 
@@ -15,7 +18,7 @@
 </li>
 </ul><h2 id="local-workstation-setup">Local workstation setup</h2>
 
-<p>First, install the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a> on your local workstation. This ensures that you have access to the <a href="/categories/command-line">Heroku command-line client</a>, Foreman, and the Git revision control system.</p>
+<p>First, install the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a> on your local workstation. This ensures that you have access to the <a href="https://devcenter.heroku.com/categories/command-line">Heroku command-line client</a>, Foreman, and the Git revision control system.</p>
 
 <p>Once installed, you can use the <code>heroku</code> command from your command shell. Log in using the email address and password you used when creating your Heroku account:</p>
 
@@ -39,7 +42,7 @@ $ cd helloflask</code></pre>
 
 <p>Next, we’ll create a Python <a href="http://pypi.python.org/pypi/virtualenv">Virtualenv</a> (v0.7):</p>
 <div class="callout">
-<p>Make sure you’re using the latest virtualenv release. If you’re using a version that comes with Ubuntu, you may need to add the <code>--no-site-packages</code> flag.</p>
+<p>Make sure you're using the latest virtualenv release. If you're using a version that comes with Ubuntu, you may need to add the <code>--no-site-packages</code> flag.</p>
 </div>
 <pre><code class="term">$ virtualenv venv --distribute
 New python executable in venv/bin/python
@@ -91,7 +94,7 @@ def hello():
 
 <h2 id="declare-process-types-with-procfile">Declare process types with Procfile</h2>
 
-<p>Use a <a href="/articles/procfile">Procfile</a>, a text file in the root directory of your application, to explicitly declare what command should be executed to start a web <a href="/articles/dynos">dyno</a>. In this case, you need to execute Gunicorn with a few arguments.</p>
+<p>Use a <a href="https://devcenter.heroku.com/articles/procfile">Procfile</a>, a text file in the root directory of your application, to explicitly declare what command should be executed to start a web <a href="https://devcenter.heroku.com/articles/dynos">dyno</a>. In this case, you need to execute Gunicorn with a few arguments.</p>
 
 <p>Here’s a <code>Procfile</code> for our new app. It should be called <code>Procfile</code> and live at the root directory of our project:</p>
 
@@ -105,7 +108,7 @@ def hello():
 2013-04-03 16:11:22 [8469] [INFO] Starting gunicorn 0.14.6
 2013-04-03 16:11:22 [8469] [INFO] Listening at: http://127.0.0.1:8000 (8469)</code></pre>
 
-<p>Make sure things are working properly <code>curl</code> or a web browser, then Ctrl-C to exit.</p>
+<p>Make sure things are working properly with <code>curl</code> or a web browser, then Ctrl-C to exit.</p>
 
 <h2 id="specify-dependencies-with-pip">Specify dependencies with Pip</h2>
 
@@ -122,7 +125,7 @@ Jinja2==2.6
 Werkzeug==0.8.3
 gunicorn==0.17.2</code></pre>
 
-<p>Pip can also be used for advanced dependency management. See <a href="/articles/python-pip">Python Dependencies via Pip</a> to learn more.</p>
+<p>Pip can also be used for advanced dependency management. See <a href="https://devcenter.heroku.com/articles/python-pip">Python Dependencies via Pip</a> to learn more.</p>
 
 <h2 id="store-your-app-in-git">Store your app in Git</h2>
 
@@ -130,7 +133,8 @@ gunicorn==0.17.2</code></pre>
 
 <p>Since our current directory contains a lof of extra files, we’ll want to configure our repository to ignore these files with a <code>.gitignore</code> file:</p>
 <div class="callout">
-<p>GitHub provides an excellent <a href="https://github.com/github/gitignore/blob/master/Python.gitignore">Python gitignore file</a> that can be <a href="https://github.com/github/gitignore#readme">installed system-wide</a>.</p>
+<p>GitHub provides an excellent <a href="https://github.com/github/gitignore/blob/master/Python.gitignore">Python gitignore file</a>that can be <a href="https://github.com/github/gitignore#readme">installed system-wide</a>.</p>
+
 </div>
 <h3 id="gitignore">.gitignore</h3>
 
@@ -182,7 +186,7 @@ To git@heroku.com:stark-window-524.git
 
 <h3 id="visit-your-application">Visit your application</h3>
 
-<p>You’ve deployed your code to Heroku, and specified the process types in a <code>Procfile</code>. You can now instruct Heroku to execute a process type. Heroku does this by running the associated command in a <a href="/articles/dynos">dyno</a> - a lightweight container which is the basic unit of composition on Heroku.</p>
+<p>You’ve deployed your code to Heroku, and specified the process types in a <code>Procfile</code>. You can now instruct Heroku to execute a process type. Heroku does this by running the associated command in a <a href="https://devcenter.heroku.com/articles/dynos">dyno</a> - a lightweight container which is the basic unit of composition on Heroku.</p>
 
 <p>Let’s ensure we have one dyno running the <code>web</code> process type:</p>
 
@@ -204,21 +208,21 @@ Opening stark-window-524... done</code></pre>
 
 <h3 id="dyno-sleeping-and-scaling">Dyno sleeping and scaling</h3>
 
-<p>Having only a single web dyno running will result in the dyno <a href="/articles/dynos#dyno-sleeping">going to sleep</a> after one hour of inactivity. This causes a delay of a few seconds for the first request upon waking. Subsequent requests will perform normally.</p>
+<p>Having only a single web dyno running will result in the dyno <a href="https://devcenter.heroku.com/articles/dynos#dyno-sleeping">going to sleep</a> after one hour of inactivity. This causes a delay of a few seconds for the first request upon waking. Subsequent requests will perform normally.</p>
 
 <p>To avoid this, you can scale to more than one web dyno. For example:</p>
 
 <pre><code class="term">$ heroku ps:scale web=2</code></pre>
 
-<p>For each application, Heroku provides <a href="/articles/usage-and-billing#750-free-dyno-hours-per-app">750 free dyno-hours</a>. Running your app at 2 dynos would exceed this free monthly allowance, so let’s scale back:</p>
+<p>For each application, Heroku provides <a href="https://devcenter.heroku.com/articles/usage-and-billing#750-free-dyno-hours-per-app">750 free dyno-hours</a>. Running your app at 2 dynos would exceed this free monthly allowance, so let’s scale back:</p>
 
 <pre><code class="term">$ heroku ps:scale web=1</code></pre>
 
 <h3 id="view-the-logs">View the logs</h3>
 
-<p>Heroku treats logs as streams of time-ordered events aggregated from the output streams of all the dynos running the components of your application. Heroku’s <a href="/articles/logplex">Logplex</a> provides a single channel for all of these events.</p>
+<p>Heroku treats logs as streams of time-ordered events aggregated from the output streams of all the dynos running the components of your application. Heroku’s <a href="https://devcenter.heroku.com/articles/logplex">Logplex</a> provides a single channel for all of these events.</p>
 
-<p>View information about your running app using one of the <a href="/articles/logging">logging commands</a>, <code>heroku logs</code>:</p>
+<p>View information about your running app using one of the <a href="https://devcenter.heroku.com/articles/logging">logging commands</a>, <code>heroku logs</code>:</p>
 
 <pre><code class="term">$ heroku logs
 2011-08-20T16:33:39+00:00 heroku[slugc]: Slug compilation started
@@ -234,27 +238,27 @@ Opening stark-window-524... done</code></pre>
 
 <h3 id="interactive-shell">Interactive shell</h3>
 
-<p>Heroku allows you to run commands in a <a href="/articles/oneoff-admin-ps">one-off dyno</a> - scripts and applications that only need to be executed when needed - using the <code>heroku run</code> command. Use this to launch a Python shell attached to your local terminal for experimenting in your app’s environment:</p>
+<p>Heroku allows you to run commands in a <a href="https://devcenter.heroku.com/articles/oneoff-admin-ps">one-off dyno</a> - scripts and applications that only need to be executed when needed - using the <code>heroku run</code> command. Use this to launch a Python shell attached to your local terminal for experimenting in your app’s environment:</p>
 
 <pre><code class="term">$ heroku run python
 Running python attached to terminal... up, run.1
 Python 2.7.4 (default, Apr  6 2013, 22:14:13)
 [GCC 4.4.3] on linux2
 Type "help", "copyright", "credits" or "license" for more information.
-&gt;&gt;&gt; </code></pre>
+&gt;&gt;&gt;</code></pre>
 
 <p>From here you can <code>import</code> some of your application modules.</p>
 
 <h3 id="running-a-worker">Running a worker</h3>
 
-<p>The <code>Procfile</code> format lets you run any number of different <a href="/articles/procfile">process types</a>. For example, let’s say you wanted a worker process to complement your web process:</p>
+<p>The <code>Procfile</code> format lets you run any number of different <a href="https://devcenter.heroku.com/articles/procfile">process types</a>. For example, let’s say you wanted a worker process to complement your web process:</p>
 
 <h4 id="procfile">Procfile</h4>
 
 <pre><code>web: gunicorn hello:app
 worker: python worker.py</code></pre>
 <div class="callout">
-<p>Running more than one dyno for an extended period may incur charges to your account. Read more about <a href="/articles/usage-and-billing">dyno-hour costs</a>.</p>
+<p>Running more than one dyno for an extended period may incur charges to your account. Read more about <a href="https://devcenter.heroku.com/articles/usage-and-billing">dyno-hour costs</a>.</p>
 </div>
 <p>Push this change to Heroku, then launch a worker:</p>
 
@@ -266,7 +270,7 @@ Scaling worker processes... done, now running 1</code></pre>
 <h2 id="next-steps">Next steps</h2>
 
 <ul>
-<li>Visit the <a href="/categories/python">Python category</a> to learn more about developing and deploying Python applications.</li>
+<li>Visit the <a href="https://devcenter.heroku.com/categories/python">Python category</a> to learn more about developing and deploying Python applications.</li>
 
 <li>Learn about <a href="https://devcenter.heroku.com/articles/python-pip">Python Dependencies via Pip</a> and <a href="https://devcenter.heroku.com/articles/python-runtimes">Specifying a Python Runtime</a>
 </li>
@@ -277,5 +281,5 @@ Scaling worker processes... done, now running 1</code></pre>
 <li>Learn how to <a href="https://devcenter.heroku.com/articles/django">Get Started with Django on Heroku</a>
 </li>
 
-<li>Read <a href="/articles/how-heroku-works">How Heroku Works</a> for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.</li>
+<li>Read <a href="https://devcenter.heroku.com/articles/how-heroku-works">How Heroku Works</a> for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.</li>
 </ul>

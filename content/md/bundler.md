@@ -7,6 +7,10 @@ description: Bundler is the default gem manager for Rails 3, though it can be us
 
 Bundler is the default gem manager for Rails 3, though it can be used with any Ruby project as it has no dependency on framework.  Bundler is the way to manage your gems on Heroku.
 
+<div class="note" markdown="1">
+If you have questions about Ruby on Heroku, consider discussing it in the [Ruby on Heroku forums](https://discussion.heroku.com/category/ruby).
+</div>
+
 Using Bundler
 -------------
 

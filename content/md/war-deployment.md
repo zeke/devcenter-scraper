@@ -11,6 +11,10 @@ This article only applies to applications in Heroku Enterprise for Java packages
 
 In addition to [deploying with Git](git), Heroku also supports deploying Java web applications as WAR files from either [Eclipse](#eclipse) or the [command line](#command-line). When deploying with these methods, the WAR file is automatically placed in a [Tomcat 7 web application container](http://tomcat.apache.org/) and deployed as a Heroku application. WAR deployments are subject to the same [slug size limits](https://devcenter.heroku.com/articles/limits#slug-size) as Git-based deployments.
 
+<div class="note" markdown="1">
+If you have questions about Java on Heroku, consider discussing them in the [Java on Heroku forums](https://discussion.heroku.com/category/java).
+</div>
+
 ##Eclipse
 
 ###Setup

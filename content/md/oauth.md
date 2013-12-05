@@ -5,11 +5,15 @@ url: https://devcenter.heroku.com/articles/oauth
 description: OAuth provides a way to authorize and revoke access to your account to yourself and third parties. OAuth is the preferred authentication mechanism for the Platform API due to the ability to granularly grant and revoke access to some or
 ---
 
-OAuth provides a way to authorize and revoke access to your account to yourself and third parties. Third parties can use this to provide services, such as monitoring and scaling your applications. You can also use these keys to grant access for your own scripts on your machine or applications.
+OAuth provides a way to authorize and revoke access to your account to yourself and third parties. Third parties can use this to provide services, such as monitoring and scaling your applications. You can also use these tokens obtained with OAuth to grant access for your own scripts on your machine or to other applications.
 
 The Heroku Platform API implements OAuth version 2.0 as the preferred authentication mechanism. For further details of the specific API endpoints see the [Platform API Reference](https://devcenter.heroku.com/articles/platform-api-reference).
 
 Third parties who wish to provide services to Heroku users should implement [web application authorization](#web-application-authorization). Users who would like to use a personal OAuth token should instead use [direct authorization](#direct-authorization).
+
+## A note on architecture
+
+An OAuth authorization can be generated in one of two ways: via web authorization flow, or from the Heroku API. The web authorization flow (located at the domain `id.heroku.com`) is designed to easily support common OAuth conventions and be accessible to widely-used libraries. The component supporting this web flow is itself built on the Heroku API (located at the domain `api.heroku.com`), which is the canonical source for all OAuth data. Both components will be covered in this article.
 
 ## Web application authorization
 
@@ -32,17 +36,19 @@ This section describes the flow required to authorize your app to get access to 
 From your app, redirect the user to authorize:
 
 ```
-GET https://id.heroku.com/oauth/authorize?client_id={client-id}&response_type=code&scope={scopes}
+GET https://id.heroku.com/oauth/authorize?client_id={client-id}&response_type=code&scope={scopes}&state={anti-forgery-token}
 ```
 
 The `scope` URL parameter is a space-delimited (and url-encoded) list of the authorization scopes you are requesting. See [available scopes below](#scopes).
+
+The `state` parameter is a unique string used to maintain state between Heroku's OAuth provider and your app. When Heroku redirects users back to your app's `redirect_uri`, this parameter's value will be included in the response (see below). This parameter's value should be an anti-forgery token to protect against [cross-site request forgery](http://en.wikipedia.org/wiki/Cross-site_request_forgery) (CSRF).
 
 #### Redirect back
 
 The user will then be redirected back, based on the client redirect uri:
 
 ```
-GET {redirect-uri}?code={code}
+GET {redirect-uri}?code={code}&state={anti-forgery-token}
 ```
 
 #### Token exchange
@@ -117,20 +123,20 @@ Subsequent requests should authenticate by adding the access token's `token` val
 
 The following scopes are supported by the API:
 
-* `global`: Read and write access to all of your account, apps and resources. Equivalent to API key.
+* `global`: Read and write access to all of your account, apps and resources. Equivalent to the [default authorization obtained when using the CLI](https://devcenter.heroku.com/articles/authentication).
 * `identity`: Read-only access to your [account information](https://devcenter.heroku.com/articles/platform-api-reference#account).
 * `read` and `write`: Read and write access to all of your apps and resources, excluding account information and configuration variables. This scope lets you request access to an account without necessarily getting access to runtime secrets such as database connection strings.
 * `read-protected` and `write-protected`: Read and write access to all of your apps and resources, excluding account information. This scope lets you request access to an account including access to runtime secrets such as database connection strings.
 
 ## Direct authorization
 
-Direct authorization is used to provide a simpler workflow when users are creating authorizations for themself. It allows the exchange of username and password for a non-expiring token. These authorizations should be used in place of API keys in order to provide better granularity and the possibility of revocation.
+Direct authorization is used to provide a simpler workflow when users are creating authorizations for themselves. It allows the exchange of username and password for a non-expiring token.
 
 ### Token exchange
 
 In order to acquire a direct authorization, a request is made to create an authorization while passing username and password in basic auth. A description may also be included to help distinguish this authorization from others, and like the web flow, the authorization can also be scoped to particular permissions on the account.
 
-HTTP basic authentication must be constructed from the [api token](https://devcenter.heroku.com/articles/authentication) as `:{api-token}` (note the pre-pended colon), base64 encoded and passed as the Authorization header for each request, for example `Authorization: Basic 0123456789ABCDEF=`.
+HTTP basic authentication must be constructed from the [api token](https://devcenter.heroku.com/articles/authentication) as `:{token}` (note the pre-pended colon), base64 encoded and passed as the Authorization header for each request, for example `Authorization: Basic 0123456789ABCDEF=`.
 
 ```
 POST /oauth/authorizations
@@ -153,33 +159,34 @@ ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
 RateLimit-Remaining: 1200
 ```
-```javascript
+```javascript```
 {
   "access_token": {
-    "expires_in": null,
-    "id":         "01234567-89ab-cdef-0123-456789abcdef",
-    "token":      "01234567-89ab-cdef-0123-456789abcdef"
+    "expires_in": 2592000,
+    "id": "01234567-89ab-cdef-0123-456789abcdef",
+    "token": "01234567-89ab-cdef-0123-456789abcdef"
   },
   "client": {
-    "id":           null,
-    "name":         null,
-    "redirect_uri": null
+    "id": "01234567-89ab-cdef-0123-456789abcdef",
+    "name": "example",
+    "redirect_uri": "https://example.com/auth/heroku/callback"
   },
-  "created_at":    "2012-01-01T12:00:00-00:00",
-  "description":   "sample authorization",
+  "created_at": "2012-01-01T12:00:00Z",
   "grant": {
-    "code":       null,
-    "expires_in": null,
-    "id":         null
+    "code": "01234567-89ab-cdef-0123-456789abcdef",
+    "expires_in": 2592000,
+    "id": "01234567-89ab-cdef-0123-456789abcdef"
   },
-  "id":            "01234567-89ab-cdef-0123-456789abcdef",
+  "id": "01234567-89ab-cdef-0123-456789abcdef",
   "refresh_token": {
-    "expires_in": null,
-    "id":         null,
-    "token":      null
+    "expires_in": 2592000,
+    "id": "01234567-89ab-cdef-0123-456789abcdef",
+    "token": "01234567-89ab-cdef-0123-456789abcdef"
   },
-  "scope":         "global",
-  "updated_at":    "2012-01-01T12:00:00-00:00"
+  "scope": [
+    "global"
+  ],
+  "updated_at": "2012-01-01T12:00:00Z"
 }
 ```
 
@@ -210,34 +217,36 @@ ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
 RateLimit-Remaining: 1200
 ```
-```javascript
+```javascript```
 {
   "access_token": {
-    "expires_in": null,
-    "id":         "01234567-89ab-cdef-0123-456789abcdef",
-    "token":      "01234567-89ab-cdef-0123-456789abcdef"
+    "expires_in": 2592000,
+    "id": "01234567-89ab-cdef-0123-456789abcdef",
+    "token": "01234567-89ab-cdef-0123-456789abcdef"
   },
   "client": {
-    "id":           null,
-    "name":         null,
-    "redirect_uri": null
+    "id": "01234567-89ab-cdef-0123-456789abcdef",
+    "name": "example",
+    "redirect_uri": "https://example.com/auth/heroku/callback"
   },
-  "created_at":    "2012-01-01T12:00:00-00:00",
-  "description":   "sample authorization",
+  "created_at": "2012-01-01T12:00:00Z",
   "grant": {
-    "code":       null,
-    "expires_in": null,
-    "id":         null
+    "code": "01234567-89ab-cdef-0123-456789abcdef",
+    "expires_in": 2592000,
+    "id": "01234567-89ab-cdef-0123-456789abcdef"
   },
-  "id":            "01234567-89ab-cdef-0123-456789abcdef",
+  "id": "01234567-89ab-cdef-0123-456789abcdef",
   "refresh_token": {
-    "expires_in": null,
-    "id":         null,
-    "token":      null
+    "expires_in": 2592000,
+    "id": "01234567-89ab-cdef-0123-456789abcdef",
+    "token": "01234567-89ab-cdef-0123-456789abcdef"
   },
-  "scope":         "global",
-  "updated_at":    "2012-01-01T12:00:00-00:00"
+  "scope": [
+    "global"
+  ],
+  "updated_at": "2012-01-01T12:00:00Z"
 }
+
 ```
 
 ## Resources and examples

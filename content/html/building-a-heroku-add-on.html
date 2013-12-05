@@ -2,23 +2,18 @@
 
 <h2 id="overview">Overview</h2>
 
-<p>There are two ways to create a Heroku add-on: you can either implement the HTTP calls directly in an app you already have or you can start an new application from a template.</p>
+<p>There are two ways to create a Heroku add-on: you can either implement the HTTP calls directly in an app you already have or you can start a new application from a template.</p>
 
 <div class="callout">
-<p><code>kensa create</code></p>
+<p><code>kensa create</code>
+The <a href="https://devcenter.heroku.com/articles/building-a-heroku-add-on">kensa create</a> command allows you to clone an add-on from a template.</p>
 </div>
 
-<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
-
-<blockquote>
-<p>The <a href="/articles/building-a-heroku-add-on">kensa create</a> command allows you to clone an add-on from a template.</p>
-</blockquote>
-
-<p>If you would like to start your add-on from a template, use the <a href="/articles/building-a-heroku-add-on">kensa create</a> command.</p>
+<p>If you would like to start your add-on from a template, use the <a href="https://devcenter.heroku.com/articles/building-a-heroku-add-on">kensa create</a> command.</p>
 
 <p>If you would like to start your add-on by implementing the HTTP API directly, follow the walkthrough provided in this section of the site.</p>
 
-<p>You’ll begin by implementing a <a href="/articles/building-a-heroku-add-on#provisioning">provisioning API</a> for your service, which Heroku will call when your add-on is installed by a customer.  We provide you with a command-line tool to test your API in your development environment.  You will also create a JSON document that will serve as the add-on manifest (link). The manifest describes to Heroku how your add-on should appear in our catalog and important information about your add-on like configuration information.</p>
+<p>You’ll begin by implementing a <a href="https://devcenter.heroku.com/articles/building-a-heroku-add-on#provisioning">provisioning API</a> for your service, which Heroku will call when your add-on is installed by a customer.  We provide you with a command-line tool to test your API in your development environment.  You will also create a JSON document that will serve as the add-on manifest (link). The manifest describes to Heroku how your add-on should appear in our catalog and important information about your add-on like configuration information.</p>
 
 <p>Next you’ll write docs explaining install and use of your add-on.</p>
 
@@ -57,8 +52,8 @@
 <h3 id="3-generate-an-add-on-manifest">3. Generate an add-on manifest</h3>
 
 <div class="callout">
-<p><strong>Manifest</strong><br>
-The add-on manifest is a JSON document that describes your add-on. <a href="/articles/add-on-manifest">Read the full reference</a></p>
+<p><strong>Manifest</strong>
+The add-on manifest is a JSON document that describes your add-on. <a href="https://devcenter.heroku.com/articles/add-on-manifest">Read the full reference</a></p>
 </div>
 
 <p>Now you’ll create a new manifest describing your add-on with kensa.</p>
@@ -69,14 +64,14 @@ The add-on manifest is a JSON document that describes your add-on. <a href="/art
 Initialized new addon manifest in addon-manifest.json
 </code></pre>
 
-<p>or: </p>
+<p>or:</p>
 
 <pre><code class="term">$ kensa create myaddon --template sinatra|node|clojure
 Initialized new addon manifest in addon-manifest.json
 Initialized new .env file for foreman
 </code></pre>
 
-<p>If you are using <code>create</code>, <a href="/articles/kensa-create">follow the instructions</a> to start and test your add-on before changing the manifest.</p>
+<p>If you are using <code>create</code>, <a href="https://devcenter.heroku.com/articles/kensa-create">follow the instructions</a> to start and test your add-on before changing the manifest.</p>
 
 <p>Open addon-manifest.json in your editor:</p>
 
@@ -100,14 +95,9 @@ Initialized new .env file for foreman
 </code></pre>
 
 <div class="callout">
-<p><strong>Plans</strong></p>
+<p><strong>Plans</strong>
+Your add-on will eventually be able to support several different subscription plans. Through alpha and beta testing, however, you should simply support a single plan called “test”. The Heroku provisioning API will automatically look for it.</p>
 </div>
-
-<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
-
-<blockquote>
-<p>Your add-on will eventually be able to support several different subscription plans. Through alpha and beta testing, however, you should simply support a single plan called “test”. The Heroku provisioning API will automatically look for it.</p>
-</blockquote>
 
 <p>The add-on manifest starts mostly blank, with a few defaults. Start by changing the <code>id</code> field. For example, if your product is called “MySQL-o-Matic”, then use “mysqlomatic” for <code>id</code>. Later on, you’ll be able to add a human-friendly display name for the <a href="http://addons.heroku.com">Add-on Catalog</a> through the <a href="https://addons.heroku.com/provider">Provider Portal</a></p>
 
@@ -116,14 +106,9 @@ Initialized new .env file for foreman
 <h2 id="provisioning">Provisioning</h2>
 
 <div class="callout">
-<p><strong>Resource</strong></p>
+<p><strong>Resource</strong>
+A private resource is created for each app that adds your add-on.</p>
 </div>
-
-<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
-
-<blockquote>
-<p>A private resource is created for each app that adds your add-on.</p>
-</blockquote>
 
 <p>When a Heroku customer installs your add-on, Heroku makes a REST call to your cloud service to <a href="https://devcenter.heroku.com/articles/how-addons-work#provisioning">provision</a> a private resource for their app.</p>
 
@@ -140,14 +125,9 @@ Testing POST /heroku/resources
 </code></pre>
 
 <div class="callout">
-<p><strong>Red first</strong></p>
+<p><strong>Red first</strong>
+You may notice the way we’re using the Kensa tests here is similar to the way you would use unit tests in TDD. Run the test before implementation to confirm a fail (red); run again after implementation to see success (green). <a href="http://userstories.blogspot.com/2007/10/tdd-red-green-refactor-red-as-important.html">read more</a></p>
 </div>
-
-<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
-
-<blockquote>
-<p>You may notice the way we’re using the Kensa tests here is similar to the way you would use unit tests in TDD. Run the test before implementation to confirm a fail (red); run again after implementation to see success (green). <a href="http://userstories.blogspot.com/2007/10/tdd-red-green-refactor-red-as-important.html">read more</a></p>
-</blockquote>
 
 <p>As expected, the test got a 404 Not Found response, since you haven’t implemented this call yet. (If you get another error, such as connection refused, check your test URL in the manifest, and make sure your service is running.)</p>
 
@@ -163,14 +143,9 @@ end
 </code></pre>
 
 <div class="callout">
-<p><strong>URL</strong></p>
+<p><strong>URL</strong>
+Any provisioned resource should be referenced by a unique URL, which is how the customer’s app consumes the resource. <a href="https://devcenter.heroku.com/articles/how-addons-work#consumption">read more</a></p>
 </div>
-
-<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
-
-<blockquote>
-<p>Any provisioned resource should be referenced by a unique URL, which is how the customer’s app consumes the resource. <a href="https://devcenter.heroku.com/articles/how-addons-work#consumption">read more</a></p>
-</blockquote>
 
 <p>This code responds to the incoming request by provisioning a database in the service, and returning the ID and a config var hash containing a URL to the database. The resource has been provisioned and a URL is returned to Heroku, to be embedded into the environment of the customer’s app.</p>
 
@@ -179,14 +154,9 @@ end
 <p>Running the test again with this code added to your server:</p>
 
 <div class="callout">
-<p><strong>Password</strong></p>
+<p><strong>Password</strong>
+When you run kensa init to generate an add-on manifest, a password (auto-generated) is filled in for you. You can use the defaults, or change these values to anything you like.</p>
 </div>
-
-<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
-
-<blockquote>
-<p>When you run kensa init to generate an add-on manifest, a password (auto-generated) is filled in for you. You can use the defaults, or change these values to anything you like.</p>
-</blockquote>
 
 <pre><code class="term">$ kensa test provision
 Testing POST /heroku/resources
@@ -199,14 +169,9 @@ Testing POST /heroku/resources
 <p>…and you’ll see that we get further this time, before failing on authentication. Your service is expected to authenticate all provisioning calls with the add-on id and password found in the add-on manifest. A failed authentication should return 401 Not Authorized.</p>
 
 <div class="callout">
-<p><strong>HTTP basic auth</strong></p>
+<p><strong>HTTP basic auth</strong>
+Some web frameworks such as Rails, Sinatra, and CherryPy make it easy to check HTTP basic auth from within your code. For frameworks which don’t directly support basic auth, like Django, you’ll need to <a href="http://noah.heroku.com/past/2010/2/19/django_http_basic_auth/">parse the HTTP headers yourself</a>, or wrap the path in an Apache AuthType Basic directive or equivalent.</p>
 </div>
-
-<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
-
-<blockquote>
-<p>Some web frameworks such as Rails, Sinatra, and CherryPy make it easy to check HTTP basic auth from within your code. For frameworks which don’t directly support basic auth, like Django, you’ll need to <a href="http://noah.heroku.com/past/2010/2/19/django_http_basic_auth/">parse the HTTP headers yourself</a>, or wrap the path in an Apache AuthType Basic directive or equivalent.</p>
-</blockquote>
 
 <p>Continuing the Sinatra example, we can add this code:</p>
 
@@ -234,14 +199,9 @@ Testing config data
 </code></pre>
 
 <div class="callout">
-<p><strong>Config vars</strong></p>
+<p><strong>Config vars</strong>
+Your service can return any number of config vars, but in most cases you should need exactly one, a URL which is named after your service type and ends in the postfix _URL.</p>
 </div>
-
-<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
-
-<blockquote>
-<p>Your service can return any number of config vars, but in most cases you should need exactly one, a URL which is named after your service type and ends in the postfix _URL.</p>
-</blockquote>
 
 <p>Now the failure is happening in validating the config vars. Our service returns a MYSQL_URL, but we haven’t defined this in the add-on manifest. Open addon-manifest.json in your editor again and change this:</p>
 
@@ -378,16 +338,11 @@ you’ll need to write a sample that demonstates how to consume your service
 from Ruby, using a URL passed in through the environment.</p>
 
 <div class="callout">
-<p><strong>URL</strong></p>
-</div>
-
-<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
-
-<blockquote>
-<p>During provisioning, your service returns
+<p><strong>URL</strong>
+During provisioning, your service returns
 a URL which provides all the information the customer’s app will need to
 connect to their private resource.</p>
-</blockquote>
+</div>
 
 <p>This URL is the same one that was generated and returned in the response to
 Heroku during the provisioning call.  Heroku bundles this value (along with
@@ -413,15 +368,10 @@ end
 </code></pre>
 
 <div class="callout">
-<p><strong>Passing environment variables</strong></p>
-</div>
-
-<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
-
-<blockquote>
-<p>Simulate config vars available in the Heroku app by passing shell environment variables, in the
+<p><strong>Passing environment variables</strong>
+Simulate config vars available in the Heroku app by passing shell environment variables, in the
 format: <code>VARIABLE=value command</code></p>
-</blockquote>
+</div>
 
 <p>Start by testing it against an invalid URL.  You should get an error:</p>
 
@@ -457,7 +407,7 @@ look:</p>
 <pre><code class="term">$ kensa run ruby use_mysql.rb
 Testing POST /heroku/resources
 
-Starting ruby... 
+Starting ruby...
 Connecting to mysql://1ba348f9ea:e6efd15da88149782c2be2@localhost:3306/1ba348f9ea
 This database has the following tables: []
 End of ruby

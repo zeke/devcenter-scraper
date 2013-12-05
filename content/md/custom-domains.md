@@ -20,7 +20,7 @@ There are several domain configurations available to your app including:
 * A root domain like `example.com` or `example.co.uk`
 * Wildcard domains that match any subdomain, represented as `*.example.com`
 
-A single application can utilize one or more of the above domain setups using the same basic process:
+A single application can have any number of domains assigned to it utilizing one or more of the above domain types. The same basic setup process applies for each domain:
 
 1. Tell Heroku which custom domains are specific to your application
 1. Configure your application's DNS to point to Heroku

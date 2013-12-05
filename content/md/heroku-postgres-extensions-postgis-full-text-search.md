@@ -189,23 +189,23 @@ pg_stat_statements can be used to [track performance problems] (http://www.craig
 > database for geographic information systems (GIS)
 
 <p class="warning" markdown="1">
-PostGIS v2.0 support on Heroku Postgres is in beta and is subject to change in the future.
+PostGIS support on Heroku Postgres is in beta and is subject to change in the future.
 </p>
 
 ### Requirements
 
 Currently, PostGIS can only be used on Production tier [Heroku Postgres
 plans](https://addons.heroku.com/heroku-postgresql). It is not available
-on the Dev or Basic Starter tier plans. Additionally,
-PostGIS is only available with Postgres v9.2.
+on the Dev or Basic Starter tier plans. Additionally, PostGIS is only
+available as v2.1 with Postgres 9.3 or as v2.0 with Postgres v9.2.
 
 ### Provisioning
 
 PostGIS support can be added like any other extension, as long as your
-database meets the requirements
+database meets the requirements above
 
 	:::term
-	$ heroku addons:add heroku-postgresql:ronin --version=9.2
+	$ heroku addons:add heroku-postgresql:ronin --version=9.3
 
 and then simply run `create extension postgis`. Note also that this
 functionality is only availble on newer databases. If your database
@@ -222,6 +222,6 @@ query from psql:
 	=> SELECT postgis_version();
 			postgis_version
 	---------------------------------------
-	 2.0 USE_GEOS=1 USE_PROJ=1 USE_STATS=1
+	 2.1 USE_GEOS=1 USE_PROJ=1 USE_STATS=1
 	(1 row)
-        
+                

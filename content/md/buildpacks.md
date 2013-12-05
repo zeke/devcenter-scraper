@@ -5,9 +5,13 @@ url: https://devcenter.heroku.com/articles/buildpacks
 description: An overview of buildpacks, which lie at the heart of the slug compiler on Heroku.
 ---
 
-When you `git push heroku`, Heroku's slug compiler prepares your code for execution by the Heroku manager. At the heart of the slug compiler is a collection of scripts called a buildpack. 
+When you `git push heroku`, Heroku's slug compiler prepares your code for execution by the Heroku dyno manager. At the heart of the slug compiler is a collection of scripts called a buildpack. 
 
 Heroku's [Cedar stack](cedar) has no native language or framework support; Ruby, Python, Java, Clojure, Node.js and Scala are all implemented as buildpacks.
+
+<div class="note" markdown="1">
+If you have questions about the build process on Heroku, consider discussing it in the [Build forums](https://discussion.heroku.com/category/build).
+</div>
 
 ## Default Buildpacks
 
@@ -88,6 +92,5 @@ Buildpack URLs can point to either git repositories or tarballs. Hosting a build
 If you'd like to use a language or framework not yet supported on Heroku you can create a custom buildpack. To get started, see the following articles:
 
 * To learn about the structure of a buildpack, see [Buildpack API](buildpack-api).
-* To handle platform-specific binaries in a buildpack, see [Packaging Binary Buildpack Dependencies](buildpack-binaries).
 
 You can use the [heroku-buildpacks](https://github.com/heroku/heroku-buildpacks) CLI plugin to publish buildpacks to our catalog.

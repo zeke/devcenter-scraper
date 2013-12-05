@@ -1,5 +1,10 @@
-<p>There are some cases where files need to be bundled with the JDK in order to expose functionality in the runtime JVM. For example, the inclusion of unlimited strength Java Cryptography Extensions (JCE) is often added to a JDK in order to utilize stronger cryptographic libraries. To handle such cases, Heroku will copy files designated by the app in a <code>.jdk-overlay</code> folder into the JDK’s directory structure.</p>
 
+<p>There are some cases where files need to be bundled with the JDK in order to expose functionality in the runtime JVM. For example, the inclusion of unlimited strength Java Cryptography Extensions (JCE) is often added to a JDK in order to utilize stronger cryptographic libraries. To handle such cases, Heroku will copy files designated by the app in a <code>.jdk-overlay</code> folder into the JDK’s directory structure.</p>
+<div class="note">
+
+<p>If you have questions about Java on Heroku, consider discussing them in the <a href="https://discussion.heroku.com/category/java">Java on Heroku forums</a>.</p>
+
+</div>
 <p>To include additional files in the JVM, follow these instructions:</p>
 
 <h2 id="prerequisites">Prerequisites</h2>

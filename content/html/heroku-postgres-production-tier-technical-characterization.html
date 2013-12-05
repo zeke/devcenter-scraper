@@ -2,9 +2,80 @@
 <p>All the information in this document is subject to change as Heroku  adapts the service to better handle customer database workloads.</p>
 </div>
 
-<p>The Heroku Postgres <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans#production-tier">production tier</a> plans offer different performance characteristics based on their multitenancy, CPU, RAM and I/O architectures.  This article provides a technical description of the implementation of these production plans, and some of the performance characteristics of each.</p>
+<p>The Heroku Postgres <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans#standard-tier">Standard, Premium, and Enterprise tier</a> plans offer different performance characteristics based on their multitenancy, CPU, RAM and I/O architectures.  This article provides a technical description of the implementation of these production plans, and some of the performance characteristics of each.</p>
 
 <h2 id="performance-characteristics">Performance characteristics</h2>
+
+<p>The following table outlines our production tier plans along with relevant
+specifications about the underlying hardware.</p>
+
+<table>
+<thead><tr>
+<th>Heroku Postgres plan</th>
+<th>vCPU</th>
+<th>RAM</th>
+<th>PIOPs</th>
+<th>Multitenant</th>
+<th>Connection Limit</th>
+<th>Disk Size</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Yanari</td>
+<td>2</td>
+<td>400MB</td>
+<td>200</td>
+<td>yes</td>
+<td>60</td>
+<td>64 GB</td>
+</tr>
+<tr>
+<td>Tengu</td>
+<td>2</td>
+<td>1.7GB</td>
+<td>200</td>
+<td>yes</td>
+<td>200</td>
+<td>256 GB</td>
+</tr>
+<tr>
+<td>Ika</td>
+<td>2</td>
+<td>7.5GB</td>
+<td>500</td>
+<td>no</td>
+<td>400</td>
+<td>512 GB</td>
+</tr>
+<tr>
+<td>Baku</td>
+<td>4</td>
+<td>34.2GB</td>
+<td>1000</td>
+<td>no</td>
+<td>500</td>
+<td>1 TB</td>
+</tr>
+<tr>
+<td>Mecha</td>
+<td>8</td>
+<td>68.4GB</td>
+<td>2000</td>
+<td>no</td>
+<td>500</td>
+<td>1 TB</td>
+</tr>
+<tr>
+<td>Ryu</td>
+<td>32</td>
+<td>244GB</td>
+<td>4000</td>
+<td>no</td>
+<td>500</td>
+<td>1 TB</td>
+</tr>
+</tbody>
+</table><h2 id="legacy-performance-characteristics">Legacy Performance characteristics</h2>
 
 <p>The following table outlines our production tier plans along with relevant
 specifications about the underlying hardware.</p>
@@ -79,9 +150,9 @@ specifications about the underlying hardware.</p>
 
 <p>Heroku Postgres databases currently run on virtualized infrastructure provided by AWS EC2. Higher level Heroku Postgres plans benefit from higher levels of resource isolation than lower level plans.</p>
 
-<p>There are two main variants of database deployment architectures on Heroku Postgres: multi-tenant and single-tenant. </p>
+<p>There are two main variants of database deployment architectures on Heroku Postgres: multi-tenant and single-tenant.</p>
 
-<p>For multi-tenant plans, several LXC containers are created within a single large instance. Each LXC container holds a single database service and provides security and resource isolation within the instance.   </p>
+<p>For multi-tenant plans, several LXC containers are created within a single large instance. Each LXC container holds a single database service and provides security and resource isolation within the instance.</p>
 
 <p>Resource isolation and sharing on multi-tenant plans is imperfect and absolutely fair resource distribution between tenants cannot be guaranteed under this architecture.</p>
 
@@ -102,7 +173,7 @@ discussion on Postgres caching can be found in <a href="https://devcenter.heroku
 
 <p>All instances are backed by EBS optimized instances where EBS disks with provisioned IOPs
  are attached. PIOPs are a measure of how many IO operations the underlying disks can perform
-per second. The amount of IOPs provisioned for each plan determines its I/O throughput. 
+per second. The amount of IOPs provisioned for each plan determines its I/O throughput.
 On write-heavy applications, I/O can be a significant bottleneck, but on read-heavy ones, your
 hot dataset should fit in RAM and can therefore have very high performance with
 lower IOPs values.</p>

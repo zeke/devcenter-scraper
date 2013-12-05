@@ -72,3 +72,7 @@ To test your error page, you can push a bad deploy such as putting a syntax erro
     2010-10-08T18:05:15-07:00 app[web.1]: Done sleeping
 
 The custom error page will be displayed in your browser.
+
+## SSL
+
+If your site is accessed via SSL, some browsers will display a warning or error if the maintenance and error pages do not also utilize an https URL. Be sure to use matching application and error page protocols.

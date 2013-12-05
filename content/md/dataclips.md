@@ -35,15 +35,21 @@ Given an example dataclip - [https://dataclips.heroku.com/vgyygvzqtezwpmwpcmmjll
 
 * The latest results in csv by adding .csv to the url
 
-    `https://dataclips.heroku.com/vgyygvzqtezwpmwpcmmjlluamjlk.csv`
+```
+https://dataclips.heroku.com/vgyygvzqtezwpmwpcmmjlluamjlk.csv
+```
 
 * The first version of the dataclip created by adding .csv and ?version=1
 
-    `https://dataclips.heroku.com/xqzzcwmlubhblavdipydzzqmlmbm.csv?version=1`
+```
+https://dataclips.heroku.com/xqzzcwmlubhblavdipydzzqmlmbm.csv?version=1
+```
 
 * The first version of the dataclip and its first result set by adding the above and result=1
 
-    `https://dataclips.heroku.com/xqzzcwmlubhblavdipydzzqmlmbm.csv?result=1&version=1`
+```
+https://dataclips.heroku.com/xqzzcwmlubhblavdipydzzqmlmbm.csv?result=1&version=1
+```
 
 ### Data Refresh
 
@@ -53,10 +59,10 @@ When connecting your dataclips to google docs your data is refreshed on an hourl
 
 ## Security
 
-All dataclips are secured through unique un-guessable URLs. [Production tier](https://devcenter.heroku.com/articles/heroku-postgres-plans#production-tier) databases also have the ability to secure dataclips to a heroku user account. 
+All dataclips are secured through unique un-guessable URLs. [Standard, Premium and Enterprise tier] (https://devcenter.heroku.com/articles/heroku-postgres-plans#standard-tier) databases also have the ability to secure dataclips to a heroku user account. 
 
 ## Limits
 
 * Dataclips may return up to 29,999 rows
-* Dataclips can only be secured via authentication on [production tier](https://devcenter.heroku.com/articles/heroku-postgres-plans#production-tier) databases
+* Dataclips can only be secured via authentication on [Standard, Premium and Enterprise tier] (https://devcenter.heroku.com/articles/heroku-postgres-plans#standard-tier) databases
 * By default, Dataclips will cancel queries after 10 minutes. 

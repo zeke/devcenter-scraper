@@ -1,6 +1,7 @@
-<p>This <a href="http://devcenter.heroku.com/categories/labs">Heroku Labs</a> feature adds support for managing application releases as part of a <a href="http://en.wikipedia.org/wiki/Continuous_delivery">continuous delivery workflow</a>.</p>
+
+<p>This <a href="https://devcenter.heroku.com/categories/labs">Heroku Labs</a> feature adds support for managing application releases as part of a <a href="http://en.wikipedia.org/wiki/Continuous_delivery">continuous delivery workflow</a>.</p>
 <p class="warning">
-The features added through labs are experimental and may change or be removed without notice.
+Features added through Heroku Labs are experimental and subject to change.
 </p>
 <h2 id="multi-environment-complexity">Multi-environment complexity</h2>
 
@@ -8,7 +9,7 @@ The features added through labs are experimental and may change or be removed wi
 
 <h2 id="deployment-with-pipelines">Deployment with pipelines</h2>
 
-<p>Pipelines allow you to define how your code should be promoted from one environment to the next. For example, you can push code to <code>staging</code>, have it built into a <a href="/articles/slug-compiler">slug</a> and later promote the <code>staging</code> slug to <code>production</code>. Common examples of pipelines include:</p>
+<p>Pipelines allow you to define how your code should be promoted from one environment to the next. For example, you can push code to <code>staging</code>, have it built into a <a href="https://devcenter.heroku.com/articles/slug-compiler">slug</a> and later promote the <code>staging</code> slug to <code>production</code>. Common examples of pipelines include:</p>
 
 <p>A simple staging to production pipeline:</p>
 
@@ -21,9 +22,13 @@ The features added through labs are experimental and may change or be removed wi
                     ---&gt; myapp-staging ---&gt; myapp
                   /
 myapp-kim-dev ---</code></pre>
-<p class="note">In pipeline vocabulary, “downstream” refers to the next target app in a pipeline. For example, given a <code>dev ---&gt; staging ---&gt; production</code> pipeline, staging is downstream of dev, and production is downstream of staging.</p>
-<p>Once you’ve defined a pipeline, you and your team no longer have to worry about the next app to deploy to. Instead, <code>heroku pipeline:promote</code> will copy your app’s build artifact (i.e. <a href="/articles/slug-compiler">slug</a>) to the downstream app as a new release.</p>
-<p class="warning">Pipelines only manage the application slug. The <a href="/articles/git">Git repo</a>, <a href="/articles/config-vars">config vars</a>, <a href="/articles/managing-add-ons">add-ons</a> and other environmental dependencies are not considered part of a pipeline and must be managed independently. You can use <a href="/articles/fork-app">Heroku Fork</a> to quickly clone production apps to be used for dev and staging.</p>
+<p class="note">
+In pipeline vocabulary, "downstream" refers to the next target app in a pipeline. For example, given a <code>dev ---&amp;gt; staging ---&amp;gt; production</code> pipeline, staging is downstream of dev, and production is downstream of staging.
+</p>
+<p>Once you’ve defined a pipeline, you and your team no longer have to worry about the next app to deploy to. Instead, <code>heroku pipeline:promote</code> will copy your app’s build artifact (i.e. <a href="https://devcenter.heroku.com/articles/slug-compiler">slug</a>) to the downstream app as a new release.</p>
+<p class="warning">
+Pipelines only manage the application slug. The <a href="https://devcenter.heroku.com/articles/git">Git repo</a>, <a href="https://devcenter.heroku.com/articles/config-vars">config vars</a>, <a href="https://devcenter.heroku.com/articles/managing-add-ons">add-ons</a> and other environmental dependencies are not considered part of a pipeline and must be managed independently. You can use <a href="https://devcenter.heroku.com/articles/fork-app">Heroku Fork</a> to quickly clone production apps to be used for dev and staging.
+</p>
 <h2 id="enable-pipelines">Enable pipelines</h2>
 
 <p>To use pipelines, enable the labs feature:</p>
@@ -81,7 +86,7 @@ Comparing myapp-staging to myapp...done, myapp-staging ahead by 2 commits:
 <pre><code class="term">$ heroku pipeline:promote
 Promoting myapp-staging to myapp...done, v2</code></pre>
 
-<p>Pipeline promotion results in a <a href="/articles/releases">release-entry</a> on the downstream app.</p>
+<p>Pipeline promotion results in a <a href="https://devcenter.heroku.com/articles/releases">release-entry</a> on the downstream app.</p>
 
 <pre><code class="term">$ heroku releases --app myapp
 
@@ -89,5 +94,7 @@ Promoting myapp-staging to myapp...done, v2</code></pre>
 v2  Promote myapp-staging v6 0f0a53b  you@yourcompany.com   1m ago
 ...</code></pre>
 <div class="note">
+
 <p>Revert a promotion as you do other errant operations by invoking <code>heroku rollback</code> on the downstream app.</p>
+
 </div>

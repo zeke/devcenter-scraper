@@ -1,8 +1,8 @@
-<p>Heroku customers use the <a href="https://addons.heroku.com">marketplace</a> or the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a> to provision your add-on.  When this happens, Heroku sends a request to your service, which creates a new private resource for the app.  </p>
+<p>Heroku customers use the <a href="https://addons.heroku.com">marketplace</a> or the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a> to provision your add-on.  When this happens, Heroku sends a request to your service, which creates a new private resource for the app.</p>
 
 <p>This resource represents your service, and is what the client application will interact with.</p>
 
-<p>The URI representing the resource is made available to the app as a <a href="/articles/config-vars">config var</a>. The app can then consume its private resource via a library, plugin, or over HTTP, depending on your service.</p>
+<p>The URI representing the resource is made available to the app as a <a href="https://devcenter.heroku.com/articles/config-vars">config var</a>. The app can then consume its private resource via a library, plugin, or over HTTP, depending on your service.</p>
 
 <p><img src="https://heroku-provider-assets.s3.amazonaws.com/how-overview.png" alt="Add-on Overview"></p>
 
@@ -45,7 +45,7 @@
 
 <p><img src="https://heroku-provider-assets.s3.amazonaws.com/how-provision4.png" alt="Provision Step 4"></p>
 
-<p>Heroku adds the returned URL as a <a href="/articles/config-vars">config var</a> in the app, rebuilds the slug and restarts all <a href="https://devcenter.heroku.com/articles/dynos">dynos</a>. The user’s app is now ready to consume the resource your cloud service has provisioned for them.</p>
+<p>Heroku adds the returned URL as a <a href="https://devcenter.heroku.com/articles/config-vars">config var</a> in the app, rebuilds the slug and restarts all <a href="https://devcenter.heroku.com/articles/dynos">dynos</a>. The user’s app is now ready to consume the resource your cloud service has provisioned for them.</p>
 
 <h2 id="consumption">Consumption</h2>
 

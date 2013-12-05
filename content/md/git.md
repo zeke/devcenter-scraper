@@ -8,7 +8,7 @@ description: Git is a powerful decentralized revision control system, and is the
 Git is a powerful decentralized revision control system, and is the
 means for deploying apps to Heroku. You don't need to be proficient with Git to
 use it for deploying code to Heroku, but you may find it valuable to learn the
-basics of this excellent tool for managing source code.  
+basics.
 
 ## Tracking your app in git
 
@@ -47,6 +47,8 @@ Creating falling-wind-1624... done, stack is cedar
 http://falling-wind-1624.herokuapp.com/ | git@heroku.com:falling-wind-1624.git
 Git remote heroku added
 ```
+
+Heroku's git remotes use SSH as a transport, so you'll need to make sure your SSH public key [has been added to your Heroku account](https://devcenter.heroku.com/articles/keys).
 
 You can verify the remote in your git configuration as well:
 
@@ -96,6 +98,10 @@ $ git push heroku yourbranch:master
 
 >note
 >Applications that rely on git submodules are supported, in addition to many other [dependency resolution strategies](git-submodules).
+
+## Cancelling a deployment
+
+When deploying code using `git push`, you can interrupt the build process on Heroku by pressing Ctrl + C on your machine.  As long as this is not done as the build process completes (generally around the "Launching..." message), and you've taken latency into account, then it will halt the build process and no new release will be generated.
 
 ## Multiple remotes and environments
 

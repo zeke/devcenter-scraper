@@ -22,6 +22,6 @@ At the bottom of the page you will see a link to close your account.
 
 ![Close Account](https://s3.amazonaws.com/heroku.devcenter/heroku_assets/images/174-original.jpg?1369331529 'Optional title')
 
-Accounts cannot be closed if you have an open balance, so you may receive an **error message** if you have unpaid invoices. If those invoices are older, you may visit the [pay balance page](https://vault.heroku.com/pay-balance) to take care of them.
+Accounts cannot be closed if you have an open balance, so you may receive an **error message** if you have unpaid invoices. If those invoices are older, you may visit the [pay balance page](https://dashboard.heroku.com/account/pay-balance) to take care of them.
 
 If the unpaid balance is for the current (or recently ended) month, you may have to wait for the billing cycle to complete and automatically charge your card. If you haven't already, be sure to **delete your apps** so that your balance does not continue to rise or create new invoices in the meantime.

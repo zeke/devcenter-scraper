@@ -12,7 +12,7 @@ The WebSocket protocol is a core technology of modern, real-time web application
 This [Heroku Labs](http://devcenter.heroku.com/categories/labs) feature adds experimental WebSocket support to your `herokuapp.com` domain, custom domains and custom SSL endpoints.
 
 >warning
->Features added through Heroku Labs are experimental and are subject to change.
+>Features added through Heroku Labs are experimental and subject to change.
 
 ### Enabling WebSockets
 
@@ -77,6 +77,10 @@ Refer to the [WebSocket Security article](https://devcenter.heroku.com/articles/
 ### Timeouts
 
 The normal [Heroku HTTP routing timeout rules](https://devcenter.heroku.com/articles/http-routing#timeouts) apply to the WebSocket labs feature. Either client or server can prevent the connection from idling by sending an occasional ping packet over the connection.
+
+### Keep-alive
+
+WebSocket capable endpoints do not support HTTP keep-alive. This means that after each HTTP request, the client establishes a new connection to the endpoint. For HTTPS and WSS requests the SSL negotiation is performed for every request.
 
 ### Example implementations
 

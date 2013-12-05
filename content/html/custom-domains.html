@@ -17,7 +17,7 @@
 </li>
 <li>Wildcard domains that match any subdomain, represented as <code>*.example.com</code>
 </li>
-</ul><p>A single application can utilize one or more of the above domain setups using the same basic process:</p>
+</ul><p>A single application can have any number of domains assigned to it utilizing one or more of the above domain types. The same basic setup process applies for each domain:</p>
 
 <ol>
 <li>Tell Heroku which custom domains are specific to your application</li>
@@ -72,7 +72,7 @@ www.example.com is an alias for example.herokuapp.com.
 Adding example.com to example... done
 </code></pre>
 
-<p>Zone apex domains (aka “naked”, “bare” or “root” domains), e.g., <code>example.com</code>, using conventional DNS A-records are <a href="/articles/apex-domains">not supported on Heroku</a>. However, there are alternative configurations that allow for root domains while still being resilient in a dynamic runtime environment.</p>
+<p>Zone apex domains (aka “naked”, “bare” or “root” domains), e.g., <code>example.com</code>, using conventional DNS A-records are <a href="https://devcenter.heroku.com/articles/apex-domains">not supported on Heroku</a>. However, there are alternative configurations that allow for root domains while still being resilient in a dynamic runtime environment.</p>
 
 <h3 id="cname-functionality-at-the-apex">CNAME functionality at the apex</h3>
 
@@ -107,7 +107,7 @@ Adding example.com to example... done
 
 <p>For users without access to a modern DNS configuration, subdomain redirection is a viable alternative. Subdomain redirection results in a <a href="http://en.wikipedia.org/wiki/HTTP_301">301 permanent redirect</a> to the specified subdomain for all root domain requests.</p>
 
-<p>Almost all DNS providers offer  domain redirection services – sometimes also called domain forwarding. However, be aware that, using this method, a <a href="/articles/ssl-endpoint">secure request</a> to the root domain, e.g., <code>https://example.com</code>, will result in an error or warning being displayed to the user. If you’re not using SSL, or are only distributing URLs in subdomain SSL form, e.g., <code>https://www.example.com</code>, this error won’t affect you.</p>
+<p>Almost all DNS providers offer  domain redirection services – sometimes also called domain forwarding. However, be aware that, using this method, a <a href="https://devcenter.heroku.com/articles/ssl-endpoint">secure request</a> to the root domain, e.g., <code>https://example.com</code>, will result in an error or warning being displayed to the user. If you’re not using SSL, or are only distributing URLs in subdomain SSL form, e.g., <code>https://www.example.com</code>, this error won’t affect you.</p>
 
 <p>Establish a redirect/forward from the root domain to the <code>www</code> subdomain:</p>
 

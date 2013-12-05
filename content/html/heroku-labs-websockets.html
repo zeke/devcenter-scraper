@@ -2,10 +2,10 @@
 
 <p>The WebSocket protocol is a core technology of modern, real-time web applications.  It provides a bidirectional channel for delivering data between clients and servers.  It gives you the flexibility of a TCP connection with the additional security model and meta data built into the HTTP protocol.  For more details on the WebSocket protocol refer to <a href="http://tools.ietf.org/html/rfc6455">RFC 6455</a>.</p>
 
-<p>This <a href="http://devcenter.heroku.com/categories/labs">Heroku Labs</a> feature adds experimental WebSocket support to your <code>herokuapp.com</code> domain, custom domains and custom SSL endpoints.</p>
+<p>This <a href="https://devcenter.heroku.com/categories/labs">Heroku Labs</a> feature adds experimental WebSocket support to your <code>herokuapp.com</code> domain, custom domains and custom SSL endpoints.</p>
 
 <div class="warning">
-<p>Features added through Heroku Labs are experimental and are subject to change.</p>
+<p>Features added through Heroku Labs are experimental and subject to change.</p>
 </div>
 
 <h3 id="enabling-websockets">Enabling WebSockets</h3>
@@ -41,15 +41,15 @@ Disabling websockets for myapp... done
 <h3 id="process-and-application-state">Process and application state</h3>
 
 <p>The WebSocket protocol introduces state into a generally
-<a href="/articles/runtime-principles#statelessness">stateless application architecture</a>. 
-It provides a mechanism for creating persistent connections to a node in a 
-stateless system (e.g. a web browser connecting to a single web process). 
-Because of this, each web process is required to maintain the state of 
-its own WebSocket connections. If application data is shared across 
+<a href="https://devcenter.heroku.com/articles/runtime-principles#statelessness">stateless application architecture</a>.
+It provides a mechanism for creating persistent connections to a node in a
+stateless system (e.g. a web browser connecting to a single web process).
+Because of this, each web process is required to maintain the state of
+its own WebSocket connections. If application data is shared across
 processes, global state must also be maintained.</p>
 
-<p>Imagine a chat application that pushes messages from a Redis Pub/Sub 
-channel to all of its connected users. Every web process would have a 
+<p>Imagine a chat application that pushes messages from a Redis Pub/Sub
+channel to all of its connected users. Every web process would have a
 collection of persistent WebSocket connections open from active users.
 Each user would not, however, have its own subscription to the Redis channel.
 The web process would maintain a single connection to Redis, and the state
@@ -70,6 +70,10 @@ of each connected user would then be updated as incoming messages arrive.</p>
 <h3 id="timeouts">Timeouts</h3>
 
 <p>The normal <a href="https://devcenter.heroku.com/articles/http-routing#timeouts">Heroku HTTP routing timeout rules</a> apply to the WebSocket labs feature. Either client or server can prevent the connection from idling by sending an occasional ping packet over the connection.</p>
+
+<h3 id="keep-alive">Keep-alive</h3>
+
+<p>WebSocket capable endpoints do not support HTTP keep-alive. This means that after each HTTP request, the client establishes a new connection to the endpoint. For HTTPS and WSS requests the SSL negotiation is performed for every request.</p>
 
 <h3 id="example-implementations">Example implementations</h3>
 

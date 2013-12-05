@@ -1,3 +1,4 @@
+
 <p>Data caching in Postgres cannot be preallocated or guaranteed. Instead it can only be estimated and can vary widely depending on your workload. Heroku Postgres plans have a certain amount of System RAM, much of which is used for caching, but users may see slightly better or worse caching in their databases. A well designed application serves more than 99% of queries from cache. To learn more about how Postgres caches, read the discussion below.</p>
 
 <h2 id="how-does-postgresql-cache-data">How does PostgreSQL cache data?</h2>
@@ -16,12 +17,12 @@
 
 <p>Beyond this, there are other operations that require memory, such as running VACUUM by the autovacuum daemon (or yourself) as well as all DDL operations. In the DDL category, it’s worth mentioning the creation of indexes, which tend to consume large amounts of memory, thus also using up memory available for data and index caches, albeit temporarily.</p>
 
-<p><a href="https://postgres.heroku.com/pricing">Heroku Postgres plans</a> vary primarily by the amount of System RAM available. The best way to understand what plan is best for your workload is to try them. More information can be found on <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans#production-plans">this article</a>.</p>
+<p><a href="https://postgres.heroku.com/pricing">Heroku Postgres plans</a> vary primarily by the amount of System RAM available. The best way to understand what plan is best for your workload is to try them. More information can be found on <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans#standard-tier">this article</a>.</p>
 
 <h2 id="what-does-having-a-cold-cache-mean">What does having a cold cache mean</h2>
 
 <p>If for some reason you experience a service disruption on your production tier Heroku Postgres database you may receive a message that when your database comes back online you will have a “cold cache”. When you see this there is underlying hardware affected and as a result your database will come back online on a new host where no data will have been cached.</p>
-<div class="callout"> 
+<div class="callout">
 If you periodically send reads to your follower the cache may already be warmed, thereby reducing the time for your cache to be performing at normal levels.
 </div>
 <p>If you have a <a href="https://devcenter.heroku.com/articles/heroku-postgres-follower-databases">follower</a> you can promote it when you see this instead of waiting for your database to become available on the new host.</p>

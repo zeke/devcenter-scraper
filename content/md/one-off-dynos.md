@@ -138,7 +138,7 @@ You can run a dyno in the background using `heroku run:detached`. Unlike `heroku
     Running rake db:migrate... up, run.2
     Use 'heroku logs -p run.2' to view the log output.
 
-## Stopping running dynos
+## Stopping one-off dynos
 
 You can check your current running dynos using `heroku ps`:
 
@@ -151,7 +151,7 @@ You can check your current running dynos using `heroku ps`:
     web.1: up 2013/03/13 15:08:07 (~ 30m ago)
     web.2: up 2013/03/12 17:06:09 (~ 22h ago)
 
-If you wish to stop a running dyno, use `heroku ps:stop` with its name.
+If you wish to stop a running one-off dyno, use `heroku ps:stop` with its name.
 
     :::term
     $ heroku ps:stop run.1

@@ -10,9 +10,8 @@ This document describes the general behavior of the [Heroku Cedar stack](cedar) 
 * [Getting Started with Python on Heroku/Cedar](http://devcenter.heroku.com/articles/python)
 * [Getting Started with Django on Heroku/Cedar](http://devcenter.heroku.com/articles/django).
 
-<div class="note" markdown="1">
-If you have questions about Python on Heroku, consider discussing it in the [Python on Heroku forums](https://discussion.heroku.com/category/python). Both Heroku and community-based Python experts are available.
-</div>
+> note
+> If you have questions about Python on Heroku, consider discussing it in the [Python on Heroku forums](https://discussion.heroku.com/category/python). Both Heroku and community-based Python experts are available.
 
 ## General support
 
@@ -29,10 +28,11 @@ By default, we run 64bit CPython 2.7.4.
 
 Optionally, we support arbitrary versions of Python. This functionality is enabled by the presence of a `runtime.txt` file.
 
-    :::term
-    $ cat runtime.txt
-    python-2.7.4
- 
+```term
+$ cat runtime.txt
+python-2.7.4
+```
+
 See [Specifying a Python Runtime](https://devcenter.heroku.com/articles/python-runtimes) for more details.
 
 ### Libraries
@@ -47,8 +47,9 @@ The following libraries are used by the platform for managing and running Python
 
 The following command is run on your app to resolve dependencies:
 
-    :::term
-    $ pip install --use-mirrors -r requirements.txt
+```term
+$ pip install --use-mirrors -r requirements.txt
+```
 
 The `.heroku` directory is cached between pushes to speed up package installation.
 
@@ -60,17 +61,19 @@ Pure Python applications, such as headless processes and evented web frameworks 
 
 When a deployed application is recognized as a pure Python application, Heroku responds with `-----> Python app detected`.
 
-    :::term
-    $ git push heroku master
-    -----> Python app detected
+```term
+$ git push heroku master
+-----> Python app detected
+```
 
 ### Add-ons
 
 No add-ons are automatically provisioned if a pure Python application is detected.
 If you need a SQL database for your app, add one explicitly:
 
-    :::term
-    $ heroku addons:add heroku-postgresql:dev
+```term
+$ heroku addons:add heroku-postgresql:dev
+```
 
 ### Process types
 

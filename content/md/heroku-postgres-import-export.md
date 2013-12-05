@@ -64,6 +64,10 @@ Be sure to use single quotes around the temporary S3 URL, as it contains ampersa
 
 <!--heroku pgbackups:restore DATABASE 'http://f.cl.ly/items/1q2o3t1d3g0F1j2g3z18/mydb.dump'-->
 
+<div class="callout" markdown="1">
+Note that the pgbackups:restore command drops any tables and other database objects before recreating them.
+</div>
+
 Where `DATABASE` represents the `HEROKU_POSTGRESQL_COLOR_URL` of the database you wish to restore to. If no DATABASE is specified, it defaults to the applications current `DATABASE_URL`.
 
 On completion of the import process be sure to delete the dump file from its storage location if it's no longer needed.      

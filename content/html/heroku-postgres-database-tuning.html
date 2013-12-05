@@ -1,12 +1,12 @@
 <p>Postgres uses a mechanism called
 <a href="https://devcenter.heroku.com/articles/postgresql-concurrency">MVCC</a>
 to track changes in your database. As a side effect, some rows become
-“dead”: no longer visible to any running transaction. </p>
+“dead”: no longer visible to any running transaction.</p>
 
 <p>Dead rows are generated not just by <code>DELETE</code> operations, but also by <code>UPDATE</code>s, as
-well as transactions that have to be rolled back. </p>
+well as transactions that have to be rolled back.</p>
 
-<p>Your database needs periodic maintenance to clean out these dead rows: this is essentially a form of garbage collection. </p>
+<p>Your database needs periodic maintenance to clean out these dead rows: this is essentially a form of garbage collection.</p>
 
 <p>Typically, this happens automatically, but it can be useful to understand the details and tune the maintenance settings as needed.</p>
 
@@ -17,7 +17,7 @@ well as transactions that have to be rolled back. </p>
 includes facilities for running the <code>VACUUM</code> process automatically in
 the background as a maintenance task, periodically trying to clean out
 old data where necessary. This autovacuum process will perform its
-maintenance based on a set of configuration parameters. </p>
+maintenance based on a set of configuration parameters.</p>
 
 <p>The default Heroku configuration is enough for many applications, but in some
 situations, you may need to make some changes or occasionally take
@@ -47,22 +47,27 @@ Heroku Toolbelt.</p>
 
 <p>This shows the bloat factor (the fraction of the original table that
 exists as bloat), and the total bloat (in bytes) in each table and
-index in the system.</p>
+index in the system. There are no units to bloat–it is a ratio.</p>
 
 <p>A very large bloat factor on a table or index can lead to poor
 performance for some queries, as Postgres will plan them without
 considering the bloat.</p>
 
+<p>The threshold for excessive bloat varies according to your query
+patterns and the size of the table, but generally anything with a
+bloat factor over 10 is worth looking into, especially on tables over
+100MB.</p>
+
 <p>To check on vacuuming in your database, you can use another pg-extras
 command:</p>
 
 <pre><code class="term">$ heroku pg:vacuum_stats DATABASE_URL --app sushi
- schema |         table      | last_vacuum | last_autovacuum  |    rowcount    | dead_rowcount  | autovacuum_threshold | expect_autovacuum 
+ schema |         table      | last_vacuum | last_autovacuum  |    rowcount    | dead_rowcount  | autovacuum_threshold | expect_autovacuum
 --------+--------------------+-------------+------------------+----------------+----------------+----------------------+-------------------
  public | queue_classic_jobs |             | 2013-05-20 16:54 |         82,617 |         36,056 |         16,573       | yes
- public | logs               |             | 2013-05-20 16:27 |              1 |             18 |             50       | 
- public | reviews            |             | 2013-05-20 01:36 |             87 |              0 |             67       | 
- public | users              |             | 2013-05-20 16:28 |              0 |             23 |             50       | 
+ public | logs               |             | 2013-05-20 16:27 |              1 |             18 |             50       |
+ public | reviews            |             | 2013-05-20 01:36 |             87 |              0 |             67       |
+ public | users              |             | 2013-05-20 16:28 |              0 |             23 |             50       |
 ...
 </code></pre>
 
@@ -136,7 +141,7 @@ deferential. These changes can be made at the database level.</p>
 
 <pre><code class="term">$ heroku pg:psql
 =&gt; select current_database();
- current_database 
+ current_database
 ------------------
  dd5ir2j6frrtr0
 (1 row)
@@ -225,4 +230,4 @@ VACUUM
 </code></pre>
 
 <p>With carefully managed autovacuum settings, manual vacuuming should
-rarely be necessary, but it’s important to understand how it works.        </p>
+rarely be necessary, but it’s important to understand how it works.</p>

@@ -1,7 +1,7 @@
 <div class="deprecated">
-<p>This article applies to apps on the <a href="/articles/bamboo">Bamboo</a> stack. For the most recent stack, <a href="/articles/cedar">Cedar</a>, see the note on the <a href="/articles/dynos#ephemeral-filesystem">ephemeral writeable filesystem</a>.</p>
+<p>This article applies to apps on the <a href="https://devcenter.heroku.com/articles/bamboo">Bamboo</a> stack. For the most recent stack, <a href="https://devcenter.heroku.com/articles/cedar">Cedar</a>, see the note on the <a href="https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem">ephemeral writeable filesystem</a>.</p>
 </div>
-<p>Your app is <a href="/articles/slug-compiler">compiled into a slug</a> for fast distribution by the <a href="/articles/dynos#the-dyno-manager">dyno manager</a>. The filesystem for the slug is read-only, which means you cannot dynamically write to the filesystem for semi-permanent storage. The following types of behaviors are <em>not</em> supported:</p>
+<p>Your app is <a href="https://devcenter.heroku.com/articles/slug-compiler">compiled into a slug</a> for fast distribution by the <a href="https://devcenter.heroku.com/articles/dynos#the-dyno-manager">dyno manager</a>. The filesystem for the slug is read-only, which means you cannot dynamically write to the filesystem for semi-permanent storage. The following types of behaviors are <em>not</em> supported:</p>
 
 <ul>
 <li>Caching pages in the <code>public</code> directory</li>
@@ -19,10 +19,10 @@
 
 <ul>
 <li>
-<strong>Caching</strong> - Use HTTP headers instead of writing to the filesystem. See our discussion of <a href="http-caching">HTTP caching</a> for more information.</li>
+<strong>Caching</strong> - Use HTTP headers instead of writing to the filesystem. See our discussion of <a href="https://devcenter.heroku.com/articles/http-caching">HTTP caching</a> for more information.</li>
 
 <li>
-<strong>Saving uploaded assets</strong> - Use an asset store system like Amazon S3. See <a href="/articles/s3">large static assets</a> for further discussion.</li>
+<strong>Saving uploaded assets</strong> - Use an asset store system like Amazon S3. See <a href="https://devcenter.heroku.com/articles/s3">large static assets</a> for further discussion.</li>
 
 <li>
 <strong>SQLite or GDBM</strong> - Use the provided PostgreSQL database instead of a filesystem database.</li>

@@ -1,20 +1,21 @@
-<p><a href="/articles/heroku-postgresql">Heroku Postgres</a> logs to the <a href="/articles/logplex">logplex</a> which collates and publishes your application’s log-stream. You can isolate Heroku Postgres events <a href="/articles/logging">with the <code>heroku logs</code> command</a> by filtering for the <code>postgres</code> process.</p>
-<p class="warning">Logs are a production-tier feature. They are not available on starter-tier databases.</p>
+
+<p><a href="https://devcenter.heroku.com/articles/heroku-postgresql">Heroku Postgres</a> logs to the <a href="https://devcenter.heroku.com/articles/logplex">logplex</a> which collates and publishes your application’s log-stream. You can isolate Heroku Postgres events <a href="https://devcenter.heroku.com/articles/logging">with the <code>heroku logs</code> command</a> by filtering for the <code>postgres</code> process.</p>
+<p class="warning">Logs are a production-tier feature. They are not available on hobby-tier databases.</p>
 <pre><code class="term">$ heroku logs -p postgres -t
 2012-11-01T17:41:42+00:00 app[postgres]: [15521-1]  [CHARCOAL] LOG:  checkpoint starting: time
 2012-11-01T17:41:43+00:00 app[postgres]: [15522-1]  [CHARCOAL] LOG:  checkpoint complete: wrote 6 buffers (0.0%); 0 transaction log file(s) added, 0 rem...</code></pre>
 
 <p>Besides seeing system-level Postgres activity, these logs are also useful for understanding your application’s use of Postgres and for diagnosing common errors. This article lists common log statements, their purpose, and any action that should be taken.</p>
 
-<h2 id="log-duration-66-565-ms">LOG: duration: 66.565 ms …</h2>
+<h2 id="log-duration-66-565-ms">LOG: duration: 66.565 ms </h2>
 
 <pre><code>[12-1] u8akd9ajka [BRONZE] LOG:  duration: 64.847 ms  statement: SELECT  "articles".* FROM "articles"...</code></pre>
 
 <p>Queries taking longer than 50ms (or 2 seconds on Postgres 9.2+, where pg_stat_statements becomes available as a better alternative) are logged so they can be identified and optimized. Although small numbers of these long-running queries will not adversely effect application performance, a large quantity may.</p>
 
-<p>Ideally, frequently used queries should be optimized to require &lt; 10ms to execute. Queries are typically optimized by <a href="/articles/postgresql-indexes">adding indexes</a> to avoid sequential scans of the database. Use <a href="http://www.postgresql.org/docs/9.1/static/sql-explain.html">EXPLAIN</a> to diagnose queries.</p>
+<p>Ideally, frequently used queries should be optimized to require &lt; 10ms to execute. Queries are typically optimized by <a href="https://devcenter.heroku.com/articles/postgresql-indexes">adding indexes</a> to avoid sequential scans of the database. Use <a href="http://www.postgresql.org/docs/9.1/static/sql-explain.html">EXPLAIN</a> to diagnose queries.</p>
 
-<h2 id="log-checkpoint-starting">LOG: checkpoint starting…</h2>
+<h2 id="log-checkpoint-starting">LOG: checkpoint starting</h2>
 
 <pre><code>2012-11-01T17:41:42+00:00 app[postgres]: [15521-1]  [CHARCOAL] LOG:  checkpoint starting: time
 2012-11-01T17:41:43+00:00 app[postgres]: [15522-1]  [CHARCOAL] LOG:  checkpoint complete: wrote 6 buffers (0.0%); 0 transaction log file(s) added, 0 rem...</code></pre>
@@ -41,18 +42,18 @@ heroku[web.1]: State changed from up to crashed</code></pre>
 
 <pre><code>FATAL:  too many connections for role "[role name]"</code></pre>
 
-<p>This occurs on Starter Tier (dev and basic) plans, which have a <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans#starter-tier">max connection limit of 20 per user</a>. To resolve this error, close some connections to your database by stopping background workers, reducing the number of dynos, or restarting your application in case it has created connection leaks over time. A discussion on handling connections in a Rails application can be found <a href="https://devcenter.heroku.com/articles/concurrency-and-database-connections">here</a>.</p>
+<p>This occurs on Hobby Tier (hobby-dev and hobby-basic) plans, which have a <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans#hobby-tier">max connection limit of 20 per user</a>. To resolve this error, close some connections to your database by stopping background workers, reducing the number of dynos, or restarting your application in case it has created connection leaks over time. A discussion on handling connections in a Rails application can be found <a href="https://devcenter.heroku.com/articles/concurrency-and-database-connections">here</a>.</p>
 
-<h2 id="fatal-could-not-receive-data">FATAL: could not receive data …</h2>
+<h2 id="fatal-could-not-receive-data">FATAL: could not receive data </h2>
 
 <pre><code>FATAL: could not receive data from WAL stream: SSL error: sslv3 alert unexpected message</code></pre>
 
-<p><a href="/articles/heroku-postgres-follower-databases">Replication from a primary database to a follower</a> was interrupted either because of a transient network error or because SSL failed to renegotiate. This is a transient problem and postgres should automatically recover.</p>
+<p><a href="https://devcenter.heroku.com/articles/heroku-postgres-follower-databases">Replication from a primary database to a follower</a> was interrupted either because of a transient network error or because SSL failed to renegotiate. This is a transient problem and postgres should automatically recover.</p>
 
 <p>You can always find out the current number of commits a follower is behind by using <code>heroku pg:info</code>. Each follower has a “Behind By” entry that indicates how many commits the follower is behind its master.</p>
 
 <pre><code class="term">$ heroku pg:info --app sushi
-=== HEROKU_POSTGRESQL_WHITE 
+=== HEROKU_POSTGRESQL_WHITE
 ...
 Following    HEROKU_POSTGRESQL_LAVENDER (DATABASE_URL)
 Behind By    125 commits</code></pre>
@@ -61,10 +62,10 @@ Behind By    125 commits</code></pre>
 
 <pre><code>FATAL: role "u8akd9ajka" is not permitted to log in (PG::Error)</code></pre>
 
-<p>This occurs when you have de-provisioned a <a href="/articles/heroku-postgres-plans#starter-tier">starter tier database</a> but are still trying to connect to it. To resolve:</p>
+<p>This occurs when you have de-provisioned a <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans#hobby-tier">hobby tier database</a> but are still trying to connect to it. To resolve:</p>
 
 <ul>
-<li>If required, <a href="/articles/heroku-postgresql">provision a new database</a> via <code>heroku addons:add heroku-postgresql</code>
+<li>If required, <a href="https://devcenter.heroku.com/articles/heroku-postgresql">provision a new database</a> via <code>heroku addons:add heroku-postgresql</code>
 </li>
 
 <li>Use <code>heroku pg:promote HEROKU_POSTGRESQL_&lt;new-database-color&gt;</code> to promote it, making it the primary database for your application.</li>
@@ -72,7 +73,7 @@ Behind By    125 commits</code></pre>
 
 <pre><code>PGError: ERROR:  permission denied for relation table-name</code></pre>
 
-<p>Heroku Postgres <a href="/articles/heroku-postgres-plans#starter-tier">starter tier databases</a> have row limits enforced. When you are <a href="/articles/heroku-postgres-plans#row-limit-enforcement">over your row limit</a> and attempt to insert data you will see this error. <a href="/articles/upgrade-heroku-postgres-with-pgbackups">Upgrade to a production tier database</a> or reduce the number of total rows to remove this constraint.</p>
+<p>Heroku Postgres <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans#hobby-tier">hobby tier databases</a> have row limits enforced. When you are <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans#row-limit-enforcement">over your row limit</a> and attempt to insert data you will see this error. <a href="https://devcenter.heroku.com/articles/upgrade-heroku-postgres-with-pgbackups">Upgrade to a production tier database</a> or reduce the number of total rows to remove this constraint.</p>
 
 <h2 id="pgerror-operator-does-not-exist">PGError: operator does not exist</h2>
 
@@ -90,7 +91,7 @@ Behind By    125 commits</code></pre>
 
 <p>Make sure your migrations ran normally, and that you’re referencing a table that exists.</p>
 
-<h2 id="pgerror-column-column-name-cannot">PGError: column “column-name” cannot…</h2>
+<h2 id="pgerror-column-column-name-cannot">PGError: column “column-name” cannot</h2>
 
 <pre><code>PGError: ERROR: column "verified_at" cannot be cast to type "date"</code></pre>
 
@@ -111,10 +112,16 @@ Behind By    125 commits</code></pre>
 </ul><p>These errors indicate a client side violation of the wire protocol. This happens for one of two reasons:</p>
 
 <ul>
-<li>The Postgres connection is shared between more than one process or thread. Typical offenders are Resque workers or Unicorn. Be sure to <a href="/articles/forked-pg-connections">correctly establish the PG connection after the fork or thread has initialized</a> to resolve this issue.</li>
+<li>The Postgres connection is shared between more than one process or thread. Typical offenders are Resque workers or Unicorn. Be sure to <a href="https://devcenter.heroku.com/articles/forked-pg-connections">correctly establish the PG connection after the fork or thread has initialized</a> to resolve this issue.</li>
 
 <li>Abrupt client (application side) disconnections. This can happen for many reasons, from your app crashing, to transient network availability. When your app tries to issue a query again against postgres, the connection is just gone, leading to a crash. When Heroku detects a crash, we kill that dyno and start a new one, which re-establishes the connection.</li>
-</ul><h2 id="this-database-does-not-support-forking-and-following">This database does not support forking and following</h2>
+</ul><h2 id="pgerror-prepared-statement-a30-already-exists">PGError: prepared statement “a30” already exists</h2>
+
+<p>This is similar to the above–there is no protocol violation, but the client is mistakenly trying to set up a prepared statement with the same name as an existing one without cleaning up the original (the name of the prepared statement in the error will, of course, vary).</p>
+
+<p>This is also typically caused by <a href="https://devcenter.heroku.com/articles/forked-pg-connections">a Postgres connection shared improperly</a> between more than one process or thread.</p>
+
+<h2 id="this-database-does-not-support-forking-and-following">This database does not support forking and following</h2>
 
 <p>Some older Ronin and Fugu databases provisioned on a 32-bit processor architecture don’t support forking and following to current plans, all of which are 64-bit. If have one of these databases, you will see an error message such as this:</p>
 
@@ -123,4 +130,4 @@ Behind By    125 commits</code></pre>
  !    This database does not support forking and following to the ika plan.
  !    Please see http://devcenter.heroku.com/articles/unsupported-fork-follow</code></pre>
 
-<p>Your database is fine and is still supported. However if you’d like to use the fork or follow feature you will need to first create a fresh database with <a href="/articles/upgrade-heroku-postgres-with-pgbackups">PG Backups</a> from which you can then fork or follow.</p>
+<p>Your database is fine and is still supported. However if you’d like to use the fork or follow feature you will need to first create a fresh database with <a href="https://devcenter.heroku.com/articles/upgrade-heroku-postgres-with-pgbackups">PG Backups</a> from which you can then fork or follow.</p>

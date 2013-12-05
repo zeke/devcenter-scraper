@@ -1,31 +1,59 @@
-<p>By design, connections to Postgres databases are persistent to reduce the performance impact of having to re-establish a connection for every invocation. While this increases the performance of your application it also requires properly establishing the connection, especially in forked environments.</p>
+<p>By design, connections to Postgres databases are persistent to reduce
+the performance impact of having to re-establish a connection for
+every invocation. While this increases the performance of your
+application it also requires properly establishing the connection,
+especially in forked environments.</p>
 
 <h2 id="forked-environments">Forked environments</h2>
 
-<p>If you are using a framework or library that utilizes forked processes, connections to Postgres (and any other resources) should be established after the fork completes. This ensures that each forked process has its own connection and avoids several of the most common connections errors such as <code>no connection to the server</code> and <code>SSL
+<p>If you are using a framework or library that utilizes forked
+processes, connections to Postgres (and any other resources) should be
+established after the fork completes. This ensures that each forked
+process has its own connection and avoids several of the most common
+connections errors such as <code>no connection to the server</code> and <code>SSL
 SYSCALL error: EOF detected</code></p>
 
-<p>Connection instructions for several common frameworks and libraries are included here.</p>
+<p>Connection instructions for several common frameworks and libraries
+are included here.</p>
 
 <h2 id="database-connection-pools">Database connection pools</h2>
 
-<p>When using a fork-based server of any kind, each fork will receive its own database connection pool. For this reason, most applications using fork-based web servers receive the best performance when the application-level (e.g. Rails, Sequel, Django, etc) connection pool is not used, or used with a pool size of one.</p>
+<p>When using a fork-based server of any kind, each fork will receive its
+own database connection pool.  For this reason, most applications
+using fork-based web servers receive the best performance when the
+application-level (e.g. Rails, Sequel, Django, etc) connection pool is
+not used, or used with a pool size of one.</p>
 
-<p>Overuse of database connections can result in lower overall performance, “out of memory” errors reported by the database server, and the database server’s refusal to accept connections from additional clients (connection limit reached).</p>
+<p>Overuse of database connections can result in lower overall
+performance, “out of memory” errors reported by the database server,
+and the database server’s refusal to accept connections from
+additional clients (connection limit reached).</p>
 
-<p>Applications that are exempt from this advice tend to have been purposefully written to take advantage of or require multiple simultaneous transactions within the context of a single HTTP request.</p>
+<p>Applications that are exempt from this advice tend to have been
+purposefully written to take advantage of or require multiple
+simultaneous transactions within the context of a single HTTP request.</p>
 
 <h2 id="ruby-on-rails">Ruby on Rails</h2>
 
-<p>Important Postgres reconnection bugs have been fixed in ActiveRecord 3.2.9. Previous releases (3.1, 3.0, 2.x) have not received these enhancements. If you’re using ActiveRecord 3.2, upgrading to a version at or above 3.2.9 is recommended.</p>
+<p>Important Postgres reconnection bugs have been fixed in ActiveRecord
+3.2.9. Previous releases (3.1, 3.0, 2.x) have not received these
+enhancements. If you’re using ActiveRecord 3.2, upgrading to a version
+at or above 3.2.9 is recommended.</p>
 
-<p>For previous versions, exiting the process when <code>PGError</code> is propagated from the application is recommended since Heroku will automatically <a href="/articles/dynos#automatic-dyno-restarts">restart crashed dynos</a>.</p>
+<p>For previous versions, exiting the process when <code>PGError</code> is
+propagated from the application is recommended since Heroku will
+automatically <a href="https://devcenter.heroku.com/articles/dynos#automatic-dyno-restarts">restart crashed
+dynos</a>.</p>
 
 <h2 id="unicorn-server">Unicorn server</h2>
 
-<p><a href="http://unicorn.bogomips.org/">Unicorn</a> is a Rack HTTP server that uses forked process to handling incoming requests. Specify the before and after fork behavior in the <a href="http://unicorn.bogomips.org/examples/unicorn.conf.rb"><code>unicorn.conf</code> configuration file</a>.</p>
+<p><a href="http://unicorn.bogomips.org/">Unicorn</a> is a Rack HTTP server that
+uses forked process to handling incoming requests. Specify the before
+and after fork behavior in the <a href="http://unicorn.bogomips.org/examples/unicorn.conf.rb"><code>unicorn.conf</code> configuration
+file</a>.</p>
 
-<p>In a Rails app or an app using <code>ActiveRecord</code> add the following <code>before_fork</code> and <code>after_fork</code> blocks in <code>unicorn.conf</code>:</p>
+<p>In a Rails app or an app using <code>ActiveRecord</code> add the following
+<code>before_fork</code> and <code>after_fork</code> blocks in <code>unicorn.conf</code>:</p>
 
 <pre><code class="ruby">before_fork do |server, worker|
 
@@ -45,15 +73,23 @@ after_fork do |server, worker|
   end
 
   defined?(ActiveRecord::Base) and
-    ActiveRecord::Base.establish_connection
+    ActiveRecord::Base.establish_connection(
+      Rails.application.config.database_configuration[Rails.env]
+    )
 
-end</code></pre>
+end
+</code></pre>
 
 <h2 id="resque-ruby-queuing">Resque ruby queuing</h2>
 
-<p><a href="https://github.com/defunkt/resque">Resque</a> uses forking to create new worker processes. The main process connection should be disconnected before forking (to avoid consuming unnecessary resources) while worker connections should be established <a href="https://github.com/resque/resque/blob/master/docs/HOOKS.md">after the fork occurs</a>.</p>
+<p><a href="https://github.com/defunkt/resque">Resque</a> uses forking to create new
+worker processes. The main process connection should be disconnected
+before forking (to avoid consuming unnecessary resources) while worker
+connections should be established <a href="https://github.com/resque/resque/blob/master/docs/HOOKS.md">after the fork
+occurs</a>.</p>
 
-<p>You can specify this behavior by cleaning up and re-establishing connections in an initializer:</p>
+<p>You can specify this behavior by cleaning up and re-establishing
+connections in an initializer:</p>
 
 <pre><code class="ruby">  Resque.before_fork do
     defined?(ActiveRecord::Base) and
@@ -63,12 +99,22 @@ end</code></pre>
   Resque.after_fork do
     defined?(ActiveRecord::Base) and
       ActiveRecord::Base.establish_connection
-  end</code></pre>
+  end
+</code></pre>
 
 <h2 id="disabling-new-relic-explain">Disabling New Relic EXPLAIN</h2>
 
-<p>The current implementation of New Relic auto-<code>EXPLAIN</code> can cause one extra database connection to be used per fork. For high-volume applications that cannot tolerate the extra connection, it may be worthwhile to disable the automatic <code>EXPLAIN</code> feature of New Relic.</p>
+<p>The current implementation of New Relic auto-<code>EXPLAIN</code> can cause one
+extra database connection to be used per fork.  For high-volume
+applications that cannot tolerate the extra connection, it may be
+worthwhile to disable the automatic <code>EXPLAIN</code> feature of New Relic.</p>
 
-<p>Staff from New Relic <a href="https://twitter.com/amateurhuman/status/308692401483042816">have indicated</a> that this use of connections may be optimized in the future.</p>
+<p>Staff from New Relic <a href="https://twitter.com/amateurhuman/status/308692401483042816">have
+indicated</a>
+that this use of connections may be optimized in the future.</p>
 
-<p>If using Postgres 9.2 or later, investigating <a href="https://postgres.heroku.com/blog/past/2012/12/6/postgres_92_now_available#visibility">pg_stat_statements</a> is recommended. Useful in its own right, it can also help mitigate some of the loss in visibility caused by disabling New Relic’s auto-<code>EXPLAIN</code>.</p>
+<p>If using Postgres 9.2 or later, investigating
+<a href="https://postgres.heroku.com/blog/past/2012/12/6/postgres_92_now_available#visibility">pg<em>stat</em>statements</a>
+is recommended.  Useful in its own right, it can also help mitigate
+some of the loss in visibility caused by disabling New Relic’s
+auto-<code>EXPLAIN</code>.</p>

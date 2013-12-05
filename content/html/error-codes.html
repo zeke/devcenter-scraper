@@ -9,142 +9,167 @@
 2010-10-06T21:51:09-07:00 app[web.1]: &gt;&gt; Using rails adapter
 2010-10-06T21:51:09-07:00 app[web.1]: Missing the Rails 2.3.5 gem. Please `gem install -v=2.3.5 rails`, update your RAILS_GEM_VERSION setting in config/environment.rb for the Rails version you do have installed, or comment out RAILS_GEM_VERSION to use the latest version installed.
 2010-10-06T21:51:10-07:00 heroku[web.1]: Process exited
-2010-10-06T21:51:12-07:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=</code></pre>
+2010-10-06T21:51:12-07:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=
+</code></pre>
 
 <h2 id="h11-backlog-too-deep">H11 - Backlog too deep</h2>
 
 <p>When HTTP requests arrive faster than your application can process them, they can form a large backlog on a number of routers. When the backlog on a particular router passes a threshold, the router determines that your application isn’t keeping up with its incoming request volume. You’ll see an H11 error for each incoming request as long as the backlog is over this size. The exact value of this threshold may change depending on various factors, such as the number of dynos in your app, response time for individual requests, and your app’s normal request volume.</p>
 
-<pre><code>2010-10-06T21:51:07-07:00 heroku[router]: at=error code=H11 desc="Backlog too deep" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=</code></pre>
+<pre><code>2010-10-06T21:51:07-07:00 heroku[router]: at=error code=H11 desc="Backlog too deep" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=
+</code></pre>
 
 <p>The solution is to increase your app’s throughput by adding more dynos, tuning your database (for example, adding an index), or making the code itself faster. As always, increasing performance is highly application-specific and requires profiling.</p>
 
 <h2 id="h12-request-timeout">H12 - Request timeout</h2>
+
 <div class="callout">
-<p>For more information on request timeouts (including recommendations for resolving them), take a look at <a href="/articles/request-timeout">our article on the topic</a>.</p>
+<p>For more information on request timeouts (including recommendations for resolving them), take a look at <a href="https://devcenter.heroku.com/articles/request-timeout">our article on the topic</a>.</p>
 </div>
-<p>An HTTP <a href="/articles/request-timeout">request took longer than 30 seconds</a> to complete. In the example below, a Rails app takes 37 seconds to render the page; the HTTP router returns a 503 prior to Rails completing its request cycle, but the Rails process continues and the completion message shows after the router message.</p>
+
+<p>An HTTP <a href="https://devcenter.heroku.com/articles/request-timeout">request took longer than 30 seconds</a> to complete. In the example below, a Rails app takes 37 seconds to render the page; the HTTP router returns a 503 prior to Rails completing its request cycle, but the Rails process continues and the completion message shows after the router message.</p>
 
 <pre><code>2010-10-06T21:51:07-07:00 app[web.2]: Processing PostController#list (for 75.36.147.245 at 2010-10-06 21:51:07) [GET]
 2010-10-06T21:51:08-07:00 app[web.2]: Rendering template within layouts/application
 2010-10-06T21:51:19-07:00 app[web.2]: Rendering post/list
 2010-10-06T21:51:37-07:00 heroku[router]: at=error code=H12 desc="Request timeout" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno=web.1 connect=6ms service=30001ms status=503 bytes=0
-2010-10-06T21:51:42-07:00 app[web.2]: Completed in 37000ms (View: 27, DB: 21) | 200 OK [http://myapp.heroku.com/]</code></pre>
+2010-10-06T21:51:42-07:00 app[web.2]: Completed in 37000ms (View: 27, DB: 21) | 200 OK [http://myapp.heroku.com/]
+</code></pre>
 
 <p>This 30-second limit is measured by the router, and includes all time spent in the dyno, including the kernel’s incoming connection queue and the app itself.</p>
 
-<p>See <a href="/articles/request-timeout">Request Timeout</a> for more.</p>
+<p>See <a href="https://devcenter.heroku.com/articles/request-timeout">Request Timeout</a> for more.</p>
 
 <h2 id="h13-connection-closed-without-response">H13 - Connection closed without response</h2>
 
 <p>This error is thrown when a process in your web dyno accepts a connection, but then closes the socket without writing anything to it.</p>
 
-<pre><code>2010-10-06T21:51:37-07:00 heroku[router]: at=error code=H13 desc="Connection closed without response" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno=web.1 connect=3030ms service=9767ms status=503 bytes=0</code></pre>
+<pre><code>2010-10-06T21:51:37-07:00 heroku[router]: at=error code=H13 desc="Connection closed without response" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno=web.1 connect=3030ms service=9767ms status=503 bytes=0
+</code></pre>
 
-<p>One example where this might happen is when a <a href="/articles/rails-unicorn">Unicorn web server</a> is configured with a timeout shorter than 30s and a request has not been processed by a worker before the timeout happens. In this case, Unicorn closes the connection before any data is written, resulting in an H13.</p>
+<p>One example where this might happen is when a <a href="https://devcenter.heroku.com/articles/rails-unicorn">Unicorn web server</a> is configured with a timeout shorter than 30s and a request has not been processed by a worker before the timeout happens. In this case, Unicorn closes the connection before any data is written, resulting in an H13.</p>
 
 <h2 id="h14-no-web-dynos-running">H14 - No web dynos running</h2>
 
 <p>This is most likely the result of scaling your web dynos down to 0 dynos. To fix it, scale your web dynos to 1 or more dynos:</p>
 
-<pre><code class="term">$ heroku ps:scale web=1</code></pre>
+<pre><code class="term">$ heroku ps:scale web=1
+</code></pre>
 
 <p>Use the <code>heroku ps</code> command to determine the state of your web dynos.</p>
 
-<pre><code>2010-10-06T21:51:37-07:00 heroku[router]: at=error code=H14 desc="No web processes running" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=</code></pre>
+<pre><code>2010-10-06T21:51:37-07:00 heroku[router]: at=error code=H14 desc="No web processes running" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=
+</code></pre>
 
 <h2 id="h15-idle-connection">H15 - Idle connection</h2>
 
-<p>The idle connection error is logged when a request is <a href="/articles/request-timeout">terminated due to 55 seconds of inactivity</a>.</p>
+<p>The idle connection error is logged when a request is <a href="https://devcenter.heroku.com/articles/request-timeout">terminated due to 55 seconds of inactivity</a>.</p>
 
-<pre><code>2010-10-06T21:51:37-07:00 heroku[router]: at=error code=H15 desc="Idle connection" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno=web.1 connect=1ms service=55449ms status=503 bytes=18</code></pre>
+<pre><code>2010-10-06T21:51:37-07:00 heroku[router]: at=error code=H15 desc="Idle connection" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno=web.1 connect=1ms service=55449ms status=503 bytes=18
+</code></pre>
 
 <h2 id="h16-redirect-to-herokuapp-com">H16 - Redirect to herokuapp.com</h2>
 
-<p>Apps on Cedar’s <a href="http-routing">HTTP routing stack</a> use the herokuapp.com domain. Requests made to a Cedar app at its deprecated heroku.com domain will be redirected to the correct herokuapp.com address and this redirect message will be inserted into the app’s logs.</p>
+<p>Apps on Cedar’s <a href="https://devcenter.heroku.com/articles/http-routing">HTTP routing stack</a> use the herokuapp.com domain. Requests made to a Cedar app at its deprecated heroku.com domain will be redirected to the correct herokuapp.com address and this redirect message will be inserted into the app’s logs.</p>
 
-<pre><code>2010-10-06T21:51:37-07:00 heroku[router]: at=info code=H16 desc="herokuapp redirect" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=301 bytes=</code></pre>
+<pre><code>2010-10-06T21:51:37-07:00 heroku[router]: at=info code=H16 desc="herokuapp redirect" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=301 bytes=
+</code></pre>
 
 <h2 id="h17-poorly-formatted-http-response">H17 - Poorly formatted HTTP response</h2>
 
 <p>This error message is logged when a router detects a malformed HTTP response coming from a dyno.</p>
 
-<pre><code>2010-10-06T21:51:37-07:00 heroku[router]: at=info code=H17 desc="Poorly formatted HTTP response" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno=web.1 connect=1ms service=1ms status=503 bytes=0</code></pre>
+<pre><code>2010-10-06T21:51:37-07:00 heroku[router]: at=info code=H17 desc="Poorly formatted HTTP response" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno=web.1 connect=1ms service=1ms status=503 bytes=0
+</code></pre>
 
 <h2 id="h18-request-interrupted">H18 - Request Interrupted</h2>
 
 <p>Either the client socket or backend (your app’s web process) socket was closed before the backend returned an HTTP response. The <code>sock</code> field in the log has the value <code>client</code> or <code>backend</code> depending on which socket was closed.</p>
 
-<pre><code>2010-10-06T21:51:37-07:00 heroku[router]: at=error code=H18 desc="Request Interrupted" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno=web.1 connect=1ms service=0ms status=503 bytes=0 sock=client</code></pre>
+<pre><code>2010-10-06T21:51:37-07:00 heroku[router]: at=error code=H18 desc="Request Interrupted" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno=web.1 connect=1ms service=0ms status=503 bytes=0 sock=client
+</code></pre>
 
 <h2 id="h19-backend-connection-timeout">H19 - Backend connection timeout</h2>
 
 <p>A router received a connection timeout error after 5 seconds attempting to open a socket to a web dyno. This is usually a symptom of your app being overwhelmed and failing to accept new connections in a timely manner. If you have multiple dynos, the router will retry multiple dynos before logging H19 and serving a standard error page.</p>
 
-<p>If your app has a single web dyno, it is possible to see H19 errors if the runtime instance running your web dyno fails and is replaced. Once the failure is detected and the instance is terminated your web dyno will be restarted somewhere else, but in the meantime, H19s may be served as the router fails to establish a connection to your dyno. This can be mitigated by running more than one web dyno.</p>
+<p>If your app has a single web dyno, it is possible to see H19 errors if the runtime instance running your web dyno fails and is replaced.  Once the failure is detected and the instance is terminated your web dyno will be restarted somewhere else, but in the meantime, H19s may be served as the router fails to establish a connection to your dyno.  This can be mitigated by running more than one web dyno.</p>
 
-<pre><code>2010-10-06T21:51:07-07:00 heroku[router]: at=error code=H19 desc="Backend connection timeout" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno=web.1 connect=5001ms service= status=503 bytes=</code></pre>
+<pre><code>2010-10-06T21:51:07-07:00 heroku[router]: at=error code=H19 desc="Backend connection timeout" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno=web.1 connect=5001ms service= status=503 bytes=
+</code></pre>
 
 <h2 id="h20-app-boot-timeout">H20 - App boot timeout</h2>
 
 <p>The router will enqueue requests for 75 seconds while waiting for starting processes to reach an “up” state. If after 75 seconds, no web dynos have reached an “up” state, the router logs H20 and serves a standard error page.</p>
 
-<pre><code>2010-10-06T21:51:07-07:00 heroku[router]: at=error code=H20 desc="App boot timeout" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=</code></pre>
+<pre><code>2010-10-06T21:51:07-07:00 heroku[router]: at=error code=H20 desc="App boot timeout" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=
+</code></pre>
+
 <div class="note">
-<p>The Ruby on Rails <a href="http://guides.rubyonrails.org/asset_pipeline.html">asset pipeline</a> can sometimes fail to run during <a href="/articles/git">git push</a>, and will instead attempt to run when your app’s <a href="/articles/dynos">dynos</a> boot. Since the Rails asset pipeline is a slow process, this can cause H20 boot timeout errors.</p>
+<p>The Ruby on Rails <a href="http://guides.rubyonrails.org/asset_pipeline.html">asset pipeline</a> can sometimes fail to run during <a href="https://devcenter.heroku.com/articles/git">git push</a>, and will instead attempt to run when your app’s <a href="https://devcenter.heroku.com/articles/dynos">dynos</a> boot. Since the Rails asset pipeline is a slow process, this can cause H20 boot timeout errors.</p>
 </div>
+
 <p>This error differs from <a href="#r10-boot-timeout">R10</a> in that the H20 75-second timeout includes platform tasks such as internal state propagation, requests between internal components, slug download, unpacking, container preparation, etc… The R10 60-second timeout applies solely to application startup tasks.</p>
 
 <h2 id="h21-backend-connection-refused">H21 - Backend connection refused</h2>
 
 <p>A router received a connection refused error when attempting to open a socket to your web process. This is usually a symptom of your app being overwhelmed and failing to accept new connections. If you have multiple dynos, the router will retry multiple dynos before logging H21 and serving a standard error page.</p>
 
-<pre><code>2010-10-06T21:51:07-07:00 heroku[router]: at=error code=H21 desc="Backend connection refused" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno=web.1 connect=1ms service= status=503 bytes=</code></pre>
+<pre><code>2010-10-06T21:51:07-07:00 heroku[router]: at=error code=H21 desc="Backend connection refused" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno=web.1 connect=1ms service= status=503 bytes=
+</code></pre>
 
 <h2 id="h22-connection-limit-reached">H22 - Connection limit reached</h2>
 
 <p>A routing node has detected an elevated number of HTTP client connections attempting to reach your app. Reaching this threshold most likely means your app is under heavy load and is not responding quickly enough to keep up. The exact value of this threshold may change depending on various factors, such as the number of dynos in your app, response time for individual requests, and your app’s normal request volume.</p>
 
-<pre><code>2010-10-06T21:51:07-07:00 heroku[router]: at=error code=H22 desc="Connection limit reached" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=</code></pre>
+<pre><code>2010-10-06T21:51:07-07:00 heroku[router]: at=error code=H22 desc="Connection limit reached" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=
+</code></pre>
 
 <h2 id="h23-endpoint-misconfigured">H23 - Endpoint misconfigured</h2>
 
 <p>A routing node has detected a <a href="https://tools.ietf.org/html/rfc6455#section-1.3">websocket handshake</a>, specifically the ‘Sec-Websocket-Version’ header in the request, that came from an endpoint (upstream proxy) that does not support websockets.</p>
 
-<pre><code>2010-10-06T21:51:07-07:00 heroku[router]: at=error code=H23 desc="Endpoint misconfigured" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=</code></pre>
+<pre><code>2010-10-06T21:51:07-07:00 heroku[router]: at=error code=H23 desc="Endpoint misconfigured" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=
+</code></pre>
 
 <h2 id="h70-access-to-bamboo-http-endpoint-denied">H70 - Access to Bamboo HTTP endpoint denied</h2>
 
-<p>HTTP traffic for <a href="/articles/cedar">Cedar</a> apps is not allowed to route through the legacy <a href="/articles/bamboo">Bamboo</a> routing stack. If your Cedar app is producing this error then you need to follow the instructions documented in the <a href="/articles/custom-domains#custom-subdomains">custom domains article</a> to properly configure the DNS records for your custom domains.</p>
+<p>HTTP traffic for <a href="https://devcenter.heroku.com/articles/cedar">Cedar</a> apps is not allowed to route through the legacy <a href="https://devcenter.heroku.com/articles/bamboo">Bamboo</a> routing stack.  If your Cedar app is producing this error then you need to follow the instructions documented in the <a href="https://devcenter.heroku.com/articles/custom-domains#custom-subdomains">custom domains article</a> to properly configure the DNS records for your custom domains.</p>
 
 <p>Specifically, your DNS configuration should not use the deprecated <code>proxy.heroku.com</code> target and instead point to <code>yourappname.herokuapp.com</code>.</p>
 
-<pre><code>2010-10-06T21:51:07-07:00 heroku[router]: at=error code=H70 desc="Access to bamboo HTTP endpoint denied" method=GET path=/ host=foo.myapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=</code></pre>
+<pre><code>2010-10-06T21:51:07-07:00 heroku[router]: at=error code=H70 desc="Access to bamboo HTTP endpoint denied" method=GET path=/ host=foo.myapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=
+</code></pre>
 
 <h2 id="h80-maintenance-mode">H80 - Maintenance mode</h2>
 
 <p>This is not an error, but we give it a code for the sake of completeness. Note the log formatting is the same but without the word “Error”.</p>
 
-<pre><code>2010-10-06T21:51:07-07:00 heroku[router]: at=info code=H80 desc="Maintenance mode" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=</code></pre>
+<pre><code>2010-10-06T21:51:07-07:00 heroku[router]: at=info code=H80 desc="Maintenance mode" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=
+</code></pre>
 
 <h2 id="h99-platform-error">H99 - Platform error</h2>
+
 <div class="callout">
 <p>H99 and R99 are the only error codes that represent errors in the Heroku platform.</p>
 </div>
+
 <p>This indicates an internal error in the Heroku platform. Unlike all of the other errors which will require action from you to correct, this one does not require action from you. Try again in a minute, or check <a href="http://status.heroku.com/">the status site</a>.</p>
 
-<pre><code>2010-10-06T21:51:07-07:00 heroku[router]: at=error code=H99 desc="Platform error" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=</code></pre>
+<pre><code>2010-10-06T21:51:07-07:00 heroku[router]: at=error code=H99 desc="Platform error" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=
+</code></pre>
 
 <h2 id="r10-boot-timeout">R10 - Boot timeout</h2>
 
-<p>A web process took longer than 60 seconds to bind to its assigned <code>$PORT</code>. When this happens, the dyno’s process is killed and the dyno is considered crashed. Crashed dynos are restarted according to the dyno manager’s <a href="/articles/dynos#automatic-dyno-restarts">restart policy</a>.</p>
+<p>A web process took longer than 60 seconds to bind to its assigned <code>$PORT</code>. When this happens, the dyno’s process is killed and the dyno is considered crashed. Crashed dynos are restarted according to the dyno manager’s <a href="https://devcenter.heroku.com/articles/dynos#automatic-dyno-restarts">restart policy</a>.</p>
 
 <pre><code>2011-05-03T17:31:38+00:00 heroku[web.1]: State changed from created to starting
 2011-05-03T17:31:40+00:00 heroku[web.1]: Starting process with command: `bundle exec rails server -p 22020 -e production`
 2011-05-03T17:32:40+00:00 heroku[web.1]: Error R10 (Boot timeout) -&gt; Web process failed to bind to $PORT within 60 seconds of launch
 2011-05-03T17:32:40+00:00 heroku[web.1]: Stopping process with SIGKILL
 2011-05-03T17:32:40+00:00 heroku[web.1]: Process exited
-2011-05-03T17:32:41+00:00 heroku[web.1]: State changed from starting to crashed</code></pre>
+2011-05-03T17:32:41+00:00 heroku[web.1]: State changed from starting to crashed
+</code></pre>
 
 <p>This error is often caused by a process being unable to reach an external resource, such as a database, or the application doing too much work, such as parsing and evaluating numerous, large code dependencies, during startup.</p>
 
@@ -161,7 +186,8 @@
 2011-05-03T17:40:18+00:00 app[worker.1]: Working
 2011-05-03T17:40:21+00:00 heroku[worker.1]: Error R12 (Exit timeout) -&gt; Process failed to exit within 10 seconds of SIGTERM
 2011-05-03T17:40:21+00:00 heroku[worker.1]: Stopping process with SIGKILL
-2011-05-03T17:40:21+00:00 heroku[worker.1]: Process exited</code></pre>
+2011-05-03T17:40:21+00:00 heroku[worker.1]: Process exited
+</code></pre>
 
 <h2 id="r13-attach-error">R13 - Attach error</h2>
 
@@ -170,26 +196,29 @@
 <pre><code>2011-06-29T02:13:29+00:00 app[run.3]: Awaiting client
 2011-06-29T02:13:30+00:00 heroku[run.3]: State changed from starting to up
 2011-06-29T02:13:59+00:00 app[run.3]: Error R13 (Attach error) -&gt; Failed to attach to process
-2011-06-29T02:13:59+00:00 heroku[run.3]: Process exited</code></pre>
+2011-06-29T02:13:59+00:00 heroku[run.3]: Process exited
+</code></pre>
 
 <h2 id="r14-memory-quota-exceeded">R14 - Memory quota exceeded</h2>
 
-<p>A dyno requires memory in excess of its <a href="/articles/dynos#memory-behavior">quota</a> (512 MB on 1X dynos, 1024 MB on 2X dynos) . If this error occurs, the dyno will <a href="http://en.wikipedia.org/wiki/Paging">page to swap space</a> to continue running, which may cause degraded process performance.</p>
+<p>A dyno requires memory in excess of its <a href="https://devcenter.heroku.com/articles/dynos#memory-behavior">quota</a> (512 MB on 1X dynos, 1024 MB on 2X dynos) . If this error occurs, the dyno will <a href="http://en.wikipedia.org/wiki/Paging">page to swap space</a> to continue running, which may cause degraded process performance.</p>
 
 <pre><code>2011-05-03T17:40:10+00:00 app[worker.1]: Working
 2011-05-03T17:40:10+00:00 heroku[worker.1]: Process running mem=528MB(103.3%)
 2011-05-03T17:40:11+00:00 heroku[worker.1]: Error R14 (Memory quota exceeded)
-2011-05-03T17:41:52+00:00 app[worker.1]: Working</code></pre>
+2011-05-03T17:41:52+00:00 app[worker.1]: Working
+</code></pre>
 
 <h2 id="r15-memory-quota-vastly-exceeded">R15 - Memory quota vastly exceeded</h2>
 
-<p>A dyno requires vastly more memory than its <a href="/articles/dynos#memory-behavior">quota</a> and is consuming excessive swap space. If this error occurs, the dyno will be killed by the platform.</p>
+<p>A dyno requires vastly more memory than its <a href="https://devcenter.heroku.com/articles/dynos#memory-behavior">quota</a> and is consuming excessive swap space. If this error occurs, the dyno will be killed by the platform.</p>
 
 <pre><code>2011-05-03T17:40:10+00:00 app[worker.1]: Working
 2011-05-03T17:40:10+00:00 heroku[worker.1]: Process running mem=2565MB(501.0%)
 2011-05-03T17:40:11+00:00 heroku[worker.1]: Error R15 (Memory quota vastly exceeded)
 2011-05-03T17:40:11+00:00 heroku[worker.1]: Stopping process with SIGKILL
-2011-05-03T17:40:12+00:00 heroku[worker.1]: Process exited</code></pre>
+2011-05-03T17:40:12+00:00 heroku[worker.1]: Process exited
+</code></pre>
 
 <h2 id="r16-detached">R16 – Detached</h2>
 
@@ -200,19 +229,23 @@
 2011-05-03T17:40:11+00:00 heroku[run.1]: Client connection closed. Sending SIGHUP to all processes
 2011-05-03T17:40:16+00:00 heroku[run.1]: Client connection closed. Sending SIGHUP to all processes
 2011-05-03T17:40:21+00:00 heroku[run.1]: Client connection closed. Sending SIGHUP to all processes
-2011-05-03T17:40:26+00:00 heroku[run.1]: Error R16 (Detached) -&gt; An attached process is not responding to SIGHUP after its external connection was closed.</code></pre>
+2011-05-03T17:40:26+00:00 heroku[run.1]: Error R16 (Detached) -&gt; An attached process is not responding to SIGHUP after its external connection was closed.
+</code></pre>
 
 <h2 id="r99-platform-error">R99 - Platform error</h2>
+
 <div class="callout">
 <p>R99 and H99 are the only error codes that represent errors in the Heroku platform.</p>
 </div>
+
 <p>This indicates an internal error in the Heroku platform. Unlike all of the other errors which will require action from you to correct, this one does not require action from you. Try again in a minute, or check <a href="http://status.heroku.com/">the status site</a>.</p>
 
 <h2 id="l10-drain-buffer-overflow">L10 - Drain buffer overflow</h2>
 
-<pre><code>2013-04-17T19:04:46+00:00 d.1234-drain-identifier-567 heroku logplex - - Error L10 (output buffer overflow): 500 messages dropped since 2013-04-17T19:04:46+00:00.</code></pre>
+<pre><code>2013-04-17T19:04:46+00:00 d.1234-drain-identifier-567 heroku logplex - - Error L10 (output buffer overflow): 500 messages dropped since 2013-04-17T19:04:46+00:00.
+</code></pre>
 
-<p>The number of log messages being generated has temporarily exceeded the rate at which they can be delivered and Logplex, <a href="/articles/logging">Heroku’s logging system</a>, has discarded some messages in order to catch up.</p>
+<p>The number of log messages being generated has temporarily exceeded the rate at which they can be delivered and Logplex, <a href="https://devcenter.heroku.com/articles/logging">Heroku’s logging system</a>, has discarded some messages in order to catch up.</p>
 
 <p>A common cause of L10 error messages is a sudden burst of log messages from a dyno. As each line of dyno output (e.g. a line of a stack trace) is a single log message, and Logplex limits the total number of un-transmitted log messages it will keep in memory to 1024 messages, a burst of lines from a dyno can overflow buffers in Logplex. In order to allow the log stream to catch up, Logplex will discard messages where necessary, keeping newer messages in favour of older ones.</p>
 
@@ -222,4 +255,12 @@
 
 <p>A heroku logs –tail session cannot keep up with the volume of logs generated by the application or log channel, and Logplex has discarded some log lines necessary to catch up. To avoid this error you will need run the command on a faster internet connection (increase the rate at which you can receive logs) or you will need to modify your application to reduce the logging volume (decrease the rate at which logs are generated).</p>
 
-<pre><code>2011-05-03T17:40:10+00:00 heroku[logplex]: L11 (Tail buffer overflow) -&gt; This tail session dropped 1101 messages since 2011-05-03T17:35:00+00:00</code></pre>
+<pre><code>2011-05-03T17:40:10+00:00 heroku[logplex]: L11 (Tail buffer overflow) -&gt; This tail session dropped 1101 messages since 2011-05-03T17:35:00+00:00
+</code></pre>
+
+<h2 id="l12-local-buffer-overflow">L12 - Local buffer overflow</h2>
+
+<p>The application is producing logs faster than the local delivery process (log-shuttle) can deliver them to Logplex and has discarded some log lines in order to keep up. If this error is sustained you will need to reduce the logging volume of your application.</p>
+
+<pre><code>2013-11-04T21:31:32.125756+00:00 app[log-shuttle]: Error L12: 222 messages dropped since 2013-11-04T21:31:32.125756+00:00.
+</code></pre>

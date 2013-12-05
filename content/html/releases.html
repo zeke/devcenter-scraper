@@ -1,4 +1,5 @@
-<p>Whenever you <a href="/articles/git">deploy code</a>, change a <a href="/articles/config-vars">config var</a>, or add or remove an <a href="/articles/managing-add-ons">add-on resource</a>, Heroku creates a new release and restarts your app. You can list the history of releases, and use rollbacks to revert to prior releases for backing out of bad deploys or config changes.</p>
+
+<p>Whenever you <a href="https://devcenter.heroku.com/articles/git">deploy code</a>, change a <a href="https://devcenter.heroku.com/articles/config-vars">config var</a>, or add or remove an <a href="https://devcenter.heroku.com/articles/managing-add-ons">add-on resource</a>, Heroku creates a new release and restarts your app. You can list the history of releases, and use rollbacks to revert to prior releases for backing out of bad deploys or config changes.</p>
 
 <h2 id="release-creation">Release creation</h2>
 
@@ -29,9 +30,8 @@ Adding memcache to myapp... done, v12 (free)</code></pre>
 <p>To see the history of releases for an app:</p>
 
 <pre><code class="term">$ heroku releases
-Rel   Change                          By                    When
-----  ----------------------          ----------            ----------
-v52   Config add AWS_S3_KEY           jim@example.com       5 minutes ago            
+Rel   Change                          By                    When</code></pre>
+<hr><pre><code>v52   Config add AWS_S3_KEY           jim@example.com       5 minutes ago
 v51   Deploy de63889                  stephan@example.com   7 minutes ago
 v50   Deploy 7c35f77                  stephan@example.com   3 hours ago
 v49   Rollback to v46                 joe@example.com       2010-09-12 15:32:17 -0700</code></pre>
@@ -57,7 +57,9 @@ Config:      MY_CONFIG_VAR =&gt; 42
 
 <h2 id="rollback">Rollback</h2>
 <div class="callout">
+
 <p>You cannot roll back to a release which would change the state of add-ons, since this affects billing.</p>
+
 </div>
 <p>Use the <code>rollback</code> command to roll back to the last release:</p>
 
@@ -69,6 +71,6 @@ Rolled back to v51</code></pre>
 <pre><code class="term">$ heroku rollback v40
 Rolled back to v40</code></pre>
 
-<p>Rolling back will create a new release which is a copy of the state of code and config vars contained in the targeted release. The state of the database or external state held in add-ons (for example, the contents of memcache) will <strong>not</strong> be affected and are up to you to reconcile with the rollback.</p>
+<p>Rolling back will create a new release which is a copy of the state of the compiled slug and config vars of the release specified in the command. The state of your <code>heroku</code> Git remote, database, and external state held in add-ons (for example, the contents of memcache) will <strong>not</strong> be affected and is your responsibility to reconcile with the rollback.</p>
 
-<p>Running on rolled-back code is meant as a <strong>temporary fix</strong> to a bad deployment. If you are on rolled-back code and your slug is recompiled (for any reason other than a new deployment) your app will be moved back to running on the most recent release. Subscribing to a new add-on or adding/removing a config var will result in your slug being recompiled.</p>
+<p>Running on a rolled-back release is meant as a <strong>temporary fix</strong> to a bad deployment. If you are on a rolled-back release, fix and commit the problem locally, and re-push to Heroku to update the <code>heroku</code> Git remote and create a new release.</p>

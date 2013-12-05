@@ -7,6 +7,10 @@ description: A guide to better matching Heroku build functionality locally, so a
 
 When you push your source code to Heroku a build will be performed by the buildpack for your specific language. On occasion you may find that code which builds locally has issues when you push to Heroku. In these situations the best way to debug the problem is to understand how builds work on Heroku and drive towards the closest dev/prod parity you can get between your local development environment and Heroku.
 
+<div class="note" markdown="1">
+If you have questions about Java on Heroku, consider discussing them in the [Java on Heroku forums](https://discussion.heroku.com/category/java).
+</div>
+
 ## Builds on Heroku
 
 The exact steps that are run to build your code can be found in the buildpack for your language. An overview of the build can also be found in the article describing Heroku's support for each language/framework:

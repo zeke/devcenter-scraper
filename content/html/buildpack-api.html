@@ -1,29 +1,36 @@
+<div class="note">
+<p>If you have questions about the build process on Heroku, consider discussing it in the <a href="https://discussion.heroku.com/category/build">Build forums</a>.</p>
+</div>
+
 <h2 id="buildpack-api">Buildpack API</h2>
+
 <div class="callout">
 <p>We encourage buildpack developers to use <code>sh</code> or <code>bash</code> to ensure compatibility with future Heroku stacks.</p>
 </div>
+
 <p>A buildpack consists of three scripts:</p>
 
 <ul>
 <li>
 <code>bin/detect</code>: Determines whether to apply this buildpack to an app.</li>
-
 <li>
 <code>bin/compile</code>: Used to perform the transformation steps on the app.</li>
-
 <li>
 <code>bin/release</code>: Provides metadata back to the runtime.</li>
 </ul><h3 id="bin-detect">bin/detect</h3>
 
 <h4 id="usage">Usage</h4>
 
-<p><code>bin/detect BUILD_DIR</code></p>
+<pre><code>bin/detect BUILD_DIR
+</code></pre>
+
 <div class="callout">
 <p>The name sent to <code>stdout</code> will be displayed as the application type during push.</p>
 </div>
+
 <h4 id="summary">Summary</h4>
 
-<p>This script takes BUILD_DIR as a single argument and should return an exit code of <code>0</code> if the app present at <code>BUILD_DIR</code> can be serviced by this buildpack. If the exit code is <code>0</code>, the script should print a human-readable framework name to <code>stdout</code>.</p>
+<p>This script takes BUILD<em>DIR as a single argument and should return an exit code of <code>0</code> if the app present at `BUILD</em>DIR<code>can be serviced by this buildpack. If the exit code is</code>0<code>, the script should print a human-readable framework name to</code>stdout`.</p>
 
 <h4 id="example">Example</h4>
 
@@ -35,19 +42,24 @@ if [ -f $1/hello.txt ]; then
   exit 0
 else
   exit 1
-fi</code></pre>
+fi
+</code></pre>
 
 <h3 id="bin-compile">bin/compile</h3>
 
 <h4 id="usage">Usage</h4>
 
-<p><code>bin/compile BUILD_DIR CACHE_DIR</code></p>
+<pre><code>bin/compile BUILD_DIR CACHE_DIR
+</code></pre>
 
 <h4 id="summary">Summary</h4>
+
 <div class="callout">
 <p>The contents of <code>CACHE_DIR</code> will be persisted between builds. You can cache the results of long processes like dependency resolution here to speed up future builds.</p>
 </div>
-<p>This script performs the buildpack transformation. <code>BUILD_DIR</code> will be the location of the app and <code>CACHE_DIR</code> will be a location the buildpack can use to cache build artifacts between builds.</p>
+
+<p>This script performs the buildpack transformation. <code>BUILD_DIR</code> will be the location of the app and
+<code>CACHE_DIR</code> will be a location the buildpack can use to cache build artifacts between builds.</p>
 
 <p>All output received on <code>stdout</code> from this script will be displayed to the user.</p>
 
@@ -58,11 +70,13 @@ fi</code></pre>
 <p>Buildpack developers are encouraged to match the Heroku push style when displaying output.</p>
 
 <pre><code class="bash">-----&gt; Main actions are prefixed with a 6-character arrow
-       Additional information is indented to align</code></pre>
+       Additional information is indented to align
+</code></pre>
 
 <p>Whenever possible display the versions of the software being used.</p>
 
-<pre><code>-----&gt; Installing dependencies with npm 1.0.27</code></pre>
+<pre><code>-----&gt; Installing dependencies with npm 1.0.27
+</code></pre>
 
 <h4 id="example">Example</h4>
 
@@ -83,18 +97,22 @@ if [ ! -s $1/hello.txt ]; then
 else
   echo "hello.txt is not empty, here are the contents" | indent
   cat $1/hello.txt
-fi | indent</code></pre>
+fi | indent
+</code></pre>
 
 <h3 id="bin-release">bin/release</h3>
 
 <h4 id="usage">Usage</h4>
 
-<p><code>bin/release BUILD_DIR</code></p>
+<pre><code>bin/release BUILD_DIR
+</code></pre>
 
 <h4 id="summary">Summary</h4>
+
 <div class="callout">
 <p><code>addons</code> will only be applied the first time an app is deployed.</p>
 </div>
+
 <p><code>BUILD_DIR</code> will be the location of the app.</p>
 
 <p>This script returns a YAML formatted hash with two keys:</p>
@@ -102,7 +120,6 @@ fi | indent</code></pre>
 <ul>
 <li>
 <code>addons</code> is a list of default addons to install.</li>
-
 <li>
 <code>default_process_types</code> is a hash of default <code>Procfile</code> entries.</li>
 </ul><p>This script will only be run if present.</p>
@@ -117,13 +134,14 @@ addons:
   - heroku-postgresql:dev
 default_process_types:
   web: bin/node server.js
-EOF</code></pre>
+EOF
+</code></pre>
 
 <p>Of course, rather than using <code>default_process_types</code>, it’s simpler to just write a default Procfile if one isn’t provided.</p>
 
 <h2 id="default-config-values">Default config values</h2>
 
-<p>To add default config values, create a <a href="/profiled"><code>.profile.d</code> script</a>. In most cases it’s best to defer to an existing value if set.</p>
+<p>To add default config values, create a <a href="https://devcenter.heroku.com/articles/profiled"><code>.profile.d</code> script</a>. In most cases it’s best to defer to an existing value if set.</p>
 
 <h4 id="example-profile-d-nodejs-sh">Example <code>.profile.d/nodejs.sh</code>
 </h4>
@@ -132,12 +150,15 @@ EOF</code></pre>
 export NODE_ENV=${NODE_ENV:production}
 
 # add node binaries to the path
-PATH=$PATH:$HOME/.node/bin</code></pre>
+PATH=$PATH:$HOME/.node/bin
+</code></pre>
 
 <h2 id="caching">Caching</h2>
+
 <div class="callout">
 <p>Use caution when storing large amounts of data in the <code>CACHE_DIR</code> as the full contents of this directory is stored with the git repo and must be network-transferred each time this app is deployed. A large <code>CACHE_DIR</code> can introduce significant delay to the build process.</p>
 </div>
+
 <p>The <code>bin/compile</code> script will be given a <code>CACHE_DIR</code> as its second argument which can be used to store artifacts between builds. Artifacts stored in this directory will be available in the <code>CACHE_DIR</code> during successive builds. <code>CACHE_DIR</code> is available only during slug compilation, and is specific to the app being built.</p>
 
 <p>If the build pack does intend to use a cache, it should create the the CACHE_DIR directory if it doesn’t exist.</p>
@@ -148,7 +169,7 @@ PATH=$PATH:$HOME/.node/bin</code></pre>
 
 <p>A buildpack is responsible for building a complete working runtime environment around the app. This may necessitate including language VMs and other runtime dependencies that are needed by the app to run.</p>
 
-<p>For a complete guide to building and packaging binaries, see <a href="/articles/buildpack-binaries">Buildpack Binaries</a></p>
+<p>When building and packaging dependencies, make sure they are compatible with Heroku’s runtime environment. One way to do that is to build dependencies in Heroku dynos, for example by using <a href="https://devcenter.heroku.com/articles/one-off-dynos"><code>heroku run</code></a>.</p>
 
 <h2 id="publishing">Publishing</h2>
 
@@ -156,12 +177,10 @@ PATH=$PATH:$HOME/.node/bin</code></pre>
 
 <h2 id="example-buildpacks">Example Buildpacks</h2>
 
-<p>The easiest way to get started creating a buildpack is to examine or fork one of the many existing buildpacks:</p>
+<p>The easiest way to get started creating a buildpack is to examine or fork one of the many existing buildpacks:
+* <a href="https://devcenter.heroku.com/articles/buildpacks#default-buildpacks">Default Buildpacks</a>
+* <a href="https://devcenter.heroku.com/articles/third-party-buildpacks">Third-party Buildpacks</a></p>
 
-<ul>
-<li><a href="/articles/buildpacks#default-buildpacks">Default Buildpacks</a></li>
-
-<li><a href="/articles/third-party-buildpacks">Third-party Buildpacks</a></li>
-</ul><h2 id="problems-or-questions">Problems or questions</h2>
+<h2 id="problems-or-questions">Problems or questions</h2>
 
 <p>If you’re trying to create a buildpack and run into problems or have questions along the way, please submit them to <a href="http://stackoverflow.com/questions/ask?tags=heroku,buildpack">Stack Overflow</a>.</p>

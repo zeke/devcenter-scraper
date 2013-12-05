@@ -1,6 +1,6 @@
 <p>The Add-on Provider API is used when Heroku calls your add-on service. In these examples Heroku is issuing the requests and your add-on is providing the responses.</p>
 
-<p>All calls should be protected by HTTP basic auth with the add-on id and password specified in your add-on manifest. All calls are required, any requests that are unable to be serviced should <a href="/articles/add-on-provider-api#exceptions">return a 422 response</a> with an informative message for the user.</p>
+<p>All calls should be protected by HTTP basic auth with the add-on id and password specified in your add-on manifest. All calls are required, any requests that are unable to be serviced should <a href="https://devcenter.heroku.com/articles/add-on-provider-api#exceptions">return a 422 response</a> with an informative message for the user.</p>
 
 <h2 id="provision">Provision</h2>
 
@@ -21,13 +21,13 @@ Response Body: {
 </code></pre>
 
 <p>Only information which is immutable between requests is provided at the time of provisioning.
-If you wish to access information which can change (e.g., owner email address or application name) then it is available via the <a href="https://addons.heroku.com/provider/resources/technical/reference/app-info">App Info API</a>. The App Info API will return a 4XX response until you’ve returned a successful provisioning request to Heroku, as a result we recommend accessing it asynchronously after provisioning. It is the responsibility of the provider to periodically check this endpoint to ensure data is consistent. </p>
+If you wish to access information which can change (e.g., owner email address or application name) then it is available via the <a href="https://addons.heroku.com/provider/resources/technical/reference/app-info">App Info API</a>. The App Info API will return a 4XX response until you’ve returned a successful provisioning request to Heroku, as a result we recommend accessing it asynchronously after provisioning. It is the responsibility of the provider to periodically check this endpoint to ensure data is consistent.</p>
 
 <p>The <code>region</code> attribute in the request specifies geographical region of the app that the add-on is being provisioned to. Use this to provision the resource in geopgraphical proximity to the app, ignore it (if your add-on is not latency sensitive) or respond with an error if your add-on does not support apps in the region specified.</p>
 
-<p>The <code>logplex_token</code> attribute is provided so that logs can be sent to the app’s log stream. For more information, see <a href="/articles/add-on-provider-log-integration">the article describing logplex input</a>.</p>
+<p>The <code>logplex_token</code> attribute is provided so that logs can be sent to the app’s log stream. For more information, see <a href="https://devcenter.heroku.com/articles/add-on-provider-log-integration">the article describing logplex input</a>.</p>
 
-<p>The <code>options</code> object in the request are <a href="/articles/additional-provisioning-options">extra command line options</a> passed in to the <code>heroku addons:add</code> command.</p>
+<p>The <code>options</code> object in the request are <a href="https://devcenter.heroku.com/articles/additional-provisioning-options">extra command line options</a> passed in to the <code>heroku addons:add</code> command.</p>
 
 <p>The <code>id</code> value returned in the response may be a string or integer value. It should be an
 immutable value that can be used to address the relationship between this app and resource. This means that a plan change can <em>not</em> change the value of this <code>id</code>, you can however update the
@@ -79,64 +79,3 @@ Response Body: Web view for logged-in user
 </code></pre>
 
 <p>See <a href="https://addons.heroku.com/provider/resources/technical/reference/manifest">manifest formats</a> for more information about configuring single sign-on via GET or POST.</p>
-
-<h2 id="list-apps">List Apps</h2>
-
-<p>This endpoint returns a list of apps that have installed your add-on.</p>
-
-<pre><code>Request: GET https://username:password@api.heroku.com/vendor/apps
-Response Body: [
-  { "provider_id": "1", 
-    "heroku_id": "app123@heroku.com", 
-    "callback_url": "https://api.heroku.com/vendor/apps/app123%40heroku.com", 
-    "plan": "test" 
-  },
-  { "provider_id": "3", 
-    "heroku_id": "app456@heroku.com", 
-    "callback_url": "https://api.heroku.com/vendor/apps/app456%40heroku.com", 
-    "plan": "premium" 
-  }
-]
-</code></pre>
-
-<h3 id="pagination">Pagination</h3>
-
-<p>Results larger than 4000 will be paginated. Pagination information is passed
-via the <code>Link</code> HTTP header. Use those URIs to navigate the pagination rather
-than constructing them in your client code.</p>
-
-<p>Example:</p>
-
-<pre><code>Link: &lt;https://api.heroku.com/vendor/apps?offset=100&gt;; rel="prev",
-      &lt;https://api.heroku.com/vendor/apps?offset=1000&gt;; rel="next"
-</code></pre>
-
-<p>The possible <code>rel</code> values within that header are:</p>
-
-<p><code>next</code>: Shows the URL of the immediate next page of results.<br><code>prev</code>: Shows the URL of the immediate previous page of results.</p>
-
-<h2 id="app-info">App Info</h2>
-
-<p>This endpoint returns app information for an app which has installed the Add-on. Information returned is mutable and should be updated when the most recent data is required.</p>
-
-<pre><code>Request: GET https://username:password@api.heroku.com/vendor/apps/:heroku_id
-Response Body: { 
-  "id": "app123@heroku.com",
-  "name": "myapp", 
-  "config": {"MYADDON_URL": "http://myaddon.com/52e82f5d73"}, 
-  "callback_url": "https://api.heroku.com/vendor/apps/app123%40heroku.com", 
-  "owner_email": "user@email.com",
-  "region": "amazon-web-services::us-east-1",
-  "logplex_token": "t.abc123",
-  "domains": ["www.the-consumer.com", "the-consumer.com"]
-}
-</code></pre>
-
-<h2 id="update-config-vars">Update config Vars</h2>
-
-<p>This endpoint allows the Add-on provider to update the config vars defined in the Add-on provider’s manifest.</p>
-
-<pre><code>Request: PUT https://username:password@api.heroku.com/vendor/apps/:heroku_id 
-Request Body : { "config": {"MYADDON_URL": "http://myaddon.com/ABC123"}}
-Response: 200 OK
-</code></pre>

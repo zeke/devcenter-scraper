@@ -1,19 +1,21 @@
 <div class="callout">
-<p>Read <a href="/articles/how-heroku-works">How it Works</a> for a technical introduction to the concepts behind the Heroku platform.</p>
-</div>
-<p>A dyno is a lightweight container running a single user-specified command. You can think of it as a virtualized Unix container—it can run any command available in its default environment (what we supply in the <a href="/articles/cedar">Cedar stack</a>) combined with your app’s <a href="/articles/slug-compiler">slug</a> (which will be based on your code and its dependencies).</p>
 
-<p>The commands run within dynos include web processes, worker processes (such as timed jobs and queuing systems), and any process types declared in the app’s <a href="/articles/procfile">Procfile</a>. Admin and maintenance commands can also be run in <a href="/articles/oneoff-admin-ps">one-off dynos</a>.</p>
+<p>Read <a href="https://devcenter.heroku.com/articles/how-heroku-works">How it Works</a> for a technical introduction to the concepts behind the Heroku platform.</p>
+
+</div>
+<p>A dyno is a lightweight container running a single user-specified command. You can think of it as a virtualized Unix container—it can run any command available in its default environment (what we supply in the <a href="https://devcenter.heroku.com/articles/cedar">Cedar stack</a>) combined with your app’s <a href="https://devcenter.heroku.com/articles/slug-compiler">slug</a> (which will be based on your code and its dependencies).</p>
+
+<p>The commands run within dynos include web processes, worker processes (such as timed jobs and queuing systems), and any process types declared in the app’s <a href="https://devcenter.heroku.com/articles/procfile">Procfile</a>. Admin and maintenance commands can also be run in <a href="https://devcenter.heroku.com/articles/oneoff-admin-ps">one-off dynos</a>.</p>
 
 <h2 id="features">Features</h2>
 
 <ul>
 <li>
-<p><strong>Elasticity &amp; scale:</strong> The number of dynos allocated for your app can be increased or decreased at any time. <a href="/articles/scaling">Read more about scaling your dynos</a>.</p>
+<p><strong>Elasticity &amp; scale:</strong> The number of dynos allocated for your app can be increased or decreased at any time. <a href="https://devcenter.heroku.com/articles/scaling">Read more about scaling your dynos</a>.</p>
 </li>
 
 <li>
-<p><strong>Routing:</strong> The <a href="http-routing">routers</a> tracks the location of all running dynos with the web process type (web dynos) and routes HTTP traffic to them accordingly.</p>
+<p><strong>Routing:</strong> The <a href="https://devcenter.heroku.com/articles/http-routing">routers</a> tracks the location of all running dynos with the web process type (web dynos) and routes HTTP traffic to them accordingly.</p>
 </li>
 
 <li>
@@ -31,7 +33,7 @@
 
 <p>Dynos are available in <a href="https://devcenter.heroku.com/articles/dyno-size">1X or 2X sizes</a> and are allocated 512MB or 1024MB respectively.</p>
 
-<p>Dynos whose processes exceed their memory quota are identified by an <a href="https://devcenter.heroku.com/articles/error-codes#r14-memory-quota-exceeded">R14 error</a> in the <a href="/articles/logging">logs</a>. This doesn’t terminate the process, but it does warn of deteriorating application conditions: memory used above quota will <a href="http://en.wikipedia.org/wiki/Virtual_memory">swap out to disk</a>, which <strong>substantially degrades</strong> dyno performance.</p>
+<p>Dynos whose processes exceed their memory quota are identified by an <a href="https://devcenter.heroku.com/articles/error-codes#r14-memory-quota-exceeded">R14 error</a> in the <a href="https://devcenter.heroku.com/articles/logging">logs</a>. This doesn’t terminate the process, but it does warn of deteriorating application conditions: memory used above quota will <a href="http://en.wikipedia.org/wiki/Virtual_memory">swap out to disk</a>, which <strong>substantially degrades</strong> dyno performance.</p>
 
 <p>If the memory size keeps growing until it reaches three times its quota, the dyno manager will restart your dyno with an <a href="https://devcenter.heroku.com/articles/error-codes#r15-memory-quota-vastly-exceeded">R15 error</a>.</p>
 
@@ -39,13 +41,13 @@
 
 <h2 id="the-dyno-manager">The dyno manager</h2>
 
-<p>Your application’s dynos run in a a distributed, fault-tolerant, and horizontally scalable execution environment. The dyno manager manages many different applications via the <a href="/articles/process-model">the process model</a> and keeps dynos running automatically; so operating your app is generally hands-off and maintenance free.</p>
+<p>Your application’s dynos run in a distributed, fault-tolerant, and horizontally scalable execution environment. The dyno manager manages many different applications via the <a href="https://devcenter.heroku.com/articles/process-model">the process model</a> and keeps dynos running automatically; so operating your app is generally hands-off and maintenance free.</p>
 
 <h3 id="automatic-dyno-restarts">Automatic dyno restarts</h3>
 
-<p>The dyno manager restarts all your app’s dynos whenever you create a new <a href="/articles/releases">release</a> by deploying new code, changing your <a href="/articles/config-vars">config vars</a>, changing your <a href="/articles/managing-add-ons">add-ons</a>, or when you run <code>heroku restart</code>. You can watch this happen in realtime using the Unix <a href="http://en.wikipedia.org/wiki/Watch_(Unix)">watch</a> command: run <code>watch heroku ps</code> in one terminal while pushing code or changing a config var in another.</p>
+<p>The dyno manager restarts all your app’s dynos whenever you create a new <a href="https://devcenter.heroku.com/articles/releases">release</a> by deploying new code, changing your <a href="https://devcenter.heroku.com/articles/config-vars">config vars</a>, changing your <a href="https://devcenter.heroku.com/articles/managing-add-ons">add-ons</a>, or when you run <code>heroku restart</code>. You can watch this happen in realtime using the Unix <a href="http://en.wikipedia.org/wiki/Watch_(Unix)">watch</a> command: run <code>watch heroku ps</code> in one terminal while pushing code or changing a config var in another.</p>
 
-<p>Dynos are also cycled at least once per day, in addition to being restarted as needed for the overall health of the system and your app. For example, the dyno manager occasionally detects a fault in the underlying hardware and needs to move your dyno to a new physical location. These things happen transparently and automatically on a regular basis and are logged to your <a href="/articles/logging">application logs</a>.</p>
+<p>Dynos are also cycled at least once per day, in addition to being restarted as needed for the overall health of the system and your app. For example, the dyno manager occasionally detects a fault in the underlying hardware and needs to move your dyno to a new physical location. These things happen transparently and automatically on a regular basis and are logged to your <a href="https://devcenter.heroku.com/articles/logging">application logs</a>.</p>
 
 <p>Dynos are also restarted if the processes running in the dyno exit. The cases when the processes running in a dyno can exit are as follows:</p>
 
@@ -59,16 +61,18 @@
 <li>Interpreter or compiler bug - The rare case of a bug in an interpreter (Ruby, Python) or in the results of compilation (Java, Scala) can take down your process.</li>
 </ul><p>As app developers, we tend to see the first two errors as “boot crashes” and the second two as “runtime crashes.” However, Heroku has <a href="http://en.wikipedia.org/wiki/Halting_problem">no way</a> to distinguish these. From the platform’s perspective, all process crashes are alike. These scenarios result in crashed dynos.</p>
 
-<p>Heroku’s dyno restart policy is to try to restart crashed dynos by spawning new dynos once every ten minutes. This means that if you push bad code that prevents your app from booting, your app dynos will be started once, then restarted, then get a cool-off of ten minutes. In the normal case of a long-running web or worker process getting an occasional crash, the dyno will be restarted instantly without any intervention on your part. If your dyno crashes twice in a row, it will stay down for ten minutes before the system retries.</p>
+<h3 id="dyno-crash-restart-policy">Dyno crash restart policy</h3>
+
+<p>If a dyno crashes during boot, Heroku will immediately attempt to restart it again. If a dyno crashes during subsequent attempts, Heroku will continue to attempt to restart it again, but the attempts will be spaced apart by increasing intervals. If the second restart attempt fails, there will be a 10 minute cool-off period before the third attempt. If the third restart attempt fails, there will be a 20 minute cool-off period, followed by a 40 minute cool-off period and so forth up to a maximum 24 hour cool-off period between restart attempts.</p>
 
 <h3 id="dyno-sleeping">Dyno sleeping</h3>
 <p class="callout">If your app has only a single web dyno running, that web dyno will sleep - irrespective of the number of worker dynos. You have to have more than one <strong>web</strong> dyno to prevent web dynos from sleeping. Worker dynos do not sleep.</p>
-<p>Apps that have scaled the number of web dynos (dynos running the <code>web</code> <a href="/articles/process-model#process-types-vs-dynos">process type</a>) so that only a single web dyno is running, will have that web dyno sleep after one hour of inactivity. When this happens, you’ll see the following in your <a href="/articles/logging">logs</a>:</p>
+<p>Apps that have scaled the number of web dynos (dynos running the <code>web</code> <a href="https://devcenter.heroku.com/articles/process-model#process-types-vs-dynos">process type</a>) so that only a single web dyno is running, will have that web dyno sleep after one hour of inactivity. When this happens, you’ll see the following in your <a href="https://devcenter.heroku.com/articles/logging">logs</a>:</p>
 
 <pre><code>2011-05-30T19:11:09+00:00 heroku[web.1]: Idling
 2011-05-30T19:11:17+00:00 heroku[web.1]: Stopping process with SIGTERM</code></pre>
 
-<p>When you access the app in your web browser or by some other means of sending an HTTP request, the <a href="http-routing">router</a> processing your request will signal the dyno manager to unidle (or “wake up”) your dyno to run the <code>web</code> process type:</p>
+<p>When you access the app in your web browser or by some other means of sending an HTTP request, the <a href="https://devcenter.heroku.com/articles/http-routing">router</a> processing your request will signal the dyno manager to unidle (or “wake up”) your dyno to run the <code>web</code> process type:</p>
 
 <pre><code>2011-05-30T22:17:43+00:00 heroku[web.1]: Unidling
 2011-05-30T22:17:43+00:00 heroku[web.1]: State changed from created to starting</code></pre>
@@ -84,7 +88,9 @@
 <h4 id="example-profile">Example <code>.profile</code>
 </h4>
 <div class="callout">
-<p>The <code>.profile</code> script will be sourced <em>after</em> the app’s config vars. To have the config vars take precedence, use a technique like that shown here with <code>LANG</code>.</p>
+
+<p>The <code>.profile</code> script will be sourced <em>after</em> the app's config vars. To have the config vars take precedence, use a technique like that shown here with <code>LANG</code>.</p>
+
 </div>
 <pre><code># add vendor binaries to the path
 PATH=$PATH:$HOME/vendor/bin
@@ -92,22 +98,24 @@ PATH=$PATH:$HOME/vendor/bin
 # set a default LANG if it does not exist in the environment
 LANG=${LANG:-en_US.UTF-8}</code></pre>
 <div class="warning">
-<p>For most purposes, <a href="/articles/config-vars">config vars</a> are more convenient and flexible. You need not push new code to edit config vars, whereas <code>.profile</code> is part of your source tree and must be edited and deployed like any code change.</p>
+
+<p>For most purposes, <a href="https://devcenter.heroku.com/articles/config-vars">config vars</a> are more convenient and flexible. You need not push new code to edit config vars, whereas <code>.profile</code> is part of your source tree and must be edited and deployed like any code change.</p>
+
 </div>
 <h4 id="local-environment-variables">Local environment variables</h4>
 
 <p>The Dyno Manager sets up a number of default environment variables that you can access in your application.</p>
 
 <ul>
-<li>If the dyno is a web dyno, the <code>$PORT</code> variable will be set. The dyno must bind to this port number to receive incoming requests. <div class="callout">
+<li>If the dyno is a web dyno, the <code>$PORT</code> variable will be set. The dyno must bind to this port number to receive incoming requests.</li>
+</ul><div class="callout">
 <p>The <code>$DYNO</code> variable is experimental and subject to change or removal. Also, <code>$DYNO</code> is not guaranteed to be unique within an app. For example, during a deploy or restart, the same dyno identifier could be used for two running dynos. It will be eventually consistent, however.</p>
 </div>
-</li>
-
+<ul>
 <li>The <code>$DYNO</code> variable will be set to the dyno identifier. e.g. <code>web.1</code>, <code>worker.2</code>, <code>run.9157</code>.</li>
 </ul><h4 id="processes">Processes</h4>
 
-<p>After the <code>.profile</code> script is executed, the dyno executes the command associated with the <a href="/articles/procfile">process type</a> of the dyno. For example, if the dyno is a web dyno, then the command in the Procfile associated with the web process type will be executed.</p>
+<p>After the <code>.profile</code> script is executed, the dyno executes the command associated with the <a href="https://devcenter.heroku.com/articles/procfile">process type</a> of the dyno. For example, if the dyno is a web dyno, then the command in the Procfile associated with the web process type will be executed.</p>
 
 <p>Any command that’s executed may spawn additional processes.</p>
 
@@ -124,6 +132,8 @@ LANG=${LANG:-en_US.UTF-8}</code></pre>
 <p>Please note that it is currently possible that processes in a dyno that is being shut down may receive multiple SIGTERMs</p>
 </div>
 <p>The application processes have ten seconds to shut down cleanly (ideally, they will do so more quickly than that). During this time they should stop accepting new requests or jobs and attempt to finish their current requests, or put jobs back on the queue for other worker processes to handle. If any processes remain after ten seconds, the dyno manager will terminate them forcefully with <code>SIGKILL</code>.</p>
+
+<p>When performing controlled or periodic restarts, new dynos are spun up as soon as shutdown signals are sent to processes in the old dynos.</p>
 
 <p>We can see how this works in practice with a sample worker process. We’ll use Ruby here as an illustrative language - the mechanism is identical in other languages. Imagine a process that does nothing but loop and print out a message periodically:</p>
 
@@ -193,7 +203,7 @@ $ heroku logs
 2011-05-31T23:41:07+00:00 heroku[worker.1]: Stopping all processes with SIGKILL
 2011-05-31T23:41:08+00:00 heroku[worker.1]: Process exited</code></pre>
 
-<p>Our process ignores <code>SIGTERM</code> and blindly continues on processing. After ten seconds, the dyno manager gives up on waiting for the process to shut down gracefully, and kills it with <code>SIGKILL</code>. It logs <a href="/articles/error-codes">Error R12</a> to indicate that the process is not behaving correctly.</p>
+<p>Our process ignores <code>SIGTERM</code> and blindly continues on processing. After ten seconds, the dyno manager gives up on waiting for the process to shut down gracefully, and kills it with <code>SIGKILL</code>. It logs <a href="https://devcenter.heroku.com/articles/error-codes">Error R12</a> to indicate that the process is not behaving correctly.</p>
 
 <h2 id="redundancy">Redundancy</h2>
 
@@ -201,7 +211,7 @@ $ heroku logs
 
 <h2 id="isolation-and-security">Isolation and security</h2>
 
-<p>Dynos execute in complete isolation from one another, even when on the same physical infrastructure. This includes both dynos in the <a href="/articles/scaling#dyno-formation">dyno formation</a> and dynos run as <a href="/articles/process-model#one-off-admin-dynos">one-off dynos</a> with <code>heroku run</code>. This provides protection from other application processes and system-level processes consuming all available resources.</p>
+<p>Dynos execute in complete isolation from one another, even when on the same physical infrastructure. This includes both dynos in the <a href="https://devcenter.heroku.com/articles/scaling#dyno-formation">dyno formation</a> and dynos run as <a href="https://devcenter.heroku.com/articles/process-model#one-off-admin-dynos">one-off dynos</a> with <code>heroku run</code>. This provides protection from other application processes and system-level processes consuming all available resources.</p>
 
 <h3 id="technologies">Technologies</h3>
 
@@ -213,7 +223,7 @@ $ heroku logs
 
 <h3 id="ip-addresses">IP addresses</h3>
 
-<p>When running multiple dynos, apps are distributed across several nodes by the dyno manager. Access to your app always goes through the <a href="http-routing">routers</a>.</p>
+<p>When running multiple dynos, apps are distributed across several nodes by the dyno manager. Access to your app always goes through the <a href="https://devcenter.heroku.com/articles/http-routing">routers</a>.</p>
 
 <p>As a result, dynos don’t have static IP addresses. While you can never connect to a dyno directly, it is possible to originate outgoing requests from a dyno. However, you can count on the dyno’s IP address changing as it gets restarted in different places.</p>
 
@@ -224,21 +234,15 @@ $ heroku logs
 <p>The external networking interface (i.e.: eth0) for each dyno will be part of a /30 private subnet in the range 172.16.0.0/12, such as 172.16.83.252/30 or 172.30.239.96/30. Processes within one dyno don’t share IPs or subnets with other dynos, nor can they observe TCP session state of other dynos.</p>
 
 <h2 id="connecting-to-external-services">Connecting to external services</h2>
-<div class="callout">
-<p>Please note that opening up your security group will not work if your service is running inside of an <a href="http://aws.amazon.com/vpc/">Amazon VPC</a>.</p>
-</div>
-<p>Applications running on dynos can connect to external services. Heroku can run apps in <a href="https://devcenter.heroku.com/articles/add-on-regions">multiple regions</a>, so for optimal latency run your services in the same <a href="https://devcenter.heroku.com/articles/regions#data-center-locations">region</a> as the app.</p>
 
-<p>If you’d like to open your <code>us-east</code> EC2 server(s) up only to Heroku, you can use a command like the following:</p>
+<p>Applications running on dynos can connect to external services. Heroku can run apps in <a href="https://devcenter.heroku.com/articles/regions">multiple regions</a>, so for optimal latency run your services in the same <a href="https://devcenter.heroku.com/articles/regions#data-center-locations">region</a> as the app.</p>
 
-<pre><code class="term">$ ec2-authorize YOURGROUP -P tcp -p 3306 -u 098166147350 -o default</code></pre>
-
-<p>This will open up access to TCP port 3306 in the YOURGROUP security group from Heroku.</p>
-<p class="note">Note: this will allow Heroku apps other than yours to access the specified group. For fine-grain access control, you’ll need to use an application-layer mechanism, for example SSL certificates or HTTP authentication.</p>
 <h2 id="dynos-and-requests">Dynos and requests</h2>
 
 <p>A single dyno can serve thousands of requests per second, but performance depends greatly on the language and framework you use.</p>
 
 <p>A single-threaded, non-concurrent web framework (like Rails 3 in its default configuration) can process one request at a time. For an app that takes 100ms on average to process each request, this translates to about 10 requests per second per dyno, which is not optimal.</p>
-<p class="warning">Single threaded backends are not recommended for production applications for their inefficient handling of concurrent requests. Choose a concurrent backend whenever developing and running a production service.</p>
+<p class="warning">
+Single threaded backends are not recommended for production applications for their inefficient handling of concurrent requests. Choose a concurrent backend whenever developing and running a production service.
+</p>
 <p>Multi-threaded or event-driven environments like Java, Unicorn, EventMachine, and Node.js can handle many concurrent requests. Load testing your app is the only realistic way to determine request throughput.</p>

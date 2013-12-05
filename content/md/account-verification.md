@@ -15,11 +15,11 @@ Credit card information is not required for free apps without add-ons. It become
 
 As a business, we need to be able to reliably identify and contact our users in the event of an issue. We have found that a credit card on file provides the most reliable way of obtaining verified contact information.
 
-## Add-ons and credit cards
+## Verification process
 
-Adding a credit card to your account lets you use any of our free add-ons and gives you access to turn on paid services any time with a few easy clicks. The easiest way to do this is to go to [your account](https://dashboard.heroku.com/account) and click Add Credit Card.
+Adding a credit card to your account lets you use any of our free add-ons, allows your account to have more than 5 apps at a time (verified accounts may have up to 100 apps), and gives you access to turn on paid services any time with a few easy clicks.
 
-Alternatively, when you attempt to perform an action that requires a credit card, either from the [Heroku CLI](heroku-command) or through the web interface, you will be prompted to visit the credit card page.
+The easiest way to do this is to go to [your account page](https://dashboard.heroku.com/account) and click **Add Credit Card**. Alternatively, when you attempt to perform an action that requires a credit card, either from the [Heroku CLI](heroku-command) or through the web interface, you will be prompted to visit the credit card page.
 
 If you run into any issues trying to add a credit card, please open a [support request](https://help.heroku.com/tickets/new?query=referral+devcenter+account-verification).
 

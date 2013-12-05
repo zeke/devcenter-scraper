@@ -6,10 +6,10 @@ description: Use the PG Backups add-on to upgrade from a starter tier database p
 ---
 
 <p class="note" markdown="1">
-Upgrading between two [production tier](heroku-postgres-plans#production-plans) Heroku Postgres databases is best accomplished [using followers](heroku-postgres-follower-databases#database-upgrades-and-migrations-with-changeovers). The PG Backups-based approach described here is useful to upgrade from a [starter tier](heroku-postgres-plans#starter-tier) database, where followers are not supported, or older [32-bit production database](postgres-logs-errors#this-database-does-not-support-forking-and-following).
+Upgrading between two [non-hobby tier](heroku-postgres-plans#standard-tier) Heroku Postgres databases is best accomplished [using followers](heroku-postgres-follower-databases#database-upgrades-and-migrations-with-changeovers). The PG Backups-based approach described here is useful to upgrade from a [starter tier](heroku-postgres-plans#standard-tier) database, where followers are not supported, or older [32-bit production database](postgres-logs-errors#this-database-does-not-support-forking-and-following).
 </p>
 
-The [PG Backups add-on](https://addons.heroku.com/pgbackups) is useful not only for capturing regular backups of your database but also as an upgrade tool for [starter tier](heroku-postgres-plans#starter-tier) databases. PG Backups can be used to migrate between starter tier databases or from a starter tier database to a production tier database. 
+The [PG Backups add-on](https://addons.heroku.com/pgbackups) is useful not only for capturing regular backups of your database but also as an upgrade tool for [hobby tier](heroku-postgres-plans#hobby-tier) databases. PG Backups can be used to migrate between starter tier databases or from a starter tier database to a production tier database. 
 
 Before beginning you should ensure you've installed the pgbackups addon:
 
@@ -67,7 +67,7 @@ Take note of this new database name (`HEROKU_POSTGRESQL_PINK` here) as you will 
 
 ## Prevent new updates
 
-It is important that no new data is written to your application during the upgrade process or it will not be transferred to the new database. To accomplish this, place your app into [maintenance mode](maintenance-mode) and spin down all non-web dynos (which continue to run, even with maintenance mode enabled).
+It is important that no new data is written to your application during the upgrade process or it will not be transferred to the new database. To accomplish this, place your app into [maintenance mode](maintenance-mode) and scale down to zero all non-web dynos (maintenance mode automatically scales down all web dynos).
 
 <p class="warning" markdown="1">
 Your application will be unavailable starting at this point in the upgrade process.
@@ -142,3 +142,5 @@ The original database will continue to run (and incur charges) even after the up
 
     :::term
     $ heroku addons:remove HEROKU_POSTGRESQL_ORANGE
+
+Where `HEROKU_POSTGRESQL_ORANGE` is your database name as seen on the output of `heroku addons`.

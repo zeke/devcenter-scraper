@@ -47,7 +47,7 @@ For various reasons, Heroku's [SSL Endpoints](https://devcenter.heroku.com/artic
 
 ## Bamboo and heroku.com
 
-In order to minimize disruption for apps in the [deprecated Bamboo stack](https://devcenter.heroku.com/articles/bamboo) , we have decided not to add heroku.com itself to the public suffix list.
+In order to minimize disruption for apps in the [Bamboo stack](https://devcenter.heroku.com/articles/bamboo) , we have decided not to add heroku.com itself to the public suffix list.
 
 ## For More Information
 

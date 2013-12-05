@@ -11,7 +11,7 @@ Heroku calculates billing based on wall-clock usage. This article explains the b
 
 Heroku charges based on usage, which means that in any given month the bill you receive will be for the previous month of use, not the current one (similar to the way phone services work).
 
-If you wish to see or keep track of your spend for the current month, look for the **Current Usage** item on your [account page](https://dashboard.heroku.com/account). It is updated on a nightly basis, so it will be current to the previous day (up to 00:00:00 UTC time).
+If you wish to see or keep track of your balance for the current month, look for the **Current Usage** item on your [account page](https://dashboard.heroku.com/account). It is updated on a nightly basis, so it will be current to the previous day (up to 00:00:00 UTC time).
 
 ## Computing usage
 
@@ -26,7 +26,7 @@ For example, if you scaled your web dynos to one 1X dyno on 2012-01-01 00:00:00 
 
 All costs are prorated to the second.
 
-An app with four 1X dynos is charged $0.20 per hour for each hour that the four dynos are running. The same app with four 2X dynos is charged $0.40 per hour. However, see how [free dynos affect this calculation](https://devcenter.heroku.com/articles/usage-and-billing#750-free-dyno-hours-per-app).
+An app with *four* 1X dynos is charged $0.20 per hour for each hour that the four dynos are running. The same app with four 2X dynos is charged $0.40 per hour. However, see how [free dynos affect this calculation](https://devcenter.heroku.com/articles/usage-and-billing#750-free-dyno-hours-per-app).
 
 All dynos in your application that are scaled above 0 will accrue usage–regardless of whether they’re actually receiving or processing requests.
 

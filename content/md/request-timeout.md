@@ -5,9 +5,8 @@ url: https://devcenter.heroku.com/articles/request-timeout
 description: Learn about the behavior of the Heroku routers, connection termination and connection timeouts.
 ---
 
-<div class="callout" markdown="1">
-Additional concurrency usually doesn't help much if you are encountering request timeouts, since the most common causes affect only individual requests. You can crank your dynos to the maximum and you'll still get a request timeout, since it is a single request that is failing to serve in the correct amount of time.  Extra dynos increase your concurrency, not the speed of your requests.
-</div>
+> callout
+> Additional concurrency usually doesn't help much if you are encountering request timeouts, since the most common causes affect only individual requests. You can crank your dynos to the maximum and you'll still get a request timeout, since it is a single request that is failing to serve in the correct amount of time.  Extra dynos increase your concurrency, not the speed of your requests.
 
 Web requests processed by Heroku are directed to your dynos via a number of Heroku [routers](http-routing). These requests are intended to be served by your application quickly. Best practice is to get the response time of your web application to be under 500ms, this will free up the application for more requests and deliver a high quality user experience to your visitors. Occasionally a web request may hang or take an excessive amount of time to process by your application. When this happens the router will terminate the request if it takes longer than 30 seconds to complete. The timeout countdown begins when the request leaves the router. The request must then be processed in the dyno by your application, and then a response delivered back to the router within 30 seconds to avoid the timeout.
 
@@ -28,8 +27,9 @@ When a connection is terminated, an error page will be issued to the client. The
 
 Depending on your language you may be able to set a timeout on the app server level. One example is Ruby's [Unicorn](rails-unicorn). In Unicorn you can set a timeout in `config/unicorn.rb` like this:
 
-    :::ruby
-    timeout 15
+```ruby
+timeout 15
+```
 
 The timer will begin once Unicorn starts processing the request, if 15 seconds pass, then the master process will send a SIGKILL to the worker but no exception will be raised.
 

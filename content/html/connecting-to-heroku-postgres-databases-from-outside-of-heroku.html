@@ -1,0 +1,33 @@
+<p>Heroku Postgres databases are designed to be used with a Heroku app. However, they are accessible from anywhere and may be used from any application using standard Postgres clients.</p>
+
+<p>To make effective use of Heroku Postgres databases outside of a Heroku application, keep in mind the following:</p>
+
+<h3 id="heroku-app">Heroku app</h3>
+
+<p>All Heroku Postgres databases have a corresponding Heroku application. You can find the application name on the database page from <a href="https://postgres.heroku.com/databases">postgres.heroku.com/databases</a>. You do not have to use the Heroku app for application code, but your database is attached to it and holds an environment variable containing the database URL. This variable is managed by Heroku, and is the primary way we tell you about your database’s network location and credentials.</p>
+
+<h3 id="credentials">Credentials</h3>
+
+<p>Do not copy and paste database credentials to a separate environment or into your application’s code. The database URL is managed by Heroku and <em>will</em> change under special circumstances such as:</p>
+
+<ul>
+<li>User initiated database credential rotations using <code>heroku pg:credentials --reset</code>.</li>
+<li>Catastrophic hardware failure leading to Heroku Postgres staff recovering your database on new hardware.</li>
+<li>Automated failover events on <a href="https://devcenter.heroku.com/articles/heroku-postgres-ha">HA</a> enabled plans.</li>
+</ul><p>It is best practice to always fetch the database URL configuration variable from the corresponding Heroku app when your application starts. For example, you may follow <a href="https://devcenter.heroku.com/articles/development-configuration#configuration">12Factor application configuration principles</a> by using the <a href="https://toolbelt.heroku.com">Heroku Toolbelt</a> and invoke your process like so:</p>
+
+<pre><code class="bash">DATABASE_URL=$(heroku config:get DATABASE_URL -a your-app) your_process
+</code></pre>
+
+<p>This way, you ensure your process or application always has correct database credentials.</p>
+
+<h3 id="ssl">SSL</h3>
+
+<p>Connecting to a Heroku Postgres database from outside of the Heroku network requires SSL. Your client or application must support and enable SSL to reliably connect to a Heroku Postgres database. Most clients will connect over SSL by default, but on occasion it is necessary to set the <code>sslmode=require</code> parameter on a Postgres connection.</p>
+
+<h3 id="backups">Backups</h3>
+
+<p>You can set up any of our <a href="https://addons.heroku.com/pgbackups">pgbackups plans</a> to the enclosing Heroku app in order to get automated backups on your database. Pgbackups takes backups of the database pointed at by <code>DATABASE_URL</code> in the Heroku app, so make sure you promote your database:</p>
+
+<pre><code>heroku pg:promote HEROKU_POSTGRESQL_VIOLET --app your-app
+</code></pre>

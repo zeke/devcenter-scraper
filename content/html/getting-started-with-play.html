@@ -1,30 +1,32 @@
 <p>This quickstart will get you going with the <a href="http://playframework.org/">Play! 1.x Framework</a>, deployed to Heroku. For general information on how to develop and architect apps for use on Heroku, see <a href="https://devcenter.heroku.com/articles/architecting-apps">Architecting Applications for Heroku</a>.</p>
 
+<div class="note">
+<p>If you have questions about Java on Heroku, consider discussing them in the <a href="https://discussion.heroku.com/category/java">Java on Heroku forums</a>.</p>
+</div>
+
 <h2 id="prerequisites">Prerequisites</h2>
 
 <ul>
 <li>Basic Java knowledge, including an installed version of the JVM.</li>
-
 <li>An installation of <a href="http://www.playframework.org/download">Play Framework</a> version 1.2.3 or later (make sure you have the <code>play</code> command on your path).</li>
-
 <li>Your application must run on the <a href="http://openjdk.java.net/">OpenJDK</a> version 6.</li>
-
-<li>A Heroku user account. <a href="https://api.heroku.com/signup/devcenter">Signup is free and instant.</a>
+<li>A Heroku user account.  <a href="https://api.heroku.com/signup/devcenter">Signup is free and instant.</a>
 </li>
 </ul><h2 id="local-workstation-setup">Local workstation setup</h2>
 
-<p>Install the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a> on your local workstation. This ensures that you have access to the <a href="/categories/command-line">Heroku command-line client</a>, Foreman, and the Git revision control system.</p>
+<p>Install the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a> on your local workstation.  This ensures that you have access to the <a href="https://devcenter.heroku.com/categories/command-line">Heroku command-line client</a>, Foreman, and the Git revision control system.</p>
 
-<p>Once installed, you can use the <code>heroku</code> command from your command shell. Log in using the email address and password you used when creating your Heroku account:</p>
+<p>Once installed, you can use the <code>heroku</code> command from your command shell.  Log in using the email address and password you used when creating your Heroku account:</p>
 
 <pre><code class="term">$ heroku login
 Enter your Heroku credentials.
 Email: adam@example.com
-Password: 
+Password:
 Could not find an existing public key.
-Would you like to generate one? [Yn] 
+Would you like to generate one? [Yn]
 Generating new SSH public key.
-Uploading ssh public key /Users/adam/.ssh/id_rsa.pub</code></pre>
+Uploading ssh public key /Users/adam/.ssh/id_rsa.pub
+</code></pre>
 
 <p>Press enter at the prompt to upload your existing <code>ssh</code> key or create a new one, used for pushing code later on.</p>
 
@@ -32,22 +34,23 @@ Uploading ssh public key /Users/adam/.ssh/id_rsa.pub</code></pre>
 
 <p>You can run any Play! application on Heroku. If you don’t already have one, you can create a basic Play! application with:</p>
 
-<pre><code>$ play new helloworld
-~        _            _ 
+<pre><code class="term">$ play new helloworld
+~        _            _
 ~  _ __ | | __ _ _  _| |
 ~ | '_ \| |/ _' | || |_|
 ~ |  __/|_|\____|\__ (_)
-~ |_|            |__/   
+~ |_|            |__/
 ~
 ~ play! 1.2.4, http://www.playframework.org
 ~
 ~ The new application will be created in /Users/jjoergensen/dev/tmp/helloworld
-~ What is the application name? [helloworld] 
+~ What is the application name? [helloworld]
 ~
 ~ OK, the application is created.
 ~ Start it with : play run helloworld
 ~ Have fun!
-~</code></pre>
+~
+</code></pre>
 
 <p>This creates a project called helloworld with a simple controller class <code>Application.java</code>:</p>
 
@@ -68,12 +71,15 @@ public class Application extends Controller {
         render();
     }
 
-}</code></pre>
+}
+</code></pre>
 
 <h2 id="declare-dependencies">Declare dependencies</h2>
+
 <div class="callout">
 <p>Previous versions of the Play! framework allowed module dependency declaration in application.conf. This functionality has been deprecated. dependencies.yml should now be used.</p>
 </div>
+
 <p>Play dependencies are declared in <code>conf/dependencies.yml</code>. The first dependency is the framework itself. When the app is generated it will depend on any version of the framework: <code>- play</code>. It’s a best practice to include the optional framework version after this: <code>- play 1.2.4</code>. This is also how Heroku will know which version of the framework you want instead of using the default.</p>
 
 <p>Edit your <code>dependencies.yml</code> to look like this. Substitute <code>1.2.4</code> with the version of the framework you are using:</p>
@@ -83,7 +89,8 @@ public class Application extends Controller {
 <pre><code># Application dependencies
 
 require:
-    - play 1.2.4</code></pre>
+    - play 1.2.4
+</code></pre>
 
 <p>Prevent build artifacts from going into revision control by creating this file:</p>
 
@@ -97,23 +104,27 @@ logs/
 test-result/
 lib/
 tmp/
-modules/</code></pre>
+modules/
+</code></pre>
 
 <h2 id="test-locally">Test locally</h2>
 
 <p>Simply type <code>play run</code> at your terminal and your application will start.</p>
 
 <h2 id="declare-process-types-with-procfile">Declare process types with Procfile</h2>
+
 <div class="callout">
-<p>Note: you can use your Procfile locally with Foreman, but it is not required. <a href="/articles/procfile">Read more about Foreman and procfiles</a>.</p>
+<p>Note: you can use your Procfile locally with Foreman, but it is not required. <a href="https://devcenter.heroku.com/articles/procfile">Read more about Foreman and procfiles</a>.</p>
 </div>
-<p>Use a <a href="/articles/procfile">Procfile</a>, a text file in the root directory of your application, to explicitly declare what command should be executed to start a web <a href="/articles/dynos">dyno</a>. In this case, you was to execute <code>play run</code>, ensuring it listens on a particular port.</p>
+
+<p>Use a <a href="https://devcenter.heroku.com/articles/procfile">Procfile</a>, a text file in the root directory of your application, to explicitly declare what command should be executed to start a web <a href="https://devcenter.heroku.com/articles/dynos">dyno</a>. In this case, you was to execute <code>play run</code>, ensuring it listens on a particular port.</p>
 
 <p>Here’s a <code>Procfile</code> for the sample app we’ve been working on:</p>
 
-<pre><code class="term">web:    play run --http.port=$PORT $PLAY_OPTS</code></pre>
+<pre><code class="term">web:    play run --http.port=$PORT $PLAY_OPTS
+</code></pre>
 
-<p>This declares a single process type, <code>web</code>, and the command needed to run it. The name “web” is important here. It declares that this process type will be attached to the <a href="http-routing">HTTP routing</a> stack of Heroku, and receive web traffic when deployed.</p>
+<p>This declares a single process type, <code>web</code>, and the command needed to run it.  The name “web” is important here.  It declares that this process type will be attached to the <a href="https://devcenter.heroku.com/articles/http-routing">HTTP routing</a> stack of Heroku, and receive web traffic when deployed.</p>
 
 <p>The <code>PLAY_OPTS</code> variable is used to set options that change from one environment to another.</p>
 
@@ -123,17 +134,19 @@ modules/</code></pre>
 
 <p>Here’s what a <code>system.properties</code> file looks like:</p>
 
-<pre><code class="term">java.runtime.version=1.7</code></pre>
+<pre><code class="term">java.runtime.version=1.7
+</code></pre>
 
 <p>You can specify 1.6, 1.7, or 1.8 (1.8 is in beta) for Java 6, 7, or 8 (with lambdas), respectively.</p>
 
 <h2 id="store-your-app-in-git">Store your app in Git</h2>
 
-<p>We now have the three major components of our app: dependencies in <code>dependencies.yml</code>, process types in <code>Procfile</code>, and our application source in <code>app/controllers/Application.java</code>. Let’s put it into Git:</p>
+<p>We now have the three major components of our app: dependencies in <code>dependencies.yml</code>, process types in <code>Procfile</code>, and our application source in <code>app/controllers/Application.java</code>.  Let’s put it into Git:</p>
 
 <pre><code class="term">$ git init
 $ git add .
-$ git commit -m "init"</code></pre>
+$ git commit -m "init"
+</code></pre>
 
 <h2 id="deploy-your-application-to-heroku">Deploy your application to Heroku</h2>
 
@@ -142,7 +155,8 @@ $ git commit -m "init"</code></pre>
 <pre><code class="term">$ heroku create
 Creating afternoon-frost-273... done, stack is cedar
 http://afternoon-frost-273.herokuapp.com/ | git@heroku.com:afternoon-frost-273.git
-Git remote heroku added</code></pre>
+Git remote heroku added
+</code></pre>
 
 <p>Deploy your code:</p>
 
@@ -157,11 +171,11 @@ Total 33 (delta 3), reused 0 (delta 0)
 -----&gt; play app detected
 -----&gt; Installing Play!..... done
 -----&gt; Building Play! application...
-       ~        _            _ 
+       ~        _            _
        ~  _ __ | | __ _ _  _| |
        ~ | '_ \| |/ _' | || |_|
        ~ |  __/|_|\____|\__ (_)
-       ~ |_|            |__/   
+       ~ |_|            |__/
        ~
        ~ play! 1.2.x-bfb715e, http://www.playframework.org
        ~
@@ -185,48 +199,54 @@ Total 33 (delta 3), reused 0 (delta 0)
        Procfile declares types -&gt; web
 -----&gt; Compiled slug size is 26.2MB
 -----&gt; Launching... done, v5
-       http://afternoon-frost-273.herokuapp.com deployed to Heroku</code></pre>
+       http://afternoon-frost-273.herokuapp.com deployed to Heroku
+</code></pre>
 
 <h2 id="visit-your-application">Visit your application</h2>
 
-<p>You’ve deployed your code to Heroku, and specified the process types in a <code>Procfile</code>. You can now instruct Heroku to execute a process type. Heroku does this by running the associated command in a <a href="/articles/dynos">dyno</a> - a lightweight container which is the basic unit of composition on Heroku.</p>
+<p>You’ve deployed your code to Heroku, and specified the process types in a <code>Procfile</code>.  You can now instruct Heroku to execute a process type.  Heroku does this by running the associated command in a <a href="https://devcenter.heroku.com/articles/dynos">dyno</a> - a lightweight container which is the basic unit of composition on Heroku.</p>
 
 <p>Let’s ensure we have one dyno running the <code>web</code> process type:</p>
 
-<pre><code class="term">$ heroku ps:scale web=1</code></pre>
+<pre><code class="term">$ heroku ps:scale web=1
+</code></pre>
 
-<p>You can check the state of the app’s dynos. The <code>heroku ps</code> command lists the running dynos of your application:</p>
+<p>You can check the state of the app’s dynos.  The <code>heroku ps</code> command lists the running dynos of your application:</p>
 
 <pre><code class="term">$ heroku ps
 === web: `play run --http.port=$PORT $PLAY_O..`
-web.1: up for 5s</code></pre>
+web.1: up for 5s
+</code></pre>
 
 <p>Here, one dyno is running.</p>
 
 <p>We can now visit the app in our browser with <code>heroku open</code>.</p>
 
 <pre><code class="term">$ heroku open
-Opening afternoon-frost-273... done</code></pre>
+Opening afternoon-frost-273... done
+</code></pre>
 
 <p>Note that the web page rendered on Heroku is slightly different from what you saw on your local build. That’s because Heroku executes play in production mode by default. Use the <code>$PLAY_OPTS</code> environment variable to control the mode for your local build. You can also change the mode used on Heroku by modifying the <code>PLAY_OPTS</code> config var for your application.</p>
 
 <h2 id="dyno-sleeping-and-scaling">Dyno sleeping and scaling</h2>
 
-<p>Having only a single web dyno running will result in the dyno <a href="/articles/dynos#dyno-sleeping">going to sleep</a> after one hour of inactivity. This causes a delay of a few seconds for the first request upon waking. Subsequent requests will perform normally.</p>
+<p>Having only a single web dyno running will result in the dyno <a href="https://devcenter.heroku.com/articles/dynos#dyno-sleeping">going to sleep</a> after one hour of inactivity.  This causes a delay of a few seconds for the first request upon waking. Subsequent requests will perform normally.</p>
 
-<p>To avoid this, you can scale to more than one web dyno. For example:</p>
+<p>To avoid this, you can scale to more than one web dyno.  For example:</p>
 
-<pre><code class="term">$ heroku ps:scale web=2</code></pre>
+<pre><code class="term">$ heroku ps:scale web=2
+</code></pre>
 
-<p>For each application, Heroku provides <a href="/articles/usage-and-billing#750-free-dyno-hours-per-app">750 free dyno-hours</a>. Running your app at 2 dynos would exceed this free, monthly allowance, so let’s scale back:</p>
+<p>For each application, Heroku provides <a href="https://devcenter.heroku.com/articles/usage-and-billing#750-free-dyno-hours-per-app">750 free dyno-hours</a>.  Running your app at 2 dynos would exceed this free, monthly allowance, so let’s scale back:</p>
 
-<pre><code class="term">$ heroku ps:scale web=1</code></pre>
+<pre><code class="term">$ heroku ps:scale web=1
+</code></pre>
 
 <h2 id="view-the-logs">View the logs</h2>
 
-<p>Heroku treats logs as streams of time-ordered events aggregated from the output streams of all the dynos running the components of your application. Heroku’s <a href="/articles/logplex">Logplex</a> provides a single channel for all of these events.</p>
+<p>Heroku treats logs as streams of time-ordered events aggregated from the output streams of all the dynos running the components of your application.  Heroku’s <a href="https://devcenter.heroku.com/articles/logplex">Logplex</a> provides a single channel for all of these events.</p>
 
-<p>View information about your running app using one of the <a href="/articles/logging">logging commands</a>, <code>heroku logs</code>:</p>
+<p>View information about your running app using one of the <a href="https://devcenter.heroku.com/articles/logging">logging commands</a>, <code>heroku logs</code>:</p>
 
 <pre><code class="term">$ heroku logs
 2011-08-20T22:50:14+00:00 heroku[web.1]: State changed from created to starting
@@ -237,19 +257,17 @@ Opening afternoon-frost-273... done</code></pre>
 2011-08-20T22:50:21+00:00 app[web.1]: 22:50:21,448 WARN  ~ Defaults messsages file missing
 2011-08-20T22:50:21+00:00 app[web.1]: 22:50:21,481 INFO  ~ Application 'helloworld' is now started !
 2011-08-20T22:50:21+00:00 app[web.1]: 22:50:21,538 INFO  ~ Listening for HTTP on port 10800 ...
-2011-08-20T22:50:22+00:00 heroku[web.1]: State changed from starting to up</code></pre>
+2011-08-20T22:50:22+00:00 heroku[web.1]: State changed from starting to up
+</code></pre>
 
 <h2 id="next-steps">Next steps</h2>
 
 <ul>
-<li>Extend the app by reading <a href="/articles/database-driven-play-apps">Building a Database-backed Play! application for Heroku</a>
+<li>Extend the app by reading <a href="https://devcenter.heroku.com/articles/database-driven-play-apps">Building a Database-backed Play! application for Heroku</a>
 </li>
-
-<li>Check out the technical aspects of <a href="/articles/play-support">Heroku’s Play support</a>
+<li>Check out the technical aspects of <a href="https://devcenter.heroku.com/articles/play-support">Heroku’s Play support</a>
 </li>
-
 <li>See the <a href="http://www.playframework.org/documentation">Play! Framework documentation and tutorials</a>
 </li>
-
-<li>Read <a href="/articles/how-heroku-works">How Heroku Works</a> for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.</li>
+<li>Read <a href="https://devcenter.heroku.com/articles/how-heroku-works">How Heroku Works</a> for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.</li>
 </ul>

@@ -2,7 +2,7 @@
 
 <h2 id="setup">Setup</h2>
 
-<p>To gain access to the app’s Logplex token, which will give you the capability to write to an app’s log stream, you will first need to store the log drain token that is submitted in the Add-on provision request. More details of the provision request can be found in the <a href="https://devcenter.heroku.com/articles/add-on-provider-api">Add-on Provider API Spec</a>. If you have not previously stored the logplex_token from the provision request, you can use the <a href="https://devcenter.heroku.com/articles/add-on-provider-api#app-info">App Info API</a> to query for the token.</p>
+<p>To gain access to the app’s Logplex token, which will give you the capability to write to an app’s log stream, you will first need to store the log drain token that is submitted in the Add-on provision request. More details of the provision request can be found in the <a href="https://devcenter.heroku.com/articles/add-on-provider-api">Add-on Provider API Spec</a>. If you have not previously stored the logplex_token from the provision request, you can use the <a href="https://devcenter.heroku.com/articles/add-on-app-info">App Info API</a> to query for the token.</p>
 
 <h2 id="transport">Transport</h2>
 
@@ -16,7 +16,7 @@
   -H "Content-Type: application/logplex-1"
 </code></pre>
 
-<p>Note that basic authentication is required. The username is <code>token</code> and the password is the <code>logplex_token</code> value returned by the <a href="https://devcenter.heroku.com/articles/add-on-provider-api#app-info">App Info API</a>.</p>
+<p>Note that basic authentication is required. The username is <code>token</code> and the password is the <code>logplex_token</code> value returned by the <a href="https://devcenter.heroku.com/articles/add-on-app-info">App Info API</a>.</p>
 
 <div class="callout">
 <p>Checkout all of the API details in the <a href="https://github.com/heroku/logplex/blob/master/doc/">Logplex API Docs</a>.</p>
@@ -39,7 +39,7 @@
 readability and machine parsability. With that in mind, log data should:</p>
 
 <ul>
-<li>Consist of one line of content</li>
+<li>Consist of a single message</li>
 <li>Use key-value pairs of the format <code>status=delivered</code>
 </li>
 <li>Use a <code>source</code> key-value pair in log lines for distinguishing machines or

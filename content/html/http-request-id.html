@@ -1,7 +1,9 @@
-<p>This <a href="http://devcenter.heroku.com/categories/labs">Heroku Labs</a> feature that allows you to correlate router logs for a given web request against the web dyno logs for that same request.</p>
-<p class="warning">
-The features added through labs are experimental and may change or be removed without notice.
-</p>
+<p>This <a href="https://devcenter.heroku.com/categories/labs">Heroku Labs</a> feature that allows you to correlate router logs for a given web request against the web dyno logs for that same request.</p>
+
+<div class="warning">
+<p>Features added through Heroku Labs are experimental and subject to change.</p>
+</div>
+
 <h2 id="how-it-works">How it works</h2>
 
 <p>The Heroku router generates a unique request ID for every HTTP request that it receives. It logs this ID as <code>request_id</code>, and inserts it into the HTTP headers going to the web dyno as <code>Heroku-Request-ID</code>.</p>
@@ -11,13 +13,15 @@ The features added through labs are experimental and may change or be removed wi
 <h2 id="using-it">Using it</h2>
 
 <pre><code class="term">$ heroku labs:enable http-request-id
-Enabling http-request-id for myapp... done</code></pre>
+Enabling http-request-id for myapp... done
+</code></pre>
 
 <h2 id="router-log">Router log</h2>
 
 <p>The router log request ID parameter is <code>request_id</code>. Example:</p>
 
-<pre><code>2013-03-10T19:53:10+00:00 heroku[router]: at=info method=GET path=/ host=myapp.herokuapp.com request_id=f9ed4675f1c53513c61a3b3b4e25b4c0 fwd="215.90.1.17" dyno=web.4 connect=0ms service=61ms status=200 bytes=1382</code></pre>
+<pre><code>2013-03-10T19:53:10+00:00 heroku[router]: at=info method=GET path=/ host=myapp.herokuapp.com request_id=f9ed4675f1c53513c61a3b3b4e25b4c0 fwd="215.90.1.17" dyno=web.4 connect=0ms service=61ms status=200 bytes=1382
+</code></pre>
 
 <h2 id="http-header">HTTP header</h2>
 
@@ -30,7 +34,8 @@ Enabling http-request-id for myapp... done</code></pre>
     puts "request_id=#{env['HTTP_HEROKU_REQUEST_ID']}"
     @app.call(env)
   end
-end</code></pre>
+end
+</code></pre>
 
 <h2 id="example-correlate-h13-error-against-app-backtrace">Example: correlate H13 error against app backtrace</h2>
 
@@ -38,11 +43,13 @@ end</code></pre>
 
 <p>Find the router log line for the H13:</p>
 
-<pre><code>2010-10-06T21:51:37-07:00 heroku[router]: at=error code=H13 desc="Connection closed without response" method=GET path=/ host=myapp.herokuapp.com request_id=30f14c6c1fc85cba12bfd093aa8f90e3 fwd="215.90.1.17" dyno=web.15 connect=3030ms service=9767ms status=503 bytes=0</code></pre>
+<pre><code>2010-10-06T21:51:37-07:00 heroku[router]: at=error code=H13 desc="Connection closed without response" method=GET path=/ host=myapp.herokuapp.com request_id=30f14c6c1fc85cba12bfd093aa8f90e3 fwd="215.90.1.17" dyno=web.15 connect=3030ms service=9767ms status=503 bytes=0
+</code></pre>
 
-<p>Note the request ID, which is <code>30f14c6c1fc85cba12bfd093aa8f90e3</code> in this example. Now you can search your logs (using <a href="/articles/papertrail">Papertrail</a> or other log search method) for that ID and find the request, logged by the middleware shown in the previous section:</p>
+<p>Note the request ID, which is <code>30f14c6c1fc85cba12bfd093aa8f90e3</code> in this example. Now you can search your logs (using <a href="https://devcenter.heroku.com/articles/papertrail">Papertrail</a> or other log search method) for that ID and find the request, logged by the middleware shown in the previous section:</p>
 
 <pre><code>2010-10-06T21:51:37-07:00 heroku[web.15]: request_id=30f14c6c1fc85cba12bfd093aa8f90e3
-2010-10-06T21:51:37-07:00 heroku[web.15]: /usr/local/heroku/vendor/gems/excon-0.14.0/lib/excon/ssl_socket.rb:74: [BUG] Segmentation fault</code></pre>
+2010-10-06T21:51:37-07:00 heroku[web.15]: /usr/local/heroku/vendor/gems/excon-0.14.0/lib/excon/ssl_socket.rb:74: [BUG] Segmentation fault
+</code></pre>
 
 <p>Here we see that this request is causing the dyno to crash due to a bug in the SSL library and/or the Ruby interpreter. Upgrading to a newer version of Ruby might help, or if not, you now have the backtrace that you can use to file a bug with.</p>

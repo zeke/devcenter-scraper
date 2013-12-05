@@ -1,8 +1,12 @@
-<p>OAuth provides a way to authorize and revoke access to your account to yourself and third parties. Third parties can use this to provide services, such as monitoring and scaling your applications. You can also use these keys to grant access for your own scripts on your machine or applications.</p>
+<p>OAuth provides a way to authorize and revoke access to your account to yourself and third parties. Third parties can use this to provide services, such as monitoring and scaling your applications. You can also use these tokens obtained with OAuth to grant access for your own scripts on your machine or to other applications.</p>
 
 <p>The Heroku Platform API implements OAuth version 2.0 as the preferred authentication mechanism. For further details of the specific API endpoints see the <a href="https://devcenter.heroku.com/articles/platform-api-reference">Platform API Reference</a>.</p>
 
 <p>Third parties who wish to provide services to Heroku users should implement <a href="#web-application-authorization">web application authorization</a>. Users who would like to use a personal OAuth token should instead use <a href="#direct-authorization">direct authorization</a>.</p>
+
+<h2 id="a-note-on-architecture">A note on architecture</h2>
+
+<p>An OAuth authorization can be generated in one of two ways: via web authorization flow, or from the Heroku API. The web authorization flow (located at the domain <code>id.heroku.com</code>) is designed to easily support common OAuth conventions and be accessible to widely-used libraries. The component supporting this web flow is itself built on the Heroku API (located at the domain <code>api.heroku.com</code>), which is the canonical source for all OAuth data. Both components will be covered in this article.</p>
 
 <h2 id="web-application-authorization">Web application authorization</h2>
 
@@ -12,7 +16,7 @@
 
 <p>The client is what identifies you, the third-party integrator, to Heroku and to authorizing users. When you register a client, you provide a callback URL and a name. The name is displayed to users when authorization is requested, so choose a name that identifies your site or application.</p>
 
-<p>There are three ways to register a client: on <a href="https://dashboard.heroku.com/account">dashboard</a> (easiest), using the <a href="https://github.com/heroku/heroku-oauth">heroku-oauth</a> CLI plugin or <a href="/articles/platform-api-reference#oauth-client">using the API directly</a>.</p>
+<p>There are three ways to register a client: on <a href="https://dashboard.heroku.com/account">dashboard</a> (easiest), using the <a href="https://github.com/heroku/heroku-oauth">heroku-oauth</a> CLI plugin or <a href="https://devcenter.heroku.com/articles/platform-api-reference#oauth-client">using the API directly</a>.</p>
 
 <p>When you register a client, you get an ID and a secret that you use to authorize Heroku users against.</p>
 
@@ -24,16 +28,18 @@
 
 <p>From your app, redirect the user to authorize:</p>
 
-<pre><code>GET https://id.heroku.com/oauth/authorize?client_id={client-id}&amp;response_type=code&amp;scope={scopes}
+<pre><code>GET https://id.heroku.com/oauth/authorize?client_id={client-id}&amp;response_type=code&amp;scope={scopes}&amp;state={anti-forgery-token}
 </code></pre>
 
 <p>The <code>scope</code> URL parameter is a space-delimited (and url-encoded) list of the authorization scopes you are requesting. See <a href="#scopes">available scopes below</a>.</p>
+
+<p>The <code>state</code> parameter is a unique string used to maintain state between Heroku’s OAuth provider and your app. When Heroku redirects users back to your app’s <code>redirect_uri</code>, this parameter’s value will be included in the response (see below). This parameter’s value should be an anti-forgery token to protect against <a href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">cross-site request forgery</a> (CSRF).</p>
 
 <h4 id="redirect-back">Redirect back</h4>
 
 <p>The user will then be redirected back, based on the client redirect uri:</p>
 
-<pre><code>GET {redirect-uri}?code={code}
+<pre><code>GET {redirect-uri}?code={code}&amp;state={anti-forgery-token}
 </code></pre>
 
 <h4 id="token-exchange">Token exchange</h4>
@@ -76,7 +82,7 @@ Content-Type: application/json;charset=utf-8
 
 <h4 id="curl-example">Curl example</h4>
 
-<pre><code class="term">$ curl -X POST https://id.heroku.com/oauth/token \ 
+<pre><code class="term">$ curl -X POST https://id.heroku.com/oauth/token \
 -d "grant_type=refresh_token&amp;refresh_token=036b9495-b39d-4626-b53a-34399e7bc737&amp;client_secret=fa86a593-d854-4a3f-b68c-c6cc45fb6704"
 </code></pre>
 
@@ -106,7 +112,7 @@ RateLimit-Remaining: 1200
 
 <ul>
 <li>
-<code>global</code>: Read and write access to all of your account, apps and resources. Equivalent to API key.</li>
+<code>global</code>: Read and write access to all of your account, apps and resources. Equivalent to the <a href="https://devcenter.heroku.com/articles/authentication">default authorization obtained when using the CLI</a>.</li>
 <li>
 <code>identity</code>: Read-only access to your <a href="https://devcenter.heroku.com/articles/platform-api-reference#account">account information</a>.</li>
 <li>
@@ -115,13 +121,13 @@ RateLimit-Remaining: 1200
 <code>read-protected</code> and <code>write-protected</code>: Read and write access to all of your apps and resources, excluding account information. This scope lets you request access to an account including access to runtime secrets such as database connection strings.</li>
 </ul><h2 id="direct-authorization">Direct authorization</h2>
 
-<p>Direct authorization is used to provide a simpler workflow when users are creating authorizations for themself. It allows the exchange of username and password for a non-expiring token. These authorizations should be used in place of API keys in order to provide better granularity and the possibility of revocation.</p>
+<p>Direct authorization is used to provide a simpler workflow when users are creating authorizations for themselves. It allows the exchange of username and password for a non-expiring token.</p>
 
 <h3 id="token-exchange">Token exchange</h3>
 
 <p>In order to acquire a direct authorization, a request is made to create an authorization while passing username and password in basic auth. A description may also be included to help distinguish this authorization from others, and like the web flow, the authorization can also be scoped to particular permissions on the account.</p>
 
-<p>HTTP basic authentication must be constructed from the <a href="https://devcenter.heroku.com/articles/authentication">api token</a> as <code>:{api-token}</code> (note the pre-pended colon), base64 encoded and passed as the Authorization header for each request, for example <code>Authorization: Basic 0123456789ABCDEF=</code>.</p>
+<p>HTTP basic authentication must be constructed from the <a href="https://devcenter.heroku.com/articles/authentication">api token</a> as <code>:{token}</code> (note the pre-pended colon), base64 encoded and passed as the Authorization header for each request, for example <code>Authorization: Basic 0123456789ABCDEF=</code>.</p>
 
 <pre><code>POST /oauth/authorizations
 </code></pre>
@@ -143,32 +149,33 @@ Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
 RateLimit-Remaining: 1200
 </code></pre>
 
-<pre><code class="javascript">{
+<pre><code class="javascript```">{
   "access_token": {
-    "expires_in": null,
-    "id":         "01234567-89ab-cdef-0123-456789abcdef",
-    "token":      "01234567-89ab-cdef-0123-456789abcdef"
+    "expires_in": 2592000,
+    "id": "01234567-89ab-cdef-0123-456789abcdef",
+    "token": "01234567-89ab-cdef-0123-456789abcdef"
   },
   "client": {
-    "id":           null,
-    "name":         null,
-    "redirect_uri": null
+    "id": "01234567-89ab-cdef-0123-456789abcdef",
+    "name": "example",
+    "redirect_uri": "https://example.com/auth/heroku/callback"
   },
-  "created_at":    "2012-01-01T12:00:00-00:00",
-  "description":   "sample authorization",
+  "created_at": "2012-01-01T12:00:00Z",
   "grant": {
-    "code":       null,
-    "expires_in": null,
-    "id":         null
+    "code": "01234567-89ab-cdef-0123-456789abcdef",
+    "expires_in": 2592000,
+    "id": "01234567-89ab-cdef-0123-456789abcdef"
   },
-  "id":            "01234567-89ab-cdef-0123-456789abcdef",
+  "id": "01234567-89ab-cdef-0123-456789abcdef",
   "refresh_token": {
-    "expires_in": null,
-    "id":         null,
-    "token":      null
+    "expires_in": 2592000,
+    "id": "01234567-89ab-cdef-0123-456789abcdef",
+    "token": "01234567-89ab-cdef-0123-456789abcdef"
   },
-  "scope":         "global",
-  "updated_at":    "2012-01-01T12:00:00-00:00"
+  "scope": [
+    "global"
+  ],
+  "updated_at": "2012-01-01T12:00:00Z"
 }
 </code></pre>
 
@@ -198,39 +205,41 @@ Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
 RateLimit-Remaining: 1200
 </code></pre>
 
-<pre><code class="javascript">{
+<pre><code class="javascript```">{
   "access_token": {
-    "expires_in": null,
-    "id":         "01234567-89ab-cdef-0123-456789abcdef",
-    "token":      "01234567-89ab-cdef-0123-456789abcdef"
+    "expires_in": 2592000,
+    "id": "01234567-89ab-cdef-0123-456789abcdef",
+    "token": "01234567-89ab-cdef-0123-456789abcdef"
   },
   "client": {
-    "id":           null,
-    "name":         null,
-    "redirect_uri": null
+    "id": "01234567-89ab-cdef-0123-456789abcdef",
+    "name": "example",
+    "redirect_uri": "https://example.com/auth/heroku/callback"
   },
-  "created_at":    "2012-01-01T12:00:00-00:00",
-  "description":   "sample authorization",
+  "created_at": "2012-01-01T12:00:00Z",
   "grant": {
-    "code":       null,
-    "expires_in": null,
-    "id":         null
+    "code": "01234567-89ab-cdef-0123-456789abcdef",
+    "expires_in": 2592000,
+    "id": "01234567-89ab-cdef-0123-456789abcdef"
   },
-  "id":            "01234567-89ab-cdef-0123-456789abcdef",
+  "id": "01234567-89ab-cdef-0123-456789abcdef",
   "refresh_token": {
-    "expires_in": null,
-    "id":         null,
-    "token":      null
+    "expires_in": 2592000,
+    "id": "01234567-89ab-cdef-0123-456789abcdef",
+    "token": "01234567-89ab-cdef-0123-456789abcdef"
   },
-  "scope":         "global",
-  "updated_at":    "2012-01-01T12:00:00-00:00"
+  "scope": [
+    "global"
+  ],
+  "updated_at": "2012-01-01T12:00:00Z"
 }
+
 </code></pre>
 
 <h2 id="resources-and-examples">Resources and examples</h2>
 
 <ul>
-<li><a href="/articles/platform-api-reference">Platform API Reference</a></li>
+<li><a href="https://devcenter.heroku.com/articles/platform-api-reference">Platform API Reference</a></li>
 <li><a href="https://github.com/heroku/heroku-oauth">Heroku CLI plugin to manage OAuth clients and authorizations</a></li>
 <li>
 <a href="https://github.com/heroku/heroku-oauth-example-ruby">Ruby sample app</a> demonstrating OAuth</li>

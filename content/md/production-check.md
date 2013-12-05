@@ -21,12 +21,13 @@ Production Check will run a series of tests on your app recommended for maintain
 
 To determine what stack your application is currently deployed to, use the `heroku stack` command.
 
-    :::term
-    $ heroku stack -a ha-app
-    === ha-app Available Stacks
-      bamboo-mri-1.9.2
-      bamboo-ree-1.8.7
-    * cedar
+```term
+$ heroku stack -a ha-app
+=== ha-app Available Stacks
+  bamboo-mri-1.9.2
+  bamboo-ree-1.8.7
+* cedar
+```
 
 If you are not yet on Cedar, consider [migrating your application](cedar-migration).
 
@@ -36,13 +37,14 @@ Running at least 2 web [dynos](dynos) for any mission-critical app increases the
 
 Use the `heroku ps` command to determine how many dynos of each type your app is currently running and `heroku ps:scale` to increase dyno redundancy.
 
-    :::term
-    $ heroku ps -a ha-app
-    === web:
-    web.1: up for 17m
+```term
+$ heroku ps -a ha-app
+=== web:
+web.1: up for 17m
 
-    $ heroku ps:scale web+2
-    Scaling web processes... done, now running 3
+$ heroku ps:scale web+2
+Scaling web processes... done, now running 3
+```
 
 This applies to `web` dynos but also any [background or worker](background-jobs-queueing) dynos as well.
 
@@ -50,18 +52,18 @@ This applies to `web` dynos but also any [background or worker](background-jobs-
 
 Apps on the Cedar stack should have [CNAME records](custom-domains#custom-subdomains) pointing to `app-name.herokuapp.com`. When SSL is required, provision an [SSL Endpoint](https://devcenter.heroku.com/articles/ssl-endpoint) and point your CNAME records to `endpoint-name.herokussl.com`. Any other configuration will result in reduced availability.
 
-<div class="warning" markdown="1">
-Apex domains (otherwise known as bare, root and naked domains) should not be configured using A-records. [Properly configure the root domain DNS](apex-domains) using CNAME-like functionality or subdomain redirection.
-</div>
+> warning
+> Apex domains (otherwise known as bare, root and naked domains) should not be configured using A-records. [Properly configure the root domain DNS](apex-domains) using CNAME-like functionality or subdomain redirection.
 
 You can quickly determine if your DNS records are properly configured using the `host` command-line utility.
 
-    :::term
-    $ host www.example.com
-    www.example.com is an alias for nara-1234.herokussl.com.
-    nara-1234.herokussl.com is an alias for elb002776-242519199.us-east-1.elb.amazonaws.com.
-    elb002776-242519199.us-east-1.elb.amazonaws.com has address 107.21.240.226
-    …
+```term
+$ host www.example.com
+www.example.com is an alias for nara-1234.herokussl.com.
+nara-1234.herokussl.com is an alias for elb002776-242519199.us-east-1.elb.amazonaws.com.
+elb002776-242519199.us-east-1.elb.amazonaws.com has address 107.21.240.226
+…
+```
 
 You should see an alias mapping from `www.example.com` to either `app-name.herokuapp.com` or `endpoint-name.herokussl.com`.
 
@@ -69,23 +71,23 @@ You should see an alias mapping from `www.example.com` to either `app-name.herok
 
 If you run your business on Heroku, you should use a production-grade [Heroku Postgres database](https://addons.heroku.com/heroku-postgresql).
 
-<div class="note" markdown="1">
-The Heroku Postgres production tier starts with Crane and extends through to the Mecha plan. *Dev and Starter plans are not production databases*.
-</div>
+> note
+> The Heroku Postgres production tier starts with Crane and extends through to the Mecha plan. *Dev and Starter plans are not production databases*.
 
 The production tier of service achieves the highest expected uptime and includes automated health checks, data snapshots and advanced features such as fork and follow.
 
-    :::term
-    $ heroku pg:info -a ha-app
-    === HEROKU_POSTGRESQL_RED
-    Plan:        Ronin
-    Status:      available
-    Data Size:   5.9 MB
-    Tables:      0
-    PG Version:  9.1.4
-    Fork/Follow: Available
-    Created:     2012-07-13 16:59 UTC
-    Maintenance: not required
+```term
+$ heroku pg:info -a ha-app
+=== HEROKU_POSTGRESQL_RED
+Plan:        Ronin
+Status:      available
+Data Size:   5.9 MB
+Tables:      0
+PG Version:  9.1.4
+Fork/Follow: Available
+Created:     2012-07-13 16:59 UTC
+Maintenance: not required
+```
 
 If your application requires a non-relational data store, [Amazon DynamoDB](http://aws.amazon.com/dynamodb/) is another great candidate for highly available data storage.
 

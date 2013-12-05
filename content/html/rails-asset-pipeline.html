@@ -1,71 +1,70 @@
-<p>Rails applications running on the Heroku Cedar stack can have the asset pipeline compiled locally, at deploy-time, or at run time. For new users, we recommend reading <a href="/articles/rails3">our tutorial for creating a Rails 3.x app on Cedar</a> before proceeding further.</p>
-<div class="callout">
-<p>Environment variables are not available to your app at compile time. This means if you need them for your asset compilation, the task may not run properly. Best practice is to re-write your application to not require environment variables at compile time. If you cannot do this, you can use the</p>
-<a href="https://devcenter.heroku.com/articles/labs-user-env-compile">
-<p>user-env-compile</p>
-</a>
-<p>labs feature, though its use should be avoided.</p>
+<p>Rails applications running on the Heroku Cedar stack can have the asset pipeline compiled locally, at deploy-time, or at run time. For new users, we recommend reading <a href="https://devcenter.heroku.com/articles/rails3">our tutorial for creating a Rails 3.x app on Cedar</a> before proceeding further.</p>
+
+<div class="note">
+<p>Heroku recommends <a href="https://devcenter.heroku.com/articles/using-amazon-cloudfront-cdn-with-rails">using the asset pipeline with a CDN</a> to increase end user experience and decrease load on your Heroku app. If you have questions about Ruby on Heroku, consider discussing it in the <a href="https://discussion.heroku.com/category/ruby">Ruby on Heroku forums</a>.</p>
 </div>
-<h1 id="the_rails_3_asset_pipeline">The Rails 3 Asset pipeline</h1>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<div class="callout">
+<p>Environment variables are not available to your app at compile time. This means if you need them for your asset compilation, the task may not run properly. Best practice is to re-write your application to not require environment variables at compile time. If you cannot do this, you can use the <a href="https://devcenter.heroku.com/articles/labs-user-env-compile">user-env-compile</a> labs feature, though its use should be avoided.</p>
+</div>
+
+<h2 id="the-rails-3-asset-pipeline">The Rails 3 Asset pipeline</h2>
 
 <p>The Rails 3 asset pipeline is supported on Heroku’s Cedar stack. The new pipeline makes assets a first class citizen in the Rails stack. By default, Rails uses <a href="http://jashkenas.github.com/coffee-script/">CoffeeScript</a> for JavaScript and <a href="http://sass-lang.com/">SCSS</a> for CSS. DHH has a great introduction during his <a href="http://www.youtube.com/watch?v=cGdCI2HhfAU">keynote for RailsConf</a>.</p>
 
 <p>The Rails asset pipeline provides an <code>assets:precompile</code> rake task to allow assets to be compiled and cached up front rather than compiled every time the app boots.</p>
 
-<p>There are three ways you can use the asset pipeline on Heroku.</p>
+<p>There are two ways you can use the asset pipeline on Heroku.</p>
 
 <ol>
 <li>Compiling assets locally.</li>
-
 <li>Compiling assets during slug compilation.</li>
-
-<li>Compiling assets during runtime.</li>
 </ol><h3 id="compiling-assets-locally">Compiling assets locally</h3>
+
 <div class="callout">
 <p>If a <code>public/assets/manifest.yml</code> is detected in your app, Heroku will assume you are handling asset compilation yourself and will not attempt to compile your assets. In Rails 4 the there should be a <code>public/assets/manifest-&lt;md5 hash&gt;.json</code> instead. On both versions you can generate this file by running <code>$ rake assets:precompile</code> locally and checking the resultant files into Git.</p>
 </div>
+
 <p>To compile your assets locally, run the <code>assets:precompile</code> task locally on your app. Make sure to use the <code>production</code> environment so that the production version of your assets are generated.</p>
 
-<pre><code class="term">RAILS_ENV=production bundle exec rake assets:precompile</code></pre>
+<pre><code class="term">RAILS_ENV=production bundle exec rake assets:precompile
+</code></pre>
 
-<p>A <code>public/assets</code> directory will be created. Inside this directory you’ll find a <code>manifest.yml</code> which includes the md5sums of the compiled assets in Rails 3. In Rails 4 the file will be <code>manifest-&lt;md5 hash&gt;.json</code>. Adding <code>public/assets</code> to your git repository will make it available to Heroku.</p>
+<p>A <code>public/assets</code> directory will be created. Inside this directory you’ll find a <code>manifest.yml</code> which includes the md5sums of the compiled assets in Rails 3. In Rails 4 the file will be  <code>manifest-&lt;md5 hash&gt;.json</code>. Adding <code>public/assets</code> to your git repository will make it available to Heroku.</p>
 
 <pre><code class="term">git add public/assets
-git commit -m "vendor compiled assets"</code></pre>
+git commit -m "vendor compiled assets"
+</code></pre>
 
 <p>Now when pushing, the output should show that your locally compiled assets were detected:</p>
 
 <pre><code class="term">-----&gt; Preparing Rails asset pipeline
-       Detected manifest.yml, assuming assets were compiled locally</code></pre>
+       Detected manifest.yml, assuming assets were compiled locally
+</code></pre>
 
 <h3 id="compiling-assets-during-slug-compilation">Compiling assets during slug compilation</h3>
+
 <div class="callout">
 <p>The app’s config vars are not available in the environment during the slug compilation process. Because the app must be loaded to run the <code>assets:precompile</code> task, any initialization code that requires existence of config vars should gracefully handle the <code>nil</code> case.</p>
 </div>
+
 <p>If you have not compiled assets locally, we will attempt to run the <code>assets:precompile</code> task during slug compilation. Your push output will show:</p>
 
 <pre><code class="term">-----&gt; Preparing Rails asset pipeline
-       Running: rake assets:precompile</code></pre>
+       Running: rake assets:precompile
+</code></pre>
 
 <p>Please see the Troubleshooting section below on explanations of how the rake task works during our slug compilation process.</p>
 
-<h3 id="compiling-assets-during-runtime">Compiling assets during runtime</h3>
+<h3 id="failed-assets-precompile">Failed assets:precompile</h3>
 
-<p>If the <code>assets:precompile</code> task fails, the output will be displayed and runtime compilation of assets will be enabled:</p>
-<div class="callout">
-<p>While runtime asset compilation will work, it should be used as a last resort. Using runtime compilation will require Rails to compile your assets each time a dyno boots up increasing the wait time for a new dyno to become available.</p>
-</div>
-<pre><code class="term">-----&gt; Preparing Rails asset pipeline
-       Running: rake assets:precompile
-       ERROR: Unable to connect to memcached
-       Precompiling assets failed, enabling runtime asset compilation
-       Injecting rails31_enable_runtime_asset_compilation</code></pre>
-
-<p>By default, Rails prevents assets from being compiled during runtime so we inject <a href="https://github.com/hone/rails31_enable_runtime_asset_compilation">this plugin</a> to enable runtime asset compilation.</p>
+<p>If the <code>assets:precompile</code> task fails, the output will be displayed and the build will exit.</p>
 
 <h2 id="asset-caching">Asset caching</h2>
 
-<p>Caching of static assets can be implemented in-application using the <a href="/articles/rack-cache-memcached-static-assets-rails31">Rack::Cache</a> middleware or in a more distributed fashion with a <a href="/articles/cdn-asset-host-rails31">CDN</a>. Serving assets from your application does require dyno-resources so please consider an appropriate asset caching strategy for your needs.</p>
+<p>Caching of static assets can be implemented in-application using the <a href="https://devcenter.heroku.com/articles/rack-cache-memcached-static-assets-rails31">Rack::Cache</a> middleware or in a more distributed fashion with a <a href="https://devcenter.heroku.com/articles/cdn-asset-host-rails31">CDN</a>. Serving assets from your application does require dyno-resources so please consider an appropriate asset caching strategy for your needs.</p>
 
 <h2 id="troubleshooting">Troubleshooting</h2>
 
@@ -79,11 +78,13 @@ git commit -m "vendor compiled assets"</code></pre>
 
 <pre><code class="term">could not connect to server: Connection refused
 Is the server running on host "127.0.0.1" and accepting
-TCP/IP connections on port xxxx?</code></pre>
+TCP/IP connections on port xxxx?
+</code></pre>
 
 <p>This means that your app is attempting to connect to the database as part of <code>rake assets:precompile</code>. Because the config vars are not present in the environment, we use a placeholder <code>DATABASE_URL</code> to satisfy Rails. The full command run during slug compilation is:</p>
 
-<pre><code> env RAILS_ENV=production DATABASE_URL=scheme://user:pass@127.0.0.1/dbname bundle exec rake assets:precompile 2&gt;&amp;1</code></pre>
+<pre><code> env RAILS_ENV=production DATABASE_URL=scheme://user:pass@127.0.0.1/dbname bundle exec rake assets:precompile 2&gt;&amp;1
+</code></pre>
 
 <ul>
 <li>
@@ -91,7 +92,10 @@ TCP/IP connections on port xxxx?</code></pre>
 </li>
 </ul><p>While precompiling assets, in Rails 3.x, you can prevent initializing your application and connecting to the database by ensuring that the following line is in your <code>config/application.rb</code>:</p>
 
-<pre><code class="term">config.assets.initialize_on_precompile = false</code></pre>
+<pre><code class="term">config.assets.initialize_on_precompile = false
+</code></pre>
+
+<p>Do not forget to commit to git after changing this setting.</p>
 
 <p>In Rails 4.x this option has been removed and is no longer needed.</p>
 
@@ -106,11 +110,13 @@ TCP/IP connections on port xxxx?</code></pre>
 <p>If you need to compile assets at runtime, you must add <code>bin</code> to your PATH to access the JavaScript runtime. Check your current configuration using <code>heroku config</code>:</p>
 
 <pre><code class="term">$ heroku config
-PATH =&gt; vendor/bundle/ruby/1.9.1/bin:/usr/local/bin:/usr/bin:/bin</code></pre>
+PATH =&gt; vendor/bundle/ruby/1.9.1/bin:/usr/local/bin:/usr/bin:/bin
+</code></pre>
 
 <p>If your PATH variable does not include <code>bin</code> on its own, update it by running:</p>
 
 <pre><code class="term">$ heroku config:set PATH=bin:vendor/bundle/ruby/1.9.1/bin:/usr/local/bin:/usr/bin:/bin
 Adding config vars:
   PATH =&gt; vendor/bundle/ru...usr/bin:/bin:bin
-Restarting app... done, v7.</code></pre>
+Restarting app... done, v7.
+</code></pre>

@@ -99,12 +99,14 @@ Pip has a nice command (`pip freeze`) that will generate this file for us:
 
 #### requirements.txt
 
-    Django==1.5.1
-    dj-database-url==0.2.1
+    Django==1.6
+    dj-database-url==0.2.2
     dj-static==0.0.5
-    gunicorn==17.5
+    gunicorn==18.0
     psycopg2==2.5.1
     static==0.4
+    wsgiref==0.1.2
+
 
 Pip can also be used for advanced dependency management. See [Python Dependencies via Pip](/articles/python-pip) to learn more.
 
@@ -154,12 +156,7 @@ Now that we've written and tested our application, we need to store the project 
 
 Since our current directory contains a lof of extra files, we'll want to configure our repository to ignore these files with a `.gitignore` file:
 
-<div class="callout" markdown="1">
-    GitHub provides an excellent
-    [Python gitignore file](https://github.com/github/gitignore/blob/master/Python.gitignore)
-    that can be
-    [installed system-wide](https://github.com/github/gitignore#readme).
-</div>
+<div class="callout" markdown="1">GitHub provides an excellent [Python gitignore file](https://github.com/github/gitignore/blob/master/Python.gitignore) that can be [installed system-wide](https://github.com/github/gitignore#readme). </div>
 
 #### .gitignore
 

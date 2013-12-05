@@ -24,7 +24,7 @@ The manifest will need to tell Heroku that your add-on requires permission to se
 
 When the add-on is provisioned, Heroku's systems will generate a unique log token for that app/add-on instance combo. Add-on Providers should use this to identify logs sent to the drain.
 
-The provisioning call will contain the log tokeng. Storing the token is recommended for providers, but not necessary as it's possible use another mechanism to separate traffic such as unique port+IP combinations per Heroku user/app. The content of our POST to the /heroku/resources endpoint looks like:
+The provisioning call will contain the log token. Storing the token is recommended for providers, but not necessary as it's possible use another mechanism to separate traffic such as unique port+IP combinations per Heroku user/app. The content of our POST to the /heroku/resources endpoint looks like:
 
 ``` json
 { "heroku_id": "app123@heroku.com", 

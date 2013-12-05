@@ -38,49 +38,55 @@ with little or no extra work.
 Running `heroku login` (or any other `heroku` command that
 requires authentication) will create or update your`~/.netrc`:
 
-    :::term
-    $ ls .netrc
-    ls: .netrc: No such file or directory
-    $ heroku login
-    Enter your Heroku credentials.
-    Email: me@example.com
-    Password:
-    $ cat .netrc
-    machine api.heroku.com
-      login me@example.com
-      password c4cd94da15ea0544802c2cfd5ec4ead324327430
-    machine code.heroku.com
-      login me@example.com
-      password c4cd94da15ea0544802c2cfd5ec4ead324327430
-    $
+```term
+$ ls .netrc
+ls: .netrc: No such file or directory
+$ heroku login
+Enter your Heroku credentials.
+Email: me@example.com
+Password:
+$ cat .netrc
+machine api.heroku.com
+  login me@example.com
+  password c4cd94da15ea0544802c2cfd5ec4ead324327430
+machine code.heroku.com
+  login me@example.com
+  password c4cd94da15ea0544802c2cfd5ec4ead324327430
+$
+```
 
-## Retrieving the token
+## Retrieving the API token
 
 You can display the token via the CLI:
 
-    :::term
-    $ heroku auth:token
-    c4cd94da15ea0544802c2cfd5ec4ead324327430
+```term
+$ heroku auth:token
+c4cd94da15ea0544802c2cfd5ec4ead324327430
+```
 
 ## Authenticating with the API token
 
 Having logged in, you can use `curl` to access the Heroku API:
 
-    :::term
-    $ curl -H "Accept: application/json" -n https://api.heroku.com/apps
+```term
+$ curl -H "Accept: application/json" -n https://api.heroku.com/apps
+```
 
 You can also create a file `~/.curlrc`, containing extra command-line
 options for curl:
 
 ### ~/.curlrc
 
-    --netrc
-    --header "Accept: application/json"
+```
+--netrc
+--header "Accept: application/json"
+```
 
 With this file, the command is simply:
 
-    :::term
-    $ curl https://api.heroku.com/apps
+```term
+$ curl https://api.heroku.com/apps
+```
 
 ### File format
 
@@ -88,9 +94,11 @@ The file contains a list of free-form records and comments. Comments
 start with a `#` (hash) symbol and continue to the end of the line.
 Each record is of the form:
 
-    machine api.heroku.com
-      login me@example.com
-      password ABC123
+```
+machine api.heroku.com
+  login me@example.com
+  password ABC123
+```
 
 One other type of record, `macdef`, can appear in `.netrc` files, but
 it is not commonly used and is ignored by the `heroku` command.

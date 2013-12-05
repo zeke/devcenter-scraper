@@ -2,6 +2,10 @@
 
 <p>Most of Rails works out of the box with Heroku, however there are a few things you can do to get the most out of the platform. To do this you will need to configure your Rails 4 app to connect to Postgres, your logs need to be configured to point to STDOUT, and your application needs to have serving assets enabled in production.</p>
 
+<div class="note">
+<p>If you have questions about Ruby on Heroku, consider discussing it in the <a href="https://discussion.heroku.com/category/ruby">Ruby on Heroku forums</a>.</p>
+</div>
+
 <h2 id="logging-and-assets">Logging and assets</h2>
 
 <p>Heroku <a href="http://12factor.net/logs">treats logs as streams</a> and requires your logs to be sent to STDOUT. To enable STDOUT logging in Rails 4 you can add the <code>rails_12factor</code> gem. This gem will also configure your app to serve assets in production. To add this gem add this to your Gemfile:</p>

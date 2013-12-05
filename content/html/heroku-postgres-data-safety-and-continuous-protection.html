@@ -1,6 +1,6 @@
 <p>Postgres offers a number of ways to replicate, backup and export your data. Some are extremely lightweight and have little performance impact on a running database, while others are rather expensive and may adversely impact a database under load.</p>
 
-<p>This article explores how Heroku Postgres uses these methods to provide continuous protection, as well as data portability and how you may choose what is appropriate for your data. </p>
+<p>This article explores how Heroku Postgres uses these methods to provide continuous protection, as well as data portability and how you may choose what is appropriate for your data.</p>
 
 <h3 id="the-different-types-of-backups">The Different Types of Backups</h3>
 
@@ -8,13 +8,13 @@
 
 <h2 id="physical-backups-on-heroku-postgres">Physical Backups on Heroku Postgres</h2>
 
-<p>Heroku Postgres uses physical backups for Continuous Protection by persisting binary copies of the database cluster files, also known as base backups, and write ahead log (WAL) files to external, reliable storage. </p>
+<p>Heroku Postgres uses physical backups for Continuous Protection by persisting binary copies of the database cluster files, also known as base backups, and write ahead log (WAL) files to external, reliable storage.</p>
 
 <div class="callout">
 <p>All Heroku Postgres databases are protected through continuous physical backups.</p>
 </div>
 
-<p>Base backups are taken while the database is fully available and make a verbatim copy of Postgres' data files. This includes dead tuples, bloat, indexes and all structural characteristics of the currently running database. On Heroku Postgres, a base backup capture is rate limited to about 10MB/s and imposes a minimal load on the running database. Committed transactions are recorded as WAL files, which are able to be replayed on top of the base backups, providing a method of completely reconstructing the state of a database. Base backups and WAL files are pushed to AWS' S3 object store through an application called <a href="https://github.com/wal-e/wal-e">WAL-E</a> as soon as they are made available by Postgres. </p>
+<p>Base backups are taken while the database is fully available and make a verbatim copy of Postgres' data files. This includes dead tuples, bloat, indexes and all structural characteristics of the currently running database. On Heroku Postgres, a base backup capture is rate limited to about 10MB/s and imposes a minimal load on the running database. Committed transactions are recorded as WAL files, which are able to be replayed on top of the base backups, providing a method of completely reconstructing the state of a database. Base backups and WAL files are pushed to AWS' S3 object store through an application called <a href="https://github.com/wal-e/wal-e">WAL-E</a> as soon as they are made available by Postgres.</p>
 
 <p>All databases managed by Heroku Postgres provide continuous protection by persisting base backups and WAL files to S3. Also, <a href="https://devcenter.heroku.com/articles/heroku-postgres-fork">fork</a> and <a href="https://devcenter.heroku.com/articles/heroku-postgres-follower-databases">follower</a> database are implemented by fetching persistent base backups and WAL files and replaying them on a fresh Postgres installation. Storing these physical backups in a highly available object store also enables us to recover entire databases in the event of hardware failure, data corruption or a large scale service interruption.</p>
 
@@ -24,13 +24,13 @@
 
 <h2 id="logical-backups-on-heroku-postgres">Logical Backups on Heroku Postgres</h2>
 
-<p>Logical backups are an extremely flexible method of exporting data from Heroku Postgres and restoring it to almost any database installation, but can be quite painful for moving large data sets. </p>
+<p>Logical backups are an extremely flexible method of exporting data from Heroku Postgres and restoring it to almost any database installation, but can be quite painful for moving large data sets.</p>
 
 <div class="callout">
-<p>Frequent logical backups of large databases under load can be slow, degrade the performance of other queries and prevent necessary maintenance operations from running. </p>
+<p>Frequent logical backups of large databases under load can be slow, degrade the performance of other queries and prevent necessary maintenance operations from running.</p>
 </div>
 
-<p>Logical backups are captured using <a href="http://www.postgresql.org/docs/9.2/interactive/app-pgdump.html">pg_dump</a> and can be restored with <a href="http://www.postgresql.org/docs/9.2/static/app-pgrestore.html">pg_restore</a> or <a href="http://www.postgresql.org/docs/9.2/static/app-psql.html">psql</a>, depending on the dump file format. Script format dumps are plain-text files of SQL commands that would reconstruct the database at the time of capture and are restored by piping them through psql. Archive file formats are more flexible and performant than script formats and the “custom” format allows for compression as well as opportunistic reordering of all archived items. Archive file formats are restored through pg_restore. </p>
+<p>Logical backups are captured using <a href="http://www.postgresql.org/docs/9.2/interactive/app-pgdump.html">pg_dump</a> and can be restored with <a href="http://www.postgresql.org/docs/9.2/static/app-pgrestore.html">pg_restore</a> or <a href="http://www.postgresql.org/docs/9.2/static/app-psql.html">psql</a>, depending on the dump file format. Script format dumps are plain-text files of SQL commands that would reconstruct the database at the time of capture and are restored by piping them through psql. Archive file formats are more flexible and performant than script formats and the “custom” format allows for compression as well as opportunistic reordering of all archived items. Archive file formats are restored through pg_restore.</p>
 
 <h3 id="pg_dump">pg_dump</h3>
 
@@ -38,37 +38,37 @@
 
 <h3 id="pg_restore">pg_restore</h3>
 
-<p>The <code>pg_restore</code> application similarly uses a regular Postgres connection to load a dump into a Postgres database. The restore will create the necessary schema, load data through COPY commands, create indexes, add constraints and create any triggers that were dumped from the source database. The loading data, creating indexes and creating constraints phases may be extremely slow as each requires disk IO and computation in order to write, process and alter the restored data for normal operation. Certain parts of the restore may be run over several parallel connections, which is accomplished through the <code>--jobs=number-of-jobs</code> command line flag to <code>pg_restore</code>. As each job is one process, more than one jobs per CPU core in the database instance will lead to resource contention and may lead to decreased performance. </p>
+<p>The <code>pg_restore</code> application similarly uses a regular Postgres connection to load a dump into a Postgres database. The restore will create the necessary schema, load data through COPY commands, create indexes, add constraints and create any triggers that were dumped from the source database. The loading data, creating indexes and creating constraints phases may be extremely slow as each requires disk IO and computation in order to write, process and alter the restored data for normal operation. Certain parts of the restore may be run over several parallel connections, which is accomplished through the <code>--jobs=number-of-jobs</code> command line flag to <code>pg_restore</code>. As each job is one process, more than one jobs per CPU core in the database instance will lead to resource contention and may lead to decreased performance.</p>
 
 <h3 id="pgbackups">PGBackups</h3>
 
 <p>On Heroku Postgres, <code>pg_dump</code> and <code>pg_restore</code> running on Heroku are available through the <a href="https://devcenter.heroku.com/articles/pgbackups">PGBackups</a> addon. During a scheduled run of PGBackups or manual run of <code>heroku pgbackups:capture</code>, PGBackups will launch a dedicated dyno to take a dump of your database and upload it to S3. A <code>pgbackups:capture</code> run may be canceled through a normal <code>psql</code> connection:</p>
 
 <pre><code class="term">$ heroku pg:psql
-=&gt; SELECT pid, query FROM pg_stat_activity WHERE query LIKE 'COPY%';  
+=&gt; SELECT pid, query FROM pg_stat_activity WHERE query LIKE 'COPY%';
   pid  |                       query
 -------+----------------------------------------------------
  21374 | COPY public.users (id, created_at, name) TO stdout;
 (1 row)
 =&gt; SELECT pg_cancel_backend(21374);
- pg_cancel_backend 
+ pg_cancel_backend
 -------------------
  t
 (1 row)
 </code></pre>
 
-<p>As for restoring data to your database, <code>heroku pgbackups:restore</code> will take any dump file that is accessible to a dyno running on Heroku, such as one available on S3, and restore it to your Heroku Postgres database. </p>
+<p>As for restoring data to your database, <code>heroku pgbackups:restore</code> will take any dump file that is accessible to a dyno running on Heroku, such as one available on S3, and restore it to your Heroku Postgres database.</p>
 
-<p>For directly transferring a logical backup between Heroku Postgres databases, <code>heroku pgbackups:transfer</code> will use a dedicated dyno to pipe the output of <code>pg_dump</code> directly to <code>pg_restore</code>, removing the need to transfer the dump file to a location external to Heroku. The data transfer is also piped through <code>pv</code>, an application better known as <a href="http://linux.die.net/man/1/pv">pipeviewer</a>, to provide more visibility into the transfer. However, creating indexes, adding constraints and doing basic sanity checking at the end of the <code>pgbackups:transfer</code> run will not be reflected in <code>pv</code>’s logging, so the transfer may appear to hang, but is working in the background. </p>
+<p>For directly transferring a logical backup between Heroku Postgres databases, <code>heroku pgbackups:transfer</code> will use a dedicated dyno to pipe the output of <code>pg_dump</code> directly to <code>pg_restore</code>, removing the need to transfer the dump file to a location external to Heroku. The data transfer is also piped through <code>pv</code>, an application better known as <a href="http://linux.die.net/man/1/pv">pipeviewer</a>, to provide more visibility into the transfer. However, creating indexes, adding constraints and doing basic sanity checking at the end of the <code>pgbackups:transfer</code> run will not be reflected in <code>pv</code>’s logging, so the transfer may appear to hang, but is working in the background.</p>
 
 <h3 id="the-performance-impact-of-logical-backups">The performance impact of logical backups</h3>
 
-<p>Capturing a logical backup from a database will subject it to increased load. As all data is read, a logical backup capture will evict well cached data from non-Postgres caches, consume finite disk IO capacity, pause auto-maintenance tasks and degrade the performance of other queries. As the size of a database and/or the load the database is under grows, this period of degraded performance and neglected auto-maintenance will also grow. Balancing your database’s performance with your backup requirements is necessary in order to avoid unpleasant surprises. </p>
+<p>Capturing a logical backup from a database will subject it to increased load. As all data is read, a logical backup capture will evict well cached data from non-Postgres caches, consume finite disk IO capacity, pause auto-maintenance tasks and degrade the performance of other queries. As the size of a database and/or the load the database is under grows, this period of degraded performance and neglected auto-maintenance will also grow. Balancing your database’s performance with your backup requirements is necessary in order to avoid unpleasant surprises.</p>
 
-<p>In general, PGBackups are intended for moderately loaded databases up to 20 GB. Contention for the IO, memory and CPU needed for backing up a larger database becomes prohibitive at a moderate load and the longer run time increases the chance of an error that will end your backup capture prematurely. </p>
+<p>In general, PGBackups are intended for moderately loaded databases up to 20 GB. Contention for the IO, memory and CPU needed for backing up a larger database becomes prohibitive at a moderate load and the longer run time increases the chance of an error that will end your backup capture prematurely.</p>
 
 <h2 id="combining-physical-and-logical-backups">Combining physical and logical backups</h2>
 
-<p>Fork and followers may be employed to reduce the load of a logical backup. Capturing a logical backup from a follower will preserve the leader’s performance and allow the backup operation to consume as many resources as necessary for the dump to succeed. Launching a short lived fork will also allow for logical backups to be taken without effecting your primary database’s performance, although the initial base backup of a new fork will compete with the logical backup for disk IO. </p>
+<p>Fork and followers may be employed to reduce the load of a logical backup. Capturing a logical backup from a follower will preserve the leader’s performance and allow the backup operation to consume as many resources as necessary for the dump to succeed. Launching a short lived fork will also allow for logical backups to be taken without effecting your primary database’s performance, although the initial base backup of a new fork will compete with the logical backup for disk IO.</p>
 
-<p>At the moment, PGBackups are only able to capture automatic backups of the database at the <code>DATABASE_URL</code> config var. Until this changes, we suggest using the <a href="https://addons.heroku.com/scheduler">Heroku Scheduler</a> addon to tune when your logical backups are taken. </p>
+<p>At the moment, PGBackups are only able to capture automatic backups of the database at the <code>DATABASE_URL</code> config var. Until this changes, we suggest using the <a href="https://addons.heroku.com/scheduler">Heroku Scheduler</a> addon to tune when your logical backups are taken.</p>

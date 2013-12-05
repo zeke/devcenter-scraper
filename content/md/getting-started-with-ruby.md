@@ -7,6 +7,10 @@ description: Create, configure, deploy and scale a Ruby application on Heroku.
 
 This quickstart will get you going with [Ruby](http://www.ruby-lang.org/) and the [Sinatra](http://www.sinatrarb.com/) web framework, deployed to Heroku.  For Rails applications, please see [Getting Started with Rails 4.x on Heroku](getting-started-with-rails4). For general information on how to develop and architect apps for use on Heroku, see [Architecting Applications for Heroku](https://devcenter.heroku.com/articles/architecting-apps).
 
+<div class="note" markdown="1">
+If you have questions about Ruby on Heroku, consider discussing it in the [Ruby on Heroku forums](https://discussion.heroku.com/category/ruby).
+</div>
+
 Prerequisites
 -------------
 

@@ -25,10 +25,6 @@ will be treated as Java applications, so
 [different documentation](http://devcenter.heroku.com/articles/java)
 will apply.
 
-Projects that specify a `:min-lein-version` in project.clj beginning
-with 2 will use Leiningen 2.x, (highly recommended) otherwise
-Leiningen 1.7.1 will be used.
-
 ## Configuration
 
 Leiningen 1.7.1 will be used by default, but if you have
@@ -53,15 +49,18 @@ If your main namespace doesn't have a `:gen-class` then you can use
 `clojure.main` as your entry point and indicate your app's main
 namespace using the `-m` argument in your `Procfile`:
 
-    web: java $JVM_OPTS -cp target/myproject-standalone.jar clojure.main -m myproject.web
+```
+web: java $JVM_OPTS -cp target/myproject-standalone.jar clojure.main -m myproject.web
+```
 
 If you have custom settings you would like to only apply during build,
 you can place them in an `:uberjar` profile. This can be useful to use
 AOT-compiled classes in production but not during development where
 they can cause reloading issues:
 
-    :::clojure
-    :profiles {:uberjar {:main myproject.web, :aot :all}}
+```clojure
+:profiles {:uberjar {:main myproject.web, :aot :all}}
+```
 
 If you need Leiningen in a `heroku run` session, it will be downloaded
 on-demand.
@@ -81,7 +80,9 @@ cause Leiningen to calculate the classpath and code to run for your
 project, then exit and execute your project's JVM, while
 `with-profile` will omit development profiles:
 
-    web: lein with-profile production trampoline run -m myapp.web
+```
+web: lein with-profile production trampoline run -m myapp.web
+```
 
 Including Leiningen in your slug will add about ten megabytes to its
 size and will add a second or two of overhead to your app's boot time.
@@ -97,7 +98,7 @@ will be run instead of `compile` or `uberjar` after setting up Leiningen.
 By default you will get OpenJDK 1.6. To use a different version, you
 can commit a `system.properties` file to your app.
 
-```
+```term
 $ echo "java.runtime.version=1.7" > system.properties
 $ git add system.properties
 $ git commit -m "JDK 7"
@@ -108,5 +109,6 @@ $ git commit -m "JDK 7"
 No add-ons are provisioned by default. If you need a SQL database for
 your app, add one explicitly:
 
-    :::term
-    $ heroku addons:add heroku-postgresql:crane
+```term
+$ heroku addons:add heroku-postgresql:crane
+```

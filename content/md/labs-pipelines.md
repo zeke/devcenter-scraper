@@ -8,7 +8,7 @@ description: Heroku pipelines allows deployment between apps with a shared code 
 This [Heroku Labs](http://devcenter.heroku.com/categories/labs) feature adds support for managing application releases as part of a [continuous delivery workflow](http://en.wikipedia.org/wiki/Continuous_delivery).
 
 <p class="warning">
-The features added through labs are experimental and may change or be removed without notice.
+Features added through Heroku Labs are experimental and subject to change.
 </p>
 
 ## Multi-environment complexity

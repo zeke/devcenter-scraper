@@ -1,10 +1,12 @@
-<div class="deprecated">
-<p>This article applies to apps on the <a href="/articles/bamboo">Bamboo</a> stack. For the most recent stack, <a href="/articles/cedar">Cedar</a>, see <a href="/articles/oneoff-admin-ps">one-off admin dynos</a>.</p>
+<div class="warning">
+<p>This article applies to apps on the <a href="https://devcenter.heroku.com/articles/bamboo">Bamboo</a> stack.  For the most recent stack, <a href="https://devcenter.heroku.com/articles/cedar">Cedar</a>, see <a href="https://devcenter.heroku.com/articles/oneoff-admin-ps">one-off admin dynos</a>.</p>
 </div>
-<p>You can run console sessions on Bamboo apps using <a href="/articles/oneoff-admin-ps">one-off dynos</a> via <code>heroku run</code>. For example:</p>
+
+<p>You can run console sessions on Bamboo apps using <a href="https://devcenter.heroku.com/articles/oneoff-admin-ps">one-off dynos</a> via <code>heroku run</code>. For example:</p>
 
 <pre><code class="term">$ heroku run -a my-app ruby script/rails console
 Running `script/rails console` attached to terminal... up, run.1
-irb(main):001:0&gt;</code></pre>
+irb(main):001:0&gt;
+</code></pre>
 
 <p>The appropriate command for your app will depend on what framework you use. Common console commands for Bamboo include <code>script/rails console</code> for Rails apps, <code>script/console</code> for older Rails versions, and <code>irb</code> for general Ruby apps.</p>

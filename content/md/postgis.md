@@ -5,9 +5,6 @@ url: https://devcenter.heroku.com/articles/postgis
 description: How to use PostGIS, available on Heroku Postgres, from Ruby on Rails and Django applications.
 ---
 
->callout
->Previously Heroku Postgres supported PostGIS version 1.5, which was end-of-lifed on July 1, 2013.
-
 [PostGIS](http://postgis.org/) is available in public beta. The beta is available on all Production tier databases and currently supports PostGIS version 2.0. It is not available on the Dev or Basic Starter tier plans. PostGIS is only available with Postgres 9.2 databases provisioned after April 20, 2013. To enable PostGIS once connected to your PostgreSQL 9.2 database run:
 
 ```sql

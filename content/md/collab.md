@@ -29,13 +29,15 @@ Next you should clone the app locally. The invitation email included the name of
 
 First ensure that your keys are already on Heroku. If you haven't already uploaded them, run:
 
-    :::term
-    $ heroku keys:add
+```term
+$ heroku keys:add
+```
 
 You can now make your changes.  When you are ready to deploy these changes, simply commit and push your changes:
 
-    :::term
-    $ git commit -a -m "Description of the changes I made"
-    $ git push heroku master
-    -----> Heroku receiving push
-    -----> Launching.... done
+```term
+$ git commit -a -m "Description of the changes I made"
+$ git push heroku master
+-----> Heroku receiving push
+-----> Launching.... done
+```

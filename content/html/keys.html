@@ -1,14 +1,17 @@
+
 <p>If you don’t already use SSH, you’ll need to create a public/private key pair to deploy code to Heroku. This keypair is used for the strong cryptography and that uniquely identifies you as a developer when pushing code changes.</p>
 <div class="callout">
+
 <p>You can use DSA keys if you prefer, using the <code>-t dsa</code> option. Heroku can use either type of key.</p>
+
 </div>
 <p>To generate a public key:</p>
 
 <pre><code class="term">$ ssh-keygen -t rsa
 Generating public/private rsa key pair.
 Enter file in which to save the key (/Users/adam/.ssh/id_rsa):
-Enter passphrase (empty for no passphrase): 
-Enter same passphrase again: 
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
 Your identification has been saved in /Users/adam/.ssh/id_rsa.
 Your public key has been saved in /Users/adam/.ssh/id_rsa.pub.
 The key fingerprint is:
@@ -37,7 +40,9 @@ Uploading SSH public key /Users/adam/.ssh/id_rsa.pub... done</code></pre>
 <pre><code class="term">$ heroku keys:remove adam@workstation.local
 Removing adam@workstation.local SSH key... done</code></pre>
 <div class="callout">
-<p>The ASCII-armored key data is shortened for readability. If you wish to see the full public key, use the <code>--long</code> argument. You will probably want to redirect this to a file (<code>heroku keys --long &gt; keys.txt</code>), since it will be easier to look at in a text editor.</p>
+
+<p>The ASCII-armored key data is shortened for readability. If you wish to see the full public key, use the <code>--long</code> argument. You will probably want to redirect this to a file (<code>heroku keys --long &amp;gt; keys.txt</code>), since it will be easier to look at in a text editor.</p>
+
 </div>
 <p>The key’s name is the <code>user@workstation</code> bit that appears at the end of the key line in your public key file. You can see a list of all keys, including the key’s name, like this:</p>
 

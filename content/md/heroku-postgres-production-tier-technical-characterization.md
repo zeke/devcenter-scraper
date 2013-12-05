@@ -8,9 +8,25 @@ description: The performance characteristics of Heroku Postgres tiers, based on 
 >note
 >All the information in this document is subject to change as Heroku  adapts the service to better handle customer database workloads.
 
-The Heroku Postgres [production tier](https://devcenter.heroku.com/articles/heroku-postgres-plans#production-tier) plans offer different performance characteristics based on their multitenancy, CPU, RAM and I/O architectures.  This article provides a technical description of the implementation of these production plans, and some of the performance characteristics of each.
+The Heroku Postgres [Standard, Premium, and Enterprise tier] (https://devcenter.heroku.com/articles/heroku-postgres-plans#standard-tier) plans offer different performance characteristics based on their multitenancy, CPU, RAM and I/O architectures.  This article provides a technical description of the implementation of these production plans, and some of the performance characteristics of each.
 
 ## Performance characteristics
+
+The following table outlines our production tier plans along with relevant
+specifications about the underlying hardware.
+
+| Heroku Postgres plan   | vCPU | RAM     | PIOPs  | Multitenant   | Connection Limit | Disk Size |
+| ---------------------- | ---- | ------- | ------ | ------------- | ---------------- | --------- |
+| Yanari                 | 2    | 400MB   | 200    | yes           | 60               | 64 GB     |
+| Tengu                  | 2    | 1.7GB   | 200    | yes           | 200              | 256 GB    |
+| Ika                    | 2    | 7.5GB   | 500    | no            | 400              | 512 GB    |
+| Baku                   | 4    | 34.2GB  | 1000   | no            | 500              | 1 TB      |
+| Mecha                  | 8    | 68.4GB  | 2000   | no            | 500              | 1 TB      |
+| Ryu                    | 32   | 244GB   | 4000   | no            | 500              | 1 TB      |
+
+
+
+## Legacy Performance characteristics
 
 The following table outlines our production tier plans along with relevant
 specifications about the underlying hardware.

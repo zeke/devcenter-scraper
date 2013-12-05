@@ -4,13 +4,15 @@
 plugins                      # list installed plugins
 plugins:install &lt;url&gt;        # install the plugin from the specified git url
 plugins:uninstall &lt;url/name&gt; # remove the specified plugin
-plugins:update &lt;url/name&gt;    # update a plugin, if specified, or update all plugins</code></pre>
+plugins:update &lt;url/name&gt;    # update a plugin, if specified, or update all plugins
+</code></pre>
 
 <h3 id="installing-plugin">Installing plugin</h3>
 
-<p>To install a plugin, you need to know the git url for the plugin. Use the <code>heroku plugins:install</code> command, and specify the git repo:</p>
+<p>To install a plugin, you need to know the git url for the plugin.  Use the <code>heroku plugins:install</code> command, and specify the git repo:</p>
 
-<pre><code class="term">$ heroku plugins:install git://github.com/ddollar/heroku-accounts.git</code></pre>
+<pre><code class="term">$ heroku plugins:install git://github.com/ddollar/heroku-accounts.git
+</code></pre>
 
 <h3 id="list-plugins">List plugins</h3>
 
@@ -18,18 +20,22 @@ plugins:update &lt;url/name&gt;    # update a plugin, if specified, or update al
 
 <pre><code class="term">$ heroku plugins
 === Installed Plugins
-heroku-accounts</code></pre>
+heroku-accounts
+</code></pre>
 
 <h3 id="removing-plugins">Removing plugins</h3>
 
-<pre><code class="term">$ heroku plugins:uninstall heroku-accounts</code></pre>
+<pre><code class="term">$ heroku plugins:uninstall heroku-accounts
+</code></pre>
 
 <h3 id="updating-plugins">Updating plugins</h3>
 
 <p>To update all installed plugins:</p>
 
-<pre><code class="term">$ heroku plugins:update</code></pre>
+<pre><code class="term">$ heroku plugins:update
+</code></pre>
 
 <p>To update a particular plugin:</p>
 
-<pre><code class="term">$ heroku plugins:update heroku-accounts</code></pre>
+<pre><code class="term">$ heroku plugins:update heroku-accounts
+</code></pre>

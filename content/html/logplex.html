@@ -1,25 +1,24 @@
-<p>Logplex collates and distributes log entries from your app and other components of the Heroku platform. It makes these entries <a href="/articles/logging">available</a> through the <a href="https://github.com/heroku/logplex/blob/master/README.md">Logplex public API</a> and the <a href="/articles/logging">Heroku command-line tool</a>.</p>
+<p>Logplex collates and distributes log entries from your app and other components of the Heroku platform. It makes these entries <a href="https://devcenter.heroku.com/articles/logging">available</a> through the <a href="https://github.com/heroku/logplex/blob/master/README.md">Logplex public API</a> and the <a href="https://devcenter.heroku.com/articles/logging">Heroku command-line tool</a>.</p>
 
 <p>In a distributed system such as Heroku, manually accessing logs spread across many dynos provides a very disjointed view of an application’s event stream and omits relevant platform-level events. The logplex facility solves these issues in an accessible and extensible manner.</p>
+
 <!--
 Without a facility like logplex, accessing logs from many processes in a distributed system such as Heroku would require ssh-ing to each machine and copying log files (without forgetting also to set up log rotation), or dealing with syslog daemons and the unstandardized network syslog protocol and management of a log processing server.
 -->
+
 <h2 id="sources-and-drains">Sources and drains</h2>
 
 <p>Logplex routes messages from sources to drains.</p>
+
 <!--
 ![Routing diagram](https://github.com/heroku/routing-docs/blob/master/components/logplex/Logplex%20architecture%20scribble.pdf?raw=true)
 -->
-<ul>
-<li>
-<p>Log sources are any processes that might want to emit log entries relevant to your app. Some examples: your <code>web</code> dynos, the Heroku platform, the <a href="/articles/http-routing">Heroku routing stack</a>, and many add-ons.</p>
-</li>
 
-<li>
-<p>Log drains are any network services that want to consume your app’s logs, either for automatic processing, archival, or human consumption. Examples include the Heroku command-line tool and several <a href="https://addons.heroku.com/">log-processing and management add-ons</a>.</p>
-</li>
+<ul>
+<li><p>Log sources are any processes that might want to emit log entries relevant to your app. Some examples: your <code>web</code> dynos, the Heroku platform, the <a href="https://devcenter.heroku.com/articles/http-routing">Heroku routing stack</a>, and many add-ons.</p></li>
+<li><p>Log drains are any network services that want to consume your app’s logs, either for automatic processing, archival, or human consumption. Examples include the Heroku command-line tool and several <a href="https://addons.heroku.com/">log-processing and management add-ons</a>.</p></li>
 </ul><h2 id="best-effort-delivery">Best-effort delivery</h2>
 
-<p>Logplex is a high-performance, real-time system for log delivery – not storage. It keeps a <a href="/articles/logging#log-history-limits">limited buffer of log entries</a>.</p>
+<p>Logplex is a high-performance, real-time system for log delivery – not storage. It keeps a <a href="https://devcenter.heroku.com/articles/logging#log-history-limits">limited buffer of log entries</a>.</p>
 
-<p>Logplex interacts directly with various external tools and services, and requires prompt action for real-time processing. If one of these services has trouble keeping up, Logplex may be forced to discard log entries for some time. If this happens, it will insert a <a href="/articles/error-codes#l10-drain-buffer-overflow">warning entry</a> to indicate that some entries are missing.</p>
+<p>Logplex interacts directly with various external tools and services, and requires prompt action for real-time processing. If one of these services has trouble keeping up, Logplex may be forced to discard log entries for some time. If this happens, it will insert a <a href="https://devcenter.heroku.com/articles/error-codes#l10-drain-buffer-overflow">warning entry</a> to indicate that some entries are missing.</p>

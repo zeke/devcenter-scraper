@@ -9,6 +9,9 @@ This article covers how to run a Ruby on Rails application on Heroku. It assumes
 
 Most of Rails works out of the box with Heroku, however there are a few things you can do to get the most out of the platform. To do this you will need to configure your Rails 4 app to connect to Postgres, your logs need to be configured to point to STDOUT, and your application needs to have serving assets enabled in production.
 
+> note
+> If you have questions about Ruby on Heroku, consider discussing it in the [Ruby on Heroku forums](https://discussion.heroku.com/category/ruby).
+
 ## Logging and assets
 
 Heroku [treats logs as streams](http://12factor.net/logs) and requires your logs to be sent to STDOUT. To enable STDOUT logging in Rails 4 you can add the `rails_12factor` gem. This gem will also configure your app to serve assets in production. To add this gem add this to your Gemfile:

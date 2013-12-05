@@ -1,13 +1,19 @@
 <div class="deprecated">
-<p>This article only applies to applications in Heroku Enterprise for Java packages.</p>
-</div>
-<p>In addition to <a href="/articles/git">deploying with Git</a>, Heroku also supports deploying Java web applications as WAR files from either <a href="#eclipse">Eclipse</a> or the <a href="#command-line">command line</a>. When deploying with these methods, the WAR file is automatically placed in a <a href="http://tomcat.apache.org/">Tomcat 7 web application container</a> and deployed as a Heroku application. WAR deployments are subject to the same <a href="https://devcenter.heroku.com/articles/limits#slug-size">slug size limits</a> as Git-based deployments.</p>
 
+<p>This article only applies to applications in Heroku Enterprise for Java packages.</p>
+
+</div>
+<p>In addition to <a href="https://devcenter.heroku.com/articles/git">deploying with Git</a>, Heroku also supports deploying Java web applications as WAR files from either <a href="#eclipse">Eclipse</a> or the <a href="#command-line">command line</a>. When deploying with these methods, the WAR file is automatically placed in a <a href="http://tomcat.apache.org/">Tomcat 7 web application container</a> and deployed as a Heroku application. WAR deployments are subject to the same <a href="https://devcenter.heroku.com/articles/limits#slug-size">slug size limits</a> as Git-based deployments.</p>
+<div class="note">
+
+<p>If you have questions about Java on Heroku, consider discussing them in the <a href="https://discussion.heroku.com/category/java">Java on Heroku forums</a>.</p>
+
+</div>
 <h2 id="eclipse">Eclipse</h2>
 
 <h3 id="setup">Setup</h3>
 
-<p>See <a href="/articles/getting-started-with-heroku-eclipse">Getting Started with Heroku and Eclipse</a> to install and configure the Heroku Plugin for Eclipse.</p>
+<p>See <a href="https://devcenter.heroku.com/articles/getting-started-with-heroku-eclipse">Getting Started with Heroku and Eclipse</a> to install and configure the Heroku Plugin for Eclipse.</p>
 
 <h3 id="usage">Usage</h3>
 
@@ -21,7 +27,7 @@
 </li>
 
 <li>
-<p><em>Maven WAR Project:</em> Right-click the project | <strong>Maven build…</strong> | Goals: <code>package</code> | <strong>Run</strong>. The WAR file will be created in the project’s <code>target</code> directory.</p>
+<p><em>Maven WAR Project:</em> Right-click the project | <strong>Maven build</strong> | Goals: <code>package</code> | <strong>Run</strong>. The WAR file will be created in the project’s <code>target</code> directory.</p>
 </li>
 </ul>
 </li>
@@ -31,15 +37,15 @@
 </li>
 
 <li>
-<p>Click on <strong>Deploy…</strong> <img alt="Deploy context menu" src="https://template-app-instructions-screenshots.s3.amazonaws.com/eclipse/deploy-app-context-menu.png"></p>
+<p>Click on <strong>Deploy</strong> <img src="https://template-app-instructions-screenshots.s3.amazonaws.com/eclipse/deploy-app-context-menu.png" alt="Deploy context menu"></p>
 </li>
 
 <li>
-<p>Choose the WAR file created in Step 1 to deploy. <img alt="Selecting deployment artifact" src="https://template-app-instructions-screenshots.s3.amazonaws.com/eclipse/deploy-app-select-file.png"></p>
+<p>Choose the WAR file created in Step 1 to deploy. <img src="https://template-app-instructions-screenshots.s3.amazonaws.com/eclipse/deploy-app-select-file.png" alt="Selecting deployment artifact"></p>
 </li>
 
 <li>
-<p>The WAR file will be uploaded and deployed to Heroku <img alt="Deployment in progress" src="https://template-app-instructions-screenshots.s3.amazonaws.com/eclipse/deploy-app-progress.png"></p>
+<p>The WAR file will be uploaded and deployed to Heroku <img src="https://template-app-instructions-screenshots.s3.amazonaws.com/eclipse/deploy-app-progress.png" alt="Deployment in progress"></p>
 </li>
 </ol><h2 id="command-line">Command Line</h2>
 
@@ -65,7 +71,7 @@
 <li>
 <p>Deploy the WAR file:</p>
 
-<pre><code class="term"> $ heroku deploy:war --war &lt;path_to_war_file&gt; --app &lt;app_name&gt; </code></pre>
+<pre><code class="term"> $ heroku deploy:war --war &lt;path_to_war_file&gt; --app &lt;app_name&gt;</code></pre>
 </li>
 </ol><p>If you are in an application directory, the <code>--app</code> parameter can be omitted:</p>
 
@@ -73,7 +79,7 @@
 
 <h2 id="advanced-options">Advanced Options</h2>
 
-<p>WAR files are deployed to your application with Tomcat 7 using <a href="https://github.com/jsimone/webapp-runner">Webapp Runner</a>. Webapp Runner allows advanced options, such as session management, to be configured. To configure Webapp Runner for deployed WAR files, set the value of the <code>WEBAPP_RUNNER_OPTS</code> <a href="/articles/config-vars">config var</a> on your app, and it will be passed to Webapp Runner on start up. For example, to configure a Memcached session store, set <code>WEBAPP_RUNNER_OPTS</code> to <code>--session-store memcache</code>.</p>
+<p>WAR files are deployed to your application with Tomcat 7 using <a href="https://github.com/jsimone/webapp-runner">Webapp Runner</a>. Webapp Runner allows advanced options, such as session management, to be configured. To configure Webapp Runner for deployed WAR files, set the value of the <code>WEBAPP_RUNNER_OPTS</code> <a href="https://devcenter.heroku.com/articles/config-vars">config var</a> on your app, and it will be passed to Webapp Runner on start up. For example, to configure a Memcached session store, set <code>WEBAPP_RUNNER_OPTS</code> to <code>--session-store memcache</code>.</p>
 
 <p>In Eclipse, config vars can be set by right-clicking on the app name in the <strong>My Heroku Application</strong> | <strong>App Info</strong> | <strong>Environment Variables</strong>.</p>
 

@@ -58,7 +58,7 @@ Response Body :
     "domains": ["www.the-consumer.com", "the-consumer.com"]
   }
 ```
-Use this call to get the full set of details on any of your add-on instances.
+Use this call to get the full set of details on any of your add-on instances. This endpoint will only return a 200 response after [provisioning](https://devcenter.heroku.com/articles/add-on-provider-api#provision) has completed. Trying to access App Info during a provisioning request will return a 404 response.
 
 ## Update Config Vars
 
@@ -68,6 +68,13 @@ Request Body   : { "config": {"MYADDON_URL": "http://myaddon.com/ABC123"}}
 Response       : 200 OK
 ```
 
-Use this call to update config vars you have set for an application during provisioning.
+Use this call to update config vars that were previously set for an application during provisioning.
 
 You can only update config vars that have been declared in your addon-manifest.json.
+
+## Error responses
+
+The following response codes will be returned depending on the underlying cause of the error:
+
+`401`: An invalid username and password combination has been supplied and you have not been successfully authenticated
+`404`: The requested app doesn't exist (e.g., it has been deleted) or the add-on has been deprovisioned for this app.

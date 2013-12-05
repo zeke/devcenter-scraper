@@ -37,7 +37,7 @@ If you suspect a [memory leak](http://www.ibm.com/developerworks/java/library/j-
 
 ## The dyno manager
 
-Your application's dynos run in a a distributed, fault-tolerant, and horizontally scalable execution environment. The dyno manager manages many different applications via the [the process model](process-model) and keeps dynos running automatically; so operating your app is generally hands-off and maintenance free.
+Your application's dynos run in a distributed, fault-tolerant, and horizontally scalable execution environment. The dyno manager manages many different applications via the [the process model](process-model) and keeps dynos running automatically; so operating your app is generally hands-off and maintenance free.
 
 ### Automatic dyno restarts
 
@@ -55,7 +55,9 @@ The cases when the processes running in a dyno can exit are as follows:
 
 As app developers, we tend to see the first two errors as "boot crashes" and the second two as "runtime crashes."  However, Heroku has [no way](http://en.wikipedia.org/wiki/Halting_problem) to distinguish these.  From the platform's perspective, all process crashes are alike.  These scenarios result in crashed dynos.
 
-Heroku's dyno restart policy is to try to restart crashed dynos by spawning new dynos once every ten minutes.  This means that if you push bad code that prevents your app from booting, your app dynos will be started once, then restarted, then get a cool-off of ten minutes.  In the normal case of a long-running web or worker process getting an occasional crash, the dyno will be restarted instantly without any intervention on your part.  If your dyno crashes twice in a row, it will stay down for ten minutes before the system retries.
+### Dyno crash restart policy
+
+If a dyno crashes during boot, Heroku will immediately attempt to restart it again. If a dyno crashes during subsequent attempts, Heroku will continue to attempt to restart it again, but the attempts will be spaced apart by increasing intervals. If the second restart attempt fails, there will be a 10 minute cool-off period before the third attempt. If the third restart attempt fails, there will be a 20 minute cool-off period, followed by a 40 minute cool-off period and so forth up to a maximum 24 hour cool-off period between restart attempts.
 
 ### Dyno sleeping
 
@@ -126,6 +128,8 @@ When the dyno manager restarts a dyno, the dyno manager will request that your p
 <div class="callout" markdown="1">Please note that it is currently possible that processes in a dyno that is being shut down may receive multiple SIGTERMs</div>
 
 The application processes have ten seconds to shut down cleanly (ideally, they will do so more quickly than that).  During this time they should stop accepting new requests or jobs and attempt to finish their current requests, or put jobs back on the queue for other worker processes to handle.  If any processes remain after ten seconds, the dyno manager will terminate them forcefully with `SIGKILL`.
+
+When performing controlled or periodic restarts, new dynos are spun up as soon as shutdown signals are sent to processes in the old dynos.
 
 We can see how this works in practice with a sample worker process.  We'll use Ruby here as an illustrative language - the mechanism is identical in other languages.  Imagine a process that does nothing but loop and print out a message periodically:
 
@@ -232,18 +236,7 @@ The external networking interface (i.e.: eth0) for each dyno will be part of a /
 
 ## Connecting to external services
 
-<div class="callout" markdown="1">Please note that opening up your security group will not work if your service is running inside of an [Amazon VPC](http://aws.amazon.com/vpc/). </div>
-
-Applications running on dynos can connect to external services. Heroku can run apps in [multiple regions](https://devcenter.heroku.com/articles/add-on-regions), so for optimal latency run your services in the same [region](https://devcenter.heroku.com/articles/regions#data-center-locations) as the app.
-
-If you'd like to open your `us-east` EC2 server(s) up only to Heroku, you can use a command like the following:
-
-    :::term
-    $ ec2-authorize YOURGROUP -P tcp -p 3306 -u 098166147350 -o default
-
-This will open up access to TCP port 3306 in the YOURGROUP security group from Heroku.
-
-<p class="note" markdown="1">Note: this will allow Heroku apps other than yours to access the specified group. For fine-grain access control, you'll need to use an application-layer mechanism, for example SSL certificates or HTTP authentication.</p>
+Applications running on dynos can connect to external services. Heroku can run apps in [multiple regions](https://devcenter.heroku.com/articles/regions), so for optimal latency run your services in the same [region](https://devcenter.heroku.com/articles/regions#data-center-locations) as the app.
 
 ## Dynos and requests
 

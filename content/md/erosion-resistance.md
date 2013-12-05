@@ -7,8 +7,7 @@ description: Heroku is built to be erosion-resistant. The dyno manager keeps dyn
 
 Software-as-a-service apps deployed in traditional server-based environments require ongoing maintenance to keep them running, whether or not the app is under active development.  The Heroku platform is erosion-resistant.
 
-Erosion is a problem for apps
--------------------------
+## Erosion is a problem for apps
 
 Anyone who has built an application, set it up to run on a server somewhere, and come back months later to discover it down is familiar with this problem.  Forces of entropy that affect every running application include:
 
@@ -19,8 +18,7 @@ Anyone who has built an application, set it up to run on a server somewhere, and
 
 The effect of these and other such forces is often known as "bit rot" or "[software erosion](http://en.wikipedia.org/wiki/Software_erosion)".
 
-Heroku is erosion-resistant
----------------------------
+## Heroku is erosion-resistant
 
 In contrast to traditional server-based environments, the Heroku platform is built to be **erosion-resistant**.
 

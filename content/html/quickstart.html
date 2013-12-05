@@ -1,0 +1,67 @@
+<p>Heroku is a polyglot cloud application platform.  With Heroku, you don’t need to think about servers at all.  You can write apps using <a href="https://devcenter.heroku.com/articles/architecting-apps">modern development practices</a> in <a href="https://devcenter.heroku.com/articles/cedar#polyglot-platform">the programming language of your choice</a>, back it with add-on resources such as <a href="https://devcenter.heroku.com/articles/heroku-postgresql">SQL</a> and <a href="http://addons.heroku.com/mongohq">NoSQL</a> databases, <a href="https://addons.heroku.com/memcachier">Memcached</a>, and <a href="https://addons.heroku.com/">many others</a>.  You manage your app using the Heroku command-line tool and you deploy code using the <a href="https://devcenter.heroku.com/articles/git">Git</a> revision control system, all running on the Heroku infrastructure.</p>
+
+<p>Let’s get started.</p>
+
+<h2 id="step-1-sign-up">Step 1: Sign up</h2>
+
+<p><a href="https://api.heroku.com/signup/devcenter">Sign up</a> for a Heroku account, if you don’t already have one.</p>
+
+<h2 id="step-2-install-the-heroku-toolbelt">Step 2: Install the Heroku Toolbelt</h2>
+
+<p>Install the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a> for your development operating system.</p>
+
+<p>The toolbelt contains the <a href="https://devcenter.heroku.com/categories/command-line">Heroku client</a>, a command-line tool for creating and managing Heroku apps; Foreman, an easy option for running your apps locally; and Git, the revision control system needed for deploying applications to Heroku.</p>
+
+<h2 id="step-3-login">Step 3: Login</h2>
+
+<p>After installing the Toolbelt, you’ll have access to the <code>heroku</code> command from your command shell.  Authenticate using the email address and password you used when creating your Heroku account:</p>
+
+<div class="callout">
+<p>If you have previously uploaded a key to Heroku, we assume you will keep using it and do not prompt you about creating a new one during login.  If you would prefer to create and upload a new key after login, simply run <code>heroku keys:add</code>.</p>
+</div>
+
+<pre><code class="term">$ heroku login
+Enter your Heroku credentials.
+Email: adam@example.com
+Password:
+Could not find an existing public key.
+Would you like to generate one? [Yn]
+Generating new SSH public key.
+Uploading ssh public key /Users/adam/.ssh/id_rsa.pub
+</code></pre>
+
+<p>Press enter at the prompt to upload your existing <code>ssh</code> key or create a new one, used for pushing code later on.</p>
+
+<h2 id="step-4-deploy-an-application">Step 4: Deploy an application</h2>
+
+<p>Choose from the following getting started tutorials to learn how to deploy your first application using a supported language or framework:</p>
+
+<table>
+<tr>
+<th colspan="2">Get started with…</th>
+  </tr>
+<tr>
+<td style="text-align: left; width: 50%;">
+<a href="https://devcenter.heroku.com/articles/getting-started-with-ruby">Ruby</a> or <a href="https://devcenter.heroku.com/articles/getting-started-with-rails4">Rails</a>
+</td>
+    <td style="text-align: left">
+<a href="https://devcenter.heroku.com/articles/getting-started-with-nodejs">Node.js</a>
+</td>
+  </tr>
+<tr>
+<td style="text-align: left">
+<a href="https://devcenter.heroku.com/articles/getting-started-with-java">Java</a>, <a href="https://devcenter.heroku.com/articles/getting-started-with-spring-mvc-hibernate">Spring</a> or <a href="https://devcenter.heroku.com/articles/getting-started-with-play">Play</a>
+</td>
+    <td style="text-align: left">
+<a href="https://devcenter.heroku.com/articles/getting-started-with-python">Python</a> or <a href="https://devcenter.heroku.com/articles/getting-started-with-django">Django</a>
+</td>
+  </tr>
+<tr>
+<td style="text-align: left">
+<a href="https://devcenter.heroku.com/articles/getting-started-with-clojure">Clojure</a>
+</td>
+    <td style="text-align: left">
+<a href="https://devcenter.heroku.com/articles/getting-started-with-scala">Scala</a>
+</td>
+  </tr>
+</table>

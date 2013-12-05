@@ -1,63 +1,101 @@
-<p class="callout">You can also use <code>heroku pg:psql</code> with followers to safely run ad-hoc queries against your production data.</p>
+<div class="callout">
+<p>You can also use <code>heroku pg:psql</code> with followers to safely run ad-hoc queries against your production data.</p>
+</div>
+
 <p>Database replication serves many purposes including increasing read throughput with a master-slave configuration, additional availability with a hot standby, serving as a reporting database, and seamless migrations and upgrades. Though these strategies all serve different purposes they are all based on the ability to create and manage copies of a master (or lead) database. On Heroku Postgres this functionality is exposed as the follow feature.</p>
-<p class="warning">Followers are only supported on <a href="/articles/heroku-postgres-plans">production tier database plans</a>. Follow these steps to <a href="/articles/upgrade-heroku-postgres-with-pgbackups">upgrade from a starter tier (dev or basic)</a> plan to a production plan.</p><p class="callout">Followers like all Heroku Postgres databases are charged on a pro-rated basis based on the plan of the follower.</p>
+
+<div class="warning">
+<p>Followers are only supported on <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans">Standard, Premium, and Enterprise tier database plans</a>. Follow these steps to <a href="https://devcenter.heroku.com/articles/upgrade-heroku-postgres-with-pgbackups">upgrade from a Hobby tier (dev or basic)</a> plan to a production plan.</p>
+</div>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<div class="callout">
+<p>Followers like all Heroku Postgres databases are charged on a pro-rated basis based on the plan of the follower.</p>
+</div>
+
 <p>A database follower is a <em>read-only</em> copy of the master database that stays up-to-date with the master database data. As writes and other data modifications are committed in the master database the changes are streamed, in real-time, to the follower databases.</p>
 
 <h2 id="create-a-follower">Create a follower</h2>
 
-<p>A follower can be created for any production-tier database that is itself not a follower (that is, followers cannot be chained). Followers cannot be created for a period on newly forked databases (this applies to both <a href="https://devcenter.heroku.com/articles/heroku-postgres-fork">explicit forks</a> and forks created through <a href="#unfollow">unfollow</a>). The exact timeframe varies depending on the size of the database to be followed, and is typically between a few minutes and a few hours. When a database is ready to support followers, that information will be shown in <code>heroku pg:info</code>:</p>
+<p>A follower can be created for any Standard, Premium, or Enterprise tier database that is itself not a follower (that is, followers cannot be chained). Followers cannot be created for a period on newly forked databases (this applies to both <a href="https://devcenter.heroku.com/articles/heroku-postgres-fork">explicit forks</a> and forks created through <a href="#unfollow">unfollow</a>). The exact timeframe varies depending on the size of the database to be followed, and is typically between a few minutes and a few hours. When a database is ready to support followers, that information will be shown in <code>heroku pg:info</code>:</p>
 
 <pre><code class="term">$ heroku pg:info
 === HEROKU_POSTGRESQL_PURPLE_URL (DATABASE_URL)
 ...
 Fork/Follow: Available
-...</code></pre>
+...
+</code></pre>
+
 <div class="note">
 <p>The lag between a master and follower databases varies greatly depending on the amount and frequency of data updates. It is possibile for long running queries on the follower to increase your lag time, though once those queries are done your follower should catch up. Under normal usage it is common for your follower to be within a few seconds or less of your leader.</p>
 </div>
+
 <p>To create a follower database you must first know the add-on name of the master database. Use <code>heroku pg:info</code> to find its <code>HEROKU_POSTGRESQL_*COLOR*_URL</code> name.</p>
 
 <pre><code class="term">$ heroku pg:info
 === HEROKU_POSTGRESQL_CHARCOAL_URL (DATABASE_URL)
 Plan:        Crane
 Status:      available
-...</code></pre>
-<p class="callout">If more than one database is listed, the one currently serving as the master will most often be the one assigned to the <code>DATABASE_URL</code> (listed after the database name).</p>
-<p>Create a follower database by provisioning a new heroku-postgresql <a href="/articles/heroku-postgres-plans#production-tier">production tier</a> add-on database and specify the master database to follow with the <code>--follow</code> flag. The flag can take either the config var name of the database on the same app, an argument of the form <code>appname::HEROKU_POSTGRES_COLOR_URL</code>, or the full url of any Heroku Postgres database.</p>
-<p class="note">Followers do not have to be the same database plan as their master. Production tier database plans can be followed by, and can follow, all other production tier plans. If you are on an older 32-bit machine then the follower may only be followed by the same plan, you can identify this by running heroku pg:info on your database.</p>
+...
+</code></pre>
+
+<div class="callout">
+<p>If more than one database is listed, the one currently serving as the master will most often be the one assigned to the <code>DATABASE_URL</code> (listed after the database name).</p>
+</div>
+
+<p>Create a follower database by provisioning a new heroku-postgresql <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans">Standard, Production or Enterprise tier</a> add-on database and specify the master database to follow with the <code>--follow</code> flag. The flag can take either the config var name of the database on the same app, an argument of the form <code>appname::HEROKU_POSTGRES_COLOR_URL</code>, or the full url of any Heroku Postgres database.</p>
+
+<div class="note">
+<p>Followers do not have to be the same database plan as their master. Production tier database plans can be followed by, and can follow, all other production tier plans. If you are on an older 32-bit machine then the follower may only be followed by the same plan, you can identify this by running heroku pg:info on your database.</p>
+</div>
+
 <pre><code class="term">$ heroku addons:add heroku-postgresql:ronin --follow HEROKU_POSTGRESQL_CHARCOAL_URL
 Adding heroku-postgresql:ronin to sushi... done, v71 ($200/mo)
 Attached as HEROKU_POSTGRESQL_WHITE
 Follower will become available for read-only queries when up-to-date
-Use `heroku pg:wait` to track status</code></pre>
+Use `heroku pg:wait` to track status
+</code></pre>
 
 <p>Preparing a follower can take anywhere from several minutes to several hours, depending on the size of your dataset. The <code>heroku pg:wait</code> command outputs the provisioning status of any new databases and can be used to determine when the follower is up-to-date.</p>
 
 <pre><code class="term">$ heroku pg:wait
-Waiting for database HEROKU_POSTGRESQL_WHITE_URL... available</code></pre>
+Waiting for database HEROKU_POSTGRESQL_WHITE_URL... available
+</code></pre>
 
 <h2 id="unfollow">Unfollow</h2>
 
 <p>The <code>heroku pg:unfollow</code> command stops the follower from receiving updates from its master database and transforms it into a full read/write database containing all of the data received up to that point. This creates a database <a href="https://devcenter.heroku.com/articles/heroku-postgres-fork">fork</a>.</p>
 
 <pre><code class="term">$ heroku pg:unfollow HEROKU_POSTGRESQL_WHITE_URL
- !    HEROKU_POSTGRESQL_WHITE_URL will become writable and no longer
- !    follow HEROKU_POSTGRESQL_CHARCOAL. This cannot be undone.
+!    HEROKU_POSTGRESQL_WHITE_URL will become writable and no longer
+!    follow HEROKU_POSTGRESQL_CHARCOAL. This cannot be undone.
 
- !    WARNING: Potentially Destructive Action
- !    This command will affect the app: sushi
- !    To proceed, type "sushi" or re-run this command with --confirm sushi
+!    WARNING: Potentially Destructive Action
+!    This command will affect the app: sushi
+!    To proceed, type "sushi" or re-run this command with --confirm sushi
 
 &gt; sushi
-Unfollowing... done</code></pre>
-<p class="warning">Unfollowing a database is not the same as de-provisioning it. You will still be charged for the database. To completely de-provision a database use the <code>heroku addons:remove HEROKU_POSTGRESQL_WHITE</code> command.</p>
-<h2 id="database-upgrades-and-migrations-with-changeovers">Database upgrades and migrations with changeovers</h2>
+Unfollowing... done
+</code></pre>
+
 <div class="warning">
-<p>Using followers to migrate databases is not supported on the <a href="/articles/heroku-postgres-plans#starter-tier">starter tier</a>. Use <a href="/articles/upgrade-heroku-postgres-with-pgbackups">the pgbackups-based migration process</a> if you have a starter tier (dev or basic) database plan.</p>
+<p>Unfollowing a database is not the same as de-provisioning it. You will still be charged for the database. To completely de-provision a database use the <code>heroku addons:remove HEROKU_POSTGRESQL_WHITE</code> command.</p>
 </div>
+
+<h2 id="database-upgrades-and-migrations-with-changeovers">Database upgrades and migrations with changeovers</h2>
+
+<div class="warning">
+<p>Using followers to migrate databases is not supported on the <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans#hobby-tier">Hobby tier</a>. Use <a href="https://devcenter.heroku.com/articles/upgrade-heroku-postgres-with-pgbackups">the pgbackups-based migration process</a> if you have a Hobby tier (dev or basic) database plan.</p>
+</div>
+
 <p>In addition to providing data redundancy, followers can also be used to change database plans with minimal downtime. At a high level, a follower is created in order to move your data from one database to another (which can be the same or different production tier database plans). Once it has received the majority of the data and is closely following your main database, you will prevent new data from being written (usually by enabling maintenance mode on your app). The follower will then fully catch-up to the main database. The follower is then promoted to be the primary database for the application.</p>
-<p class="warning">Though this process will incur very little app downtime it may require several hours for a follower to prepare, so please schedule the procedure accordingly.</p>
-<h3 id="create-a-follower">Create a follower</h3>
+
+<div class="warning">
+<p>Though this process will incur very little app downtime it may require several hours for a follower to prepare, so please schedule the procedure accordingly.</p>
+</div>
+
+<h3 id="create-follower">Create follower</h3>
 
 <p>To begin, create a new follower for your database and wait for the follower to catch up to the master database.</p>
 
@@ -68,7 +106,8 @@ Follower will become available for read-only queries when up-to-date
 Use `heroku pg:wait` to track status
 
 $ heroku pg:wait
-Waiting for database HEROKU_POSTGRESQL_LAVENDER_URL... available</code></pre>
+Waiting for database HEROKU_POSTGRESQL_LAVENDER_URL... available
+</code></pre>
 
 <p>Once a follower is caught up, it will generally be within 200 commits of the database. Monitor how many commits a follower is behind with the <code>pg:info</code> command (looking at the <code>Behind By</code> row of the follower database):</p>
 
@@ -77,22 +116,28 @@ Waiting for database HEROKU_POSTGRESQL_LAVENDER_URL... available</code></pre>
 Plan:        Crane
 Status:      available
 ...
-=== HEROKU_POSTGRESQL_WHITE 
+=== HEROKU_POSTGRESQL_WHITE
 Plan:        Crane
 Status:      available
 ...
 Following:   HEROKU_POSTGRESQL_LAVENDER (DATABASE_URL)
-Behind By:   125 commits</code></pre>
+Behind By:   125 commits
+</code></pre>
 
 <h3 id="prevent-new-data-updates">Prevent new data updates</h3>
 
-<p>It is important that no new data is written to your application during the migration process, or else it may not be transferred to the new database. To accomplish this, place your app into <a href="/articles/maintenance-mode">maintenance mode</a> and spin down all non-web dynos (which continue to run, even with maintenance mode enabled).</p>
-<p class="warning">This phase of the process takes your application offline. Please consider this when planning the migration.</p>
+<p>It is important that no new data is written to your application during the migration process, or else it may not be transferred to the new database. To accomplish this, place your app into <a href="https://devcenter.heroku.com/articles/maintenance-mode">maintenance mode</a> and spin down all non-web dynos (which continue to run, even with maintenance mode enabled).</p>
+
+<div class="warning">
+<p>This phase of the process takes your application offline. Please consider this when planning the migration.</p>
+</div>
+
 <pre><code class="term">$ heroku maintenance:on
 Enabling maintenance mode for sushi... done
 
 $ heroku ps:scale worker=0
-Scaling worker processes... done, now running 0</code></pre>
+Scaling worker processes... done, now running 0
+</code></pre>
 
 <h3 id="promote-follower">Promote follower</h3>
 
@@ -108,39 +153,58 @@ Plan:        Crane
 Status:      available
 ...
 Following:   HEROKU_POSTGRESQL_LAVENDER_URL (DATABASE_URL)
-Behind By:   0 commits</code></pre>
+Behind By:   0 commits
+</code></pre>
 
 <p>When the follower is caught up and no new data is being generated, issue an unfollow command to relinquish its follower duties and make it a full, writeable, database. Promoting it will then set it as the primary database (at the <code>DATABASE_URL</code> location) used by your application:</p>
 
 <pre><code class="term">$ heroku pg:unfollow HEROKU_POSTGRESQL_WHITE_URL
 $ heroku pg:promote HEROKU_POSTGRESQL_WHITE_URL
-Promoting HEROKU_POSTGRESQL_WHITE_URL to DATABASE_URL... done</code></pre>
+Promoting HEROKU_POSTGRESQL_WHITE_URL to DATABASE_URL... done
+</code></pre>
 
-<p>The follower database is now the primary database (though the application is not yet receiving new requests). </p><p class="callout">If your Heroku Postgres database is not connected to a Heroku application you will need to retrieve the <code>HEROKU_POSTGRESQL_WHITE_URL</code> and update your application to use it as your primary database.</p>
+<p>The follower database is now the primary database (though the application is not yet receiving new requests).</p>
+
+<div class="callout">
+<p>If your Heroku Postgres database is not connected to a Heroku application you will need to retrieve the <code>HEROKU_POSTGRESQL_WHITE_URL</code> and update your application to use it as your primary database.</p>
+</div>
 
 <h3 id="make-application-active">Make application active</h3>
 
 <p>To resume normal application operation scale any non-web dynos back to their original levels and turn off maintenance mode.</p>
 
-<pre><code class="term">$ heroku ps:scale worker=1    
-$ heroku maintenance:off</code></pre>
+<pre><code class="term">$ heroku ps:scale worker=1
+$ heroku maintenance:off
+</code></pre>
 
 <p>Your application is now receiving requests and operating off the new database. Your original database will continue to run (and incur charges). If desired, remove it after the changeover is successful.</p>
+
 <div class="callout">
 <p>Be sure to remove the <code>_URL</code> suffix from the database name in this command.</p>
 </div>
-<pre><code class="term">$ heroku addons:remove HEROKU_POSTGRESQL_LAVENDER</code></pre>
+
+<pre><code class="term">$ heroku addons:remove HEROKU_POSTGRESQL_LAVENDER
+</code></pre>
 
 <h3 id="monitoring-followers">Monitoring followers</h3>
 
 <p>Because followers are asynchronously updated they may be behind their leader by some number of commits. You can view the number of commits your follower is behind by running <code>heroku pg:info</code>. If your follower is increasing in the number of commits it is behind it may be due to long running transactions on your database. Using the <a href="https://github.com/heroku/heroku-pg-extras/">pg-extras</a> plugin you can run <code>heroku pg:ps</code> to get currently running transactions, then if any have been running for longer than expected you may cancel those with:</p>
 
-<pre><code class="term">$ heroku pg:kill PROCESSID</code></pre>
+<pre><code class="term">$ heroku pg:kill PROCESSID
+</code></pre>
 
 <h2 id="high-availability-with-followers">High availability with followers</h2>
 
+<div class="note">
+<p>Heroku Postgres premium plans have the HA feature with automated failover. Read more about <a href="https://devcenter.heroku.com/articles/heroku-postgres-ha">how it works</a>.</p>
+</div>
+
 <p>Having a follower provisioned, even if not being actively used as a read slave, ensures that you always have a hot standby available for immediate promotion in situations where the primary database becomes corrupted or unavailable. As a general practice, applications desiring high-availability should provision a hot standby follower.</p>
-<p class="note">Follower databases are guaranteed to be provisioned on geographically separate infrastructure than the primary database, providing purely additive uptime over a single database.</p>
+
+<div class="callout">
+<p>Follower databases are guaranteed to be provisioned on geographically separate infrastructure than the primary database, providing purely additive uptime over a single database.</p>
+</div>
+
 <h3 id="manual-failover">Manual failover</h3>
 
-<p>Heroku does not automatically promote a follower database when the primary database is corrupt or inaccessible. Performing a database failover is the same manual process as a database migration starting with the <a href="#prevent-new-data-updates">prevent data updates step</a>.</p>
+<p>Heroku does not automatically promote a follower database when the primary database is corrupt or inaccessible. If this functionality is required, use a premium or enterprise tier plan that does offer HA. Performing a database failover is the same manual process as a database migration starting with the <a href="#prevent-new-data-updates">prevent data updates step</a>.</p>

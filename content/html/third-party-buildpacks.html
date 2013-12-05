@@ -1,14 +1,23 @@
-<p>The following is a list of third-party <a href="/articles/buildpacks">buildpacks</a> available for use with your Heroku apps. These buildpacks enable you to use languages and frameworks beyond those officially supported by Heroku.</p>
-<p class="warning">
-Third-party buildpacks contain software that is not under Heroku's control. Please inspect the source of any buildpack you plan to use and proceed with caution.
-</p>
+<p>The following is a list of third-party <a href="https://devcenter.heroku.com/articles/buildpacks">buildpacks</a> available for use with your Heroku apps. These buildpacks enable you to use languages and frameworks beyond those officially supported by Heroku.</p>
+
+<div class="warning">
+<p>Third-party buildpacks contain software that is not under Heroku’s control. Please inspect the source of any buildpack you plan to use and proceed with caution.</p>
+</div>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<div class="note">
+<p>If you have questions about the build process on Heroku, consider discussing it in the <a href="https://discussion.heroku.com/category/build">Build forums</a>.</p>
+</div>
+
 <h2 id="third-party-buildpacks">Third-party buildpacks</h2>
+
 <table style="width:695px;">
 <tr>
 <th style="text-align:left">Name</th>
-  	<th style="text-align:left">Description</th>
-  	<th style="text-align:left">Author</th>
-  	<th style="text-align:left">BUILDPACK_URL</th>
+    <th style="text-align:left">Description</th>
+    <th style="text-align:left">Author</th>
+    <th style="text-align:left">BUILDPACK_URL</th>
   </tr>
 <tr>
 <td style="text-align:left">C</td>
@@ -240,12 +249,15 @@ GeoDjango, including GDAL 3.3.2, Proj.4 4.7.0, and GDAL 1.8.1</td>
 
 <p>You can specify the git URL of a buildpack when creating a new app:</p>
 
-<pre><code class="term">$ heroku create myapp --buildpack https://github.com/some/buildpack.git</code></pre>
+<pre><code class="term">$ heroku create myapp --buildpack https://github.com/some/buildpack.git
+</code></pre>
 
 <p>You can change the buildpack for an existing app using the <code>BUILDPACK_URL</code> config var:</p>
 
-<pre><code class="term">$ heroku config:set BUILDPACK_URL=https://github.com/some/buildpack.git -a myapp</code></pre>
+<pre><code class="term">$ heroku config:set BUILDPACK_URL=https://github.com/some/buildpack.git -a myapp
+</code></pre>
 
 <p>You can also specify an exact commit in your <code>BUILDPACK_URL</code> (a good safety precaution when using external code):</p>
 
-<pre><code class="term">$ heroku config:set BUILDPACK_URL="https://github.com/some/buildpack.git#0123cdef"</code></pre>
+<pre><code class="term">$ heroku config:set BUILDPACK_URL="https://github.com/some/buildpack.git#0123cdef"
+</code></pre>

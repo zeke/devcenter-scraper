@@ -15,40 +15,43 @@ This guide discusses the pros/cons of dependency management with git submodules 
 
 [Git submodules](http://git-scm.com/book/en/Git-Tools-Submodules) are a feature of the [Git SCM](http://git-scm.com/) that allow you to include the contents of one repository within another by simply specifying the referenced repository location. This provides a mechanism of including an external library's source into an application's source tree.
 
-For example, to include the `FooBar` source into the `heroku-rails` project simply use the `git submodule add` command.
+For example, to include the `FooBar` source into the `heroku-rails` project, use the `git submodule add` command.
 
-    :::term
-    $ cd ~/Code/heroku-rails/lib
-    $ git submodule add https://github.com/myusername/FooBar
-    Cloning into 'FooBar'...
-    remote: Counting objects: 26, done.
-    remote: Compressing objects: 100% (17/17), done.
-    remote: Total 26 (delta 8), reused 19 (delta 5)
-    Unpacking objects: 100% (26/26), done.
+```term
+$ cd ~/Code/heroku-rails
+$ git submodule add https://github.com/myusername/FooBar lib/FooBar
+Cloning into 'lib/FooBar'...
+remote: Counting objects: 26, done.
+remote: Compressing objects: 100% (17/17), done.
+remote: Total 26 (delta 8), reused 19 (delta 5)
+Unpacking objects: 100% (26/26), done.
+```
 
 This would create a new submodule called `FooBar` and place a `FooBar` directory with the full source tree of the library into the `lib` application directory.
 
 Once a git submodule is added locally you need to commit the new submodule reference to your application repository.
 
-    :::term
-    $ git commit -am "adding a submodule for FooBar"
-    [master 314ef62] adding a submodule for testing
-    2 files changed, 4 insertions(+)
-    create mode 160000 FooBar
+```term
+$ git commit -am "adding a submodule for FooBar"
+[master 314ef62] adding a submodule for FooBar
+2 files changed, 4 insertions(+)
+create mode 160000 FooBar
+```
 
 Heroku properly resolves and fetches submodules as part of deployment:
 
-    :::term
-    $ git push heroku
-    Counting objects: 13, done.
-    ...
-    
-    -----> Heroku receiving push
-    -----> Git submodules detected, installing Submodule 'FooBar' (https://github.com/myusername/FooBar.git) registered for path 'FooBar'
-    Initialized empty Git repository in /tmp/build_2qfce3fkvrug9/FooBar/.git/
-    Submodule path 'FooBar': checked out '667e0b5717631a8cca657a0aa306c045f06cfda4'
-    -----> Ruby/Rails app detected
-    ...
+```term
+$ git push heroku
+Counting objects: 13, done.
+...
+
+-----> Heroku receiving push
+-----> Git submodules detected, installing Submodule 'FooBar' (https://github.com/myusername/FooBar.git) registered for path 'FooBar'
+Initialized empty Git repository in /tmp/build_2qfce3fkvrug9/FooBar/.git/
+Submodule path 'FooBar': checked out '667e0b5717631a8cca657a0aa306c045f06cfda4'
+-----> Ruby/Rails app detected
+...
+```
 
 Note that failures to fetch the submodules will cause the build to fail.
 
@@ -60,14 +63,14 @@ If the referenced git repository is protected via a username and password it's s
 
 For instance, to add the `FooBar` submodule using an HTTP basic authentication URL scheme (note the presence of the `username:password` tokens):
 
-    :::term
-    $ git submodule add https://username:password@github.com/myusername/FooBar
+```term
+$ git submodule add https://username:password@github.com/myusername/FooBar
+```
 
 This adds a private submodule dependency to the application while still allowing it to resolve in non-local environments.
 
-<p class="warning" markdown="1">
-Since submodule references are stored in plaintext in the `.git/submodules` directory please consider if this is acceptable for your particular security requirements.
-</p>
+> warning
+> Since submodule references are stored in plaintext in the `.git/submodules` directory please consider if this is acceptable for your particular security requirements.
 
 ## Vendoring
 
@@ -75,10 +78,11 @@ While Git submodules are one way to quickly reference external library source, u
 
 Many frameworks allow the use of "vendored" code which simply copies the source of the reference library into the application's source tree:
 
-    :::term
-    $ git clone <remote repo> /path/to/some/directory 
-    $ cp -R /path/to/some/directory /app/vendor/directory
-    $ git add app/vendor/directory
+```term
+$ git clone <remote repo> /path/to/some/directory 
+$ cp -R /path/to/some/directory /app/vendor/directory
+$ git add app/vendor/directory
+```
 
 A downside of this approach is that it requires a manual download and copy process when the external library is updated. However, for a external resource that changes very slowly, or that you don't want to introduce changes from, this is an option.
 

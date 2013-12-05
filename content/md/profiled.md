@@ -11,6 +11,9 @@ These scripts let you manipulate the initial environment, at runtime, for all dy
 
 The scripts must be `bash` scripts, and their filenames must end in `.sh`.
 
+> note
+> If you have questions about the build process on Heroku, consider discussing it in the [Build forums](https://discussion.heroku.com/category/build).
+
 ## Example `.profile.d/path.sh`
 
 >callout

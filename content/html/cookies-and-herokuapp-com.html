@@ -1,6 +1,6 @@
-<p>Applications in the <code>herokuapp.com</code> domain are unable to set cookies for <code>*.herokuapp.com</code>.  </p>
+<p>Applications in the <code>herokuapp.com</code> domain are unable to set cookies for <code>*.herokuapp.com</code>.</p>
 
-<p>This is enforced in Firefox, Chrome, and Opera.  <code>*.herokuapp.com</code> cookies may currently be set in Internet Explorer, but this behavior should not be relied upon and may change in the future.  </p>
+<p>This is enforced in Firefox, Chrome, and Opera.  <code>*.herokuapp.com</code> cookies may currently be set in Internet Explorer, but this behavior should not be relied upon and may change in the future.</p>
 
 <p>This has no effect on applications using <a href="https://devcenter.heroku.com/articles/custom-domains">custom domain</a>, nor does it impact applications in the <code>heroku.com</code> domain (i.e.,Bamboo applications).</p>
 
@@ -10,15 +10,15 @@
 
 <p>Normally, a website may set browser cookies scoped either to its own domain, or any higher level DNS domain it belongs to.  This is controlled by the “domain” attribute in the server’s Set-Cookie HTTP response header.  For example, https://www.cs.berkeley.edu/ can set a cookie in the user’s browser that might be retransmitted to only itself, to all hosts ending in cs.berkeley.edu (e.g., radlab.cs.berkeley.edu), or even all hosts ending in berkeley.edu (e.g., english.berkeley.edu).  It can <em>NOT</em> set cookies scoped to all hosts ending in edu (e.g., www.stanford.edu).  This is not unique to .edu, but applies to all Top Level Domains (TLDs), including .com, .org, and .net.</p>
 
-<p>The server is, of course, perfectly capable of passing a Set-Cookie header with <code>domain=.edu</code>, but it is not honored by any well-secured browser.  </p>
+<p>The server is, of course, perfectly capable of passing a Set-Cookie header with <code>domain=.edu</code>, but it is not honored by any well-secured browser.</p>
 
-<p>This restriction on cookie setting at the TLD level has been around since the early days of the web.  It exists due to security reasons, both to prevent accidentally retransmitting cookies to 3rd parties, and to help provide some partial protection against cookie stuffing and more general types of <a href="https://www.owasp.org/index.php/Session_fixation">session fixation attacks</a>.  </p>
+<p>This restriction on cookie setting at the TLD level has been around since the early days of the web.  It exists due to security reasons, both to prevent accidentally retransmitting cookies to 3rd parties, and to help provide some partial protection against cookie stuffing and more general types of <a href="https://www.owasp.org/index.php/Session_fixation">session fixation attacks</a>.</p>
 
 <p>The general reasoning is that web servers within the same DNS subdomain are usually considered to be operated by the same organization (e.g., The University of California, Berkeley), and are thus less likely to attack each other.  This is not true at the TLD level, as most TLDs allow any member of the general public to register a subdomain.</p>
 
 <h2 id="not-just-a-tld-problem">Not just a TLD problem</h2>
 
-<p>This becomes more complicated when we consider many countries use second-level domains (e.g., .co.uk, .ne.jp) as pseudo TLDs, and have few or no restrictions on who may register subdomains (e.g., amazon.co.uk).  </p>
+<p>This becomes more complicated when we consider many countries use second-level domains (e.g., .co.uk, .ne.jp) as pseudo TLDs, and have few or no restrictions on who may register subdomains (e.g., amazon.co.uk).</p>
 
 <p>To address that issue, for many years browser vendors used internally-maintained lists of public domains, regardless of what level they fall in the DNS hierarchy.  Inevitably this led to inconsistent behavior across browsers at a very fundamental level.</p>
 
@@ -28,7 +28,7 @@
 
 <h2 id="cedar-and-herokuapp-com">Cedar and herokuapp.com</h2>
 
-<p>As Heroku applications on the Cedar stack are all hosted by default in the <code>herokuapp.com</code> domain, we also deal with the public suffix issue.  </p>
+<p>As Heroku applications on the Cedar stack are all hosted by default in the <code>herokuapp.com</code> domain, we also deal with the public suffix issue.</p>
 
 <p>We believe the benefit of registering ourselves with the Public Suffix List outweighed the loss of what is a dangerous and minimally useful bit of functionality (being able to share cookies across multiple apps).</p>
 
@@ -40,7 +40,7 @@
 
 <h2 id="bamboo-and-heroku-com">Bamboo and heroku.com</h2>
 
-<p>In order to minimize disruption for apps in the <a href="https://devcenter.heroku.com/articles/bamboo">deprecated Bamboo stack</a> , we have decided not to add heroku.com itself to the public suffix list.</p>
+<p>In order to minimize disruption for apps in the <a href="https://devcenter.heroku.com/articles/bamboo">Bamboo stack</a> , we have decided not to add heroku.com itself to the public suffix list.</p>
 
 <h2 id="for-more-information">For More Information</h2>
 

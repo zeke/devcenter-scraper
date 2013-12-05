@@ -2,9 +2,12 @@
 
 <p>Use cases include running more <a href="https://devcenter.heroku.com/articles/rails-unicorn">concurrency in a Ruby/Unicorn web dyno</a>, or doing large image processing or geospacial processing in a worker dyno.</p>
 
-<p>For help determining the right dyno size measure memory usage with the <a href="https://devcenter.heroku.com/articles/log-runtime-metrics"><code>log-runtime-metrics</code> Labs flag</a>. The logged metrics can be viewed with <a href="https://devcenter.heroku.com/articles/logging#log-retrieval"><code>heroku logs -t</code></a>, <a href="https://blog.heroku.com/archives/2013/3/19/log2viz">log2viz</a>, or any addon that consumes logs.</p>
+<p>For help determining the right dyno size measure memory usage with the <a href="https://devcenter.heroku.com/articles/log-runtime-metrics"><code>log-runtime-metrics</code> Labs flag</a>. The logged metrics can be
+viewed with <a href="https://devcenter.heroku.com/articles/logging#log-retrieval"><code>heroku logs -t</code></a>, <a href="https://blog.heroku.com/archives/2013/3/19/log2viz">log2viz</a>, or any addon that
+consumes logs.</p>
 
 <h2 id="available-dyno-sizes">Available dyno sizes</h2>
+
 <table>
 <tr>
 <th style="text-align: left;">Dyno Size</th>
@@ -29,18 +32,23 @@
 
 <p>If your app has only a <strong>single 2X web dyno</strong> running, it <strong>will sleep</strong>.</p>
 </div>
+
 <h2 id="setting-dyno-size">Setting dyno size</h2>
+
 <div class="warning">
 <p><strong>Important:</strong> Resizing dynos restarts the affected dynos.</p>
 </div>
+
 <h3 id="cli">CLI</h3>
 
-<p>Using the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a>, resize your dynos with the <code>resize</code> command:</p>
+<p>Using the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a>, resize your dynos
+with the <code>resize</code> command:</p>
 
 <pre><code class="term">$ heroku ps:resize web=2X worker=1X
 Resizing dynos and restarting specified processes... done
 web dynos now 2X ($0.10/dyno-hour)
-worker dynos now 1X ($0.05/dyno-hour)</code></pre>
+worker dynos now 1X ($0.05/dyno-hour)
+</code></pre>
 
 <p>To view the dyno size of a process type, use the <code>ps</code> command:</p>
 
@@ -53,18 +61,20 @@ web.3: up 2013/03/27 15:08:23 (~ 5h ago)
 === worker (1X): `bundle exec rake worker:job`
 worker.1: up 2013/03/27 14:39:04 (~ 6h ago)
 worker.2: up 2013/03/27 15:08:24 (~ 5h ago)
-worker.3: up 2013/03/27 14:30:55 (~ 6h ago)</code></pre>
+worker.3: up 2013/03/27 14:30:55 (~ 6h ago)
+</code></pre>
 
 <h3 id="dashboard">Dashboard</h3>
 
 <p>Using the app’s resources page on <a href="https://dashboard.heroku.com/">Dashboard</a>:</p>
 
-<p><img alt="" src="https://s3.amazonaws.com/f.cl.ly/items/3S1U0T1z1i0m382g2s3K/2x-dynos-dashboard.png"></p>
+<p><img src="https://s3.amazonaws.com/f.cl.ly/items/3S1U0T1z1i0m382g2s3K/2x-dynos-dashboard.png" alt=""></p>
 
 <h3 id="one-off-dynos">One-off dynos</h3>
 
 <p>Memory intensive one-off dynos can also be sized:</p>
 
-<pre><code class="term">$ heroku run --size=2X rake heavy:job</code></pre>
+<pre><code class="term">$ heroku run --size=2X rake heavy:job
+</code></pre>
 
 <p><a href="https://devcenter.heroku.com/articles/scheduler">Scheduler</a> also supports running one-off 2X dynos.</p>

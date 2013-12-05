@@ -1,4 +1,4 @@
-<p>This is a short guide showing how to get started building your own add-on.  It assumes you’ve <a href="/articles/building-a-heroku-add-on">read the docs on building an Add-on</a>.</p>
+<p>This is a short guide showing how to get started building your own add-on.  It assumes you’ve <a href="https://devcenter.heroku.com/articles/building-a-heroku-add-on">read the docs on building an Add-on</a>.</p>
 
 <h2 id="cloning-a-template-add-on">Cloning a template add-on</h2>
 
@@ -22,7 +22,8 @@ Initialized new .env file for foreman
 <p>After cloning the template, you can start it with foreman. Heroku and kensa use the credentials provided in your <code>addon-manifest.json</code> for API authentication.  Your app also needs to be aware of these credentials.  Because we don’t recommend checking the manifest into version control, the template app is designed to read the credentials from the environment.</p>
 
 <div class="callout">
-<p><strong>Credentials</strong><br><code>kensa create</code> writes a <code>.env</code> file that matches the credentials in  <code>addon-manifest.json</code>.
+<p><strong>Credentials</strong>
+<code>kensa create</code> writes a <code>.env</code> file that matches the credentials in  <code>addon-manifest.json</code>.
 The <code>HEROKU_USERNAME</code> matches the id, the <code>HEROKU_PASSWORD</code> matches the API passsword, and the <code>SSO_SALT</code> matches the API sso_salt.</p>
 </div>
 

@@ -1,3 +1,4 @@
+
 <p><a href="https://status.heroku.com/">Heroku Status</a> provides the current status and incident history report for the Heroku platform. The status site covers all stacks on the Heroku platform (Bamboo and Cedar) as well as key add-ons necessary for smooth operation of production applications.</p>
 
 <h2 id="accessing-heroku-status">Accessing Heroku Status</h2>
@@ -31,19 +32,18 @@ Production:  No known issues at this time.</code></pre>
 
 <p>Heroku is a distributed platform spread across many different datacenters and components. During any given incident, it is rare for all applications running on the platform to be affected. For this reason, we report our uptime as an average derived from the number of affected applications.</p>
 
-<p><img alt="Heroku Status Uptime" src="https://s3.amazonaws.com/heroku.devcenter/heroku_assets/images/177-original.jpg?1370040613"></p>
+<p><img src="https://s3.amazonaws.com/heroku.devcenter/heroku_assets/images/177-original.jpg?1370040613" alt="Heroku Status Uptime" title="Heroku Status Uptime"></p>
 
 <p>Uptime figures are featured on the <a href="https://status.heroku.com/uptime">Heroku Uptime site</a> and are based on a calculation across our entire distributed platform. We analyze data from a variety of logging and monitoring tools, and then use it to split each incident into segments. Each segment counts the number of affected apps for a designated period of time. Our measurement considers:</p>
 
 <ol>
 <li>The duration of each outage</li>
 
-<li>The percentage of running applications affected in each outage, (<a href="/articles/dynos#the-dyno-manager">applications consisting only of a single idled web dyno</a> are not considered).</li>
+<li>The percentage of running applications affected in each outage, (<a href="https://devcenter.heroku.com/articles/dynos#the-dyno-manager">applications consisting only of a single idled web dyno</a> are not considered).</li>
 
 <li>The total minutes of potential uptime in a month, and is calculated with the following equation:</li>
-</ol><!-- comment to work around markdown weirdness --><pre><code>TM - SUM((OM1 * PA1) .. (OMn * PAn))
-------------------------------------
-                TM</code></pre>
+</ol><!-- comment to work around markdown weirdness --><pre><code>TM - SUM((OM1 * PA1) .. (OMn * PAn))</code></pre>
+<hr><pre><code>                TM</code></pre>
 <!-- comment to work around markdown weirdness -->
 <ul>
 <li>

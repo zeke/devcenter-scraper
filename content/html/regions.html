@@ -1,4 +1,6 @@
-<p class="warning">This article describes a <a href="/articles/heroku-beta-features">beta feature</a>. Functionality may change prior to general availability.</p>
+<p class="warning">
+This article describes a <a href="https://devcenter.heroku.com/articles/heroku-beta-features">beta feature</a>. Functionality may change prior to general availability.
+</p>
 <p>Heroku is available in two geographic regions: the <a href="#data-center-locations">US and EU</a>.</p>
 
 <p>You can choose your app’s region to minimize latency for your end users. I.e. if your users are primarily in Europe your app will be faster for them if it’s running in Europe.</p>
@@ -15,7 +17,9 @@
 Creating calm-ocean-1234... done, region is eu
 http://calm-ocean-1234.herokuapp.com/ | git@heroku.com:calm-ocean-1234.git
 Git remote heroku added</code></pre>
-<p class="note">Existing applications can be <a href="/articles/app-migration">migrated</a> to a new region.</p>
+<p class="note">
+Existing applications can be <a href="https://devcenter.heroku.com/articles/app-migration">migrated</a> to a new region.
+</p>
 <p>To verify the app’s region, check the <code>Region</code> attribute of the <code>heroku info</code> command:</p>
 
 <pre><code class="term">$ heroku info
@@ -55,7 +59,7 @@ Adding cloudcounter on calm-ocean-1234... failed
 
 <h2 id="deployment-dynos">Deployment &amp; dynos</h2>
 
-<p>Apps are deployed to the region specified on creation. <a href="/articles/git">Deploy your app with git</a>, as usual:</p>
+<p>Apps are deployed to the region specified on creation. <a href="https://devcenter.heroku.com/articles/git">Deploy your app with git</a>, as usual:</p>
 
 <pre><code class="term">$ git push heroku master</code></pre>
 
@@ -63,7 +67,7 @@ Adding cloudcounter on calm-ocean-1234... failed
 
 <h2 id="custom-domains">Custom domains</h2>
 
-<p>Adding <a href="/articles/custom-domains">custom domains</a> to apps running outside the <code>us</code> region is the same as addin domains to apps in the <code>us</code> region. Add the following CNAME record in your DNS provider’s control panel (substituting <code>example</code> with the name of your Heroku app).</p>
+<p>Adding <a href="https://devcenter.heroku.com/articles/custom-domains">custom domains</a> to apps running outside the <code>us</code> region is the same as addin domains to apps in the <code>us</code> region. Add the following CNAME record in your DNS provider’s control panel (substituting <code>example</code> with the name of your Heroku app).</p>
 <table>
 <tr>
 <th>Type</th>
@@ -76,10 +80,12 @@ Adding cloudcounter on calm-ocean-1234... failed
     <td>example.herokuapp.com</td>
   </tr>
 </table><p>This will route all traffic addressed to <code>www.example.com</code> to <code>example.herokuapp.com</code>.</p>
-<p class="warning"><a href="/articles/avoiding-naked-domains-dns-arecords">A-records are not supported</a> on Heroku. If you wish to host an apex domain like “example.com” on Heroku you must do so using an ALIAS or similar record from your DNS provider that allows for an apex domain to CNAME mapping.</p>
+<p class="warning">
+<a href="https://devcenter.heroku.com/articles/avoiding-naked-domains-dns-arecords">A-records are not supported</a> on Heroku. If you wish to host an apex domain like "example.com" on Heroku you must do so using an ALIAS or similar record from your DNS provider that allows for an apex domain to CNAME mapping.
+</p>
 <h2 id="ssl">SSL</h2>
 
-<p>To utilize SSL, provision an <a href="/articles/ssl-endpoint">SSL Endpoint</a> for your application and upload your SSL certs.</p>
+<p>To utilize SSL, provision an <a href="https://devcenter.heroku.com/articles/ssl-endpoint">SSL Endpoint</a> for your application and upload your SSL certs.</p>
 
 <pre><code class="term">$ heroku addons:add ssl
 Adding ssl on example... done, v1 ($20/mo)
@@ -116,7 +122,7 @@ example now served by example.herokuapp.com</code></pre>
 <ul>
 <li>Some non-latency sensitive add-ons can be provisioned in a different region as your app.</li>
 
-<li>Application logs are routed to <a href="/articles/logplex">Logplex</a>, currently hosted in the US.</li>
+<li>Application logs are routed to <a href="https://devcenter.heroku.com/articles/logplex">Logplex</a>, currently hosted in the US.</li>
 
 <li>
 <a href="https://addons.heroku.com/pgbackups">PG Backup</a> snapshots are stored in the US, and <a href="http://www.postgresql.org/docs/current/static/wal-intro.html">WAL files</a> continuously sent to the US.</li>
@@ -126,4 +132,4 @@ example now served by example.herokuapp.com</code></pre>
 
 <h2 id="migrating-existing-apps">Migrating existing apps</h2>
 
-<p>Existing applications can <a href="/articles/app-migration">migrate to a new region</a>.</p>
+<p>Existing applications can <a href="https://devcenter.heroku.com/articles/app-migration">migrate to a new region</a>.</p>

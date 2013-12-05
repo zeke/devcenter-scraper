@@ -9,7 +9,7 @@ This document is a hands-on guide to turning your existing cloud service into a 
 
 ## Overview
 
-There are two ways to create a Heroku add-on: you can either implement the HTTP calls directly in an app you already have or you can start an new application from a template.
+There are two ways to create a Heroku add-on: you can either implement the HTTP calls directly in an app you already have or you can start a new application from a template.
 
 >callout
 >`kensa create`  

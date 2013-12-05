@@ -55,11 +55,16 @@ $ heroku pg:bloat DATABASE_URL --app sushi
 
 This shows the bloat factor (the fraction of the original table that
 exists as bloat), and the total bloat (in bytes) in each table and
-index in the system.
+index in the system. There are no units to bloat--it is a ratio.
 
 A very large bloat factor on a table or index can lead to poor
 performance for some queries, as Postgres will plan them without
 considering the bloat.
+
+The threshold for excessive bloat varies according to your query
+patterns and the size of the table, but generally anything with a
+bloat factor over 10 is worth looking into, especially on tables over
+100MB.
 
 To check on vacuuming in your database, you can use another pg-extras
 command:

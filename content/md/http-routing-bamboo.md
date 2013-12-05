@@ -5,15 +5,15 @@ url: https://devcenter.heroku.com/articles/http-routing-bamboo
 description: A description of how Heroku routes requests on the Bamboo stack, including the HTTP stack and timeouts
 ---
 
-<div class="deprecated" markdown="1">This article applies to apps on the [Bamboo](bamboo) stack.  For the most recent stack, [Cedar](cedar), see [HTTP Routing](http-routing).</div>
+> warning
+> This article applies to apps on the [Bamboo](bamboo) stack.  For the most recent stack, [Cedar](cedar), see [HTTP Routing](http-routing).
 
 The Heroku platform automatically routes HTTP requests sent to your app's hostname(s) through to all of your web dynos.
 
 Applications running on the [Bamboo](bamboo) stack use the `heroku.com` HTTP stack. Apps on the [Cedar](cedar) stack use the newer `herokuapp.com` HTTP stack, which offers [more direct routing](http-routing) to your dyno to allow more advanced uses of HTTP.
 
-<div class="callout" markdown="1">
-[Bamboo](bamboo) apps use the heroku.com stack.  Any request sent to `*.heroku.com` is using the `heroku.com` stack.  The new [Cedar](cedar) stack uses `*.herokuapp.com`.
-</div>
+> callout
+> [Bamboo](bamboo) apps use the heroku.com stack.  Any request sent to `*.heroku.com` is using the `heroku.com` stack.  The new [Cedar](cedar) stack uses `*.herokuapp.com`.
 
 ### Request distribution
 

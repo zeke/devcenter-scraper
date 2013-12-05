@@ -7,18 +7,20 @@ description: A list of third-party buildpacks that can be used to create applica
 
 The following is a list of third-party [buildpacks](buildpacks) available for use with your Heroku apps. These buildpacks enable you to use languages and frameworks beyond those officially supported by Heroku. 
 
-<p class="warning">
-Third-party buildpacks contain software that is not under Heroku's control. Please inspect the source of any buildpack you plan to use and proceed with caution.
-</p>
+> warning
+> Third-party buildpacks contain software that is not under Heroku's control. Please inspect the source of any buildpack you plan to use and proceed with caution.
+
+> note
+> If you have questions about the build process on Heroku, consider discussing it in the [Build forums](https://discussion.heroku.com/category/build).
     
 ## Third-party buildpacks
 
 <table style="width:695px;">
   <tr>
-  	<th style="text-align:left">Name</th>
-  	<th style="text-align:left">Description</th>
-  	<th style="text-align:left">Author</th>
-  	<th style="text-align:left">BUILDPACK_URL</th>
+    <th style="text-align:left">Name</th>
+    <th style="text-align:left">Description</th>
+    <th style="text-align:left">Author</th>
+    <th style="text-align:left">BUILDPACK_URL</th>
   </tr>
   <tr>
     <td style="text-align:left">C</td>
@@ -252,15 +254,18 @@ If you'd like to have your buildpack added to this list, please send an email to
 
 You can specify the git URL of a buildpack when creating a new app:
 
-    :::term
-    $ heroku create myapp --buildpack https://github.com/some/buildpack.git
+```term
+$ heroku create myapp --buildpack https://github.com/some/buildpack.git
+```
     
 You can change the buildpack for an existing app using the `BUILDPACK_URL` config var:
 
-    :::term
-    $ heroku config:set BUILDPACK_URL=https://github.com/some/buildpack.git -a myapp
+```term
+$ heroku config:set BUILDPACK_URL=https://github.com/some/buildpack.git -a myapp
+```
 
 You can also specify an exact commit in your `BUILDPACK_URL` (a good safety precaution when using external code):
 
-    :::term
-    $ heroku config:set BUILDPACK_URL="https://github.com/some/buildpack.git#0123cdef"
+```term
+$ heroku config:set BUILDPACK_URL="https://github.com/some/buildpack.git#0123cdef"
+```

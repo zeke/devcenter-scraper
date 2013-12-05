@@ -7,16 +7,16 @@ description: Log runtime metrics is a labs feature that logs load and memory usa
 
 This [Heroku Labs](http://devcenter.heroku.com/categories/labs) `log-runtime-metrics` feature adds experimental support for enabling visibility into load and memory usage for running dynos. Per-dyno stats on memory use, swap use, and load average are inserted into the app's log stream where they can be seen via `heroku logs --tail`, used for graphs or alerting via an [add-on which consumes app logs](https://addons.heroku.com/#logging), or sent to a [log drain](logging#syslog-drains). There is no cost incurred by enabling this feature.
 
-<p class="warning">
-The features added through labs are experimental and may change or be removed without notice.
-</p>
+> warning
+> Features added through Heroku Labs are experimental and subject to change.
 
 ## Enabling
 
-    :::term
-    $ heroku labs:enable log-runtime-metrics
-    Enabling log-runtime-metrics for myapp... done
-    $ heroku restart
+```term
+$ heroku labs:enable log-runtime-metrics
+Enabling log-runtime-metrics for myapp... done
+$ heroku restart
+```
 
 ## How it works
 
@@ -26,9 +26,10 @@ The load and memory usage metrics are surfaced as [system logs](logging#types-of
 
 Runtime metrics logs have the following format:
 
-    :::term
-    source=web.1 dyno=heroku.2808254.d97d0ea7-cf3d-411b-b453-d2943a50b456 sample#load_avg_1m=2.46 sample#load_avg_5m=1.06 sample#load_avg_15m=0.99
-    source=web.1 dyno=heroku.2808254.d97d0ea7-cf3d-411b-b453-d2943a50b456 sample#memory_total=21.00MB sample#memory_rss=21.22MB sample#memory_cache=0.00MB sample#memory_swap=0.00MB sample#memory_pgpgin=348836pages sample#memory_pgpgout=343403pages
+```term
+source=web.1 dyno=heroku.2808254.d97d0ea7-cf3d-411b-b453-d2943a50b456 sample#load_avg_1m=2.46 sample#load_avg_5m=1.06 sample#load_avg_15m=0.99
+source=web.1 dyno=heroku.2808254.d97d0ea7-cf3d-411b-b453-d2943a50b456 sample#memory_total=21.00MB sample#memory_rss=21.22MB sample#memory_cache=0.00MB sample#memory_swap=0.00MB sample#memory_pgpgin=348836pages sample#memory_pgpgout=343403pages
+```
 
 The `source` field identifies a dyno in your [dyno formation](scaling#dyno-formation) and is intended to be used by systems draining application logs. The `dyno` field includes the app id and a UUID that unique identifies every distinct dyno run on the platform. Over the life of your app metrics, you will see the same `source` value have many different `dyno` values, related to when you deploy or restart dynos.
 

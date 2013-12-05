@@ -1,12 +1,16 @@
-<p>The <a href="/articles/cedar">Heroku Cedar stack</a> is capable of running Ruby applications across a variety of Ruby runtimes and includes support for framework-specific workflows.</p>
+<p>The <a href="https://devcenter.heroku.com/articles/cedar">Heroku Cedar stack</a> is capable of running Ruby applications across a variety of Ruby runtimes and includes support for framework-specific workflows.</p>
 
 <p>This document describes the general behavior of the Cedar stack as it relates to the recognition and execution of Ruby applications. For framework specific tutorials please see:</p>
 
 <ul>
-<li><a href="http://devcenter.heroku.com/articles/ruby">Getting Started with Ruby on Heroku/Cedar</a></li>
+<li><a href="https://devcenter.heroku.com/articles/ruby">Getting Started with Ruby on Heroku/Cedar</a></li>
 <li>
-<a href="http://devcenter.heroku.com/articles/getting-started-with-rails4">Getting Started with Rails 4 on Heroku/Cedar</a>.</li>
-</ul><h2 id="general-support">General support</h2>
+<a href="https://devcenter.heroku.com/articles/getting-started-with-rails4">Getting Started with Rails 4 on Heroku/Cedar</a>.</li>
+</ul><div class="note">
+<p>If you have questions about Ruby on Heroku, consider discussing it in the <a href="https://discussion.heroku.com/category/ruby">Ruby on Heroku forums</a>.</p>
+</div>
+
+<h2 id="general-support">General support</h2>
 
 <p>The following support is provided, irrespective of the type of Ruby application deployed.</p>
 
@@ -59,7 +63,7 @@ console: bundle exec irb
 
 <p>You will get the latest available patchlevel for each Ruby version. If your <code>Gemfile</code> does not contain a <code>ruby</code> entry, you will get MRI <code>2.0.0</code>. Default rubies are locked into the app until you specify a Ruby version. If you were previously on <code>1.9.2</code>, you will continue to stay on <code>1.9.2</code>.</p>
 
-<p>Please see our <a href="/articles/ruby-versions">Ruby Versions</a> document for instructions on how to specify your ruby version.</p>
+<p>Please see our <a href="https://devcenter.heroku.com/articles/ruby-versions">Ruby Versions</a> document for instructions on how to specify your ruby version.</p>
 
 <p>Heroku supports the following Ruby Versions and the associated Rubygems:</p>
 
@@ -67,30 +71,47 @@ console: bundle exec irb
 
 <ul>
 <li>
-<code>1.8.7</code> : patchlevel 374, Rubygems : <code>1.8.24</code>
+<code>1.8.7</code> : patchlevel 375, Rubygems : <code>1.8.24</code>
 </li>
 <li>
-<code>1.9.2</code> : patchlevel 320, Rubygems: <code>1.3.7.1</code>
+<code>1.9.2</code> : patchlevel 321, Rubygems: <code>1.3.7.1</code>
 </li>
 <li>
-<code>1.9.3</code> : patchlevel 448, Rubygems : <code>1.8.23</code>
+<code>1.9.3</code> : patchlevel 484, Rubygems : <code>1.8.23</code>
 </li>
 <li>
-<code>2.0.0</code> : patchlevel 247, Rubygems : <code>2.0.3</code>
+<code>2.0.0</code> : patchlevel 353, Rubygems : <code>2.0.14</code>
 </li>
 <li>
-<code>2.1.0</code> : patchlevel preview1, Rubygems: : <code>2.2.0.preview.1</code>
+<code>2.1.0</code> : patchlevel preview2, Rubygems: : <code>2.2.0</code>
 </li>
 </ul><p><strong>JRuby:</strong></p>
 
-<p>JRuby versions include both <code>1.8.7</code> and <code>1.9.3</code> ruby versions. You need to specify one in your Gemfile.</p>
+<p>JRuby versions support multiple ruby versions listed below. You need to specify one in your Gemfile. JRuby runs on the JVM which is also installed alongside JRuby.</p>
 
 <ul>
-<li><code>1.7.1</code></li>
-<li><code>1.7.2</code></li>
-<li><code>1.7.3</code></li>
-<li><code>1.7.4</code></li>
-</ul><p>The ruby runtime that your app uses will be included in your <a href="/articles/slug-compiler">slug</a>, which will affect the <a href="/articles/limits#build">slug size</a>.</p>
+<li>
+<code>1.7.1</code>, Ruby Versions: [<code>1.8.7</code>, <code>1.9.3</code>], Java Version: <code>1.7.0_25-b30</code>
+</li>
+<li>
+<code>1.7.2</code>, Ruby Versions: [<code>1.8.7</code>, <code>1.9.3</code>], Java Version: <code>1.7.0_25-b30</code>
+</li>
+<li>
+<code>1.7.3</code>, Ruby Versions: [<code>1.8.7</code>, <code>1.9.3</code>], Java Version: <code>1.7.0_25-b30</code>
+</li>
+<li>
+<code>1.7.4</code>, Ruby Versions: [<code>1.8.7</code>, <code>1.9.3</code>], Java Version: <code>1.7.0_45-b31</code>
+</li>
+<li>
+<code>1.7.5</code>, Ruby Versions: [<code>1.8.7</code>, <code>1.9.3</code>, <code>2.0.0</code> (experimental)], Java Version: <code>1.7.0_45-b31</code>
+</li>
+<li>
+<code>1.7.6</code>, Ruby Versions: [<code>1.8.7</code>, <code>1.9.3</code>, <code>2.0.0</code> (experimental)], Java Version: <code>1.7.0_45-b31</code>
+</li>
+<li>
+<code>1.7.8</code>, Ruby Versions: [<code>1.8.7</code>, <code>1.9.3</code>, <code>2.0.0</code> (experimental)], Java Version: <code>1.7.0_45-b31</code>
+</li>
+</ul><p>The ruby runtime that your app uses will be included in your <a href="https://devcenter.heroku.com/articles/slug-compiler">slug</a>, which will affect the <a href="https://devcenter.heroku.com/articles/limits#build">slug size</a>.</p>
 
 <h2 id="ruby-applications">Ruby applications</h2>
 
@@ -106,11 +127,11 @@ console: bundle exec irb
 
 <h3 id="add-ons">Add-ons</h3>
 
-<p>A dev database add-on is provisioned if the Ruby application has the <code>pg</code> gem in the <code>Gemfile</code>.  This  populates the <code>DATABASE_URL</code> environment var.  </p>
+<p>A dev database add-on is provisioned if the Ruby application has the <code>pg</code> gem in the <code>Gemfile</code>.  This  populates the <code>DATABASE_URL</code> environment var.</p>
 
 <h3 id="process-types">Process types</h3>
 
-<p>No default <code>web</code> process type is created if a pure Ruby application is detected.  </p>
+<p>No default <code>web</code> process type is created if a pure Ruby application is detected.</p>
 
 <h2 id="rack-applications">Rack applications</h2>
 
@@ -137,13 +158,13 @@ console: bundle exec irb
 
 <h3 id="process-types">Process types</h3>
 
-<p>If you don’t include a <a href="/articles/procfile"><code>Procfile</code></a>, Rack apps will define a web process type at deploy time:</p>
+<p>If you don’t include a <a href="https://devcenter.heroku.com/articles/procfile"><code>Procfile</code></a>, Rack apps will define a web process type at deploy time:</p>
 
 <pre><code>web: bundle exec rackup config.ru -p $PORT
 </code></pre>
 
 <div class="callout">
-<p>On Cedar, <a href="/articles/ruby-production-web-server">we recommend Unicorn as the webserver</a>. Regardless of the webserver you choose, production apps should always specify the webserver explicitly in the <code>Procfile</code>.</p>
+<p>On Cedar, <a href="https://devcenter.heroku.com/articles/ruby-production-web-server">we recommend Unicorn as the webserver</a>. Regardless of the webserver you choose, production apps should always specify the webserver explicitly in the <code>Procfile</code>.</p>
 </div>
 
 <p>As a special case to assist in migration from Bamboo, Ruby apps which bundle the <code>thin</code> gem will get this web process type:</p>
@@ -155,7 +176,7 @@ console: bundle exec irb
 
 <h3 id="activation">Activation</h3>
 
-<p>An app is detected as a Rails 2.x app when the <code>Gemfile.lock</code> file contains a <code>railties</code> gem, and the gem version is greater than or equal to 2.0.0, and less than 3.0.0.  Apps recognized as Rails 2.x apps are denoted with a <code>-----&gt; Ruby/Rails app detected</code> at deploy-time.</p>
+<p>An app is detected as a Rails 2.x app when the <code>Gemfile.lock</code> file contains a <code>rails</code> gem, and the gem version is greater than or equal to 2.0.0, and less than 3.0.0.  Apps recognized as Rails 2.x apps are denoted with a <code>-----&gt; Ruby/Rails app detected</code> at deploy-time.</p>
 
 <pre><code class="term">$ git push heroku master
 -----&gt; Ruby/Rails app detected
@@ -176,13 +197,13 @@ console: bundle exec irb
 
 <h3 id="process-types">Process types</h3>
 
-<p>If you don’t include a <a href="/articles/procfile"><code>Procfile</code></a>, Rails 2 apps will define a web process type at deploy time:</p>
+<p>If you don’t include a <a href="https://devcenter.heroku.com/articles/procfile"><code>Procfile</code></a>, Rails 2 apps will define a web process type at deploy time:</p>
 
 <pre><code>web: bundle exec ruby script/server -p $PORT
 </code></pre>
 
 <div class="callout">
-<p>On Cedar, <a href="/articles/ruby-production-web-server">we recommend Unicorn as the webserver</a>. Regardless of the webserver you choose, production apps should always specify the webserver explicitly in the <code>Procfile</code>.</p>
+<p>On Cedar, <a href="https://devcenter.heroku.com/articles/ruby-production-web-server">we recommend Unicorn as the webserver</a>. Regardless of the webserver you choose, production apps should always specify the webserver explicitly in the <code>Procfile</code>.</p>
 </div>
 
 <p>As a special case to assist in migration from Bamboo, Ruby apps which bundle the <code>thin</code> gem will get this web process type:</p>
@@ -199,13 +220,12 @@ console: bundle exec script/console
 <h3 id="plugin-injection-in-rails-2">Plugin injection in Rails 2</h3>
 
 <ul>
-<li>A <a href="#stdout">Rails stdout plugin</a> is injected.<br>
-</li>
+<li>A <a href="#stdout">Rails stdout plugin</a> is injected.</li>
 </ul><h2 id="rails-3-x-applications">Rails 3.x applications</h2>
 
 <h3 id="activation">Activation</h3>
 
-<p>An app is detected as a Rails 3.x app when the <code>Gemfile.lock</code> file contains a <code>railties</code> gem, and the gem version is greater than or equal to 3.0.0, and less than 4.0.0.  Apps recognized as Rails 3.x apps are denoted with a <code>-----&gt; Ruby/Rails app detected</code> at deploy-time.  </p>
+<p>An app is detected as a Rails 3.x app when the <code>Gemfile.lock</code> file contains a <code>railties</code> gem, and the gem version is greater than or equal to 3.0.0, and less than 4.0.0.  Apps recognized as Rails 3.x apps are denoted with a <code>-----&gt; Ruby/Rails app detected</code> at deploy-time.</p>
 
 <pre><code class="term">$ git push heroku master
 -----&gt; Ruby/Rails app detected
@@ -226,14 +246,14 @@ console: bundle exec script/console
 
 <h3 id="process-types">Process types</h3>
 
-<p>If you don’t include a <a href="/articles/procfile"><code>Procfile</code></a>, Rails 3 apps will define a web and console process type at deploy time:</p>
+<p>If you don’t include a <a href="https://devcenter.heroku.com/articles/procfile"><code>Procfile</code></a>, Rails 3 apps will define a web and console process type at deploy time:</p>
 
 <pre><code>web: bundle exec rails server -p $PORT
 console: bundle exec rails console
 </code></pre>
 
 <div class="callout">
-<p>On Cedar, <a href="/articles/ruby-production-web-server">we recommend Unicorn as the webserver</a>. Regardless of the webserver you choose, production apps should always specify the webserver explicitly in the <code>Procfile</code>.</p>
+<p>On Cedar, <a href="https://devcenter.heroku.com/articles/ruby-production-web-server">we recommend Unicorn as the webserver</a>. Regardless of the webserver you choose, production apps should always specify the webserver explicitly in the <code>Procfile</code>.</p>
 </div>
 
 <p>As a special case to assist in migration from Bamboo, Ruby apps which bundle the <code>thin</code> gem will get this web process type:</p>
@@ -243,15 +263,14 @@ console: bundle exec rails console
 
 <h3 id="compile-phase">Compile phase</h3>
 
-<p>As a final task in the compilation phase, the <code>assets:precompile</code> Rake task is executed. This will compile all assets and put them in your public directory. For more information refer to <a href="http://devcenter.heroku.com/articles/rails-asset-pipeline">Rails Asset Pipeline on Heroku Cedar</a>.</p>
+<p>As a final task in the compilation phase, the <code>assets:precompile</code> Rake task is executed. This will compile all assets and put them in your public directory. For more information refer to <a href="https://devcenter.heroku.com/articles/rails-asset-pipeline">Rails Asset Pipeline on Heroku Cedar</a>.</p>
 
 <h3 id="plugin-injection-in-rails-3">Plugin injection in Rails 3</h3>
 
 <ul>
-<li>A <a href="#stdout">Rails stdout plugin</a> is injected.<br>
-</li>
+<li>A <a href="#stdout">Rails stdout plugin</a> is injected.</li>
 <li>A <a href="#static_assets">static assets plugin</a> is automatically injected.</li>
-</ul><p>If you include the <a href="https://github.com/heroku/rails_12factor"><code>rails_12factor</code></a> gem, then no plugin injection is performed at all - all the configuration will be made via the gem.</p>
+</ul><p>If you include the <a href="https://github.com/heroku/rails_12factor"><code>rails_12factor</code></a> gem, then no plugin injection is performed at all - all the configuration will be made via the gem. You should put this in your <code>:production</code> group to avoid a bug in development that will cause you to see duplicate logs. This has been <a href="https://github.com/rails/rails/pull/11060">fixed in later versions of Rails</a>.</p>
 
 <h2 id="rails-4-x-applications">Rails 4.x applications</h2>
 
@@ -278,19 +297,19 @@ console: bundle exec rails console
 
 <h3 id="process-types">Process types</h3>
 
-<p>If you don’t include a <a href="/articles/procfile"><code>Procfile</code></a>, Rails 4 apps will define a web and console process type at deploy time:</p>
+<p>If you don’t include a <a href="https://devcenter.heroku.com/articles/procfile"><code>Procfile</code></a>, Rails 4 apps will define a web and console process type at deploy time:</p>
 
 <pre><code>web: bundle exec bin/rails server -p $PORT -e $RAILS_ENV
 console: bundle exec bin/rails console
 </code></pre>
 
 <div class="callout">
-<p>On Cedar, <a href="/articles/ruby-production-web-server">we recommend Unicorn as the webserver</a>. Regardless of the webserver you choose, production apps should always specify the webserver explicitly in the <code>Procfile</code>.</p>
+<p>On Cedar, <a href="https://devcenter.heroku.com/articles/ruby-production-web-server">we recommend Unicorn as the webserver</a>. Regardless of the webserver you choose, production apps should always specify the webserver explicitly in the <code>Procfile</code>.</p>
 </div>
 
 <h3 id="compile-phase">Compile phase</h3>
 
-<p>As a final task in the compilation phase, the <code>assets:precompile</code> Rake task is executed if you have a <code>assets:precompile</code> Rake task defined, and don’t have a <code>public/assets/manifest-*.json</code> file. This will compile all assets and put them in your public directory. If this asset compilation fails, the deploy will fail as well.  For more information refer to <a href="http://devcenter.heroku.com/articles/rails-asset-pipeline">Rails Asset Pipeline on Heroku Cedar</a>.</p>
+<p>As a final task in the compilation phase, the <code>assets:precompile</code> Rake task is executed if you have a <code>assets:precompile</code> Rake task defined, and don’t have a <code>public/assets/manifest-*.json</code> file. This will compile all assets and put them in your public directory. If this asset compilation fails, the deploy will fail as well.  For more information refer to <a href="https://devcenter.heroku.com/articles/rails-asset-pipeline">Rails Asset Pipeline on Heroku Cedar</a>.</p>
 
 <h3 id="plugin-injection-in-rails-4">Plugin injection in Rails 4</h3>
 
@@ -307,7 +326,7 @@ console: bundle exec bin/rails console
 
 <p>The <a href="https://github.com/ddollar/rails_log_stdout/blob/master/init.rb"><code>rails_stdout_logging</code></a> gem ensures that your logs will be sent to standard out.</p>
 
-<p>Heroku treats logs <a href="https://devcenter.heroku.com/articles/management-visibility#logging">as streams of events, rather than files</a> - by piping logs to stdout, your logs will be captured and consolidated across multiple dynos by <a href="/articles/logging">Logplex</a>, which in turn makes them available from the command line, <code>$ heroku logs --tail</code>, or from <a href="https://addons.heroku.com/#logging">logging add-ons</a>.</p>
+<p>Heroku treats logs <a href="https://devcenter.heroku.com/articles/management-visibility#logging">as streams of events, rather than files</a> - by piping logs to stdout, your logs will be captured and consolidated across multiple dynos by <a href="https://devcenter.heroku.com/articles/logging">Logplex</a>, which in turn makes them available from the command line, <code>$ heroku logs --tail</code>, or from <a href="https://addons.heroku.com/#logging">logging add-ons</a>.</p>
 
 <h3 id="static-assets">Static assets</h3>
 
@@ -325,3 +344,28 @@ console: bundle exec bin/rails console
 </code></pre>
 
 <p>You don’t need to set this option since this that is what this gem does. Now your application can take control of how your assets are served.</p>
+
+<h2 id="debugger-gems-fail-to-install">Debugger Gems Fail to Install</h2>
+
+<p>There are several gems that require very specific patch levels of the Ruby they are running on. This is detrimental to a production app as it locks you into a specific patch level of Ruby and does not allow you to upgrade to receive security fixes.</p>
+
+<p>Heroku releases security patches for Ruby versions as the become available from Ruby core. After we have upgraded a Ruby version, your app will get the new version on next deploy. If your app was using one of these gems you will see a failure when installing gems if we have upgraded the version of Ruby you are using. A failure may look like this:</p>
+
+<pre><code>Installing debugger-linecache
+Gem::Installer::ExtensionBuildError: ERROR: Failed to build gem native extension.
+</code></pre>
+
+<p>Or like this:</p>
+
+<pre><code>Installing debugger
+Gem::Installer::ExtensionBuildError: ERROR: Failed to build gem native extension.
+</code></pre>
+
+<p>The best way to avoid this problem is to not use <code>debugger</code> or any other debugging gems in production. These gems are designed to hook into the low level components of a language for dynamically stopping and inspecting execution of running code. This is not something you should be doing in production. Instead move these gems to your <code>development</code> group of the <code>Gemfile</code>:</p>
+
+<pre><code>group :development do
+  gem "debugger"
+end
+</code></pre>
+
+<p>Then <code>bundle install</code>, commit to git, and re-deploy.</p>

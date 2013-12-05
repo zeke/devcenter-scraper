@@ -1,6 +1,9 @@
+
 <p>This quickstart will get you going with <a href="http://nodejs.org/">Node.js</a> and the <a href="http://expressjs.com/">Express</a> web framework, deployed to Heroku. For general information on how to develop and architect apps for use on Heroku, see <a href="https://devcenter.heroku.com/articles/architecting-apps">Architecting Applications for Heroku</a>.</p>
 <div class="note">
+
 <p>If you have questions about Node.js on Heroku, consider discussing it in the <a href="https://discussion.heroku.com/category/node">Node.js on Heroku forums</a>.</p>
+
 </div>
 <h2 id="prerequisites">Prerequisites</h2>
 
@@ -13,7 +16,7 @@
 </li>
 </ul><h2 id="local-workstation-setup">Local workstation setup</h2>
 
-<p>Install the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a> on your local workstation. This ensures that you have access to the <a href="/categories/command-line">Heroku command-line client</a>, Foreman, and the Git revision control system.</p>
+<p>Install the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a> on your local workstation. This ensures that you have access to the <a href="https://devcenter.heroku.com/categories/command-line">Heroku command-line client</a>, Foreman, and the Git revision control system.</p>
 
 <p>Once installed, you can use the <code>heroku</code> command from your command shell. Log in using the email address and password you used when creating your Heroku account:</p>
 
@@ -69,7 +72,9 @@ app.listen(port, function() {
 
 <p>Now use <code>npm</code> to install your dependencies locally:</p>
 <div class="callout">
+
 <p>Node <a href="http://www.futurealoof.com/posts/nodemodules-in-git.html">best practice</a> is to include the <code>node_modules</code> directory in your source repository for faster deploys and <a href="http://www.12factor.net/dev-prod-parity">dev/prod parity</a>.</p>
+
 </div>
 <pre><code class="term">$ npm install</code></pre>
 
@@ -77,13 +82,13 @@ app.listen(port, function() {
 
 <h2 id="declare-process-types-with-procfile">Declare process types with Procfile</h2>
 
-<p>Use a <a href="/articles/procfile">Procfile</a>, a text file in the root directory of your application, to explicitly declare what command should be executed to start a web <a href="/articles/dynos">dyno</a>. In this case, you simply need to execute the Node script using <code>node</code>.</p>
+<p>Use a <a href="https://devcenter.heroku.com/articles/procfile">Procfile</a>, a text file in the root directory of your application, to explicitly declare what command should be executed to start a web <a href="https://devcenter.heroku.com/articles/dynos">dyno</a>. In this case, you simply need to execute the Node script using <code>node</code>.</p>
 
 <p>Here’s a <code>Procfile</code> for the sample app we’ve been working on:</p>
 
 <pre><code class="term">web: node web.js</code></pre>
 
-<p>This declares a single process type, <code>web</code>, and the command needed to run it. The name “web” is important here. It declares that this process type will be attached to the <a href="http-routing">HTTP routing</a> stack of Heroku, and receive web traffic when deployed.</p>
+<p>This declares a single process type, <code>web</code>, and the command needed to run it. The name “web” is important here. It declares that this process type will be attached to the <a href="https://devcenter.heroku.com/articles/http-routing">HTTP routing</a> stack of Heroku, and receive web traffic when deployed.</p>
 
 <p>You can now start your application locally using <a href="http://blog.daviddollar.org/2011/05/06/introducing-foreman.html">Foreman</a> (installed as part of the Toolbelt):</p>
 
@@ -141,7 +146,7 @@ To git@heroku.com:sharp-rain-871.git
 
 <h2 id="visit-your-application">Visit your application</h2>
 
-<p>You’ve deployed your code to Heroku, and specified the process types in a <code>Procfile</code>. You can now instruct Heroku to execute a process type. Heroku does this by running the associated command in a <a href="/articles/dynos">dyno</a> - a lightweight container which is the basic unit of composition on Heroku.</p>
+<p>You’ve deployed your code to Heroku, and specified the process types in a <code>Procfile</code>. You can now instruct Heroku to execute a process type. Heroku does this by running the associated command in a <a href="https://devcenter.heroku.com/articles/dynos">dyno</a> - a lightweight container which is the basic unit of composition on Heroku.</p>
 
 <p>Let’s ensure we have one dyno running the <code>web</code> process type:</p>
 
@@ -162,21 +167,21 @@ Opening sharp-rain-871... done</code></pre>
 
 <h2 id="dyno-sleeping-and-scaling">Dyno sleeping and scaling</h2>
 
-<p>Having only a single web dyno running will result in the dyno <a href="/articles/dynos#dyno-sleeping">going to sleep</a> after one hour of inactivity. This causes a delay of a few seconds for the first request upon waking. Subsequent requests will perform normally.</p>
+<p>Having only a single web dyno running will result in the dyno <a href="https://devcenter.heroku.com/articles/dynos#dyno-sleeping">going to sleep</a> after one hour of inactivity. This causes a delay of a few seconds for the first request upon waking. Subsequent requests will perform normally.</p>
 
 <p>To avoid this, you can scale to more than one web dyno. For example:</p>
 
 <pre><code class="term">$ heroku ps:scale web=2</code></pre>
 
-<p>For each application, Heroku provides <a href="/articles/usage-and-billing#750-free-dyno-hours-per-app">750 free dyno-hours</a>. Running your app at 2 dynos would exceed this free, monthly allowance, so let’s scale back:</p>
+<p>For each application, Heroku provides <a href="https://devcenter.heroku.com/articles/usage-and-billing#750-free-dyno-hours-per-app">750 free dyno-hours</a>. Running your app at 2 dynos would exceed this free, monthly allowance, so let’s scale back:</p>
 
 <pre><code class="term">$ heroku ps:scale web=1</code></pre>
 
 <h2 id="view-the-logs">View the logs</h2>
 
-<p>Heroku treats logs as streams of time-ordered events aggregated from the output streams of all the dynos running the components of your application. Heroku’s <a href="/articles/logplex">Logplex</a> provides a single channel for all of these events.</p>
+<p>Heroku treats logs as streams of time-ordered events aggregated from the output streams of all the dynos running the components of your application. Heroku’s <a href="https://devcenter.heroku.com/articles/logplex">Logplex</a> provides a single channel for all of these events.</p>
 
-<p>View information about your running app using one of the <a href="/articles/logging">logging commands</a>, <code>heroku logs</code>:</p>
+<p>View information about your running app using one of the <a href="https://devcenter.heroku.com/articles/logging">logging commands</a>, <code>heroku logs</code>:</p>
 
 <pre><code class="term">$ heroku logs
 2011-03-10T10:22:30-08:00 heroku[web.1]: State changed from created to starting
@@ -195,7 +200,7 @@ Restarting app... done, v3.</code></pre>
 
 <h2 id="console">Console</h2>
 
-<p>Heroku allows you to run commands in a <a href="/articles/oneoff-admin-ps">one-off dyno</a> - scripts and applications that only need to be executed when needed - using the <code>heroku run</code> command. Use this to launch a REPL process attached to your local terminal for experimenting in your app’s environment:</p>
+<p>Heroku allows you to run commands in a <a href="https://devcenter.heroku.com/articles/oneoff-admin-ps">one-off dyno</a> - scripts and applications that only need to be executed when needed - using the <code>heroku run</code> command. Use this to launch a REPL process attached to your local terminal for experimenting in your app’s environment:</p>
 
 <pre><code class="term">$ heroku run node
 Running `node` attached to terminal... up, ps.1
@@ -205,20 +210,22 @@ Running `node` attached to terminal... up, ps.1
 
 <h2 id="advanced-http-features">Advanced HTTP features</h2>
 <div class="callout">
+
 <p>The WebSocket protocol is now supported as a <a href="https://devcenter.heroku.com/articles/heroku-labs-websockets">beta labs feature</a> for apps running on the Cedar stack.</p>
+
 </div>
 <p>The HTTP stack available to Cedar apps on the <code>herokuapp.com</code> subdomain supports HTTP 1.1, long polling, and chunked responses.</p>
 
 <h2 id="running-a-worker">Running a worker</h2>
 
-<p>The <code>Procfile</code> format lets you run any number of different <a href="/articles/procfile">process types</a>. For example, let’s say you wanted a worker process to complement your web process:</p>
+<p>The <code>Procfile</code> format lets you run any number of different <a href="https://devcenter.heroku.com/articles/procfile">process types</a>. For example, let’s say you wanted a worker process to complement your web process:</p>
 
 <h4 id="procfile">Procfile</h4>
 
 <pre><code>web: node web.js
 worker: node worker.js</code></pre>
 <div class="callout">
-<p>Running more than one dyno for an extended period may incur charges to your account. Read more about <a href="/articles/usage-and-billing">dyno-hour costs</a>.</p>
+<p>Running more than one dyno for an extended period may incur charges to your account. Read more about <a href="https://devcenter.heroku.com/articles/usage-and-billing">dyno-hour costs</a>.</p>
 </div>
 <p>Push this change to Heroku, then launch a worker:</p>
 
@@ -251,7 +258,7 @@ pg.connect(process.env.DATABASE_URL, function(err, client, done) {
   });
 });</code></pre>
 
-<p>Read more about <a href="/articles/heroku-postgresql">Heroku PostgreSQL</a>.</p>
+<p>Read more about <a href="https://devcenter.heroku.com/articles/heroku-postgresql">Heroku PostgreSQL</a>.</p>
 
 <h2 id="using-mongodb">Using MongoDB</h2>
 
@@ -315,7 +322,7 @@ redis.get('foo', function(err, value) {
 <h2 id="next-steps">Next steps</h2>
 
 <ul>
-<li>Visit the <a href="/categories/nodejs">Node.js category</a> to learn more about developing and deploying Node.js applications.</li>
+<li>Visit the <a href="https://devcenter.heroku.com/categories/nodejs">Node.js category</a> to learn more about developing and deploying Node.js applications.</li>
 
-<li>Read <a href="/articles/how-heroku-works">How Heroku Works</a> for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.</li>
+<li>Read <a href="https://devcenter.heroku.com/articles/how-heroku-works">How Heroku Works</a> for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.</li>
 </ul>
