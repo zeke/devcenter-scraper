@@ -8,5 +8,5 @@ as HTML and Markdown files.
 
 ```
 npm install
-node index.coffee
+npm start
 ```

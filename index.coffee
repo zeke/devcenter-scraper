@@ -24,15 +24,18 @@ class Scraper
         # Hit a different endpoint to get the markdown and html
         agent.get article.api_url, (err, res) ->
           article = articles[res.body.slug]
-          console.log article.slug
 
-          # Copy attributes like content, html_content to the article
-          article[k] = v for k,v of res.body
+          if article
 
-          # Inject YAML frontmatter
-          article.content = """---\ntitle: #{article.title}\nslug: #{article.slug}\nurl: #{article.view_url}\ndescription: #{article.meta_description}\n---\n\n#{article.content}"""
+            console.log article.slug
 
-          fs.writeFileSync "./content/md/#{article.slug}.md", article.content
-          fs.writeFileSync "./content/html/#{article.slug}.html", article.html_content
+            # Copy attributes like content, html_content to the article
+            article[k] = v for k,v of res.body
+
+            # Inject YAML frontmatter
+            article.content = """---\ntitle: #{article.title}\nslug: #{article.slug}\nurl: #{article.view_url}\ndescription: #{article.meta_description}\n---\n\n#{article.content}"""
+
+            fs.writeFileSync "./content/md/#{article.slug}.md", article.content
+            fs.writeFileSync "./content/html/#{article.slug}.html", article.html_content
 
 new Scraper()

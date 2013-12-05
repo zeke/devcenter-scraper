@@ -4,11 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "coffee index.coffee",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "BSD",
   "dependencies": {
-    "rimraf": "~2.2.2"
+    "rimraf": "~2.2.2",
+    "coffee-script": "~1.6.3"
   }
 }
