@@ -1,84 +1,128 @@
-
 <p>This quickstart will get you going with <a href="http://nodejs.org/">Node.js</a> and the <a href="http://expressjs.com/">Express</a> web framework, deployed to Heroku. For general information on how to develop and architect apps for use on Heroku, see <a href="https://devcenter.heroku.com/articles/architecting-apps">Architecting Applications for Heroku</a>.</p>
+
 <div class="note">
-
 <p>If you have questions about Node.js on Heroku, consider discussing it in the <a href="https://discussion.heroku.com/category/node">Node.js on Heroku forums</a>.</p>
-
 </div>
+
 <h2 id="prerequisites">Prerequisites</h2>
 
+<p>If you’re new to Heroku or Node.js development, you’ll need to set up a few things first:</p>
+
 <ul>
-<li>Basic Node.js knowledge, including an installed version of Node.js and NPM.</li>
-
-<li>Your application must use NPM to manage dependencies.</li>
-
-<li>A Heroku user account. <a href="https://api.heroku.com/signup/devcenter">Signup is free and instant.</a>
-</li>
+<li>A Heroku user account. <a href="https://api.heroku.com/signup/devcenter">Signup is free and instant</a>.</li>
+<li>Install the <a href="https://toolbelt.heroku.com">Heroku Toolbelt</a>, which gives you git, Foreman, and the Heroku command-line interface.</li>
+<li>
+<a href="http://nodejs.org/">Node.js</a>, easily installed on Mac, Windows, and Linux with packages from <a href="http://nodejs.org/">nodejs.org</a>.</li>
 </ul><h2 id="local-workstation-setup">Local workstation setup</h2>
 
-<p>Install the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a> on your local workstation. This ensures that you have access to the <a href="https://devcenter.heroku.com/categories/command-line">Heroku command-line client</a>, Foreman, and the Git revision control system.</p>
-
-<p>Once installed, you can use the <code>heroku</code> command from your command shell. Log in using the email address and password you used when creating your Heroku account:</p>
+<p>Once installed, you can use the <code>heroku</code> command from your command shell.  Log in using the email address and password you used when creating your Heroku account:</p>
 
 <pre><code class="term">$ heroku login
 Enter your Heroku credentials.
-Email: adam@example.com
+Email: zeke@example.com
 Password:
 Could not find an existing public key.
 Would you like to generate one? [Yn]
 Generating new SSH public key.
-Uploading ssh public key /Users/adam/.ssh/id_rsa.pub</code></pre>
+Uploading ssh public key /Users/adam/.ssh/id_rsa.pub
+</code></pre>
 
 <p>Press enter at the prompt to upload your existing <code>ssh</code> key or create a new one, used for pushing code later on.</p>
 
 <h2 id="write-your-app">Write your app</h2>
 
-<p>You may be starting from an existing app. If not, here’s a simple “hello, world” sourcefile you can use:</p>
+<p>You may be starting from an existing app.  If not, here’s a simple “hello, world” sourcefile you can use:</p>
 
-<h3 id="web-js">web.js</h3>
-
-<pre><code class="nodejs">var express = require("express");
+<pre><code class="js">// web.js
+var express = require("express");
+var logfmt = require("logfmt");
 var app = express();
-app.use(express.logger());
 
-app.get('/', function(request, response) {
-  response.send('Hello World!');
+app.use(logfmt.requestLogger());
+
+app.get('/', function(req, res) {
+  res.send('Hello World!');
 });
 
 var port = process.env.PORT || 5000;
 app.listen(port, function() {
   console.log("Listening on " + port);
-});</code></pre>
+});
+</code></pre>
 
-<h2 id="declare-dependencies-with-npm">Declare dependencies with NPM</h2>
+<h2 id="declare-dependencies-with-npm">Declare dependencies with npm</h2>
 
-<p>Heroku recognizes an app as Node.js by the existence of a <code>package.json</code>. Even if your app has no dependencies, you should still create a <code>package.json</code> that declares a name, version, and empty dependencies in order that it appear as a Node app.</p>
+<p>Heroku recognizes an app as Node.js by the existence of a <code>package.json</code> file. To create one, run <code>npm init</code> in the root directory of your app. The <code>npm init</code> utility will walk you through creating a <code>package.json</code> file. It only covers the most common items, and tries to guess sane defaults.</p>
 
-<p>Here’s an example <code>package.json</code> for the Express app we created above:</p>
+<pre><code class="term">$ cd node-example
+$ npm init
 
-<h3 id="package-json">package.json</h3>
+name: (node-example)
+version: (0.0.0)
+description: This example app is so cool.
+entry point: (index.js) web.js
+test command:
+git repository: https://github.com/jane-doe/node-example.git
+keywords: example heroku
+author: jane-doe
+license: (BSD-2-Clause) MIT
+...
+</code></pre>
 
-<pre><code class="nodejs">{
+<p>Here’s what our generated package.json file looks like:</p>
+
+<pre><code class="json">{
   "name": "node-example",
-  "version": "0.0.1",
-  "dependencies": {
-    "express": "3.1.x"
+  "version": "0.0.0",
+  "description": "This example app is so cool.",
+  "main": "web.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" &amp;&amp; exit 1"
   },
-  "engines": {
-    "node": "0.10.x",
-    "npm": "1.2.x"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jane-doe/node-example.git"
+  },
+  "keywords": [
+    "example",
+    "heroku"
+  ],
+  "author": "jane-doe",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jane-doe/node-example/issues"
   }
-}</code></pre>
+}
+</code></pre>
 
-<p>Now use <code>npm</code> to install your dependencies locally:</p>
-<div class="callout">
+<p>Now it’s time to install some dependencies like <a href="https://npmjs.org/package/express">express</a> and <a href="https://npmjs.org/package/logfmt">logfmt</a>. Use <code>npm install &lt;pkg&gt; --save</code> to install a package and
+save it as a dependency in the package.json file.</p>
 
-<p>Node <a href="http://www.futurealoof.com/posts/nodemodules-in-git.html">best practice</a> is to include the <code>node_modules</code> directory in your source repository for faster deploys and <a href="http://www.12factor.net/dev-prod-parity">dev/prod parity</a>.</p>
+<pre><code class="term">$ npm install express logfmt --save
+npm WARN package.json node-example@0.0.0 No README data
+npm http GET https://registry.npmjs.org/express
+npm http GET https://registry.npmjs.org/logfmt
+npm http 304 https://registry.npmjs.org/logfmt
+npm http 200 https://registry.npmjs.org/express
+npm http GET https://registry.npmjs.org/express/-/express-3.4.6.tgz
+npm http 200 https://registry.npmjs.org/express/-/express-3.4.6.tgz
+npm http GET https://registry.npmjs.org/connect/2.11.2
+npm http GET https://registry.npmjs.org/range-parser/0.0.4
+...
+</code></pre>
 
-</div>
-<pre><code class="term">$ npm install</code></pre>
-
+<div class="note">
 <p>Make sure that all of your app’s dependencies are declared in <code>package.json</code> and that you are not relying on any system-level packages.</p>
+</div>
+
+<p>Lastly, you should specify the version(s) of node that are compatible with your application by adding an <a href="https://npmjs.org/doc/json.html#engines">engines</a> field to your <code>package.json</code>. If you choose not to set this value, the default stable version of node will always be used when you deploy.</p>
+
+<pre><code class="json">{
+  "engines": {
+    "node": "0.10.x"
+  }
+}
+</code></pre>
 
 <h2 id="declare-process-types-with-procfile">Declare process types with Procfile</h2>
 
@@ -86,25 +130,28 @@ app.listen(port, function() {
 
 <p>Here’s a <code>Procfile</code> for the sample app we’ve been working on:</p>
 
-<pre><code class="term">web: node web.js</code></pre>
+<pre><code class="term">web: node web.js
+</code></pre>
 
-<p>This declares a single process type, <code>web</code>, and the command needed to run it. The name “web” is important here. It declares that this process type will be attached to the <a href="https://devcenter.heroku.com/articles/http-routing">HTTP routing</a> stack of Heroku, and receive web traffic when deployed.</p>
+<p>This declares a single process type, <code>web</code>, and the command needed to run it.  The name “web” is important here.  It declares that this process type will be attached to the <a href="https://devcenter.heroku.com/articles/http-routing">HTTP routing</a> stack of Heroku, and receive web traffic when deployed.</p>
 
 <p>You can now start your application locally using <a href="http://blog.daviddollar.org/2011/05/06/introducing-foreman.html">Foreman</a> (installed as part of the Toolbelt):</p>
 
 <pre><code class="term">$ foreman start
 14:39:04 web.1     | started with pid 24384
-14:39:04 web.1     | Listening on 5000</code></pre>
+14:39:04 web.1     | Listening on 5000
+</code></pre>
 
-<p>Your app will come up on port 5000. Test that it’s working with <code>curl</code> or a web browser, then Ctrl-C to exit.</p>
+<p>Your app will now be running at <a href="http://localhost:5000">localhost:5000</a>. Test that it’s working with <code>curl</code> or a web browser, then Ctrl-C to exit.</p>
 
 <h2 id="store-your-app-in-git">Store your app in Git</h2>
 
-<p>We now have the three major components of our app: dependencies in <code>package.json</code>, process types in <code>Procfile</code>, and our application source in <code>web.js</code>. Let’s put it into Git:</p>
+<p>We now have the three major components of our app: dependencies in <code>package.json</code>, process types in <code>Procfile</code>, and our application source in <code>web.js</code>.  Let’s put it into Git:</p>
 
 <pre><code class="term">$ git init
 $ git add .
-$ git commit -m "init"</code></pre>
+$ git commit -m "init"
+</code></pre>
 
 <h2 id="deploy-your-application-to-heroku">Deploy your application to Heroku</h2>
 
@@ -113,7 +160,8 @@ $ git commit -m "init"</code></pre>
 <pre><code class="term">$ heroku create
 Creating sharp-rain-871... done, stack is cedar
 http://sharp-rain-871.herokuapp.com/ | git@heroku.com:sharp-rain-871.git
-Git remote heroku added</code></pre>
+Git remote heroku added
+</code></pre>
 
 <p>Deploy your code:</p>
 
@@ -142,44 +190,50 @@ Total 250 (delta 63), reused 0 (delta 0)
        http://sharp-rain-871.herokuapp.com deployed to Heroku
 
 To git@heroku.com:sharp-rain-871.git
- * [new branch]      master -&gt; master</code></pre>
+ * [new branch]      master -&gt; master
+</code></pre>
 
 <h2 id="visit-your-application">Visit your application</h2>
 
-<p>You’ve deployed your code to Heroku, and specified the process types in a <code>Procfile</code>. You can now instruct Heroku to execute a process type. Heroku does this by running the associated command in a <a href="https://devcenter.heroku.com/articles/dynos">dyno</a> - a lightweight container which is the basic unit of composition on Heroku.</p>
+<p>You’ve deployed your code to Heroku, and specified the process types in a <code>Procfile</code>.  You can now instruct Heroku to execute a process type.  Heroku does this by running the associated command in a <a href="https://devcenter.heroku.com/articles/dynos">dyno</a> - a lightweight container which is the basic unit of composition on Heroku.</p>
 
 <p>Let’s ensure we have one dyno running the <code>web</code> process type:</p>
 
-<pre><code class="term">$ heroku ps:scale web=1</code></pre>
+<pre><code class="term">$ heroku ps:scale web=1
+</code></pre>
 
-<p>You can check the state of the app’s dynos. The <code>heroku ps</code> command lists the running dynos of your application:</p>
+<p>You can check the state of the app’s dynos.  The <code>heroku ps</code> command lists the running dynos of your application:</p>
 
 <pre><code class="term">$ heroku ps
 === web: `node web.js`
-web.1: up for 10s</code></pre>
+web.1: up for 10s
+</code></pre>
 
 <p>Here, one dyno is running.</p>
 
 <p>We can now visit the app in our browser with <code>heroku open</code>.</p>
 
 <pre><code class="term">$ heroku open
-Opening sharp-rain-871... done</code></pre>
+Opening sharp-rain-871... done
+</code></pre>
 
 <h2 id="dyno-sleeping-and-scaling">Dyno sleeping and scaling</h2>
 
-<p>Having only a single web dyno running will result in the dyno <a href="https://devcenter.heroku.com/articles/dynos#dyno-sleeping">going to sleep</a> after one hour of inactivity. This causes a delay of a few seconds for the first request upon waking. Subsequent requests will perform normally.</p>
+<p>Having only a single web dyno running will result in the dyno <a href="https://devcenter.heroku.com/articles/dynos#dyno-sleeping">going to sleep</a> after one hour of inactivity.  This causes a delay of a few seconds for the first request upon waking. Subsequent requests will perform normally.</p>
 
-<p>To avoid this, you can scale to more than one web dyno. For example:</p>
+<p>To avoid this, you can scale to more than one web dyno.  For example:</p>
 
-<pre><code class="term">$ heroku ps:scale web=2</code></pre>
+<pre><code class="term">$ heroku ps:scale web=2
+</code></pre>
 
-<p>For each application, Heroku provides <a href="https://devcenter.heroku.com/articles/usage-and-billing#750-free-dyno-hours-per-app">750 free dyno-hours</a>. Running your app at 2 dynos would exceed this free, monthly allowance, so let’s scale back:</p>
+<p>For each application, Heroku provides <a href="https://devcenter.heroku.com/articles/usage-and-billing#750-free-dyno-hours-per-app">750 free dyno-hours</a>.  Running your app at 2 dynos would exceed this free, monthly allowance, so let’s scale back:</p>
 
-<pre><code class="term">$ heroku ps:scale web=1</code></pre>
+<pre><code class="term">$ heroku ps:scale web=1
+</code></pre>
 
 <h2 id="view-the-logs">View the logs</h2>
 
-<p>Heroku treats logs as streams of time-ordered events aggregated from the output streams of all the dynos running the components of your application. Heroku’s <a href="https://devcenter.heroku.com/articles/logplex">Logplex</a> provides a single channel for all of these events.</p>
+<p>Heroku treats logs as streams of time-ordered events aggregated from the output streams of all the dynos running the components of your application.  Heroku’s <a href="https://devcenter.heroku.com/articles/logplex">Logplex</a> provides a single channel for all of these events.</p>
 
 <p>View information about your running app using one of the <a href="https://devcenter.heroku.com/articles/logging">logging commands</a>, <code>heroku logs</code>:</p>
 
@@ -187,68 +241,66 @@ Opening sharp-rain-871... done</code></pre>
 2011-03-10T10:22:30-08:00 heroku[web.1]: State changed from created to starting
 2011-03-10T10:22:32-08:00 heroku[web.1]: Running process with command: `node web.js`
 2011-03-10T10:22:33-08:00 heroku[web.1]: Listening on 18320
-2011-03-10T10:22:34-08:00 heroku[web.1]: State changed from starting to up</code></pre>
-
-<h2 id="setting-node_env">Setting NODE_ENV</h2>
-
-<p>The Express framework uses the <code>NODE_ENV</code> environment variable to determine some behaviors related to caching. If you’re using Express, set a config var with this value:</p>
-
-<pre><code class="term">$ heroku config:set NODE_ENV=production
-Adding config vars:
-  NODE_ENV =&gt; production
-Restarting app... done, v3.</code></pre>
+2011-03-10T10:22:34-08:00 heroku[web.1]: State changed from starting to up
+</code></pre>
 
 <h2 id="console">Console</h2>
 
-<p>Heroku allows you to run commands in a <a href="https://devcenter.heroku.com/articles/oneoff-admin-ps">one-off dyno</a> - scripts and applications that only need to be executed when needed - using the <code>heroku run</code> command. Use this to launch a REPL process attached to your local terminal for experimenting in your app’s environment:</p>
+<p>Heroku allows you to run commands in a <a href="https://devcenter.heroku.com/articles/oneoff-admin-ps">one-off dyno</a> - scripts and applications that only need to be executed when needed - using the <code>heroku run</code> command.   Use this to launch a REPL process attached to your local terminal for experimenting in your app’s environment:</p>
 
 <pre><code class="term">$ heroku run node
 Running `node` attached to terminal... up, ps.1
-&gt;</code></pre>
+&gt;
+</code></pre>
 
-<p>This console has nothing loaded other than the Node.js standard library. From here you can <code>require</code> some of your application files.</p>
+<p>This console has nothing loaded other than the Node.js standard library.  From here you can <code>require</code> some of your application files.</p>
 
 <h2 id="advanced-http-features">Advanced HTTP features</h2>
+
 <div class="callout">
-
 <p>The WebSocket protocol is now supported as a <a href="https://devcenter.heroku.com/articles/heroku-labs-websockets">beta labs feature</a> for apps running on the Cedar stack.</p>
-
 </div>
+
 <p>The HTTP stack available to Cedar apps on the <code>herokuapp.com</code> subdomain supports HTTP 1.1, long polling, and chunked responses.</p>
 
 <h2 id="running-a-worker">Running a worker</h2>
 
-<p>The <code>Procfile</code> format lets you run any number of different <a href="https://devcenter.heroku.com/articles/procfile">process types</a>. For example, let’s say you wanted a worker process to complement your web process:</p>
+<p>The <code>Procfile</code> format lets you run any number of different <a href="https://devcenter.heroku.com/articles/procfile">process types</a>.  For example, let’s say you wanted a worker process to complement your web process:</p>
 
-<h4 id="procfile">Procfile</h4>
+<pre><code class="term">$ cat Procfile
+web: node web.js
+worker: node worker.js
+</code></pre>
 
-<pre><code>web: node web.js
-worker: node worker.js</code></pre>
-<div class="callout">
+<div class="note">
 <p>Running more than one dyno for an extended period may incur charges to your account. Read more about <a href="https://devcenter.heroku.com/articles/usage-and-billing">dyno-hour costs</a>.</p>
 </div>
+
 <p>Push this change to Heroku, then launch a worker:</p>
 
 <pre><code class="term">$ heroku ps:scale worker=1
-Scaling worker processes... done, now running 1</code></pre>
+Scaling worker processes... done, now running 1
+</code></pre>
 
 <h2 id="using-a-postgresql-database">Using a PostgreSQL database</h2>
 
 <p>To add the free Heroku Postgres Starter Tier dev database to your app, run this command:</p>
 
 <pre><code class="term">$ heroku addons:add heroku-postgresql:dev
-Adding heroku-postgresql:dev... done, v3 (free)</code></pre>
+Adding heroku-postgresql:dev... done, v3 (free)
+</code></pre>
 
 <p>This sets the <code>DATABASE_URL</code> environment variable. Add the <a href="https://npmjs.org/package/pg">pg npm module</a> to your dependencies:</p>
 
 <pre><code class="json">"dependencies": {
   "pg": "2.x",
   "express": "3.x"
-}</code></pre>
+}
+</code></pre>
 
 <p>And use the module to connect to <code>DATABASE_URL</code> from somewhere in your code:</p>
 
-<pre><code class="javascript">var pg = require('pg');
+<pre><code class="js">var pg = require('pg');
 
 pg.connect(process.env.DATABASE_URL, function(err, client, done) {
   client.query('SELECT * FROM your_table', function(err, result) {
@@ -256,7 +308,8 @@ pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     if(err) return console.error(err);
     console.log(result.rows);
   });
-});</code></pre>
+});
+</code></pre>
 
 <p>Read more about <a href="https://devcenter.heroku.com/articles/heroku-postgresql">Heroku PostgreSQL</a>.</p>
 
@@ -264,18 +317,26 @@ pg.connect(process.env.DATABASE_URL, function(err, client, done) {
 
 <p>To add a MongoDB database to your app, provision one of the <a href="https://addons.heroku.com/marketplace/#data-stores">MongoDB add-ons</a>:</p>
 
-<pre><code class="term">$ heroku addons:add mongolab</code></pre>
+<pre><code class="term">$ heroku addons:add mongolab
+Adding redistogo on sharp-rain-871... done, v3 (free)
+Use `heroku addons:docs mongolab` to view documentation.
+</code></pre>
 
 <p>Add the <code>mongodb</code> NPM module to your dependencies:</p>
 
-<pre><code class="json">"dependencies": {
-  ...
-  "mongodb" : "1.1.11"
-  }</code></pre>
+<pre><code class="term">$ npm install mongodb --save
+npm http GET https://registry.npmjs.org/mongodb
+npm http 200 https://registry.npmjs.org/mongodb
+npm http GET https://registry.npmjs.org/bson/0.2.2
+npm http GET https://registry.npmjs.org/kerberos/0.0.3
+npm http 304 https://registry.npmjs.org/bson/0.2.2
+npm http 304 https://registry.npmjs.org/kerberos/0.0.3
+...
+</code></pre>
 
-<p>Use the module to connect to using the provisioned MongoDB URL located in the environment.</p>
+<p>Use the module to connect using the provisioned MongoDB URL located in the environment.</p>
 
-<pre><code class="javascript">var mongo = require('mongodb');
+<pre><code class="js">var mongo = require('mongodb');
 
 var mongoUri = process.env.MONGOLAB_URI ||
   process.env.MONGOHQ_URL ||
@@ -286,43 +347,47 @@ mongo.Db.connect(mongoUri, function (err, db) {
     collection.insert({'mykey': 'myvalue'}, {safe: true}, function(er,rs) {
     });
   });
-});</code></pre>
+});
+</code></pre>
 
 <h2 id="using-redis">Using Redis</h2>
 
 <p>To add a Redis database to your app, run this command:</p>
 
-<pre><code class="term">$ heroku addons:add redistogo</code></pre>
+<pre><code class="term">$ heroku addons:add redistogo
+Adding redistogo on sharp-rain-871... done, v3 (free)
+Use `heroku addons:docs redistogo` to view documentation.
+</code></pre>
 
-<p>This sets the <code>REDISTOGO_URL</code> environment variable. Add the <code>redis-url</code> NPM module to your dependencies:</p>
+<p>This sets the <code>REDISTOGO_URL</code> environment variable.  Add the <code>redis-url</code> NPM module to your dependencies:</p>
 
-<pre><code class="nodejs">"dependencies": {
-  ...
-  "redis-url": "0.1.0"
-}</code></pre>
+<pre><code class="term">$ npm install redis-url --save
+npm http GET https://registry.npmjs.org/redis-url
+npm http 200 https://registry.npmjs.org/redis-url
+npm http GET https://registry.npmjs.org/redis-url/-/redis-url-0.2.0.tgz
+npm http 200 https://registry.npmjs.org/redis-url/-/redis-url-0.2.0.tgz
+npm http GET https://registry.npmjs.org/redis
+npm http 200 https://registry.npmjs.org/redis
+npm http GET https://registry.npmjs.org/redis/-/redis-0.9.1.tgz
+npm http 200 https://registry.npmjs.org/redis/-/redis-0.9.1.tgz
+redis-url@0.2.0 node_modules/redis-url
+└── redis@0.9.1
+</code></pre>
 
 <p>And use the module to connect to <code>REDISTOGO_URL</code> from somewhere in your code:</p>
 
-<pre><code class="nodejs">var redis = require('redis-url').connect(process.env.REDISTOGO_URL);
+<pre><code class="js">var redis = require('redis-url').connect(process.env.REDISTOGO_URL);
 
 redis.set('foo', 'bar');
 
 redis.get('foo', function(err, value) {
   console.log('foo is: ' + value);
-});</code></pre>
-
-<h2 id="troubleshooting">Troubleshooting</h2>
-
-<p>If you push up your app and it crashes (<code>heroku ps</code> shows state <code>crashed</code>), check your logs to find out what went wrong. Here are some common problems.</p>
-
-<h3 id="missing-a-dependency">Missing a dependency</h3>
-
-<p>If your app crashes due to missing a dependency, you may have it installed locally but not specified in your <code>package.json</code>.</p>
+});
+</code></pre>
 
 <h2 id="next-steps">Next steps</h2>
 
 <ul>
 <li>Visit the <a href="https://devcenter.heroku.com/categories/nodejs">Node.js category</a> to learn more about developing and deploying Node.js applications.</li>
-
 <li>Read <a href="https://devcenter.heroku.com/articles/how-heroku-works">How Heroku Works</a> for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.</li>
 </ul>

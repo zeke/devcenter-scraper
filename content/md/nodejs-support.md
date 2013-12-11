@@ -1,7 +1,9 @@
 ---
 title: Heroku Node.js Support
-id: 703
-markdown_flavour: github
+slug: nodejs-support
+url: https://devcenter.heroku.com/articles/nodejs-support
+description: Reference documentation describing the the support for Node.js on Heroku's Cedar stack.
+---
 
 This document describes the general behavior of the Cedar stack as it relates
 to the recognition and execution of Node.js applications. For a more detailed
@@ -85,4 +87,4 @@ $ heroku addons:add heroku-postgresql
 
 ## Going Further
 
-The Heroku Node.js buildpack is open source. For a better technical understand of how the buildpack works, check out the source code at [github.com/heroku/heroku-buildpack-nodejs](https://github.com/heroku/heroku-buildpack-nodejs#readme).
+The Heroku Node.js buildpack is open source. For a better technical understand of how the buildpack works, check out the source code at [github.com/heroku/heroku-buildpack-nodejs](https://github.com/heroku/heroku-buildpack-nodejs#readme).        

@@ -1,7 +1,9 @@
 ---
 title: Getting Started with Node.js on Heroku
-id: 489
-markdown_flavour: github
+slug: getting-started-with-nodejs
+url: https://devcenter.heroku.com/articles/getting-started-with-nodejs
+description: Creating, configuring, deploying and scaling Node.js applications on Heroku using npm dependency management as well as a database and add-ons.
+---
 
 This quickstart will get you going with [Node.js](http://nodejs.org/) and the [Express](http://expressjs.com/) web framework, deployed to Heroku. For general information on how to develop and architect apps for use on Heroku, see [Architecting Applications for Heroku](https://devcenter.heroku.com/articles/architecting-apps).
 
@@ -432,4 +434,4 @@ redis.get('foo', function(err, value) {
 ## Next steps
 
 * Visit the [Node.js category](/categories/nodejs) to learn more about developing and deploying Node.js applications.
-* Read [How Heroku Works](how-heroku-works) for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.
+* Read [How Heroku Works](how-heroku-works) for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.        

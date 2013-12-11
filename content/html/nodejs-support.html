@@ -1,6 +1,7 @@
-<p>This document describes the general behavior of the Cedar stack as it
-relates to the recognition and execution of Node.js applications. For
-a more detailed explanation of how to deploy an application, see <a href="https://devcenter.heroku.com/articles/nodejs">Getting Started with Node.js on Heroku/Cedar</a>.</p>
+<p>This document describes the general behavior of the Cedar stack as it relates
+to the recognition and execution of Node.js applications. For a more detailed
+explanation of how to deploy an application, see <a href="https://devcenter.heroku.com/articles/nodejs">Getting Started with Node.js
+on Heroku</a>.</p>
 
 <div class="note">
 <p>If you have questions about Node.js on Heroku, consider discussing it in the <a href="https://discussion.heroku.com/category/node">Node.js on Heroku forums</a>.</p>
@@ -8,53 +9,70 @@ a more detailed explanation of how to deploy an application, see <a href="https:
 
 <h2 id="activation">Activation</h2>
 
-<p>The Heroku Node.js Support is applied only when the application has a <code>package.json</code> file in the root directory.</p>
+<p>The Heroku Node.js buildpack is employed only when the application has a
+<code>package.json</code> file in the root directory.</p>
 
 <h2 id="versions">Versions</h2>
 
-<p>You can use the <code>engines</code> section of your <code>package.json</code> to specify the version of Node.js and npm to use on Heroku.</p>
+<p>Heroku allows you to run any version of Node.js greater than <code>0.8.5</code>, including unstable
+pre-release versions like <code>0.11.8</code>. Use the <code>engines</code> section of your <code>package.json</code> to
+specify the version of Node.js to use on Heroku.</p>
 
-<pre><code class="javascript">{
+<p>To see what versions of node are currently available, visit <a href="http://semver.io/node.json">semver.io/node.json</a> or <a href="http://what-is-the-latest-version-of-node.com/">what-is-the-latest-version-of-node.com</a>.</p>
+
+<pre><code class="json">{
   "name": "myapp",
+  "description": "a really cool app",
   "version": "0.0.1",
   "engines": {
-    "node": "0.10.x",
-    "npm":  "1.2.x"
+    "node": "0.10.x"
   }
 }
 </code></pre>
 
-<p>If you do not specify a version, the latest will be used. To update the Node.js version on an existing application that doesn’t specify a version, just make a trivial commit to your repository and <code>git push heroku master</code> or equivalent.  The available versions of Node.js and npm can be found here:</p>
+<p>You should always specify a <code>node</code> version, but if you don’t the latest stable version will be used. There is no need to specify an <code>npm</code> version, as <code>npm</code> is bundled with <code>node</code>.</p>
 
-<ul>
-<li><a href="http://heroku-buildpack-nodejs.s3.amazonaws.com/manifest.nodejs">Node.js version manifest</a></li>
-<li><a href="http://heroku-buildpack-nodejs.s3.amazonaws.com/manifest.npm">npm version manifest</a></li>
-</ul><h2 id="environment">Environment</h2>
+<h2 id="environment">Environment</h2>
 
 <p>The following environment variables will be set:</p>
 
-<ul>
-<li>
-<code>PATH</code> =&gt; <code>"bin:node_modules/.bin:/usr/local/bin:/usr/bin:/bin"</code>
-</li>
-</ul><h2 id="build-behavior">Build behavior</h2>
-
-<p>The Node.js buildpack runs the following commands on your app to resolve dependencies:</p>
-
-<pre><code class="term">$ npm install --production
-$ npm rebuild
+<pre><code class="sh">PATH=vendor/node/bin:bin:node_modules/.bin:$PATH
+NODE_ENV=production
 </code></pre>
+
+<p>The <code>NODE_ENV</code> environment variable defaults to <code>production</code>, but you can
+override it if you wish:</p>
+
+<pre><code class="sh">heroku config:set NODE_ENV=staging
+</code></pre>
+
+<h2 id="build-behavior">Build behavior</h2>
+
+<p>Heroku maintains a <a href="https://devcenter.heroku.com/articles%0A/buildpack-api#caching">cache directory</a> that is persisted between builds. This
+cache is used to store resolved dependencies so they don’t have to be
+downloaded and installed every time you deploy.</p>
+
+<p>If you add <code>node_modules</code> to your <code>.gitignore</code> file, the build cache is used. If, however, you check your <code>node_modules</code> directory into source control, the build cache is <strong>not</strong> used.</p>
+
+<p><code>npm install --production</code> is run on every build, even if the node_modules directory is already present, to ensure execution of any <a href="https://npmjs.org/doc/misc/npm-scripts.html">npm script hooks</a> defined in your package.json.</p>
+
+<p><code>npm prune</code> is run after restoring cached modules to ensure cleanup of any unused dependencies. You must specify all of your application’s dependencies in <code>package.json</code>, else they will be removed by <code>npm prune</code>.</p>
 
 <h2 id="runtime-behavior">Runtime behavior</h2>
 
-<p>The highest available version of Node.js that matches your <code>engines</code> specification will be available on the <code>PATH</code>. You can use it directly in a Procfile:</p>
+<p>The buildpack puts <code>node</code> and <code>npm</code> on the <code>PATH</code> so they can be executed with <a href="https://devcenter.heroku.com/articles/one-off-dynos#an-example-one-off-dyno">heroku run</a> or used directly in a Procfile:</p>
 
 <pre><code>web: node web.js
 </code></pre>
 
 <h2 id="add-ons">Add-ons</h2>
 
-<p>No add-ons are provisioned by default.  If you need a SQL database for your app, add one explicitly:</p>
+<p>No add-ons are provisioned by default.  If you need a SQL database for your
+app, add one explicitly:</p>
 
-<pre><code class="term">$ heroku addons:add heroku-postgresql:dev
+<pre><code class="term">$ heroku addons:add heroku-postgresql
 </code></pre>
+
+<h2 id="going-further">Going Further</h2>
+
+<p>The Heroku Node.js buildpack is open source. For a better technical understand of how the buildpack works, check out the source code at <a href="https://github.com/heroku/heroku-buildpack-nodejs#readme">github.com/heroku/heroku-buildpack-nodejs</a>.</p>
