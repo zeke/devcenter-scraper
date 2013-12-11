@@ -2,7 +2,7 @@
 title: Connecting to Heroku Postgres databases from outside of Heroku
 slug: connecting-to-heroku-postgres-databases-from-outside-of-heroku
 url: https://devcenter.heroku.com/articles/connecting-to-heroku-postgres-databases-from-outside-of-heroku
-description: Heroku Postgres databases are designed to be used with a Heroku app. However, they are accessible from anywhere and may be used from any application using standard Postgres clients.
+description: Considerations for connecting to a Heroku Postgres database from outside of Heroku, including SSL and credential details.
 ---
 
 Heroku Postgres databases are designed to be used with a Heroku app. However, they are accessible from anywhere and may be used from any application using standard Postgres clients.

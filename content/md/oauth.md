@@ -39,6 +39,8 @@ From your app, redirect the user to authorize:
 GET https://id.heroku.com/oauth/authorize?client_id={client-id}&response_type=code&scope={scopes}&state={anti-forgery-token}
 ```
 
+Include `client-id` in the request, which is the public identifier of an OAuth client. Also make sure to to include `response_type`, and to set it to `code`, which is the only currently supported grant type.
+
 The `scope` URL parameter is a space-delimited (and url-encoded) list of the authorization scopes you are requesting. See [available scopes below](#scopes).
 
 The `state` parameter is a unique string used to maintain state between Heroku's OAuth provider and your app. When Heroku redirects users back to your app's `redirect_uri`, this parameter's value will be included in the response (see below). This parameter's value should be an anti-forgery token to protect against [cross-site request forgery](http://en.wikipedia.org/wiki/Cross-site_request_forgery) (CSRF).

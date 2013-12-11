@@ -44,12 +44,37 @@ The following environment variables will be set:
 
 Applications must include a `/project/build.properties` file with the `sbt.version` property specifying a release version of SBT 0.11.0 - 0.12.3. SBT release candidates (i.e. RC versions) are not supported.
 
-The Heroku Scala buildpack will run `sbt clean compile stage` to build the application. Applications must include a `stage` task, which performs any tasks needed to prepare an application to be run in-place. For example, Typesafe’s [`xbst-start-script-plugin`](http://github.com/typesafehub/xsbt-start-script-plugin) adds a `stage` task to SBT that generates start scripts for an application. To use the plugin, create a `/project/build.sbt` file containing:
+The Heroku Scala buildpack will run `sbt compile stage` to build the application. Applications must include a `stage` task, which performs any tasks needed to prepare an application to be run in-place. For example, Typesafe’s [`xbst-start-script-plugin`](http://github.com/typesafehub/xsbt-start-script-plugin) adds a `stage` task to SBT that generates start scripts for an application. To use the plugin, create a `/project/build.sbt` file containing:
 
 ```
 resolvers += Classpaths.typesafeResolver
 
 addSbtPlugin("com.typesafe.startscript" % "xsbt-start-script-plugin" % "0.5.1")
+```
+
+### Clean builds
+In some cases, builds need to clean artifacts before compiling. If a clean build is necessary, enable the `clean` task with the `SBT_CLEAN` environment variable. First, enable `user-env-compile` to expose the app's environment during build:
+
+```
+$ heroku labs:enable user-env-compile
+Enabling user-env-compile for example-app... done
+WARNING: This feature is experimental and may change or be removed without notice.
+For more information see: http://devcenter.heroku.com/articles/labs-user-env-compile
+```
+
+Configure builds to perform `clean` by setting `SBT_CLEAN=true`:
+
+```
+$ heroku config:set SBT_CLEAN=true
+Setting config vars and restarting example-app... done, v17
+SBT_CLEAN: true
+```
+
+All subsequent deploys will use the `clean` task. To remove the `clean` task, unset `SBT_CLEAN`:
+
+```
+$ heroku config:unset SBT_CLEAN
+Unsetting SBT_CLEAN and restarting example-app... done, v18
 ```
 
 ## Runtime behavior

@@ -31,6 +31,8 @@
 <pre><code>GET https://id.heroku.com/oauth/authorize?client_id={client-id}&amp;response_type=code&amp;scope={scopes}&amp;state={anti-forgery-token}
 </code></pre>
 
+<p>Include <code>client-id</code> in the request, which is the public identifier of an OAuth client. Also make sure to to include <code>response_type</code>, and to set it to <code>code</code>, which is the only currently supported grant type.</p>
+
 <p>The <code>scope</code> URL parameter is a space-delimited (and url-encoded) list of the authorization scopes you are requesting. See <a href="#scopes">available scopes below</a>.</p>
 
 <p>The <code>state</code> parameter is a unique string used to maintain state between Heroku’s OAuth provider and your app. When Heroku redirects users back to your app’s <code>redirect_uri</code>, this parameter’s value will be included in the response (see below). This parameter’s value should be an anti-forgery token to protect against <a href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">cross-site request forgery</a> (CSRF).</p>

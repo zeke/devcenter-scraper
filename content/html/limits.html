@@ -66,6 +66,10 @@
 
 <p>The web process in a dyno may not take more than 60 seconds to bind to its assigned $PORT.</p>
 
+<div class="note">
+<p>Contact support to increase this limit to 120 seconds on a per-application basis. In general, slow boot times will make it harder to deploy your application and will make recovery from dyno failures slower, so this should be considered a temporary solution.</p>
+</div>
+
 <p><a href="https://devcenter.heroku.com/articles/error-codes#r10-boot-timeout">Source</a></p>
 
 <h3 id="exit-timeout">Exit timeout</h3>

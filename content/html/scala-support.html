@@ -48,11 +48,34 @@
 
 <p>Applications must include a <code>/project/build.properties</code> file with the <code>sbt.version</code> property specifying a release version of SBT 0.11.0 - 0.12.3. SBT release candidates (i.e. RC versions) are not supported.</p>
 
-<p>The Heroku Scala buildpack will run <code>sbt clean compile stage</code> to build the application. Applications must include a <code>stage</code> task, which performs any tasks needed to prepare an application to be run in-place. For example, Typesafe’s <a href="http://github.com/typesafehub/xsbt-start-script-plugin"><code>xbst-start-script-plugin</code></a> adds a <code>stage</code> task to SBT that generates start scripts for an application. To use the plugin, create a <code>/project/build.sbt</code> file containing:</p>
+<p>The Heroku Scala buildpack will run <code>sbt compile stage</code> to build the application. Applications must include a <code>stage</code> task, which performs any tasks needed to prepare an application to be run in-place. For example, Typesafe’s <a href="http://github.com/typesafehub/xsbt-start-script-plugin"><code>xbst-start-script-plugin</code></a> adds a <code>stage</code> task to SBT that generates start scripts for an application. To use the plugin, create a <code>/project/build.sbt</code> file containing:</p>
 
 <pre><code>resolvers += Classpaths.typesafeResolver
 
 addSbtPlugin("com.typesafe.startscript" % "xsbt-start-script-plugin" % "0.5.1")
+</code></pre>
+
+<h3 id="clean-builds">Clean builds</h3>
+
+<p>In some cases, builds need to clean artifacts before compiling. If a clean build is necessary, enable the <code>clean</code> task with the <code>SBT_CLEAN</code> environment variable. First, enable <code>user-env-compile</code> to expose the app’s environment during build:</p>
+
+<pre><code>$ heroku labs:enable user-env-compile
+Enabling user-env-compile for example-app... done
+WARNING: This feature is experimental and may change or be removed without notice.
+For more information see: http://devcenter.heroku.com/articles/labs-user-env-compile
+</code></pre>
+
+<p>Configure builds to perform <code>clean</code> by setting <code>SBT_CLEAN=true</code>:</p>
+
+<pre><code>$ heroku config:set SBT_CLEAN=true
+Setting config vars and restarting example-app... done, v17
+SBT_CLEAN: true
+</code></pre>
+
+<p>All subsequent deploys will use the <code>clean</code> task. To remove the <code>clean</code> task, unset <code>SBT_CLEAN</code>:</p>
+
+<pre><code>$ heroku config:unset SBT_CLEAN
+Unsetting SBT_CLEAN and restarting example-app... done, v18
 </code></pre>
 
 <h2 id="runtime-behavior">Runtime behavior</h2>

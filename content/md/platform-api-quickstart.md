@@ -9,6 +9,9 @@ description: A tutorial showing how to get started with the Heroku Platform API,
 
 This is a brief guide to help you get started with the Heroku Platform API. For a detailed reference, please see the [Platform API Reference](https://devcenter.heroku.com/articles/platform-api-reference) article.
 
+> note
+> If you have questions about the Heroku API, consider discussing it in the [Heroku API forum](https://discussion.heroku.com/category/api).
+
 ## Prerequisites
 
 1. A shell with [`curl`](http://curl.haxx.se/)

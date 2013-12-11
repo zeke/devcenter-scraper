@@ -1,0 +1,54 @@
+<h2 id="platform">Platform</h2>
+
+<p>Heroku runs on a distribution of linux, and as a result requires all libraries installed to be linux compatible. If you are developing on a windows machine there can be problems when deploying to linux due to cross OS compatibility issue with dependencies. Generally developers on a Mac or another Linux distribution will not have the problems described below.</p>
+
+<h2 id="background-dependency-resolution">Background: dependency resolution</h2>
+
+<p>If you are developing a Ruby application, you are using a <code>Gemfile</code> to declare the dependencies that you need. When you run <code>bundle install</code> all of your dependencies are evaluated to see if they can be resolved. Bundler then creates a <code>Gemfile.lock</code>. This file has the exact versions of the dependencies that were installed so that if you give the same <code>Gemfile</code> and <code>Gemfile.lock</code> to someone on another computer and have them run <code>bundle install</code> it should install the exact same versions. Some gems have decided to create specialized versions to maintain compatibility with windows. When you run <code>bundle install</code> on a windows machine you may see something that looks like this in the <code>Gemfile.lock</code>:</p>
+
+<pre><code>PLATFORMS
+  ruby
+  x86-mingw32
+</code></pre>
+
+<p>This <code>x86-mingw32</code> line tells bundler that the gemfile was evaluated on a windows machine. You may also see <code>mswin</code> instead of <code>mingw</code>. You may or may not notice individual gems that contain a special marker:</p>
+
+<pre><code>sqlite3 (1.3.8-x86-mingw32)
+</code></pre>
+
+<p>This indicates that this gem is custom for this platform <code>x86-mingw32</code> or windows. As noted above Heroku runs on Linux and cannot install these custom libraries, due to this problem the previous <code>Gemfile.lock</code> resolution must be discarded and we must run <code>bundle install</code> from scratch.</p>
+
+<h2 id="bundle-install-with-no-lockfile">Bundle install with no lockfile</h2>
+
+<p>When a <code>Gemfile.lock</code> is removed before running <code>bundle install</code> all history of libraries and their versions installed is gone. The resolver in bundler must now work to re-generate a new <code>Gemfile.lock</code> and install gems. This has two problems: inconsistency between development and production code, and the potential to have a Gemfile that does not resolve at all.</p>
+
+<h2 id="detection">Detection</h2>
+
+<p>When Heroku detects that you a windows specific <code>Gemfile.lock</code> it will output a warning in line. Check your deploy output for something like this:</p>
+
+<pre><code>Removing `Gemfile.lock` because it was generated on Windows.
+</code></pre>
+
+<h2 id="inconsistent-dev-prod-parity">Inconsistent Dev-Prod Parity</h2>
+
+<p>Without a <code>Gemfile.lock</code> If you have a line in your Gemfile like this:</p>
+
+<pre><code>gem 'rails'
+</code></pre>
+
+<p>You are stating you want bundler to install <strong>any</strong> version of Rails. If it detects that you already have <code>3.2.x</code> installed on your local machine it may decide to use that version, where if you were to install on a co-worker’s machine it may install <code>4.0.x</code>. This inconsistency between machines and between development and production is likely to cause errors. You may see strange behavior in production that you cannot re-produce in development. To help avoid that, be as specific as possible in your Gemfile:</p>
+
+<pre><code>gem 'rails', '4.0.1'
+</code></pre>
+
+<p>This guarantees that Rails 4.0.1 will be installed even if the <code>Gemfile.lock</code> is missing. While it is impossible to do this for all of your dependencies you can use operators such as greater than or equal (<code>&gt;=</code>) or preferably the pessimistic locking operator (<code>~&gt;</code>) to limit the scope of your gem requirements.</p>
+
+<p>The down side to being specific in the Gemfile is that upgrading one gem may cause a gem resolution to fail and you may need to spend some time figuring out exactly how declare the versions of your dependencies manually.</p>
+
+<h2 id="cannot-resolve-gemfile">Cannot resolve Gemfile</h2>
+
+<p>If your gem versions are too vauge, and if those libraries have circular requirements it is possible to get bundler into a state where it cannot resolve your dependencies but continues to try in an infinite loop. If the output after <code>bundle install</code> seems to freeze for many minutes, or continuously outputs dots <code>..........</code> it may be a sign that it cannot resolve your Gemfile when the <code>Gemfile.lock</code> is removed. In this scenario you likely need to make your gem version requirements more specific to better help bundler do it’s job and narrow down its search space.</p>
+
+<h2 id="mitigation">Mitigation</h2>
+
+<p>Be as specific in your Gemfile as you possibly can when developing on windows. If only one developer on your team has a windows machine, consider not checking in their <code>Gemfile.lock</code> changes or manually bundle installing and committing on a non-windows machine before deploying.</p>

@@ -358,7 +358,7 @@ To add a MongoDB database to your app, provision one of the [MongoDB add-ons](ht
 
 ```term
 $ heroku addons:add mongolab
-Adding redistogo on sharp-rain-871... done, v3 (free)
+Adding mongolab on sharp-rain-871... done, v3 (free)
 Use `heroku addons:docs mongolab` to view documentation.
 ```
 

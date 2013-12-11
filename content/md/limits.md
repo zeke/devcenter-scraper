@@ -73,6 +73,9 @@ Config var data (the collection of all keys and values) is limited to 16kb for e
 
 The web process in a dyno may not take more than 60 seconds to bind to its assigned $PORT. 
 
+> note
+> Contact support to increase this limit to 120 seconds on a per-application basis. In general, slow boot times will make it harder to deploy your application and will make recovery from dyno failures slower, so this should be considered a temporary solution.
+
 [Source](error-codes#r10-boot-timeout)
 
 ### Exit timeout

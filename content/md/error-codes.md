@@ -128,6 +128,9 @@ The router will enqueue requests for 75 seconds while waiting for starting proce
 
 This error differs from [R10](#r10-boot-timeout) in that the H20 75-second timeout includes platform tasks such as internal state propagation, requests between internal components, slug download, unpacking, container preparation, etc... The R10 60-second timeout applies solely to application startup tasks.
 
+> note 
+> Contact support to increase this limit to 120 seconds on a per-application basis. In general, slow boot times will make it harder to deploy your application and will make recovery from dyno failures slower, so this should be considered a temporary solution.
+
 ## H21 - Backend connection refused
 
 A router received a connection refused error when attempting to open a socket to your web process. This is usually a symptom of your app being overwhelmed and failing to accept new connections. If you have multiple dynos, the router will retry multiple dynos before logging H21 and serving a standard error page.
@@ -197,6 +200,9 @@ A web process took longer than 60 seconds to bind to its assigned `$PORT`. When 
 This error is often caused by a process being unable to reach an external resource, such as a database, or the application doing too much work, such as parsing and evaluating numerous, large code dependencies, during startup.
 
 Common solutions are to access external resources asynchronously, so they don't block startup, and to reduce the amount of application code or its dependencies.
+
+> note 
+> Contact support to increase this limit to 120 seconds on a per-application basis. In general, slow boot times will make it harder to deploy your application and will make recovery from dyno failures slower, so this should be considered a temporary solution.
 
 ## R12 - Exit timeout
 

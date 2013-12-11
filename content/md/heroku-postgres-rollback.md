@@ -2,7 +2,7 @@
 title: Heroku Postgres Rollback
 slug: heroku-postgres-rollback
 url: https://devcenter.heroku.com/articles/heroku-postgres-rollback
-description: Heroku Postgres rollback allows you to “roll back” the state of your database to a previous point in time, just as heroku releases:rollback allows you to roll back to an older deployment of your application.
+description: Heroku Postgres rollback allows you to roll back the state of your database to a previous point in time.
 ---
 
 Heroku Postgres rollback allows you to "roll back" the state of your

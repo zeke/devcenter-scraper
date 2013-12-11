@@ -121,6 +121,10 @@ No more than 256 created processes/threads can exist at any one time in a dyno -
 
 A web dyno must bind to its assigned `$PORT` within 60 seconds of startup. If it doesn't, it is terminated by the dyno manager and a [R10 Boot Timeout](https://devcenter.heroku.com/articles/error-codes#r10-boot-timeout) error is logged. Processes can bind to other ports before and after binding to `$PORT`.
 
+<div class="callout" markdown="1">
+Contact support to increase this limit to 120 seconds on a per-application basis. In general, slow boot times will make it harder to deploy your application and will make recovery from dyno failures slower, so this should be considered a temporary solution.
+</div>
+
 ### Graceful shutdown with SIGTERM
 
 When the dyno manager restarts a dyno, the dyno manager will request that your processes shut down gracefully by sending them [`SIGTERM`](http://en.wikipedia.org/wiki/SIGTERM). This signal is sent to all processes in the dyno, not just the process type.

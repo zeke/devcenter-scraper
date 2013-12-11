@@ -92,8 +92,7 @@ extension btree_gist</code>
 
 <ul>
 <li>
-<a href="https://code.google.com/p/plv8js/wiki/PLV8">PLV8</a>: The full V8 engine embedded within Postgres allowing you to create full JavaScript functions. <code>create extension PLV8</code>
-</li>
+<a href="https://code.google.com/p/plv8js/wiki/PLV8">PLV8</a>: The full V8 engine embedded within Postgres allowing you to create full JavaScript functions. <code>create extension PLV8</code>. PLV8 is only available on non-hobby tier databases currently.</li>
 </ul><h2 id="full-text-search-dictionaries">Full text search dictionaries</h2>
 
 <ul>
@@ -162,7 +161,7 @@ PostGIS support on Heroku Postgres is in beta and is subject to change in the fu
 </p>
 <h3 id="requirements">Requirements</h3>
 
-<p>Currently, PostGIS can only be used on Production tier <a href="https://addons.heroku.com/heroku-postgresql">Heroku Postgres plans</a>. It is not available on the Dev or Basic Starter tier plans. Additionally, PostGIS is only available as v2.1 with Postgres 9.3 or as v2.0 with Postgres v9.2.</p>
+<p>Currently, PostGIS can only be used on Production tier <a href="https://addons.heroku.com/heroku-postgresql">Heroku Postgres plans</a>. It is not available on non-hobby tier databases. Additionally, PostGIS is only available as v2.1 with Postgres 9.3 or as v2.0 with Postgres v9.2.</p>
 
 <h3 id="provisioning">Provisioning</h3>
 

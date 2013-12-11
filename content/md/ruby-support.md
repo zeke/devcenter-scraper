@@ -86,6 +86,7 @@ JRuby versions support multiple ruby versions listed below. You need to specify 
 * `1.7.5`, Ruby Versions: [`1.8.7`, `1.9.3`, `2.0.0` (experimental)], Java Version: `1.7.0_45-b31`
 * `1.7.6`, Ruby Versions: [`1.8.7`, `1.9.3`, `2.0.0` (experimental)], Java Version: `1.7.0_45-b31`
 * `1.7.8`, Ruby Versions: [`1.8.7`, `1.9.3`, `2.0.0` (experimental)], Java Version: `1.7.0_45-b31`
+* `1.7.9`, Ruby Versions: [`1.8.7`, `1.9.3`, `2.0.0` (experimental)], Java Version: `1.7.0_45-b31`
 
 The ruby runtime that your app uses will be included in your [slug](slug-compiler), which will affect the [slug size](limits#build).
 

@@ -98,9 +98,9 @@ GeoDjango, including GDAL 3.3.2, Proj.4 4.7.0, and GDAL 1.8.1</td>
   </tr>
   <tr>
     <td style="text-align:left">Haskell</td>
-    <td style="text-align:left">Buildpack for Haskell apps. Uses GHC 7.4.1 and cabal-1.16.0.1.</td>
-    <td style="text-align:left"><a href="https://github.com/puffnfresh">Brian McKenna</a></td>
-    <td style="text-align:left"><a href="https://github.com/puffnfresh/heroku-buildpack-haskell">https://github.com/puffnfresh/heroku-buildpack-haskell</a></td>
+    <td style="text-align:left">Buildpack for Haskell apps. Uses GHC 7.6.3 and Cabal 1.18.0.2.</td>
+    <td style="text-align:left"><a href="https://github.com/begriffs">Joe Nelson</a></td>
+    <td style="text-align:left"><a href="https://github.com/begriffs/heroku-buildpack-ghc">https://github.com/begriffs/heroku-buildpack-ghc</a></td>
   </tr>
   <tr>
     <td style="text-align:left">Inline</td>

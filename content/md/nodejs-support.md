@@ -85,6 +85,6 @@ app, add one explicitly:
 $ heroku addons:add heroku-postgresql
 ```
 
-## Going Further
+## Going further
 
 The Heroku Node.js buildpack is open source. For a better technical understand of how the buildpack works, check out the source code at [github.com/heroku/heroku-buildpack-nodejs](https://github.com/heroku/heroku-buildpack-nodejs#readme).        

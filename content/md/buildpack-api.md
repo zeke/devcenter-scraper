@@ -33,7 +33,7 @@ bin/detect BUILD_DIR
 
 #### Summary
 
-This script takes BUILD_DIR as a single argument and should return an exit code of `0` if the app present at `BUILD_DIR` can be serviced by this buildpack. If the exit code is `0`, the script should print a human-readable framework name to `stdout`.
+This script takes `BUILD_DIR` as a single argument and should return an exit code of `0` if the app present at `BUILD_DIR` can be serviced by this buildpack. If the exit code is `0`, the script should print a human-readable framework name to `stdout`.
 
 #### Example
 

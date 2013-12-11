@@ -5,7 +5,7 @@ url: https://devcenter.heroku.com/articles/dev-center-cli
 description: The Dev Center CLI lets authors edit and preview Dev Center articles locally.
 ---
 
-The Dev Center CLI lets authors edit and preview Dev Center articles locally.
+The Dev Center CLI lets authors edit and preview Dev Center articles locally. 
 
 ## Installation
 

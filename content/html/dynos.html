@@ -124,7 +124,11 @@ LANG=${LANG:-en_US.UTF-8}</code></pre>
 <h4 id="web-dynos">Web dynos</h4>
 
 <p>A web dyno must bind to its assigned <code>$PORT</code> within 60 seconds of startup. If it doesn’t, it is terminated by the dyno manager and a <a href="https://devcenter.heroku.com/articles/error-codes#r10-boot-timeout">R10 Boot Timeout</a> error is logged. Processes can bind to other ports before and after binding to <code>$PORT</code>.</p>
+<div class="callout">
 
+<p>Contact support to increase this limit to 120 seconds on a per-application basis. In general, slow boot times will make it harder to deploy your application and will make recovery from dyno failures slower, so this should be considered a temporary solution.</p>
+
+</div>
 <h3 id="graceful-shutdown-with-sigterm">Graceful shutdown with SIGTERM</h3>
 
 <p>When the dyno manager restarts a dyno, the dyno manager will request that your processes shut down gracefully by sending them <a href="http://en.wikipedia.org/wiki/SIGTERM"><code>SIGTERM</code></a>. This signal is sent to all processes in the dyno, not just the process type.</p>

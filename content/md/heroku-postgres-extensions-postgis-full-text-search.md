@@ -113,7 +113,7 @@ pg:psql` and run the appropriate command:
 
 ## Languages
 
-* [PLV8](https://code.google.com/p/plv8js/wiki/PLV8): The full V8 engine embedded within Postgres allowing you to create full JavaScript functions. `create extension PLV8`
+* [PLV8](https://code.google.com/p/plv8js/wiki/PLV8): The full V8 engine embedded within Postgres allowing you to create full JavaScript functions. `create extension PLV8`. PLV8 is only available on non-hobby tier databases currently.
 
 ## Full text search dictionaries
 
@@ -196,7 +196,7 @@ PostGIS support on Heroku Postgres is in beta and is subject to change in the fu
 
 Currently, PostGIS can only be used on Production tier [Heroku Postgres
 plans](https://addons.heroku.com/heroku-postgresql). It is not available
-on the Dev or Basic Starter tier plans. Additionally, PostGIS is only
+on non-hobby tier databases. Additionally, PostGIS is only
 available as v2.1 with Postgres 9.3 or as v2.0 with Postgres v9.2.
 
 ### Provisioning

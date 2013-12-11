@@ -111,6 +111,10 @@
 
 <p>This error differs from <a href="#r10-boot-timeout">R10</a> in that the H20 75-second timeout includes platform tasks such as internal state propagation, requests between internal components, slug download, unpacking, container preparation, etc… The R10 60-second timeout applies solely to application startup tasks.</p>
 
+<div class="note">
+<p>Contact support to increase this limit to 120 seconds on a per-application basis. In general, slow boot times will make it harder to deploy your application and will make recovery from dyno failures slower, so this should be considered a temporary solution.</p>
+</div>
+
 <h2 id="h21-backend-connection-refused">H21 - Backend connection refused</h2>
 
 <p>A router received a connection refused error when attempting to open a socket to your web process. This is usually a symptom of your app being overwhelmed and failing to accept new connections. If you have multiple dynos, the router will retry multiple dynos before logging H21 and serving a standard error page.</p>
@@ -174,6 +178,10 @@
 <p>This error is often caused by a process being unable to reach an external resource, such as a database, or the application doing too much work, such as parsing and evaluating numerous, large code dependencies, during startup.</p>
 
 <p>Common solutions are to access external resources asynchronously, so they don’t block startup, and to reduce the amount of application code or its dependencies.</p>
+
+<div class="note">
+<p>Contact support to increase this limit to 120 seconds on a per-application basis. In general, slow boot times will make it harder to deploy your application and will make recovery from dyno failures slower, so this should be considered a temporary solution.</p>
+</div>
 
 <h2 id="r12-exit-timeout">R12 - Exit timeout</h2>
 
