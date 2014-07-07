@@ -77,4 +77,4 @@ You can only update config vars that have been declared in your addon-manifest.j
 The following response codes will be returned depending on the underlying cause of the error:
 
 `401`: An invalid username and password combination has been supplied and you have not been successfully authenticated
-`404`: The requested app doesn't exist (e.g., it has been deleted) or the add-on has been deprovisioned for this app.
+`404`: The requested app doesn't exist (e.g., it has been deleted) or the add-on has been deprovisioned for this app. 

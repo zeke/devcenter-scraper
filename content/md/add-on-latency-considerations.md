@@ -28,4 +28,4 @@ If your add-on service requires low latency then you should provision resources 
 
 If your add-on is latency sensitive and does not support that region, you should not provision the resource and instead [return an error](https://devcenter.heroku.com/articles/add-on-provider-api#exceptions).              
 
-If normal internet latency is acceptable, you can run your service anywhere with a public hostname/IP.
+If normal internet latency is acceptable, you can run your service anywhere with a public hostname/IP. 

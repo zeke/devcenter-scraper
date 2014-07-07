@@ -42,4 +42,4 @@ However, there are very good reasons to not use them.  As indicated by our use o
 
 With Fancy Pants certs, the CAs agree to a minimum standard of validating that the cert requester is who they purport to be.  This can include reviewing legal records and humans talking to each other.  In exchange, the cert issued contains special metadata indicating this heightened review process, which is displayed to the end-user as a green box in the navigation bar.  It's certainly foreseeable that Fancy Pants certs will see a similar race to the bottom as with regular certs, and also be issued inappropriately on occasion.  For Heroku's specific problem - indicating our ownership of a website when we host potentially malicious sites in the same DNS domain - we believe Fancy Pants certs will be useful.
 
-Long-term, all new customer applications are hosted in `herokuapp.com`, and we no longer allow customers to create new applications hosted under `heroku.com` itself.
+Long-term, all new customer applications are hosted in `herokuapp.com`, and we no longer allow customers to create new applications hosted under `heroku.com` itself. 

@@ -54,4 +54,4 @@ In order to minimize disruption for apps in the [Bamboo stack](https://devcenter
 * The Public Suffix List project also has a partial list of other areas where the list is used.  This is available at [http://publicsuffix.org/learn/](http://publicsuffix.org/learn/) .
 * The session fixation and cookie hijacking problem, including a good description of how it applies to Heroku specifically, is outlined in the paper [Origin Cookies: Session Integrity for
 Web Applications](http://w2spconf.com/2011/papers/session-integrity.pdf)
-* To learn more about the general browser security model, both for cookies and general, we recommend Michal Zalewski's excellent book, [The Tangled Web](http://lcamtuf.coredump.cx/tangled/) .
+* To learn more about the general browser security model, both for cookies and general, we recommend Michal Zalewski's excellent book, [The Tangled Web](http://lcamtuf.coredump.cx/tangled/) . 

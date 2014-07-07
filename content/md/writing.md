@@ -5,7 +5,8 @@ url: https://devcenter.heroku.com/articles/writing
 description: A short guide quantifying the characteristics of a well-written Dev Center article and the expectations around its creation.
 ---
 
-The Dev Center contains a diverse collection of articles from both internal and external contributors across a variety of topics including platform reference material, getting started guides and general web application development tutorials. Having a standardized tone, style and structure ensures cohesion and consistency across this content.
+
+The Dev Center contains a diverse collection of articles from both internal and external contributors across a variety of topics including platform reference material, getting started guides and general web application development tutorials. Having a standardized tone, style and structure ensures cohesion and consistency across this content. 
 
 This guide quantifies the characteristics of a well-written Dev Center article and the shared expectations around its creation.
 
@@ -90,7 +91,7 @@ Content should be structured in sequential fashion. Keep the work-flow as linear
 Images succinctly convey hard to understand concepts or step explanations and are great tools to provide a visual break from the monotony of reading a large block of text. Use them to emphasize important concepts and support the larger article structure.
 
 >callout
->Hosting image files on S3, Github or similar service ensures the portability of the article throughout the authorship process.
+>Hosting image files on S3, GitHub or similar service ensures the portability of the article throughout the authorship process.
 
 ```
 ![Image title](https://s3.amazonaws.com/bucket/image.jpg)
@@ -136,13 +137,13 @@ This will produce an obvious reference to the app early in the article and prese
 >GitHub and can be seen running at
 >[http://glowing-sun-4312.herokuapp.com](http://glowing-sun-4312.herokuapp.com)
 
-The Github project should contain README instructions for running the application both locally with Foreman/Procfile and on Heroku using standard add-on, deployment and scaling CLI commands.
+The GitHub project should contain README instructions for running the application both locally with Foreman/Procfile and on Heroku using standard add-on, deployment and scaling CLI commands.
 
 ## Formatting
 
 ### Markdown formatting
 
-Articles should be written in [Github flavored markdown](http://github.github.com/github-flavored-markdown/). Here is a brief syntax example:
+Articles should be written in [GitHub flavored markdown](http://github.github.com/github-flavored-markdown/). Here is a brief syntax example:
 
 <pre><code>
 ## Section header
@@ -334,4 +335,4 @@ When naming a domain, try to use `www.example.com` as an example domain name.
 
 ## Conclusion
 
-This guide identifies the patterns present within successful articles and the collaborations that produce them. Following the framework presented here aids in the Dev Center authorship process and ensures a consistent experience for readers.
+This guide identifies the patterns present within successful articles and the collaborations that produce them. Following the framework presented here aids in the Dev Center authorship process and ensures a consistent experience for readers. 

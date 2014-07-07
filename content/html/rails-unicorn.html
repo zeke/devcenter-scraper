@@ -1,0 +1,216 @@
+<p>Web applications that process requests concurrently make much more efficient use of dyno resources than web applications that only process one request at a time. Therefore it is recommended to use concurrent request processing whenever developing and running production services.</p>
+
+<p>The Rails framework was originally designed to process one request at a time. The framework is gradually moving away from this design towards a thread safe implementation that allows for concurrent processing of requests in a single Ruby process. But most Ruby applications don’t support this today.</p>
+
+<p>The Unicorn web server lets you run any Rails application concurrently by running multiple Ruby processes in a single dyno.</p>
+
+<p>This guide will walk you through deploying a new Rails application to Heroku using the Unicorn web server. For basic Rails setup, see <a href="https://devcenter.heroku.com/articles/getting-started-with-rails3">Getting Started with Rails</a>.</p>
+
+<div class="warning">
+<p>Always test your new deployments in a staging environment before you deploy to your production application.</p>
+</div>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<div class="note">
+<p>If you have questions about Ruby on Heroku, consider discussing it in the <a href="https://discussion.heroku.com/category/ruby">Ruby on Heroku forums</a>.</p>
+</div>
+
+<h2 id="the-unicorn-server">The Unicorn server</h2>
+
+<p><a href="http://unicorn.bogomips.org/">Unicorn</a> is a Rack HTTP server that uses forked processes to handle multiple incoming requests concurrently.</p>
+
+<h2 id="adding-unicorn-to-your-application">Adding Unicorn to your application</h2>
+
+<h3 id="gemfile">Gemfile</h3>
+
+<p>First, add Unicorn to your app’s Gemfile:</p>
+
+<pre><code class="ruby"> gem 'unicorn'
+</code></pre>
+
+<p>Run <code>bundle install</code> to set up your bundle locally.</p>
+
+<h3 id="config">Config</h3>
+
+<p>Create a configuration file for Unicorn at <code>config/unicorn.rb</code>, or at a path of your choosing. For a simple Rails application, we recommend the following basic configuration:</p>
+
+<pre><code class="ruby"># config/unicorn.rb
+worker_processes Integer(ENV["WEB_CONCURRENCY"] || 3)
+timeout 15
+preload_app true
+
+before_fork do |server, worker|
+  Signal.trap 'TERM' do
+    puts 'Unicorn master intercepting TERM and sending myself QUIT instead'
+    Process.kill 'QUIT', Process.pid
+  end
+
+  defined?(ActiveRecord::Base) and
+    ActiveRecord::Base.connection.disconnect!
+end
+
+after_fork do |server, worker|
+  Signal.trap 'TERM' do
+    puts 'Unicorn worker intercepting TERM and doing nothing. Wait for master to send QUIT'
+  end
+
+  defined?(ActiveRecord::Base) and
+    ActiveRecord::Base.establish_connection
+end
+</code></pre>
+
+<p>The above assumes a standard Rails app with ActiveRecord and New Relic for monitoring. For information on other available configuration operations, see <a href="http://unicorn.bogomips.org/Unicorn/Configurator.html">Unicorn’s documentation</a>.</p>
+
+<h3 id="unicorn-worker-processes">Unicorn worker processes</h3>
+
+<pre><code class="ruby">worker_processes Integer(ENV["WEB_CONCURRENCY"] || 3)
+</code></pre>
+
+<p>Unicorn forks multiple OS processes within each dyno to allow a Rails app to support multiple concurrent requests without requiring them to be thread-safe. In Unicorn terminology these are referred to as worker processes not to be confused with Heroku worker processes which run in their own dynos.</p>
+
+<p>Each forked OS process consumes additional memory. This limits how many processes you can run in a single dyno. With a typical Rails memory footprint, you can expect to run 2-4 Unicorn worker processes. Your application may allow for more or less processes depending on your specific memory footprint, and we recommend specifying this number in an config var to allow for faster application tuning. Monitor your application logs for <a href="https://devcenter.heroku.com/articles/error-codes#r14-memory-quota-exceeded">R14 errors</a> (memory quota exceeded) via one of our <a href="https://addons.heroku.com/?q=logging">logging addons</a> or <code>heroku logs</code>.</p>
+
+<h3 id="preload-app">Preload app</h3>
+
+<pre><code class="ruby">preload_app true
+# ...
+before_fork do |server, worker|
+  # ...
+  defined?(ActiveRecord::Base) and
+    ActiveRecord::Base.connection.disconnect!
+end
+
+after_fork do |server, worker|
+  # ...
+  defined?(ActiveRecord::Base) and
+    ActiveRecord::Base.establish_connection
+end
+</code></pre>
+
+<p>Preloading your application reduces the startup time of individual Unicorn <code>worker_processes</code> and allows you to manage the external connections of each individual worker using the <code>before_fork</code> and <code>after_fork</code> calls. In the config above, these calls are used to correctly establish postgres connections for each worker process.</p>
+
+<p>New Relic also recommends <code>preload_app true</code> for more accurate data collection with Unicorn apps. For information on using New Relic without <code>preload_app true</code>, see <a href="https://newrelic.com/docs/ruby/no-data-with-unicorn">their documentation</a>.</p>
+
+<h3 id="signal-handling">Signal handling</h3>
+
+<pre><code class="ruby">before_fork do |server, worker|
+  Signal.trap 'TERM' do
+    puts 'Unicorn master intercepting TERM and sending myself QUIT instead'
+    Process.kill 'QUIT', Process.pid
+  end
+  # ...
+end
+
+after_fork do |server, worker|
+  Signal.trap 'TERM' do
+    puts 'Unicorn worker intercepting TERM and doing nothing. Wait for master to sent QUIT'
+  end
+  # ...
+end
+</code></pre>
+
+<p><a href="http://en.wikipedia.org/wiki/Unix_signal">POSIX Signals</a> are a form of interprocess communication to indicate a certain event or state change. Traditionally, <a href="http://en.wikipedia.org/wiki/SIGQUIT#SIGQUIT"><code>QUIT</code></a> is used to signal a process to exit immediately and produce a core dump. <a href="http://en.wikipedia.org/wiki/SIGTERM#SIGTERM"><code>TERM</code></a> is used to tell a process to terminate, but allows the process to clean up after itself.</p>
+
+<p>Unicorn uses the <code>QUIT</code> signal to indicate graceful shutdown. When the master process receives this signal it sends a <code>QUIT</code> signal to all workers who will then gracefully shut down after completing any in-flight requests. After the worker processes have shut down, the master process will exit.</p>
+
+<p><a href="https://devcenter.heroku.com/articles/dynos#graceful-shutdown-with-sigterm">Heroku uses the <code>TERM</code></a> signal to indicate to all processes in a dyno that the dyno is being shut down. The configuration above ensures that this <code>TERM</code> signal is translated correctly to the Unicorn model: the workers trap and ignore the signal. The master traps and sends a <code>QUIT</code> signal to itself, thereby starting the graceful shutdown process.</p>
+
+<p>Heroku gives processes 10 seconds to shut down gracefully after which a <code>KILL</code> signal is sent to all processes to force a shutdown. If an individual request takes longer than 10 seconds, it might be interrupted. Keep an eye out for entries in your application logs that indicate failure to shut down gracefully.</p>
+
+<h3 id="timeouts">Timeouts</h3>
+
+<p>Heroku’s router enforces a 30 second window before there is a <a href="https://devcenter.heroku.com/articles/request-timeout">request timeout</a>. After a request is delivered to a dyno via the router it has 30 seconds to return a response or the router will return a  <a href="https://devcenter.heroku.com/articles/error-pages">customizable error page</a>. This is done to prevent hanging requests from tying up resources. While the router will return a response to the client, the unicorn worker will continue to process the request even though a client has received a response. This means that the worker is being tied up, perhaps indefinitely due to a hung request. To ensure your application’s requests do not tie up your dyno past the request timeout, we recommend using both <a href="https://github.com/kch/rack-timeout">Rack::Timeout</a> and Unicorn’s timeout configuration setting.</p>
+
+<h4 id="unicorn-timeout">Unicorn timeout</h4>
+
+<p>Unicorn has a configurable timeout setting. The timeout countdown for unicorn will begin once the request is being processed by your application and end when it returns a response. If the request takes longer than the specified time, the master will be SIGKILL the worker working on the request</p>
+
+<pre><code class="ruby">timeout 15
+</code></pre>
+
+<p>We recommend a timeout of 15 seconds. With a 15 second timeout, the master process will send a <code>SIGKILL</code> to the worker process if processing a request takes longer than 15 seconds. This will generate a <a href="https://devcenter.heroku.com/articles/error-codes#h13-connection-closed-without-response">H13</a> error code and you’ll see it in your logs. Note, this will not generate any stacktraces to assist in debugging.</p>
+
+<h4 id="rack-timeout">Rack::Timeout</h4>
+
+<p>When the <a href="https://devcenter.heroku.com/articles/request-timeout#timeout-behavior">Rack::Timeout</a> limit is hit, it closes the requests and generates a stacktrace in the logs that can be used for future debugging of long running code.</p>
+
+<pre><code class="ruby"># config/initializers/timeout.rb
+Rack::Timeout.timeout = 10  # seconds
+</code></pre>
+
+<p>On Ruby 1.9/2.0, <code>Rack::Timeout</code> uses Ruby’s stdlib <code>Timeout</code> library which can be unreliable. Heroku recommends using Rack::Timeout and setting the unicorn timeout. If using both timeout systems, the Rack::Timeout value should be lower than the unicorn timeout if you plan on using the stack trace produced by Rack::Timeout for debugging.</p>
+
+<h3 id="procfile">Procfile</h3>
+
+<p>Set Unicorn as the server for the web process in your <code>Procfile</code>, pointing to your config file:</p>
+
+<pre><code>web: bundle exec unicorn -p $PORT -c ./config/unicorn.rb
+</code></pre>
+
+<h2 id="sample-code">Sample code</h2>
+
+<p>A sample Rails 3 app using Unicorn is available here:</p>
+
+<p><a href="https://github.com/heroku/ruby-rails-unicorn-sample">https://github.com/heroku/ruby-rails-unicorn-sample</a></p>
+
+<h2 id="caveats">Caveats</h2>
+
+<h3 id="preloading-and-other-external-services">Preloading and other external services</h3>
+
+<p>Take care with other external connections to make sure they work properly with Unicorn’s forking model. As you can see in the sample configuration above, the app drops its ActiveRecord connection in the <code>before_fork</code> block, and reconnects in the worker process in <code>after_fork</code>. Other services will follow a similar pattern. For example, here’s the configuration block for using Resque with a Unicorn app:</p>
+
+<pre><code class="ruby">before_fork do |server, worker|
+  # ...
+
+  # If you are using Redis but not Resque, change this
+  if defined?(Resque)
+    Resque.redis.quit
+    Rails.logger.info('Disconnected from Redis')
+  end
+end
+
+after_fork do |server, worker|
+  # ...
+
+  # If you are using Redis but not Resque, change this
+  if defined?(Resque)
+    Resque.redis = ENV['&lt;REDIS_URI&gt;']
+    Rails.logger.info('Connected to Redis')
+  end
+end
+</code></pre>
+
+<p>Modify the <code>REDIS_URI</code> config var to correspond with that from your Redis provider.</p>
+
+<p>Many popular gems, such as the <a href="https://github.com/mperham/dalli#features-and-changes">dalli memcache client</a>, discuss compatibility with Unicorn’s worker process model in their documentation. If you are experiencing issues, check your gem’s documentation for more information.</p>
+
+<h3 id="assets">Assets</h3>
+
+<p>For optimal performance, host your assets <a href="https://devcenter.heroku.com/articles/using-amazon-cloudfront-cdn">behind a CDN</a> to free up your web dynos to serve only dynamic content.</p>
+
+<h3 id="database-connections">Database connections</h3>
+
+<p>Running a concurrent web server in production means that each dyno will require more than one database connection. To run a high volume Rails app with a concurrent web server you will need to understand how Active Record creates and manages these connections in the connection pool, and the connection limit on development databases. For an in depth look at these topics please read the devcenter article <a href="https://devcenter.heroku.com/articles/concurrency-and-database-connections">Concurrency and Database Connections</a>.</p>
+
+<h3 id="slow-clients">Slow clients</h3>
+
+<p>While Unicorn is the recommended default web server for Ruby apps
+running on Heroku, it may not be the best choice for your particular
+combination of application and workload. In particular, if your
+application receives requests with large body payloads from slow
+clients, you may be better off using a different web server. An
+example would be a an app that receives images uploaded by users from
+mobile phones that are not on wifi, 4G or other fast networks.</p>
+
+<p>The problem is caused by Unicorn workers becoming tied up receiving
+requests that are sent slowly by clients. If all Unicorn workers are
+tied up, new requests are queued and your app will likely experience
+greater-than-normal request-queue times or even <a href="https://devcenter.heroku.com/articles/error-codes#h12-request-timeout">H12
+errors</a>.</p>
+
+<p>Puma, Thin or Rainbows! are alternative web servers that may work
+better under load generated by slow clients. To change the web server
+running your app on Heroku, simply specify a different command for the
+<code>web</code> process type in your
+<a href="https://devcenter.heroku.com/articles/procfile">Procfile</a>.</p>

@@ -1,0 +1,227 @@
+<p>This article describes creating slugs from scratch on a machine that you control, and then uploading and running those slugs on Heroku apps. Doing this is appropriate if full control over what goes into slugs is needed.</p>
+
+<p>For most uses, however, we recommend using the <a href="https://devcenter.heroku.com/articles/platform-api-reference#build"><code>build</code> resource</a> of the Platform API to transform source code into slugs. Using the build resource is generally simpler than creating slugs from scratch, and will cause slugs to be generated using the standard <a href="https://devcenter.heroku.com/articles/slug-compiler">Heroku slug compiler</a> and the standard Heroku <a href="https://devcenter.heroku.com/articles/buildpacks">buildspacks</a>. Slugs generated using the standard build pipeline are more likely to be compatible and work on Heroku. For details on how to create slugs using the Platform API and the build resource, see <a href="https://devcenter.heroku.com/articles/build-and-release-using-the-api">Build and release using the API</a>.</p>
+
+<div class="callout">
+<p>If you want to use the standard <a href="https://devcenter.heroku.com/articles/slug-compiler">Buildpack and slug compilation process</a> but want to re-use slugs in multiple apps, please see the <a href="https://devcenter.heroku.com/articles/platform-api-copying-slugs">Copying Slugs with the Platform API</a>.</p>
+</div>
+
+<h2 id="create-the-slug">Create the slug</h2>
+
+<div class="callout">
+<p>Slugs are <a href="http://en.wikipedia.org/wiki/Gzip">gzip</a> compressed <a href="http://en.wikipedia.org/wiki/Tar_(computing)">tar</a> files containing a runnable <a href="https://devcenter.heroku.com/articles/cedar">Cedar</a> application in the <code>./app</code> directory. Slugs may contain files outside of <code>./app</code>; however, they will be ignored when unpacked by Heroku. Slug size should not exceed the <a href="https://devcenter.heroku.com/articles/limits#slug-size">slug size limits</a>.</p>
+</div>
+
+<p>In this example, we will demonstrate how to create, from scratch, slugs containing either Node.js, Ruby or Go apps. For all slugs, contents should be in the <code>./app</code> directory, so first create and enter this directory:</p>
+
+<pre><code class="term">$ mkdir app
+$ cd app
+</code></pre>
+
+<p>Now add the actual app and any required dependencies. The details depends on the chosen app and framework.</p>
+
+<div class="callout">
+<p>If you’re following this guide, choose one language and complete the steps for that language only</p>
+</div>
+
+<h3 id="node-js">Node.js</h3>
+
+<p>Get the Node.js runtime for x64 Linux:</p>
+
+<pre><code class="term">$ curl http://nodejs.org/dist/v0.10.20/node-v0.10.20-linux-x64.tar.gz | tar xzv
+</code></pre>
+
+<p>Now add the code for the app in a file named <code>web.js</code>:</p>
+
+<pre><code class="javascript">// Load the http module to create an http server
+var http = require('http');
+
+// Configure HTTP server to respond with Hello World to all requests
+var server = http.createServer(function (request, response) {
+  response.writeHead(200, {"Content-Type": "text/plain"});
+  response.end("Hello World\n");
+});
+
+var port = process.env.PORT;
+
+// Listen on assigned port
+server.listen(port);
+
+// Put a friendly message on the terminal
+console.log("Server listening on port " + port);
+</code></pre>
+
+<h3 id="ruby">Ruby</h3>
+
+<p>The Ruby project does not provide precompiled self-contained runtimes, so we’ll use one created by the Heroku Ruby team for the <a href="https://github.com/heroku/heroku-buildpack-ruby">buildpack</a>. It’s available at <code>https://s3-external-1.amazonaws.com/heroku-buildpack-ruby/ruby-2.0.0.tgz</code>.</p>
+
+<p>Get the Ruby runtime:</p>
+
+<pre><code class="term">$ mkdir ruby-2.0.0
+$ cd ruby-2.0.0
+$ curl https://s3-external-1.amazonaws.com/heroku-buildpack-ruby/ruby-2.0.0.tgz | tar xzv
+$ cd ..
+</code></pre>
+
+<p>Add a very simple Ruby app to <code>server.rb</code>:</p>
+
+<pre><code class="ruby">require 'webrick'
+
+server = WEBrick::HTTPServer.new :Port =&gt; ENV["PORT"]
+
+server.mount_proc '/' do |req, res|
+    res.body = "Hello, world!\n"
+end
+
+trap 'INT' do
+  server.shutdown
+end
+
+server.start
+</code></pre>
+
+<h3 id="go">Go</h3>
+
+<p>Creating Go slugs is surprisingly simple. This is because the <code>go build</code> command produces standalone executables that do not require bundling any additional runtime dependencies. One caveat is that you have to cross-compile executables if you’re not creating the slug on the same architecture that Heroku uses (linux/amd64). <a href="https://coderwall.com/p/pnfwxg">Setting up the Go toolchain for cross-compilation</a> is relatively simple.</p>
+
+<p>Add the app in <code>web.go</code>:</p>
+
+<pre><code class="go">package main
+
+import (
+    "fmt"
+    "net/http"
+    "os"
+)
+
+func main() {
+    http.HandleFunc("/", hello)
+    fmt.Println("listening...")
+    err := http.ListenAndServe(":"+os.Getenv("PORT"), nil)
+    if err != nil {
+      panic(err)
+    }
+}
+
+func hello(res http.ResponseWriter, req *http.Request) {
+    fmt.Fprintln(res, "hello, world")
+}
+</code></pre>
+
+<p>Now build an executable that will work on Heroku:</p>
+
+<pre><code class="term">GOARCH=amd64 GOOS=linux go build web.go
+</code></pre>
+
+<h2 id="create-slug-archive">Create slug archive</h2>
+
+<p>Change back to the parent directory of <code>app</code> and compress <code>./app</code> (the <code>./</code> prefix is important) to create the slug:</p>
+
+<pre><code class="term">$ cd ..
+$ tar czfv slug.tgz ./app
+</code></pre>
+
+<div class="warning">
+<p>Heroku currently has limited tar-file compatibility. Please use <a href="http://www.gnu.org/software/tar/tar.html">GNU Tar</a> (and not bsdtar) when creating slug archives. You can check your tar version with <code>tar --version</code>.
+If you find that a slug created with GNU Tar fails to boot on Heroku, then feel free to <a href="https://help.heroku.com/">open a support ticket</a> to get help debugging the problem.</p>
+</div>
+
+<h2 id="publish-to-the-platform">Publish to the platform</h2>
+
+<p>Start by creating the Heroku app that will be running this slug:</p>
+
+<pre><code class="term">$ heroku create example
+Creating example... done, stack is cedar
+http://example.herokuapp.com/ | git@heroku.com:example.git
+</code></pre>
+
+<p>Publishing your slug to the platform is a two-step process. First, request that Heroku allocate a new slug for your app. When allocating the slug, use the <code>process_types</code> parameter to provide a list of runnable commands that are available in the slug being created.</p>
+
+<p>The <code>process_types</code> parameter has content similar to what is included in the <a href="https://devcenter.heroku.com/articles/procfile">Procfile</a> that’s typically included in apps pushed to Heroku. The Procfile is not parsed when slugs are launched in dynos; instead they are parsed by the build system and the contents are passed in when the slug is created.</p>
+
+<p>The <code>process_types</code> parameter depends on what kind of slug you created above:</p>
+
+<ul>
+<li>Node.js: <code>{ "web": "node-v0.10.20-linux-x64/bin/node web.js" }</code>
+</li>
+<li>Ruby: <code>{"web": "ruby-2.0.0/bin/ruby server.rb"}</code>
+</li>
+<li>Go: <code>{"web":"./web"}</code>
+</li>
+</ul><div class="callout">
+<p>The <code>-n</code> flag tells <code>curl</code> to read the credentials for <code>api.heroku.com</code> from <code>~/.netrc</code> and automatically sets the <code>Authorization</code> header. See the <a href="https://devcenter.heroku.com/articles/platform-api-quickstart">Getting Started with the Platform API</a> for other authentication options.</p>
+</div>
+
+<pre><code class="term">$ curl -X POST \
+-H 'Content-Type: application/json' \
+-H 'Accept: application/vnd.heroku+json; version=3' \
+-d '{"process_types":{"web":"node-v0.10.20-linux-x64/bin/node web.js"}}' \
+-n https://api.heroku.com/apps/example/slugs
+{
+  "blob":{
+    "method": "put",
+    "url": "https://s3-external-1.amazonaws.com/herokuslugs/heroku.com/v1/d969e0b3-9892-4567-7642-1aa1d1108bc3?AWSAccessKeyId=AKIAJWLOWWHPBWQOPJZQ&amp;Signature=2oJJEtemTp7h0qTH2Q4B2nIUY9w%3D&amp;Expires=1381273352"
+  },
+  "commit":null,
+  "created_at":"2013-10-08T22:04:13Z",
+  "id":"d969e0b3-9892-3113-7653-1aa1d1108bc3",
+  "process_types":{
+    "web":"node-v0.10.20-linux-x64/bin/node web.js"
+  },
+  "updated_at":"2013-10-08T22:04:13Z"
+}
+</code></pre>
+
+<div class="callout">
+<p>Please note that the blob URL is not passed in the slug create request. Instead, it’s returned in the slug create response, and you can then use the URL to <code>PUT</code> your binary slug artifact.</p>
+</div>
+
+<p>For the second step we will use the <code>blob</code> URL provided in the response above to upload <code>slug.tgz</code> and make it available to the platform:</p>
+
+<pre><code class="term">$ curl -X PUT \
+-H "Content-Type:" \
+--data-binary @slug.tgz \
+"https://s3-external-1.amazonaws.com/herokuslugs/heroku.com/v1/d969e0b3-9892-4567-7642-1aa1d1108bc3?AWSAccessKeyId=AKIAJWLOWWHPBWQOPJZQ&amp;Signature=2oJJEtemTp7h0qTH2Q4B2nIUY9w%3D&amp;Expires=1381273352"
+</code></pre>
+
+<h2 id="release-the-slug">Release the slug</h2>
+
+<p>The slug is now uploaded to Heroku, but is not yet released to an app. To actually start running this slug, <code>POST</code> its id to the <code>/apps/:app/releases</code> endpoint:</p>
+
+<pre><code class="term">$ curl -X POST \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Content-Type: application/json" \
+-d '{"slug":"d969e0b3-9892-3113-7653-1aa1d1108bc3"}' \
+-n https://api.heroku.com/apps/example/releases
+{
+  "created_at":"2013-10-08T16:09:54Z",
+  "description":"deploy",
+  "id":"a0ff4658-ec55-4ee2-96a9-8c67287a807e",
+  "slug":{
+    "id":"d969e0b3-9892-3113-7653-1aa1d1108bc3"
+  },
+  "updated_at":"2013-10-08T16:09:54Z",
+  "user":{
+    "email":"jane@doe.com",
+    "id":"2930066e-c315-4097-8e88-56126f3d4dc1"
+  },
+  "version":3
+}
+</code></pre>
+
+<div class="callout">
+<p>The same slug can be released to multiple apps. This can be used for more advanced deployment workflows.</p>
+</div>
+
+<p>You can now see the new release in your app’s release history:</p>
+
+<pre><code class="term">$ heroku releases --app example
+=== example Releases
+v3  deploy  jane@doe.com  2013/10/08 16:09:54 (~ 1m ago)
+...
+</code></pre>
+
+<p>View your app in your browser to see it running with the newly released slug.</p>
+
+<pre><code class="term">$ heroku open --app example
+</code></pre>

@@ -1,0 +1,347 @@
+<div class="warning">
+<p>This article describes a <a href="https://devcenter.heroku.com/articles/heroku-beta-features">beta feature</a>. Functionality may change prior to general availability.</p>
+</div>
+
+<p>This document describes the general behavior of the <a href="https://devcenter.heroku.com/articles/cedar">Heroku Cedar stack</a> as it relates to the recognition and execution of PHP applications.</p>
+
+<h2 id="activation">Activation</h2>
+
+<p>The Heroku PHP Support will be applied to applications only when the application has a file named <code>composer.json</code> in the root directory. Even if an application has no <a href="http://getcomposer.org">Composer</a> dependencies, it must include an <strong>empty</strong> <code>composer.json</code> in order to be recognized as a PHP application.</p>
+
+<p>When Heroku recognizes a PHP application, it will respond accordingly during a push:</p>
+
+<pre><code class="term">$ git push heroku master
+-----&gt; PHP app detected
+</code></pre>
+
+<h2 id="php-runtimes">PHP runtimes</h2>
+
+<p>Heroku makes a number of different runtimes available.  You can configure your app to select a particular runtime.</p>
+
+<h3 id="supported-runtimes">Supported runtimes</h3>
+
+<p>Heroku’s PHP support extend to apps using <strong>PHP 5.5</strong> (5.5.14, 64-bit), which is also the default PHP runtime for apps. The PHP runtime has <a href="http://docs.php.net/opcache">OPcache</a> enabled for improved performance, with a configuration optimized for Heroku.</p>
+
+<h3 id="available-runtimes">Available runtimes</h3>
+
+<p>An additional, unsupported runtime is available - HipHop VM (<strong>HHVM</strong>) (3.1.0, 64-bit). However, we only currently endorse and support the use of PHP 5.5.</p>
+
+<p>This runtime can be enabled via <code>composer.json</code>.</p>
+
+<div class="note">
+<p>Specify PHP or HHVM runtime versions other than exactly “5.5.14” and “3.1.0”, respectively, will currently generate a warning which can be ignored.</p>
+</div>
+
+<h3 id="selecting-a-runtime">Selecting a runtime</h3>
+
+<p>You may select the runtime to use via <a href="https://getcomposer.org/doc/02-libraries.md#platform-packages">Composer Platform Packages</a> in <code>composer.json</code>. Upon deploy, Heroku will confirm the request:</p>
+
+<pre><code>-----&gt; Detected request for PHP 5.5.14 in composer.json.
+</code></pre>
+
+<p>If you specify an unknown or unsupported version, Heroku will default to the latest version and inform you of the problem:</p>
+
+<pre><code>-----&gt; Fetching custom git buildpack... done
+-----&gt; PHP app detected
+
+ !     WARNING: Your composer.json requires an unknown HHVM version.
+       Defaulting to HHVM 3.1.0; install may fail!
+</code></pre>
+
+<h4 id="selecting-a-runtime-php">PHP</h4>
+
+<p>Specify “<code>php</code>” as a dependency in the <code>require</code> section of your <code>composer.json</code> to use PHP as the runtime:</p>
+
+<pre><code class="json">{
+  "require": {
+    "php": "~5.5.12"
+  }
+}
+</code></pre>
+
+<div class="note">
+<p>Currently, using a lenient selector such as <code>~5.5.0</code> will generate a warning which can be ignored as long as the selected range includes PHP 5.5.14.</p>
+</div>
+
+<h4 id="selecting-a-runtime-hhvm">HHVM</h4>
+
+<div class="warning">
+<p>Support for HHVM is highly <a href="https://devcenter.heroku.com/articles/heroku-beta-features">experimental</a>. Functionality may change prior to general availability.</p>
+</div>
+
+<p>Specify “<code>hhvm</code>” as a dependency in the <code>require</code> section of your <code>composer.json</code> to use HHVM as the runtime:</p>
+
+<pre><code class="json">{
+  "require": {
+    "hhvm": "~3.1.0"
+  }
+}
+</code></pre>
+
+<div class="note">
+<p>Specifying an exact version like this may not be practical in all circumstances. Currently, using a more lenient selector such as <code>~3.1</code> will generate a warning which can be ignored as long as the selected range includes HHVM 3.1.0.</p>
+</div>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<div class="warning">
+<p>If you specify <code>hhvm</code> as a dependency in your project, Composer will check for it during <code>composer update</code> or <code>composer install</code> commands. This means that you need HHVM installed on the computer where you run the command, and you need to run Composer using HHVM (e.g. by running <code>hhvm `which composer` update</code> or <code>hhvm composer.phar update</code>) for Composer to successfully finish the operation and write a <code>composer.lock</code> lock file.</p>
+</div>
+
+<h3 id="supported-versions">Supported versions</h3>
+
+<h4 id="supported-versions-php">PHP</h4>
+
+<ul>
+<li>5.5.11</li>
+<li>5.5.12</li>
+<li>5.5.13</li>
+<li>5.5.14 (default)</li>
+</ul><h4 id="supported-versions-hhvm">HHVM</h4>
+
+<ul>
+<li>3.0.1</li>
+<li>3.1.0 (default)</li>
+</ul><h3 id="upgrades">Upgrades</h3>
+
+<p>If you deploy an application that does not declare a runtime version dependency, the then-latest version of PHP 5.5 or HHVM 3 will be used. Your application will be upgraded to more recent versions of PHP 5.5 (e.g. 5.5.15) or HHVM (e.g. 3.2.0) if available automatically upon the next deploy, but you will never automatically be upgraded to PHP 5.6 or HHVM 4.0.</p>
+
+<h2 id="extensions">Extensions</h2>
+
+<h3 id="php-5-5">PHP 5.5</h3>
+
+<p>The following built-in extensions are enabled automatically on Heroku (this list does not include extensions that PHP enables by default, such as <a href="http://docs.php.net/dom">DOM</a>, <a href="http://docs.php.net/json">JSON</a>, <a href="http://docs.php.net/pcre">PCRE</a> or <a href="http://docs.php.net/pdo">PDO</a>):</p>
+
+<ul>
+<li><a href="http://docs.php.net/bzip2">Bzip2</a></li>
+<li><a href="http://docs.php.net/curl">cURL</a></li>
+<li><a href="http://docs.php.net/fpm">FPM</a></li>
+<li><a href="http://docs.php.net/mcrypt">mcrypt</a></li>
+<li>
+<a href="http://docs.php.net/pdo_mysql">MySQL (PDO)</a> (uses <a href="http://docs.php.net/mysqlnd">mysqlnd</a>)</li>
+<li>
+<a href="http://docs.php.net/mysqli">MySQLi</a> (uses <a href="http://docs.php.net/mysqlnd">mysqlnd</a>)</li>
+<li><a href="http://docs.php.net/opcache">OPcache</a></li>
+<li><a href="http://docs.php.net/openssl">OpenSSL</a></li>
+<li><a href="http://docs.php.net/pgsql">PostgreSQL</a></li>
+<li><a href="http://docs.php.net/pdo_pgsql">PostgreSQL (PDO)</a></li>
+<li><a href="http://docs.php.net/readline">Readline</a></li>
+<li><a href="http://docs.php.net/sockets">Sockets</a></li>
+<li><a href="http://docs.php.net/zip">Zip</a></li>
+<li><a href="http://docs.php.net/zlib">Zlib</a></li>
+</ul><p>The following built-in extensions have been built “shared” and can be enabled through <code>composer.json</code> (internal identifier names given in parentheses):</p>
+
+<ul>
+<li>
+<a href="http://docs.php.net/bcmath">BCMath</a> (<code>bcmath</code>)</li>
+<li>
+<a href="http://docs.php.net/exif">Exif</a> (<code>exif</code>)</li>
+<li>
+<a href="http://docs.php.net/gd">GD</a> (<code>gd</code>; with PNG, JPEG and FreeType support)</li>
+<li>
+<a href="http://docs.php.net/gettext">gettext</a> (<code>gettext</code>)</li>
+<li>
+<a href="http://docs.php.net/intl">intl</a> (<code>intl</code>)</li>
+<li>
+<a href="http://docs.php.net/mbstring">mbstring</a> (<code>mbstring</code>)</li>
+<li>
+<a href="http://docs.php.net/book.mysql">MySQL</a> (<code>mysql</code>; note that this extension is deprecated since PHP 5.5, please migrate to MySQLi or PDO)</li>
+<li>
+<a href="http://docs.php.net/pcntl">PCNTL</a> (<code>pcntl</code>)</li>
+<li>
+<a href="http://docs.php.net/shmop">Shmop</a> (<code>shmop</code>)</li>
+<li>
+<a href="http://docs.php.net/soap">SOAP</a> (<code>soap</code>)</li>
+<li>
+<a href="http://docs.php.net/sqlite3">SQLite3</a> (<code>sqlite3</code>)</li>
+<li>
+<a href="http://docs.php.net/pdo_sqlite">SQLite (PDO)</a> (<code>pdo_sqlite</code>)</li>
+<li>
+<a href="http://docs.php.net/xmlrpc">XMLRPC</a> (<code>xmlrpc</code>)</li>
+<li>
+<a href="http://docs.php.net/xsl">XSL</a> (<code>xsl</code>)</li>
+</ul><p>The following third-party extensions can be enabled through <code>composer.json</code> (internal identifier names given in parentheses):</p>
+
+<ul>
+<li>
+<a href="http://pecl.php.net/package/apcu">APCu</a> (<code>apcu</code>)</li>
+<li>
+<a href="http://docs.php.net/imagick">ImageMagick</a> (<code>imagick</code>)</li>
+<li>
+<a href="http://docs.php.net/memcached">memcached</a> (<code>memcached</code>; built against a version of <em>libmemcached</em> with <a href="http://en.wikipedia.org/wiki/Simple_Authentication_and_Security_Layer">SASL</a> support)</li>
+<li>
+<a href="http://docs.php.net/mongo">MongoDB</a> (<code>mongo</code>)</li>
+<li>
+<a href="http://newrelic.com/php">New Relic</a> (<code>newrelic</code>; will also be enabled automatically when the <a href="https://addons.heroku.com/newrelic">New Relic Add-On</a> is detected)</li>
+<li>
+<a href="http://pecl.php.net/package/redis">PHPRedis</a> (<code>redis</code>)</li>
+</ul><h3 id="extensions-hhvm">HHVM</h3>
+
+<p>HHVM is built with its standard set of extensions. Custom extensions for HHVM are not currently supported.</p>
+
+<h3 id="using-optional-extensions">Using optional extensions</h3>
+
+<p>You may declare any optional extensions you want to use via <code>composer.json</code> using <a href="https://getcomposer.org/doc/02-libraries.md#platform-packages">Composer Platform Packages</a>; simply prefix any of the identifiers in the list of extensions above with “<code>ext-</code>” in the package name.</p>
+
+<p>For example, to enable extensions for using <em>bcmath</em>, <em>Memcached</em>, <em>MongoDB</em> and <em>XSL</em>:</p>
+
+<pre><code class="javascript">{
+    "require": {
+        "ext-bcmath": "*",
+        "ext-memcached": "*",
+        "ext-mongo": "*",
+        "ext-xsl": "*"
+    }
+}
+</code></pre>
+
+<div class="warning">
+<p>It is strongly recommended that you use “<code>*</code>” as the version selector when specifying extensions, as their version numbers can be extremely inconsistent (most of them report their version as “0”) and Heroku will sometimes update extensions outside the regular PHP update cycles.</p>
+</div>
+
+<p>Upon the next push, Heroku will enable the corresponding PHP extensions:</p>
+
+<pre><code class="term">-----&gt; PHP app detected
+-----&gt; Setting up runtime environment...
+       - PHP 5.5.14
+       - Apache 2.4.9
+       - Nginx 1.4.6
+-----&gt; Installing PHP extensions:
+       - opcache (automatic; bundled, using 'ext-opcache.ini')
+       - mongo (composer.json; downloaded, using 'ext-mongo.ini')
+       - xsl (composer.json; bundled)
+       - bcmath (composer.json; bundled)
+       - memcached (composer.json; downloaded, using 'ext-memcached.ini')
+</code></pre>
+
+<h2 id="customizing-settings">Customizing settings</h2>
+
+<h3 id="customizing-settings-php">PHP</h3>
+
+<p>Any <code>.user.ini</code> file that is placed into a project <a href="http://docs.php.net/manual/en/configuration.file.per-user.php">according to the instructions in the PHP manual</a> will be loaded after the main <code>php.ini</code>. You can use these to set any directive permitted in <code>PHP_INI_ALL</code>, <code>PHP_INI_USER</code> and <code>PHP_INI_PERDIR</code> contexts.</p>
+
+<p>For additional details on this and other ways of customizing settings for the PHP runtime, please refer to the <a href="https://devcenter.heroku.com/articles/custom-php-settings">corresponding Dev Center article</a>.</p>
+
+<h3 id="customizing-settings-hhvm">HHVM</h3>
+
+<p>For details on ways of customizing settings for the HHVM runtime, please refer to the <a href="https://devcenter.heroku.com/articles/custom-php-settings">corresponding Dev Center article</a>.</p>
+
+<h2 id="build-behavior">Build behavior</h2>
+
+<p>The following command is run during a deploy to resolve dependencies:</p>
+
+<pre><code class="term">$ composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+</code></pre>
+
+<p>The installed version of Composer will be printed for your reference before installation begins.</p>
+
+<div class="note">
+<p>Composer will always be <code>self-update</code>d to the latest version before this command is run.</p>
+</div>
+
+<p>Composer’s cache directory is preserved between pushes to speed up package installation.</p>
+
+<h3 id="custom-composer-versions">Custom Composer versions</h3>
+
+<p>If the application contains a <code>composer.phar</code> in the root directory, then that executable will be used instead of the version provided by Heroku.</p>
+
+<div class="warning">
+<p>Running your own version of Composer is not recommended. If you use this feature, you will need to make sure that your version of Composer is up to date. Heroku will not run <code>composer self-update</code> before.</p>
+</div>
+
+<h3 id="custom-github-oauth-tokens">Custom GitHub OAuth tokens</h3>
+
+<p>GitHub’s API is subject to rate limits for anonymous requests. If the limit is hit, Composer will fall back to source-based installs instead of distribution tarballs, which will slow down builds.</p>
+
+<p>Using a <a href="https://github.com/blog/1509-personal-api-tokens">personal OAuth token</a> raises the limit significantly. To use such a token on Heroku, follow these steps:</p>
+
+<ol>
+<li>
+<a href="https://github.com/settings/tokens/new">Create a new Token</a> (the <code>public_repo</code> and, if you need, <code>repo</code> scopes will suffice)</li>
+<li>Copy the token for use in the next command</li>
+<li>
+<code>$ heroku config:set COMPOSER_GITHUB_OAUTH_TOKEN=YOURTOKEN</code> (replacing “YOURTOKEN” with the actual token from the previous step, of course).</li>
+</ol><p>Now, pushes to Heroku will use your token during <code>composer install</code>, and Heroku will confirm its usage:</p>
+
+<pre><code>-----&gt; Installing dependencies...
+       NOTICE: Using custom GitHub OAuth token in $COMPOSER_GITHUB_OAUTH_TOKEN
+</code></pre>
+
+<p>For more information, you may also refer to the <a href="https://getcomposer.org/doc/articles/troubleshooting.md#api-rate-limit-and-oauth-tokens">troubleshooting section</a> in the Composer documentation.</p>
+
+<h2 id="web-servers">Web servers</h2>
+
+<p>Heroku supports <strong><a href="http://httpd.apache.org">Apache</a> 2.4</strong> (2.4.9) and <strong><a href="http://nginx.org">Nginx</a> 1.4</strong> (1.4.6) as dedicated Web servers. For testing purposes, users may of course also use PHP’s built-in Web server, although this is not recommended.</p>
+
+<p>In the absence of a <code>Procfile</code> entry for the “web” dyno type, the Apache Web server will be used together with the PHP or HHVM runtime.</p>
+
+<h3 id="apache">Apache</h3>
+
+<p>Apache interfaces with PHP-FPM or HHVM via FastCGI using <code>mod_proxy_fcgi</code>.</p>
+
+<p>To start Apache together with PHP-FPM and all the correct settings, use the <code>heroku-php-apache2</code> script in the Composer vendor <code>bin</code> dir (usually <code>vendor/bin</code>):</p>
+
+<pre><code>web: vendor/bin/heroku-php-apache2
+</code></pre>
+
+<div class="note">
+<p>Vendor binaries are usually installed to <code>vendor/bin</code> by Composer, but under some circumstances (e.g. when running a Symfony2 standard edition project), the location will be different. Run <code>composer config bin-dir</code> to find the right location.</p>
+</div>
+
+<p>To run HHVM instead, use the <code>heroku-hhvm-apache2</code> script:</p>
+
+<pre><code>web: vendor/bin/heroku-hhvm-apache2
+</code></pre>
+
+<p>By default, the root folder of your project will be used as the document root. To use a sub-directory, you may pass the name of a sub-folder as the argument to the boot script, e.g. “public_html”:</p>
+
+<pre><code>web: vendor/bin/heroku-php-apache2 public_html
+</code></pre>
+
+<p>You can use regular <code>.htaccess</code> files to customize Apache’s behavior, e.g. for <a href="http://httpd.apache.org/docs/2.4/rewrite/">URL rewriting</a>. For additional details on this and other options to customize settings for Apache, please refer to the <a href="https://devcenter.heroku.com/articles/custom-php-settings">corresponding Dev Center article</a>.</p>
+
+<p>All other</p>
+
+<h3 id="nginx">Nginx</h3>
+
+<p>Nginx interfaces with PHP-FPM via FastCGI.</p>
+
+<p>To start Nginx together with PHP-FPM and all the correct settings, use the <code>heroku-php-nginx</code> script in the Composer vendor <code>bin</code> dir (usually <code>vendor/bin</code>):</p>
+
+<pre><code>web: vendor/bin/heroku-php-nginx
+</code></pre>
+
+<div class="note">
+<p>Vendor binaries are usually installed to <code>vendor/bin</code> by Composer, but under some circumstances (e.g. when running a Symfony2 standard edition project), the location will be different. Run <code>composer config bin-dir</code> to find the right location.</p>
+</div>
+
+<p>To run HHVM instead, use the <code>heroku-hhvm-nginx</code> script:</p>
+
+<pre><code>web: vendor/bin/heroku-hhvm-nginx
+</code></pre>
+
+<p>By default, the root folder of your project will be used as the document root. To use a sub-directory, you may pass the name of a sub-folder as the argument to the boot script, e.g. “public_html”:</p>
+
+<pre><code>web: vendor/bin/heroku-php-nginx public_html
+</code></pre>
+
+<p>For additional details on different ways of customizing settings for Nginx, please refer to the <a href="https://devcenter.heroku.com/articles/custom-php-settings">corresponding Dev Center article</a>.</p>
+
+<h3 id="php-built-in-web-server">PHP Built-in Web server</h3>
+
+<p>For testing purposes, you may start <a href="http://docs.php.net/manual/en/features.commandline.webserver.php">PHP’s built-in Web server</a> by using <code>php -S 0.0.0.0:$PORT</code> as the entry for “web” in your <code>Procfile</code>:</p>
+
+<pre><code>web: php -S 0.0.0.0:$PORT
+</code></pre>
+
+<div class="note">
+<p>The <code>Procfile</code> must contain <code>$PORT</code> in the line shown above. It’s used by Heroku at runtime to dynamically bind the web server instance to the correct port for the dyno.</p>
+</div>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<div class="note">
+<p>It is important to bind to all interfaces using <code>0.0.0.0</code>, otherwise Heroku’s <a href="https://devcenter.heroku.com/articles/http-routing">routing</a> won’t be able to forward requests to the web server!</p>
+</div>
+
+<p>You may also pass an alternative document root or use a so called router script to process requests. For details, please refer to the documentation for the built-in Web server.</p>

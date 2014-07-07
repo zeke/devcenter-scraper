@@ -84,4 +84,4 @@ error: remote 'refs/heads/master' is not a strict subset of local ref 'refs/head
 maybe you are not up-to-date and need to pull first?
 ```
 
-This means that other developers have pushed up changes that you need to pull down and merge with your local repository. The easiest way to do this is to run `git pull --rebase`. Ensure your changes don't conflict with what you pulled down before deploying.
+This means that other developers have pushed up changes that you need to pull down and merge with your local repository. The easiest way to do this is to run `git pull --rebase`. Ensure your changes don't conflict with what you pulled down before deploying. 

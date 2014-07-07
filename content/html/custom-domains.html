@@ -1,4 +1,4 @@
-<p>All apps on Heroku are accessible via their <code>herokuapp.com</code> app subdomain. E.g., for an app named <code>example</code> it’s available at <code>example.herokuapp.com</code>. To serve traffic on a non-herokuapp.com domain, e.g., <code>www.example.com</code>, you need to configure your application with a custom domain.</p>
+<p>All apps on Heroku are accessible via their <code>herokuapp.com</code> app subdomain. E.g., for an app named <code>example</code> it’s available at <code>example.herokuapp.com</code>. To serve traffic on a non-herokuapp.com domain, e.g., <code>www.example.com</code>, you need to configure your application with a custom domain (a free feature on Heroku).</p>
 
 <p>The process to add a custom domain to your application can vary slightly, depending on the type of domain(s).</p>
 
@@ -81,6 +81,9 @@ Adding example.com to example... done
 <ul>
 <li><a href="http://support.dnsimple.com/articles/alias-record">ALIAS at DNSimple</a></li>
 <li><a href="http://www.dnsmadeeasy.com/technology/aname-records/">ANAME at DNS Made Easy</a></li>
+<li><a href="http://docs.easydns.com/aname-records/">ANAME at easyDNS</a></li>
+<li><a href="https://support.cloudflare.com/hc/en-us/articles/200169056-Does-CloudFlare-support-CNAME-APEX-at-the-root-">CNAME at CloudFlare</a></li>
+<li><a href="https://devcenter.heroku.com/articles/pointdns">ALIAS at PointDNS</a></li>
 </ul><p>For each provider, the setup is similar: point the ALIAS or ANAME entry for your apex domain to example.herokuapp.com, just as you would with a CNAME record.</p>
 
 <div class="callout">

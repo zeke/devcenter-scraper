@@ -58,12 +58,14 @@ elb002776-242519199.us-east-1.elb.amazonaws.com has address 107.21.240.226
 
 <p>You should see an alias mapping from <code>www.example.com</code> to either <code>app-name.herokuapp.com</code> or <code>endpoint-name.herokussl.com</code>.</p>
 
-<h2 id="production-database">Production database</h2>
+<h2 id="heroku-postgres">Heroku Postgres</h2>
+
+<h3 id="production-tier-database">Production-tier Database</h3>
 
 <p>If you run your business on Heroku, you should use a production-grade <a href="https://addons.heroku.com/heroku-postgresql">Heroku Postgres database</a>.</p>
 
 <div class="note">
-<p>The Heroku Postgres production tier starts with Crane and extends through to the Mecha plan. <em>Dev and Starter plans are not production databases</em>.</p>
+<p>The Heroku Postgres production tiers are Standard, Premium and Enterprise. <em>Dev and Basic hobby plans are not production databases</em>.</p>
 </div>
 
 <p>The production tier of service achieves the highest expected uptime and includes automated health checks, data snapshots and advanced features such as fork and follow.</p>
@@ -82,6 +84,10 @@ Maintenance: not required
 
 <p>If your application requires a non-relational data store, <a href="http://aws.amazon.com/dynamodb/">Amazon DynamoDB</a> is another great candidate for highly available data storage.</p>
 
+<h3 id="high-availability">High Availability</h3>
+
+<p>The Premium and Enterprise tiers of Heroku Postgres databases have additional benefits for application uptime, including <a href="https://devcenter.heroku.com/articles/heroku-postgres-ha">High Availability</a> with automatic failover.</p>
+
 <h2 id="visibility-monitoring">Visibility &amp; monitoring</h2>
 
 <p>Before improving the availability of your app, you should have excellent awareness of, and reactivity to, the state of your app. This can be accomplished with a variety of tools.</p>
@@ -90,7 +96,7 @@ Maintenance: not required
 
 <p><a href="https://devcenter.heroku.com/articles/newrelic">New Relic</a> allows you to monitor, and drill into, the performance of your app over time. There are many cases in which a loss in availability is preceded by a degradation in service.</p>
 
-<p><img src="https://dl.dropbox.com/u/674401/devcenter/newrelic.png" alt="New Relic"></p>
+<p><img src="https://s3.amazonaws.com/heroku.devcenter/manual_uploads/newrelic.png" alt="New Relic"></p>
 
 <p>Over a reasonable period of observation, establish normal operating boundaries for your application and set up alerts to notify you when your system is beginning to deviate.</p>
 
@@ -102,4 +108,4 @@ Maintenance: not required
 
 <p><a href="https://papertrailapp.com/">Papertrail</a> is an example of such a service that provides alerting based on patterns in your log data. Setup a search alert for errors &amp; events within your app and integrate with Librato, PagerDuty, and Campfire. The search alert can be for Heroku error codes or interesting events in your app.</p>
 
-<p><img src="https://dl.dropbox.com/u/674401/devcenter/Screen%2520Shot%25202012-07-12%2520at%25209.16.png" alt="Papertrail"></p>
+<p><img src="https://s3.amazonaws.com/heroku.devcenter/manual_uploads/papertrail.png" alt="Papertrail"></p>

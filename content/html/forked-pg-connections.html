@@ -102,6 +102,26 @@ connections in an initializer:</p>
   end
 </code></pre>
 
+<h2 id="sidekiq">Sidekiq</h2>
+
+<p><a href="https://github.com/mperham/sidekiq">Sidekiq</a> uses threads to handle
+many jobs at the same time in the same process. To prevent sharing of
+connections you need to configure the Sidekiq server to correctly establish
+it’s own connection.</p>
+
+<p>You can specify this behavior by cleaning up and re-establishing
+connections in a Sidekiq initializer:</p>
+
+<pre><code class="ruby"># config/initializers/sidekiq.rb
+Sidekiq.configure_server do |config|
+  database_url = ENV['DATABASE_URL']
+  if database_url
+    ENV['DATABASE_URL'] = "#{database_url}?pool=25"
+    ActiveRecord::Base.establish_connection
+  end
+end
+</code></pre>
+
 <h2 id="disabling-new-relic-explain">Disabling New Relic EXPLAIN</h2>
 
 <p>The current implementation of New Relic auto-<code>EXPLAIN</code> can cause one
@@ -114,7 +134,7 @@ indicated</a>
 that this use of connections may be optimized in the future.</p>
 
 <p>If using Postgres 9.2 or later, investigating
-<a href="https://postgres.heroku.com/blog/past/2012/12/6/postgres_92_now_available#visibility">pg<em>stat</em>statements</a>
+<a href="https://postgres.heroku.com/blog/past/2012/12/6/postgres_92_now_available#visibility">pg_stat_statements</a>
 is recommended.  Useful in its own right, it can also help mitigate
 some of the loss in visibility caused by disabling New Relic’s
 auto-<code>EXPLAIN</code>.</p>

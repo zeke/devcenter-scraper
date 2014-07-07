@@ -1,0 +1,469 @@
+<div class="warning">
+<p>This article describes a <a href="https://devcenter.heroku.com/articles/heroku-beta-features">beta feature</a>. Functionality may change prior to general availability.</p>
+</div>
+
+<p>This guide will get you going with a <a href="http://php.net/">PHP</a> application. For general information on how to develop and architect apps for use on Heroku, see <a href="https://devcenter.heroku.com/articles/architecting-apps">Architecting Applications for Heroku</a>.</p>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<ul>
+<li>Basic PHP knowledge</li>
+<li>A Heroku user account. <a href="https://signup.heroku.com/signup/dc">Signup is free and instant.</a>
+</li>
+<li>A PHP project with a <code>composer.json</code> file describing the project’s dependencies. If you are not using Composer, a completely empty <code>composer.json</code> file will suffice.</li>
+</ul><div class="note">
+<p>Heroku uses <a href="http://getcomposer.org">Composer</a> for dependency management in PHP projects. For this reason, including a <code>composer.json</code> file will indicate to Heroku that your application is written in PHP.</p>
+</div>
+
+<h2 id="local-workstation-setup">Local workstation setup</h2>
+
+<p>First, install the Heroku Toolbelt on your local workstation.</p>
+
+<p><a class="toolbelt" href="https://toolbelt.heroku.com/">Install the Heroku Toolbelt</a></p>
+
+<p>This ensures that you have access to the <a href="https://devcenter.heroku.com/categories/command-line">Heroku command-line client</a>, Foreman, and the Git revision control system.</p>
+
+<p>Once installed, you can use the <code>heroku</code> command from your command shell.  Log in using the email address and password you used when creating your Heroku account:</p>
+
+<pre><code class="term">$ heroku login
+Enter your Heroku credentials.
+Email: dzuelke@example.com
+Password:
+Could not find an existing public key.
+Would you like to generate one? [Yn]
+Generating new SSH public key.
+Uploading ssh public key /Users/dzuelke/.ssh/id_rsa.pub
+</code></pre>
+
+<p>Press enter at the prompt to upload your existing <code>ssh</code> key or create a new one, used for pushing code later on.</p>
+
+<h2 id="a-hello-world-application">A Hello World application</h2>
+
+<p>You may be starting from an existing application. If not, here is a basic application to deploy that will get you going.</p>
+
+<p>Create a directory for your app and change to it:</p>
+
+<pre><code class="term">$ mkdir hello_heroku_php
+$ cd hello_heroku_php
+</code></pre>
+
+<p>Now, create an <code>index.php</code> inside this folder with the following contents:</p>
+
+<pre><code class="php">&lt;?php
+
+echo "Hello World!";
+
+?&gt;
+</code></pre>
+
+<p>In addition, you need to give Heroku an indication that this application is a PHP application. To do this, create an empty file called <code>composer.json</code>. On a Unix system you can create this file like so::</p>
+
+<pre><code class="term">$ touch composer.json
+</code></pre>
+
+<p>Your application is now ready to deploy to Heroku. The next steps are to put this application into a git repository, followed by pushing it to Heroku.</p>
+
+<h3 id="create-a-git-repository">Create a Git repository</h3>
+
+<p>Initialize a repository, add the two files, and commit them:</p>
+
+<pre><code class="term">$ git init
+Initialized empty Git repository in ~/hello_heroku_php/.git/
+$ git add .
+$ git commit -m "Initial import of Hello Heroku"
+[master (root-commit) 06ba0a7] Initial import of Hello Heroku
+ 2 files changed, 5 insertions(+)
+ create mode 100644 composer.json
+ create mode 100644 index.php
+</code></pre>
+
+<p>This creates a new git repository and commits <code>index.php</code> and <code>composer.json</code> into the “master” branch.</p>
+
+<h3 id="create-a-heroku-application">Create a Heroku application</h3>
+
+<p>Create a new Heroku application:</p>
+
+<pre><code class="term">$ heroku create
+Creating polar-chamber-3014... done, stack is cedar
+http://polar-chamber-3014.herokuapp.com/ | git@heroku.com:polar-chamber-3014.git
+Git remote heroku added
+</code></pre>
+
+<div class="note">
+<p>You will, of course, see a different <a href="https://devcenter.heroku.com/articles/creating-apps#creating-an-app-without-a-name">auto-generated application name</a> (and thus different URLs) when running the <code>heroku create</code> command, not “polar-chamber-3014”.</p>
+</div>
+
+<h3 id="deploy-to-heroku">Deploy to Heroku</h3>
+
+<p>The <code>heroku create</code> command registered a new application with Heroku, and added a git remote called <code>heroku</code> to your local repository. You may be familiar with other remotes such as <code>origin</code> or <code>upstream</code>. A remote specifies a git server location under a name.</p>
+
+<p>Now deploy the application by pushing the master branch to the heroku remote using the git command:</p>
+
+<div class="note">
+<p>You may see a message such as the following when you push to Heroku for the very first time:</p>
+
+<pre><code>The authenticity of host 'heroku.com (50.19.85.132)' can't be established.
+RSA key fingerprint is 8b:48:5e:67:0e:c9:16:47:32:f2:87:0c:1f:c8:60:ad.
+Are you sure you want to continue connecting (yes/no)?
+</code></pre>
+
+<p>In this case, you need to confirm by typing “<code>yes</code>” and hitting return - ideally after you’ve <a href="https://devcenter.heroku.com/articles/git-repository-ssh-fingerprints">verified that the RSA key fingerprint is correct</a>.</p>
+</div>
+
+<pre><code class="term">$ git push heroku master
+Initializing repository, done.
+Counting objects: 4, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (4/4), 306 bytes | 0 bytes/s, done.
+Total 4 (delta 0), reused 0 (delta 0)
+
+-----&gt; PHP app detected
+-----&gt; WARNING!
+       Your composer.json is completely empty, please consider putting at least "{}" in there to make it valid JSON.
+-----&gt; Setting up runtime environment...
+       - PHP 5.5.11
+       - Apache 2.4.9
+       - Nginx 1.4.6
+-----&gt; Building runtime environment...
+-----&gt; Discovering process types
+       Procfile declares types -&gt; (none)
+       Default types for PHP   -&gt; web
+
+-----&gt; Compressing... done, 60.7MB
+-----&gt; Launching... done, v4
+       http://polar-chamber-3014.herokuapp.com/ deployed to Heroku
+
+To git@heroku.com:polar-chamber-3014.git
+ * [new branch]      master -&gt; master
+</code></pre>
+
+<div class="note">
+<p>You can safely ignore the warning about an empty <code>composer.json</code> for now. We will fix that in just a moment.</p>
+</div>
+
+<p>You can now open your browser, either by manually pointing it to the URL <code>heroku create</code> gave you, or by using the Heroku Toolbelt:</p>
+
+<pre><code class="term">$ heroku open
+Opening polar-chamber-3014... done
+</code></pre>
+
+<p>Et voilà! You should be seeing “Hello World!” in your browser.</p>
+
+<h3 id="process-and-dyno-tuning">Process and dyno tuning</h3>
+
+<p>When Heroku detected that you pushed a PHP application, it automatically created a default <a href="https://devcenter.heroku.com/articles/procfile">Procfile</a> with an entry for a web <a href="https://devcenter.heroku.com/articles/dynos">dyno</a>, instructing Heroku to launch an instance of the Apache Web server together with PHP. You can manually declare this by adding a <code>Procfile</code> with the following contents to your project:</p>
+
+<pre><code>web: vendor/bin/heroku-php-apache2
+</code></pre>
+
+<div class="callout">
+<p>The PHP <a href="https://devcenter.heroku.com/articles/buildpacks">buildpack</a> installs some resources necessary at runtime into the <code>vendor/heroku/heroku-buildpack-php</code> directory of your application. This follows standard Composer practices. For more details on how to launch other Web servers, please refer to the <a href="https://devcenter.heroku.com/articles/php-support">PHP support</a> article.</p>
+</div>
+
+<p>Now, add and commit the <code>Procfile</code> and push to Heroku again:</p>
+
+<pre><code class="term">$ git add .
+$ git commit -m "Add Procfile"
+[master bd24c74] Add Procfile
+ 1 file changed, 1 insertion(+)
+ create mode 100644 Procfile
+$ git push heroku master
+Fetching repository, done.
+Counting objects: 4, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 338 bytes | 0 bytes/s, done.
+Total 3 (delta 0), reused 0 (delta 0)
+
+-----&gt; PHP app detected
+-----&gt; WARNING!
+       Your composer.json is completely empty, please consider putting at least "{}" in there to make it valid JSON.
+-----&gt; Setting up runtime environment...
+       - PHP 5.5.11
+       - Apache 2.4.9
+       - Nginx 1.4.6
+-----&gt; Discovering process types
+       Procfile declares types -&gt; web
+
+-----&gt; Compressing... done, 60.7MB
+-----&gt; Launching... done, v5
+       http://polar-chamber-3014.herokuapp.com/ deployed to Heroku
+
+To git@heroku.com:polar-chamber-3014.git
+   3600080..bd24c74  master -&gt; master
+</code></pre>
+
+<p>Refresh your browser, or running <code>heroku open</code> and you will still see “Hello World!”, but this time, you’re reaching a new, re-launched dyno instance. Pushing out changes to your application is that simple!</p>
+
+<p>You can verify the changes on your running dyno by running a <a href="https://devcenter.heroku.com/articles/one-off-dynos">one-off dyno</a>:</p>
+
+<pre><code class="term">$ heroku run bash
+Running `bash` attached to terminal... up, run.5662
+~ $ cat Procfile
+web: vendor/bin/heroku-php-apache2
+</code></pre>
+
+<h3 id="dyno-scaling-and-sleeping">Dyno scaling and sleeping</h3>
+
+<p>Having only a single web dyno running will result in the dyno <a href="https://devcenter.heroku.com/articles/dynos#dyno-sleeping">going to sleep</a> after one hour of inactivity.  This causes a delay of a few seconds for the first request upon waking. Subsequent requests will respond more rapidly.</p>
+
+<p>If you want to avoid this, or if you are expecting more traffic to your website, it is encouraged to run more than one dyno. To scale your dynos you can run the <code>ps:scale</code> command:</p>
+
+<pre><code class="term">$ heroku ps:scale web=2
+Scaling dynos... done, now running web at 2:1X.
+</code></pre>
+
+<p>Run <code>heroku open</code> to switch back to the browser and refresh the page a couple of times.  Each refresh will be routed randomly to one of the two dynos - something you will test later.  For now, scale back the number of dynos!</p>
+
+<div class="note">
+<p>For each application, Heroku provides <a href="https://devcenter.heroku.com/articles/usage-and-billing#750-free-dyno-hours-per-app">750 free dyno-hours</a>. Running your app at two dynos would exceed this free monthly allowance, so scale back to one dyno, which you can run for free all month (24 x 31 = 744).</p>
+</div>
+
+<pre><code class="term">$ heroku ps:scale web=1
+Scaling dynos... done, now running web at 1:1X.
+</code></pre>
+
+<h3 id="managing-dependencies-with-composer">Managing Dependencies with Composer</h3>
+
+<p>To get started with logging and our first dependency, add a logging module to the application.</p>
+
+<p>In your <code>composer.json</code>, declare a dependency on the popular <a href="https://github.com/Seldaek/monolog">Monolog</a> package:</p>
+
+<pre><code class="json">{
+    "require": {
+        "monolog/monolog": "~1.7"
+    }
+}
+</code></pre>
+
+<p>Once you’ve added any new dependencies you will need to generate and add your <a href="https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file">lock file</a>. This lock file is important to ensure reproducible behavoior for your dependencies, but also helps ensure <a href="https://devcenter.heroku.com/articles/development-configuration#dev-prod-parity">dev/prod parity</a>. <em>A lock file is not required for an empty <code>composer.json</code> which contains no dependencies.</em> To generate your <code>composer.lock</code> file, once you have composed installed:</p>
+
+<div class="note">
+<p>From this point forward, we’re assuming that you have a working local PHP installation, and <a href="https://getcomposer.org/doc/00-intro.md#installation-nix">Composer is installed</a>.</p>
+</div>
+
+<pre><code class="term">
+$ composer install
+Loading composer repositories with package information
+Installing dependencies (including require-dev)
+  - Installing psr/log (1.0.0)
+    Loading from cache
+
+  - Installing monolog/monolog (1.8.0)
+    Loading from cache
+
+monolog/monolog suggests installing graylog2/gelf-php (Allow sending log messages to a GrayLog2 server)
+monolog/monolog suggests installing raven/raven (Allow sending log messages to a Sentry server)
+monolog/monolog suggests installing doctrine/couchdb (Allow sending log messages to a CouchDB server)
+monolog/monolog suggests installing ruflin/elastica (Allow sending log messages to an Elastic Search server)
+monolog/monolog suggests installing ext-amqp (Allow sending log messages to an AMQP server (1.0+ required))
+monolog/monolog suggests installing ext-mongo (Allow sending log messages to a MongoDB server)
+monolog/monolog suggests installing aws/aws-sdk-php (Allow sending log messages to AWS services like DynamoDB)
+monolog/monolog suggests installing rollbar/rollbar (Allow sending log messages to Rollbar)
+Writing lock file
+Generating autoload files
+</code></pre>
+
+<p>You will now have a lot of stuff in the <code>vendor/</code> directory where Composer places dependencies, and <a href="https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies">none of that should ever end up in your Git repository</a>, so  create a file called <code>.gitignore</code> and put a single line in there:</p>
+
+<pre><code>vendor/
+</code></pre>
+
+<p>Now commit both changes (best to keep them separate in your history):</p>
+
+<pre><code class="term">$ git add .gitignore
+$ git commit -m "Ignore vendors"
+[master fecb53a] Ignore vendors
+ 1 file changed, 1 insertion(+)
+ create mode 100644 .gitignore
+$ git add composer.json
+$ git add composer.lock
+$ git commit -m "Lock down dependencies"
+[master e2c31a4] Lock down dependencies
+ 1 file changed, 130 insertions(+)
+ create mode 100644 composer.lock
+</code></pre>
+
+<p>At this point no new version of the application has been deployed yet - that’s because no new code has been written to use the dependency yet. But if you were to push the contents of that repository to Heroku, it would automatically install your dependencies (which is <code>monolog/monolog</code> and whatever packages that depends upon) before re-launching your dynos.</p>
+
+<div class="note">
+<p>Heroku uses an always up-to-date version of Composer to install your dependencies whenever you push. If, for any reason, you would like to use a specific version of Composer, e.g. with custom patches, simply have its <code>composer.phar</code> in the root directory of your app. Heroku will inform you it’s using your custom version, and remind you to keep it up to date.</p>
+</div>
+
+<h3 id="basic-logging">Basic logging</h3>
+
+<p>Now that you have Monolog available in your application, add some basic <a href="https://devcenter.heroku.com/articles/logging">logging</a> to your app.</p>
+
+<p>Update your <code>index.php</code> to use the <a href="https://getcomposer.org/doc/01-basic-usage.md#autoloading">autoloader generated by Composer</a>, and write a little warning to <a href="http://docs.php.net/manual/en/wrappers.php.php"><code>STDERR</code></a>.  Heroku treats <a href="https://devcenter.heroku.com/articles/management-visibility#logging">logs as streams</a> - and expects them to be written to STDOUT and STDERR and not to its <a href="https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem">ephemeral filesystem</a>.</p>
+
+<pre><code class="php">&lt;?php
+
+require('vendor/autoload.php');
+
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
+// create a log channel to STDERR
+$log = new Logger('name');
+$log-&gt;pushHandler(new StreamHandler('php://stderr', Logger::WARNING));
+
+// add records to the log
+$log-&gt;addWarning("Running a beta version of Heroku's PHP support");
+
+// don't forget to greet the world!
+echo "Hello World!";
+
+?&gt;
+</code></pre>
+
+<p>Now commit and push this change.  You’ll notice a lot more output on the terminal as Heroku uses Composer to install the dependencies:</p>
+
+<pre><code class="term">$ git add .
+$ git commit -m "Add basic logging"
+[master 4b42543] Add basic logging
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+$ git push heroku master
+Fetching repository, done.
+Counting objects: 15, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (11/11), done.
+Writing objects: 100% (12/12), 2.39 KiB | 0 bytes/s, done.
+Total 12 (delta 3), reused 0 (delta 0)
+
+-----&gt; PHP app detected
+-----&gt; Setting up runtime environment...
+       - PHP 5.5.11
+       - Apache 2.4.9
+       - Nginx 1.4.6
+-----&gt; Installing dependencies...
+       Composer version 1e4df0690a08c4653b5c932d51a337b10d6c19bf 2014-04-10 19:10:45
+       Loading composer repositories with package information
+       Installing dependencies from lock file
+         - Installing psr/log (1.0.0)
+           Downloading: 100%
+
+         - Installing monolog/monolog (1.8.0)
+           Downloading: 100%
+
+       Generating optimized autoload files
+-----&gt; Building runtime environment...
+-----&gt; Discovering process types
+       Procfile declares types -&gt; web
+
+-----&gt; Compressing... done, 60.8MB
+-----&gt; Launching... done, v6
+       http://polar-chamber-3014.herokuapp.com/ deployed to Heroku
+
+To git@heroku.com:polar-chamber-3014.git
+   bd24c74..4b42543  master -&gt; master
+</code></pre>
+
+<p>You can view your logs after deploying and visiting your app by running <code>heroku logs</code>:</p>
+
+<pre><code class="term">$ heroku open
+Opening polar-chamber-3014... done
+$ heroku logs
+2014-03-12T01:37:04.776925+00:00 heroku[router]: at=info method=GET path=/ host=polar-chamber-3014.herokuapp.com request_id=b355fca1-c66d-4090-a98b-81a5d2d3282f fwd="91.61.72.154" dyno=web.1 connect=17ms service=5ms status=200 bytes=141
+2014-03-12T01:37:04.780217+00:00 app[web.1]: [2014-03-12 01:37:04] name.WARNING: Running an alpha version of Heroku's PHP support [] []
+2014-03-12T01:37:04.780263+00:00 app[web.1]: [Wed Mar 12 01:37:04 2014] 10.90.247.124:41202 [200]: /
+</code></pre>
+
+<p>The warning is now present.</p>
+
+<h4 id="log-aggregation">Log aggregation</h4>
+
+<p>Examine what happens if you run more than one dyno. Scale up to three dynos, refresh the browser a few times while tailing logs on the terminal (this time, we’ll also filter to only show application messages ones from the “web” process), and observe the result:</p>
+
+<pre><code class="term">$ heroku ps:scale web=3
+Scaling dynos... done, now running web at 3:1X.
+$ heroku open
+$ heroku logs --source app --ps web --tail
+</code></pre>
+
+<p>Switch back to your web browser and refresh the page (which still happily announces “Hello World!”).  You will notice how different web dyno instances log their messages to <a href="https://devcenter.heroku.com/articles/logplex">Logplex</a>, and that these get aggregated automatically:</p>
+
+<pre><code>2014-03-12T01:44:10.776998+00:00 app[web.2]: [2014-03-12 01:44:10] name.WARNING: Running an alpha version of Heroku's PHP support [] []
+2014-03-12T01:44:10.776998+00:00 app[web.2]: [Wed Mar 12 01:44:10 2014] 10.240.102.115:53766 [200]: /
+2014-03-12T01:44:12.004717+00:00 app[web.3]: [2014-03-12 01:44:12] name.WARNING: Running an alpha version of Heroku's PHP support [] []
+2014-03-12T01:44:12.004717+00:00 app[web.3]: [Wed Mar 12 01:44:12 2014] 10.238.165.77:34265 [200]: /
+2014-03-12T01:44:24.315213+00:00 app[web.3]: [2014-03-12 01:44:24] name.WARNING: Running an alpha version of Heroku's PHP support [] []
+2014-03-12T01:44:24.315213+00:00 app[web.3]: [Wed Mar 12 01:44:24 2014] 10.238.128.189:50616 [200]: /
+2014-03-12T01:44:24.784998+00:00 app[web.1]: [2014-03-12 01:44:24] name.WARNING: Running an alpha version of Heroku's PHP support [] []
+2014-03-12T01:44:24.785413+00:00 app[web.1]: [Wed Mar 12 01:44:24 2014] 10.236.143.6:36137 [200]: /
+2014-03-12T01:44:25.458754+00:00 app[web.1]: [2014-03-12 01:44:25] name.WARNING: Running an alpha version of Heroku's PHP support [] []
+2014-03-12T01:44:25.458754+00:00 app[web.1]: [Wed Mar 12 01:44:25 2014] 10.68.97.23:44653 [200]: /
+2014-03-12T01:44:25.945548+00:00 app[web.2]: [2014-03-12 01:44:25] name.WARNING: Running an alpha version of Heroku's PHP support [] []
+2014-03-12T01:44:25.945548+00:00 app[web.2]: [Wed Mar 12 01:44:25 2014] 10.241.69.228:45901 [200]: /
+</code></pre>
+
+<p>Press <code>Ctrl-C</code> to exit the log tailing session:</p>
+
+<pre><code class="term">^C
+ !    Command cancelled.
+$
+</code></pre>
+
+<div class="note">
+<p>There are many other ways than just the <code>heroku</code> command line tool to retrieve these logs; refer to the <a href="https://devcenter.heroku.com/articles/logging">logging documentation</a> for more information.</p>
+</div>
+
+<p>Since your application would once again exhaust its <a href="https://devcenter.heroku.com/articles/usage-and-billing#750-free-dyno-hours-per-app">750 free dyno hours per month</a>, scale back to one web dyno:</p>
+
+<pre><code class="term">$ heroku ps:scale web=1
+Scaling dynos... done, now running web at 1:1X.
+</code></pre>
+
+<h2 id="using-a-different-web-server">Using a different Web server</h2>
+
+<p>On Heroku, you should always use a dedicated Web server that will interface with PHP using the FastCGI protocol. Heroku supports both the <a href="http://httpd.apache.org">Apache</a> and the <a href="http://nginx.org">Nginx</a> Web servers for this purpose, and as you’ve seen earlier, it will default to Apache if you don’t declare a command for <code>web</code> dynos in your <code>Procfile</code>.</p>
+
+<p>To run Nginx instead of Apache, Heroku needs to be told to use the <code>heroku-php-nginx</code> instead of the <code>heroku-php-apache2</code> <em>boot script</em>, both of which automatically get installed to <code>vendor/bin</code> during deployment. These boot scripts will start a Web server together with PHP-FPM and all the correct settings.</p>
+
+<div class="note">
+<p>Vendor binaries are usually installed to <code>vendor/bin</code> by Composer, but under some circumstances (e.g. when running a Symfony2 standard edition project), the location will be different. Run <code>composer config bin-dir</code> to find the right location.</p>
+</div>
+
+<h3 id="nginx">Nginx</h3>
+
+<p>Since your application already works on Apache, why not try Nginx as an alternative? This is a a simple <code>Procfile</code> change away:</p>
+
+<pre><code>web: vendor/bin/heroku-php-nginx
+</code></pre>
+
+<p>Then, another commit and push:</p>
+
+<pre><code class="term">$ git add Procfile
+$ git commit -m "use Nginx"
+$ git push heroku master
+</code></pre>
+
+<p>You just migrated your PHP project from using Apache to using Nginx as the Web server! The <a href="https://devcenter.heroku.com/articles/php-support">PHP on Heroku reference documentation</a> has more details about Nginx usage and possible options.</p>
+
+<h2 id="interactive-shell">Interactive shell</h2>
+
+<p>Heroku allows you to run commands in a <a href="https://devcenter.heroku.com/articles/one-off-dynos">one-off dyno</a> with <code>heroku run</code>.  Use this for scripts and applications that only need to be executed when needed, or to launch an interactive PHP shell attached to your local terminal for experimenting in your app’s environment:</p>
+
+<pre><code class="term">$ heroku run "php -a"
+Running `php -a` attached to terminal... up, run.8081
+Interactive shell
+
+php &gt; echo PHP_VERSION;
+5.5.11
+</code></pre>
+
+<div class="note">
+<p>For debugging purposes, e.g. to examine the state of your application after a deploy, you can use <code>heroku run bash</code> for a full shell into a one-off dyno. But remember that this will not connect you to one of the web dynos that may be running at the same time!</p>
+</div>
+
+<h2 id="next-steps">Next steps</h2>
+
+<ul>
+<li>Deploy your own custom PHP application.</li>
+<li>Read the <a href="https://devcenter.heroku.com/articles/php-support">PHP on Heroku Reference</a> to learn about available versions, extensions, features and behaviors.</li>
+<li>Learn how to <a href="https://devcenter.heroku.com/articles/custom-php-settings">customize</a>  web server and runtime settings for PHP</li>
+<li>Use a <a href="https://devcenter.heroku.com/articles/php-support#custom-github-oauth-tokens">custom GitHub OAuth token</a> for Composer</li>
+<li>Explore the <a href="https://devcenter.heroku.com/categories/php">PHP category</a> on Dev Center</li>
+<li>Join Heroku’s <a href="http://discussion.heroku.com/category/php">PHP Forums</a>
+</li>
+</ul>

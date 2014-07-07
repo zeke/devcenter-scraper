@@ -25,7 +25,7 @@ The <a href="https://devcenter.heroku.com/articles/building-a-heroku-add-on">ken
 
 <p>First we need to install some software and create your add-on manifest.</p>
 
-<h3 id="prerequistes">Prerequistes</h3>
+<h3 id="prerequisites">Prerequisites</h3>
 
 <p>Your service can be written in any language. You’ll need Ruby to run Kensa, the manifest validation tool. In both cases you only need Ruby in your development environment, not on your production system.</p>
 
@@ -40,7 +40,7 @@ The <a href="https://devcenter.heroku.com/articles/building-a-heroku-add-on">ken
 
 <p>Everything in this document will take place in your local development environment. We’ll simulate the calls from Heroku using the Kensa command-line tool. To install:</p>
 
-<pre><code class="term">$ sudo gem install kensa
+<pre><code class="term">$ gem install kensa
 </code></pre>
 
 <p>Run <code>kensa</code> with no arguments for a quick reference to the commands available.</p>
@@ -334,7 +334,7 @@ write in Ruby.</p>
 <h3 id="1-create-a-consumer-test-in-ruby">1. Create a consumer test in Ruby</h3>
 
 <p>In order for Heroku apps to <a href="https://devcenter.heroku.com/articles/how-addons-work#consumption">consume your service</a> once the add-on is installed,
-you’ll need to write a sample that demonstates how to consume your service
+you’ll need to write a sample that demonstrates how to consume your service
 from Ruby, using a URL passed in through the environment.</p>
 
 <div class="callout">

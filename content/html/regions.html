@@ -1,7 +1,8 @@
-<p class="warning">
-This article describes a <a href="https://devcenter.heroku.com/articles/heroku-beta-features">beta feature</a>. Functionality may change prior to general availability.
-</p>
-<p>Heroku is available in two geographic regions: the <a href="#data-center-locations">US and EU</a>.</p>
+<div class="warning">
+<p>This article describes a <a href="https://devcenter.heroku.com/articles/heroku-beta-features">beta feature</a>. Functionality may change prior to general availability.</p>
+</div>
+
+<p>Heroku is available in two geographic regions: the <a href="#data-center-locations">US and EU</a>.  The EU region is beta.</p>
 
 <p>You can choose your app’s region to minimize latency for your end users. I.e. if your users are primarily in Europe your app will be faster for them if it’s running in Europe.</p>
 
@@ -16,10 +17,13 @@ This article describes a <a href="https://devcenter.heroku.com/articles/heroku-b
 <pre><code class="term">$ heroku create --region eu
 Creating calm-ocean-1234... done, region is eu
 http://calm-ocean-1234.herokuapp.com/ | git@heroku.com:calm-ocean-1234.git
-Git remote heroku added</code></pre>
-<p class="note">
-Existing applications can be <a href="https://devcenter.heroku.com/articles/app-migration">migrated</a> to a new region.
-</p>
+Git remote heroku added
+</code></pre>
+
+<div class="note">
+<p>Existing applications can be <a href="https://devcenter.heroku.com/articles/app-migration">migrated</a> to a new region.</p>
+</div>
+
 <p>To verify the app’s region, check the <code>Region</code> attribute of the <code>heroku info</code> command:</p>
 
 <pre><code class="term">$ heroku info
@@ -28,32 +32,37 @@ Git URL:       git@heroku.com:calm-ocean-1234.git
 Owner Email:   user@test.com
 Region:        eu
 Repo Size:     164M
-...</code></pre>
+...
+</code></pre>
 
 <p>List all available regions with:</p>
 
 <pre><code class="term">$ heroku regions
 === regions
 eu  Europe
-us  United States</code></pre>
+us  United States
+</code></pre>
 
 <h2 id="add-ons">Add-ons</h2>
 
 <p>Add-ons with region support will be provisioned in the same region as the app. Provision them as you normally would:</p>
 
-<pre><code class="term">$ heroku addons:add heroku-postgresql</code></pre>
+<pre><code class="term">$ heroku addons:add heroku-postgresql
+</code></pre>
 
 <p>Add-ons that don’t require a low-latency connection to your app will be provisioned in the default region if unavailable in your app’s region. If an add-on <em>is</em> latency sensitive and <em>is not</em> available in the same region as your app, provisioning will fail:</p>
 
 <pre><code class="term">$ heroku addons:add cloudcounter
 Adding cloudcounter on calm-ocean-1234... failed
-!     This app is in region eu, cloudcounter:basic is only available in region us.</code></pre>
+!     This app is in region eu, cloudcounter:basic is only available in region us.
+</code></pre>
 
 <h3 id="supported-add-ons">Supported add-ons</h3>
 
 <p>You can find add-ons supporting your app’s region using both the CLI and the web interface. To find add-ons supported in the <code>eu</code> region using the CLI, run this command:</p>
 
-<pre><code class="term">$ heroku addons:list --region=eu</code></pre>
+<pre><code class="term">$ heroku addons:list --region=eu
+</code></pre>
 
 <p>On <a href="https://addons.heroku.com/">addons.heroku.com</a> you can use the search box to find add-ons that support the <code>eu</code> region by searching for <a href="https://addons.heroku.com/?q=europe">“europe”</a>. You can narrow your search further, for example to Redis add-ons that support the <code>eu</code> region by searching for <a href="https://addons.heroku.com/?q=Redis%20europe">“Redis europe”</a>.</p>
 
@@ -61,13 +70,15 @@ Adding cloudcounter on calm-ocean-1234... failed
 
 <p>Apps are deployed to the region specified on creation. <a href="https://devcenter.heroku.com/articles/git">Deploy your app with git</a>, as usual:</p>
 
-<pre><code class="term">$ git push heroku master</code></pre>
+<pre><code class="term">$ git push heroku master
+</code></pre>
 
 <p><a href="https://devcenter.heroku.com/articles/one-off-dynos">One-off dynos</a> are also run in the region where the app was created. This is also true of secondary services such as <a href="https://addons.heroku.com/scheduler">Heroku Scheduler</a> that provision one-off dynos to execute jobs.</p>
 
 <h2 id="custom-domains">Custom domains</h2>
 
 <p>Adding <a href="https://devcenter.heroku.com/articles/custom-domains">custom domains</a> to apps running outside the <code>us</code> region is the same as addin domains to apps in the <code>us</code> region. Add the following CNAME record in your DNS provider’s control panel (substituting <code>example</code> with the name of your Heroku app).</p>
+
 <table>
 <tr>
 <th>Type</th>
@@ -80,9 +91,11 @@ Adding cloudcounter on calm-ocean-1234... failed
     <td>example.herokuapp.com</td>
   </tr>
 </table><p>This will route all traffic addressed to <code>www.example.com</code> to <code>example.herokuapp.com</code>.</p>
-<p class="warning">
-<a href="https://devcenter.heroku.com/articles/avoiding-naked-domains-dns-arecords">A-records are not supported</a> on Heroku. If you wish to host an apex domain like "example.com" on Heroku you must do so using an ALIAS or similar record from your DNS provider that allows for an apex domain to CNAME mapping.
-</p>
+
+<div class="warning">
+<p><a href="https://devcenter.heroku.com/articles/apex-domains">A-records are not supported</a> on Heroku. If you wish to host an apex domain like “example.com” on Heroku you must do so using an ALIAS or similar record from your DNS provider that allows for an apex domain to CNAME mapping.</p>
+</div>
+
 <h2 id="ssl">SSL</h2>
 
 <p>To utilize SSL, provision an <a href="https://devcenter.heroku.com/articles/ssl-endpoint">SSL Endpoint</a> for your application and upload your SSL certs.</p>
@@ -95,11 +108,13 @@ Use `heroku addons:docs ssl` to view documentation.
 $ heroku certs:add server.crt server.key
 Resolving trust chain... done
 Adding SSL Endpoint to example... done
-example now served by example.herokuapp.com</code></pre>
+example now served by example.herokuapp.com
+</code></pre>
 
 <p>If your custom domain is properly configured, no additional DNS configuration is required (this differs from the <code>us</code> region behavior, which requires using a domain like <code>tokyo-123.herokussl.com</code>). All traffic to <code>www.example.com</code> can now be served over SSL.</p>
 
 <h2 id="data-center-locations">Data center locations</h2>
+
 <table>
 <tr>
 <th>Region Name</th>
@@ -121,12 +136,9 @@ example now served by example.herokuapp.com</code></pre>
 
 <ul>
 <li>Some non-latency sensitive add-ons can be provisioned in a different region as your app.</li>
-
 <li>Application logs are routed to <a href="https://devcenter.heroku.com/articles/logplex">Logplex</a>, currently hosted in the US.</li>
-
 <li>
 <a href="https://addons.heroku.com/pgbackups">PG Backup</a> snapshots are stored in the US, and <a href="http://www.postgresql.org/docs/current/static/wal-intro.html">WAL files</a> continuously sent to the US.</li>
-
 <li>No guarantees are made about the physical location of Heroku’s <a href="http://www.heroku.com/how/command">control surface APIs</a> through which all CLI commands and the management of your applications occur.</li>
 </ul><p>The public beta of Regions is not designed to address data protection issues and, for this reason, is not Safe Harbor certified. Please choose a region based on the location of your users, not the laws that govern your data.</p>
 

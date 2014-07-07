@@ -6,7 +6,7 @@ description: Assign additional custom and wildcard DNS domain names to your Hero
 ---
 
 > warning
-> This article applies to apps on the [Bamboo](bamboo) stack. For the most recent stack, [Cedar](cedar), see [Custom Domains](custom-domains).
+> This article applies to apps using the deprecated Bamboo routing stack. You need to [migrate your app's routing to the current routing stack](moving-to-the-current-routing-stack) by September 22, 2014.
 
 All Bamboo apps on Heroku are accessible via their per-app subdomain:
  `example.heroku.com`. In addition, you can assign custom domains to an app.
@@ -44,19 +44,34 @@ Next, you must configure your DNS to point your application hostnames to Heroku.
 
 ### Subdomains (www.example.com)
 
-For each subdomain you want to set up, configure your DNS with a CNAME record pointing the subdomain to the applicable Heroku hostname, for example `example.heroku.com`.
+For each subdomain you want to set up, configure your DNS with a CNAME record pointing the subdomain to the applicable Heroku hostname, for example `example.herokuapp.com`.
+
+In particular, add the following CNAME record in your DNS provider's control panel.
+
+<table>
+  <tr>
+    <th>Type</th>
+    <th>Name</th>
+    <th>Target</th>
+  </tr>
+  <tr>
+    <td>CNAME</td>
+    <td>www</td>
+    <td>cedar-app.herokuapp.com</td>
+  </tr>
+</table>
 
 You can confirm that your DNS is configured correctly with the `host` command:
 
 ```term
 $ host www.example.com
-www.example.com is an alias for example.heroku.com.
-example.heroku.com is an alias for proxy.heroku.com.
+www.example.com is an alias for example.herokuapp.com.
+example.herokuapp.com is an alias for us-east1a.route.herokuapp.com.
 ...
 ```
 
 Output of this command varies by Unix flavor, but it should indicate that
-your host name is a CNAME of `example.heroku.com`.
+your host name is a CNAME of `example.herokuapp.com`.
 
 ### Apex domains (example.com)
 
@@ -65,7 +80,7 @@ Zone apex domains (aka "naked" domains or "bare" domains), for example `example.
 - [ANAME at DNS Made Easy](http://www.dnsmadeeasy.com/technology/aname-records/)
 - [ALIAS at DNSimple](http://support.dnsimple.com/questions/32826-What-is-an-ALIAS-record)
 
-For each provider, the setup is similar: point the ALIAS or ANAME entry for your apex domain to `example.heroku.com`, just as you would with a CNAME record.
+For each provider, the setup is similar: point the ALIAS or ANAME entry for your apex domain to `example.herokuapp.com`, just as you would with a CNAME record.
 
 ## Wildcard domains
 
@@ -78,13 +93,13 @@ $ heroku domains:add *.example.com
 Adding *.example.com to example... done
 ```    
 
-Then, configure your DNS registrar to point `*.example.com` at `example.heroku.com`.
+Then, configure your DNS registrar to point `*.example.com` at `example.herokuapp.com`.
 
 If things are set up correctly you should be able to look up any subdomain:
 
 ```term
 $ host any-subdomain.example.com
-any-subdomain.example.com is an alias for example.heroku.com.
+any-subdomain.example.com is an alias for example.herokuapp.com.
 ...
 
 $ curl http://any-subdomain.example.com/
@@ -93,4 +108,4 @@ HTTP/1.1 200 OK
 
 ## IP addresses
 
-The Heroku routing stack uses a collection of IP addresses that can change at any time, and using `A` records to point to your app is not supported.  Instead, use `CNAME` records as described above.
+The Heroku routing stack uses a collection of IP addresses that can change at any time, and using `A` records to point to your app is not supported.  Instead, use `CNAME` records as described above. 

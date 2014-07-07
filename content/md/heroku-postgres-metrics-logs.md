@@ -30,12 +30,9 @@ table and index data on disk, including database bloat.
 * ` sample#index-cache-hit-rate`: Rate of index lookups served from [shared buffer cache](https://devcenter.heroku.com/articles/understanding-postgres-data-caching), rounded to five decimal points.
 * `sample#table-cache-hit-rate`: Rate of table lookups served from [shared buffer cache](https://devcenter.heroku.com/articles/understanding-postgres-data-caching), rounded to five decimal points.
 * `sample#waiting-connections`: Number of connections waiting on a lock to be acquired. If many connections are waiting, this can be a sign of mishandled [database concurrency](https://devcenter.heroku.com/articles/postgresql-concurrency).
-
-These extra attributes are also available for all non multi-tenant databases:
-
 * `sample#load-avg-1m`, `sample#load-avg-5m` and `sample#load-avg-15m`: The average system load over a period of 1 minute, 5 minutes and 15 minutes, divided by the number of available cpu.
-* `sample#read-iops` and `sample#write-iops`: Number of read or write operations per second.
+* `sample#read-iops` and `sample#write-iops`: Number of reads or writes operations in I/O sizes of 16KB blocks.
 * `sample#memory-total`: Total amount of memory available in kB.
 * `sample#memory-free`: Amount of free memory available in kB.
 * `sample#memory-cached`: Amount of cached memory in kB.
-* `sample#memory-postgres`: Approximate amount of memory used by PostgreSQL in kB.
+* `sample#memory-postgres`: Approximate amount of memory used by PostgreSQL in kB. 

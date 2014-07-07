@@ -26,7 +26,7 @@ Because of the unique nature of SSL validation, provisioning SSL for your applic
 > callout
 > Staging, and other non-production, apps can use a free [self-signed SSL certificate] (https://devcenter.heroku.com/articles/ssl-certificate-self) instead of purchasing one.
 
-Purchasing an SSL cert varies in cost and process depending on the vendor. [DNSimple](https://dnsimple.com/) offers the simplest way to purchase a certificate and is highly recommended. If you're able to use DNSimple, see [purchasing an SSL cert with DNSimple](https://devcenter.heroku.com/articles/ssl-certificate) for instructions.
+Purchasing an SSL cert varies in cost and process depending on the vendor. [DNSimple](https://dnsimple.com/) offers the simplest way to purchase a certificate and is highly recommended. If you're able to use DNSimple, see [purchasing an SSL cert with DNSimple](ssl-certificate-dnsimple) for instructions.
 
 Otherwise, using other SSL providers will require some or all of the following steps.
 
@@ -87,7 +87,7 @@ Though most fields are self-explanatory, pay close attention to the following:
 </tr>
 <tr>
 <td>Country Name</td>
-<td style="text-align: left;">The two letter code, in <a href="http://www.iso.org/iso/country_codes/iso_3166_code_lists/country_names_and_code_elements.htm">ISO 3166-1 format</a>, of the country in which your organization is based.</td>
+<td style="text-align: left;">The two letter code, in <a href="http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">ISO 3166-1 format</a>, of the country in which your organization is based.</td>
 </tr>
 <tr>
 <td>Common Name</td>
@@ -130,11 +130,9 @@ On completion of the SSL certificate purchase process you should  have several f
 * The SSL certificate for the domain specified in your CSR, downloaded from your certificate provider. This file will have either a `.pem` or `.crt` extension.
 * The private key you generated in the first step, `server.key`.
 
-If your certificate provider requires, you may also have an intermediate certificate or certificate bundle. This file usually has a `.pem` extension.
-
 ## Provision the add-on
 
-Once you have the SSL certificate file, private key and any additional intermediate certificate bundles you are ready to configure SSL Endpoint for your app. First, provision an endpoint.
+Once you have the SSL certificate file and private key you are ready to configure SSL Endpoint for your app. First, provision an endpoint.
 
 ```term
 $ heroku addons:add ssl:endpoint
@@ -147,7 +145,7 @@ Next add your certificate, any intermediate certificates, and private key to the
 > Heroku automatically strips out unnecessary parts of the certificate chain as part of the `certs:add` command. In some scenarios, this may not be desired. To avoid this automatic manipulation of the chain, include the `--bypass` flag.
 
 ```term
-$ heroku certs:add server.crt bundle.pem server.key
+$ heroku certs:add server.crt server.key
 Adding SSL Endpoint to example... done
 example now served by tokyo-2121.herokussl.com.
 Certificate details:
@@ -205,7 +203,7 @@ Added www.example.com to example... done
 
 ### Subdomain
 
-If you're securing a subdomain, e.g., `www.example.com`, modify your DNS settings and create a CNAME record to the endpoint.
+If you're securing a subdomain, e.g., `www.example.com`, modify your DNS settings and create a CNAME record to the endpoint or modify the CNAME target if you already have a CNAME record.
 
 <table>
   <tr>
@@ -315,6 +313,9 @@ Rolling back SSL Endpoint endpoint tokoy-2121.herokussl.com on example... done
 
 If there is no previous certificate, this command will fail.
 
+> warning
+> Heroku will clean up and remove non-active expired certificates after a month. Attempting to roll back to an expired certificate will not work.
+
 ## Remove certificate
 
 You can remove a certificate using the `certs:remove` command:
@@ -325,7 +326,7 @@ Removing SSL Endpoint endpoint tokyo-2121.herokussl.com on example... done
 ```
 
 > warning
-> Removing an endpoint does not stop billing. To stop billing, you must remove the SSL endpoint add-on. Remove the add-on with `heroku addons:remove ssl:endpoint`.
+> Removing a certificate does not stop billing. To stop billing, you must remove the SSL endpoint add-on. Remove the add-on with `heroku addons:remove ssl:endpoint`.
 
 If you try to remove the SSL endpoint add-on before the certificate is removed, you will receive an error.
 
@@ -337,7 +338,7 @@ When an end-client (often the browser) initiates an SSL request, the request mus
 
 SSL Endpoint infrastructure is elastic and scales automatically based on historical traffic levels. However, if you plan to switch a lot of traffic to a newly created SSL endpoint or if you expect large spikes, [contact Heroku support](https://devcenter.heroku.com/articles/support-channels#heroku-help) so we can help with preemptive scaling.
 
-An initial request rate of greater than 150 requests/sec or a doubling of the existing requests/second within a 5 minute period are the thresholds at which you should consider contacting support to pre-warm your endpoint. Please give us at least 1 day advanced notice for these types of requests.
+An initial request rate of greater than 150 requests/sec or a doubling of the existing requests/second within a 5 minute period are the thresholds at which you should consider contacting support to pre-warm your endpoint. Please give us at least 1 business day advanced notice for these types of requests.
 
 ## Troubleshooting
 
@@ -376,3 +377,31 @@ Many different file types are produced and consumed when creating an SSL certifi
 * A `.csr` file is a certificate signing request which initiates your certificate request with a certificate provider and contains administrative information about your organization.
 * A `.key` file is the private key used for your site's SSL-enabled requests.
 * `.pem` and `.crt` extensions are often used interchangeably and are both base64 ASCII encoded files. The technical difference is that `.pem` files contain both the certificate _and_ key whereas a `.crt` file only contains the certificate. In reality this distinction is often ignored.
+
+## Upgrade from legacy SSL add-ons
+
+It is straightforward to upgrade to SSL Endpoint from a legacy `ssl:hostname` add-on. No downtime is required.
+
+Start by adding `ssl:endpoint` to your app:
+
+```term
+$ heroku addons:add --app myapp ssl:endpoint
+Adding ssl:endpoint to myapp... done
+```
+
+Now upload your certificate and private key. You don't need to get a new certificate; you can use the same one as in your existing SSL setup. (Now would also be a good time to make sure it's still valid and not expired).
+
+```term
+$ heroku certs:add --app myapp my_existing.crt my_existing.key
+Adding certificate to myapp... done
+myapp now served by tokyo-2121.herokussl.com.
+```
+
+Your new endpoint is now ready to receive traffic. To direct traffic to the endpoint, go to your DNS provider and update the records for your domain so that you have a single CNAME entry pointing to the SSL endpoint host (e.g. `tokyo-2121.herokussl.com`). If you already had a CNAME entry pointing to your app, change it to point to your SSL endpoint name instead.
+
+Once the DNS change propagates, your users will be routed to the new endpoint. You can de-provision the old SSL add-on, for example:
+
+```term
+$ heroku addons:remove --app myapp ssl:hostname
+Removing ssl:hostname from myapp... done
+``` 

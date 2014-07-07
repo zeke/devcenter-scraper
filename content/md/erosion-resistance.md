@@ -26,4 +26,21 @@ The [dyno manager](dynos#the-dyno-manager) keeps your app's [dyno formation](sca
 
 Heroku's ops team keeps the underlying operating system kernel and other components up-to-date with the latest security patches.  This is handled without any impact to running dynos except for a restart, which happens automatically and silently behind the scenes.
 
-Databases running on [Heroku's PostgreSQL service](http://devcenter.heroku.com/articles/heroku-postgresql) are fully managed and monitored.  Hardware failures are handled completely by the Heroku PostgreSQL team and require no intervention from the app owner.
+Databases running on [Heroku's PostgreSQL service](http://devcenter.heroku.com/articles/heroku-postgresql) are fully managed and monitored.  Hardware failures are handled completely by the Heroku PostgreSQL team and require no intervention from the app owner. 
+
+## Resistance, not elimination
+
+Heroku's erosion resistance does not mean that your app will run forever. The forces of technology evolution will eventually require manual intervention by you if you want your app to continue running in a safe and stable manner. There are two main sources of change that will lead to manual intervention.
+
+### Software stack lifecycle
+
+The software stack that your app runs on will have its own lifecycle. The underlying operating system and language binaries are generally only supported for a limited time period by their respective governing bodies. 
+
+For example, once a language runtime version becomes deprecated by the governing body, it typically will no longer receive security patches.  Applications will have to be  migrated to a newer version of the component to remain safe and stable.
+
+Heroku keeps track of the software lifecycle for our supported stacks and language buildpacks, and we will notify you in advance of any changes you need to make. We will ensure that you have optimal migration options to the best of our abilities.
+
+### Heroku service changes
+
+Heroku's own services evolve [on a regular basis](https://devcenter.heroku.com/changelog). Sometimes Heroku introduces new services that will over time replace old services. In some cases, it will require customer intervention to move an application from an old to a new service. When Heroku makes these changes we notify customers well in advance, and do our best to make migration as seamless as possible.
+ 

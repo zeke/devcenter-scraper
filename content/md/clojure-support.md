@@ -12,7 +12,7 @@ This document describes the general behavior of the Cedar stack as it
 relates to the recognition and execution of Clojure applications. For
 a more detailed explanation of how to deploy an application, see:
 
-* [Getting Started with Clojure on Heroku/Cedar](http://devcenter.heroku.com/articles/clojure)
+* [Getting Started with Clojure on Heroku](getting-started-with-clojure)
 * [Building a Database-Backed Clojure Web Application](http://devcenter.heroku.com/articles/clojure-web-application).
 
 ## Activation
@@ -22,7 +22,7 @@ Heroku's Clojure support is applied only when the application has a
 
 Clojure applications that use Maven can be deployed as well, but they
 will be treated as Java applications, so
-[different documentation](http://devcenter.heroku.com/articles/java)
+[different documentation](getting-started-with-java)
 will apply.
 
 ## Configuration
@@ -38,6 +38,8 @@ production because it leaves Leiningen running in addition to your
 project's process. It also uses profiles that are intended for
 development, which can let test libraries and test configuration sneak
 into production.
+
+In order to ensure consistent builds, normally application config is not visible during compile time, with the exception of private repository credentials (`LEIN_USERNAME`, etc) if present. In order to change what is exposed, set the `BUILD_CONFIG_WHITELIST` config to a space-separated list of config var names. Note that this can result in unpredictable behavior since changing your app's config does not result in a rebuild of your app.
 
 ### Uberjar
 
@@ -71,7 +73,7 @@ then you'll need to do a little extra work to ensure your Procfile's
 `java` invocation includes these things. In these cases it might be
 simpler to use Leiningen at runtime instead.
 
-### Leiningen at Runtime
+### Leiningen at runtime
 
 Instead of putting a direct `java` invocation into your Procfile, you
 can have Leiningen handle launching your app. If you do this, be sure
@@ -93,7 +95,11 @@ If neither of these options get you quite what you need, you can check
 in your own executable `bin/build` script into your app's repo and it
 will be run instead of `compile` or `uberjar` after setting up Leiningen.
 
-## JDK Version
+## Runtimes
+
+Heroku makes a number of different runtimes available. You can configure your app to select a particular Clojure runtime, as well as the configure the JDK.
+
+### Supported JDK versions
 
 By default you will get OpenJDK 1.6. To use a different version, you
 can commit a `system.properties` file to your app.
@@ -103,6 +109,12 @@ $ echo "java.runtime.version=1.7" > system.properties
 $ git add system.properties
 $ git commit -m "JDK 7"
 ```
+
+The supported Java JDK versions can be found in [Heroku Java Support](https://devcenter.heroku.com/articles/java-support#supported-java-versions).
+
+### Supported Clojure versions
+
+Heroku supports apps on any production release of Clojure, running on a supported JDK version.
 
 ## Add-ons
 

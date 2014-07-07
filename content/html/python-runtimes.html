@@ -1,45 +1,91 @@
-<div class="note">
-<p>If you have questions about Python on Heroku, consider discussing it in the <a href="https://discussion.heroku.com/category/python">Python on Heroku forums</a>. Both Heroku and community-based Python experts are available.</p>
-</div>
+<p>This document describes the general behavior of the <a href="https://devcenter.heroku.com/articles/cedar">Heroku Cedar stack</a> as it relates to the recognition and execution of Python applications. For framework specific tutorials please see:</p>
 
-<p>When you push a Python application to Heroku, Python 2.7.4 will be used by default:</p>
+<ul>
+<li><a href="https://devcenter.heroku.com/articles/getting-started-with-python">Getting Started with Python on Heroku</a></li>
+<li><a href="https://devcenter.heroku.com/articles/getting-started-with-django">Getting Started with Django on Heroku</a></li>
+</ul><h2 id="activation-1">Activation</h2>
 
-<pre><code>-----&gt; No runtime.txt provided; assuming python-2.7.4.
------&gt; Preparing Python runtime (python-2.7.4)
------&gt; Installing Distribute (0.6.36)
------&gt; Installing Pip (1.3.1)
------&gt; Installing dependencies using Pip (1.3.1)
-</code></pre>
+<p>The Heroku Python Support will be applied to applications only when the application has a <code>requirements.txt</code> in the root directory. Even if an application has no module dependencies, it should include an empty <code>requirements.txt</code> to document that your app has no dependencies.</p>
 
-<h2 id="specifying-a-specific-runtime">Specifying a specific runtime</h2>
+<h2 id="supported-python-runtimes">Supported Python runtimes</h2>
+
+<p>Heroku’s Python support extends to the latest stable release from the Python 2.x and Python 3.x series.</p>
+
+<p>Today, this is support extends to these specific runtimes:</p>
+
+<ul>
+<li><code>python-2.7.8</code></li>
+<li><code>python-3.4.1</code></li>
+</ul><h3 id="selecting-a-runtime">Selecting a runtime</h3>
+
+<p>Newly created Python applications default to the Python 2.7.8 runtime.</p>
 
 <p>You can specify an arbitrary version of Python to be used to run your application. This functionality is enabled by the presence of a <code>runtime.txt</code> file.</p>
 
 <pre><code class="term">$ cat runtime.txt
-python-3.3.2
+python-3.4.1
 </code></pre>
-
-<p>When you commit and push to Heroku you’ll see that Python 3.3.2 is detected:</p>
-
-<pre><code>-----&gt; Heroku receiving push
------&gt; Python app detected
------&gt; Preparing Python runtime (python-3.3.2)
------&gt; Installing Distribute (0.6.36)
------&gt; Installing Pip (1.3.1)
------&gt; Installing dependencies using Pip (1.3.1)
-...
-</code></pre>
-
-<h2 id="supported-runtimes">Supported runtimes</h2>
-
-<p>Supported runtimes include:</p>
-
-<ul>
-<li>python-2.7.4</li>
-<li>python-3.3.2</li>
-<li>pypy-1.9 (experimental)</li>
-</ul><p>Unsupported runtimes can also be specified (2.4.4–3.3.2). However, we only endorse and support the use of Python 2.7.4 and 3.3.2.</p>
-
-<h2 id="changing-runtimes">Changing runtimes</h2>
 
 <p>If you specify a different Python runtime than a previous build, your application’s build cache will be purged.</p>
+
+<h3 id="available-runtimes">Available runtimes</h3>
+
+<p>A number of additional, unsupported runtimes are available. However, we only endorse and support the use of Python 2.7.8 and 3.4.1.</p>
+
+<ul>
+<li><code>pypy-1.9</code></li>
+<li><code>python-2.4.6</code></li>
+<li><code>python-2.5.5</code></li>
+<li><code>python-2.6.9</code></li>
+<li><code>python-3.1.5</code></li>
+<li><code>python-3.2.5</code></li>
+<li><code>python-3.3.3</code></li>
+</ul><h2 id="libraries">Libraries</h2>
+
+<p>The following libraries are used by the platform for managing and running Python applications and cannot be specified.</p>
+
+<ul>
+<li>Setuptools 3.6: Python packaging tools.</li>
+<li>Pip 1.5.6: Application dependency resolution.</li>
+</ul><p>If your application does declare these dependencies in <code>requirements.txt</code>, unexpected behavior may occur.</p>
+
+<h2 id="build-behavior">Build behavior</h2>
+
+<p>The following command is run on your app to resolve dependencies:</p>
+
+<pre><code class="term">$ pip install -r requirements.txt --allow-all-external
+</code></pre>
+
+<p>The <code>.heroku</code> directory is cached between pushes to speed up package installation.</p>
+
+<h1>Python applications</h1>
+
+<p>Pure Python applications, such as headless processes and evented web frameworks like Twisted, are fully supported on Cedar.</p>
+
+<h2 id="activation-2">Activation</h2>
+
+<p>When a deployed application is recognized as a pure Python application, Heroku responds with <code>-----&gt; Python app detected</code>.</p>
+
+<pre><code class="term">$ git push heroku master
+-----&gt; Python app detected
+</code></pre>
+
+<h2 id="add-ons-1">Add-ons</h2>
+
+<p>No add-ons are automatically provisioned if a pure Python application is detected.
+If you need a SQL database for your app, add one explicitly:</p>
+
+<pre><code class="term">$ heroku addons:add heroku-postgresql:dev
+</code></pre>
+
+<h2 id="process-types">Process types</h2>
+
+<p>No default <code>web</code> process types created if a Python application is detected.</p>
+
+<h1>Django applications</h1>
+
+<p>All versions of Django are fully supported on Cedar. Django applications are detected by the presence of a <code>manage.py</code> file within the repository.</p>
+
+<h2 id="add-ons-2">Add-ons</h2>
+
+<p>A dev database add-on is provisioned automatically for Django applications.  This  populates the <code>DATABASE_URL</code> environment variable.</p>

@@ -59,4 +59,4 @@ The WebSocket standard defines an `Origin` header field which web browsers set t
 
 You can think of the `Origin` header as roughly analogous to the `X-Requested-With` header used by AJAX requests. Web browsers send a header of `X-Requested-With: XMLHttpRequest` which can be used to distinguish between AJAX requests made by a browser and those made directly. However, this header is easily set by non-browser clients, and thus isn't trusted as a source of authentication.
 
-In the same way, you can use the `Origin` header as an advisory mechanism, one that helps differentiate WebSocket requests from different locations and hosts, but you shouldn't rely on it as a source of authentication.
+In the same way, you can use the `Origin` header as an advisory mechanism, one that helps differentiate WebSocket requests from different locations and hosts, but you shouldn't rely on it as a source of authentication. 

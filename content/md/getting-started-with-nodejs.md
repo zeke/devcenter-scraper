@@ -14,11 +14,16 @@ This quickstart will get you going with [Node.js](http://nodejs.org/) and the [E
 
 If you're new to Heroku or Node.js development, you'll need to set up a few things first:
 
-- A Heroku user account. [Signup is free and instant](https://api.heroku.com/signup/devcenter).
-- Install the [Heroku Toolbelt](https://toolbelt.heroku.com), which gives you git, Foreman, and the Heroku command-line interface.
+- A Heroku user account. [Signup is free and instant](https://signup.heroku.com/signup/dc).
 - [Node.js](http://nodejs.org/), easily installed on Mac, Windows, and Linux with packages from [nodejs.org](http://nodejs.org/).
 
 ## Local workstation setup
+
+First, install the Heroku Toolbelt on your local workstation.  
+
+<a class="toolbelt" href="https://toolbelt.heroku.com/">Install the Heroku Toolbelt</a>
+
+This ensures that you have access to the [Heroku command-line client](/categories/command-line), Foreman, and the Git revision control system.
 
 Once installed, you can use the `heroku` command from your command shell.  Log in using the email address and password you used when creating your Heroku account:
 
@@ -51,7 +56,7 @@ app.get('/', function(req, res) {
   res.send('Hello World!');
 });
 
-var port = process.env.PORT || 5000;
+var port = Number(process.env.PORT || 5000);
 app.listen(port, function() {
   console.log("Listening on " + port);
 });
@@ -61,7 +66,7 @@ app.listen(port, function() {
 Declare dependencies with npm
 -----------------------------
 
-Heroku recognizes an app as Node.js by the existence of a `package.json` file. To create one, run `npm init` in the root directory of your app. The `npm init` utility will walk you through creating a `package.json` file. It only covers the most common items, and tries to guess sane defaults.
+Heroku recognizes an app as Node.js by the existence of a `package.json` file. To create one, run `npm init` in the root directory of your app. The `npm init` utility will walk you through creating a `package.json` file. It covers the most common items, and tries to guess sane defaults. You can skip any of the prompts by leaving them blank.
 
 ```term
 $ cd node-example
@@ -277,7 +282,7 @@ $ heroku logs
 Console
 -------
 
-Heroku allows you to run commands in a [one-off dyno](oneoff-admin-ps) - scripts and applications that only need to be executed when needed - using the `heroku run` command.   Use this to launch a REPL process attached to your local terminal for experimenting in your app's environment:
+Heroku allows you to run commands in a [one-off dyno](one-off-dynos) - scripts and applications that only need to be executed when needed - using the `heroku run` command.   Use this to launch a REPL process attached to your local terminal for experimenting in your app's environment:
 
 ```term
 $ heroku run node
@@ -354,7 +359,7 @@ Read more about [Heroku PostgreSQL](heroku-postgresql).
 Using MongoDB
 -------------
 
-To add a MongoDB database to your app, provision one of the [MongoDB add-ons](https://addons.heroku.com/marketplace/#data-stores):
+To add a MongoDB database to your app, provision one of the [MongoDB add-ons](https://addons.heroku.com/#data-stores):
 
 ```term
 $ heroku addons:add mongolab
@@ -392,46 +397,8 @@ mongo.Db.connect(mongoUri, function (err, db) {
 });
 ```
 
-Using Redis
------------
-
-To add a Redis database to your app, run this command:
-
-```term
-$ heroku addons:add redistogo
-Adding redistogo on sharp-rain-871... done, v3 (free)
-Use `heroku addons:docs redistogo` to view documentation.
-```
-
-This sets the `REDISTOGO_URL` environment variable.  Add the `redis-url` NPM module to your dependencies:
-
-```term
-$ npm install redis-url --save
-npm http GET https://registry.npmjs.org/redis-url
-npm http 200 https://registry.npmjs.org/redis-url
-npm http GET https://registry.npmjs.org/redis-url/-/redis-url-0.2.0.tgz
-npm http 200 https://registry.npmjs.org/redis-url/-/redis-url-0.2.0.tgz
-npm http GET https://registry.npmjs.org/redis
-npm http 200 https://registry.npmjs.org/redis
-npm http GET https://registry.npmjs.org/redis/-/redis-0.9.1.tgz
-npm http 200 https://registry.npmjs.org/redis/-/redis-0.9.1.tgz
-redis-url@0.2.0 node_modules/redis-url
-└── redis@0.9.1
-```
-
-And use the module to connect to `REDISTOGO_URL` from somewhere in your code:
-
-```js
-var redis = require('redis-url').connect(process.env.REDISTOGO_URL);
-
-redis.set('foo', 'bar');
-
-redis.get('foo', function(err, value) {
-  console.log('foo is: ' + value);
-});
-```
-
 ## Next steps
 
+* Read [10 Habits of a Happy Node Hacker](https://blog.heroku.com/archives/2014/3/11/node-habits) on the Heroku blog.
 * Visit the [Node.js category](/categories/nodejs) to learn more about developing and deploying Node.js applications.
-* Read [How Heroku Works](how-heroku-works) for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.        
+* Read [How Heroku Works](how-heroku-works) for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.         

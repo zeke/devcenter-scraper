@@ -34,4 +34,4 @@ The purpose of this agreement is formally set up the business relationship betwe
 
 You can [download a copy of the agreement here](https://addons.heroku.com/provider/resources/HerokuAddonsLicenseAgreement.pdf). Be sure to familiarize yourself thoroughly with the terms and conditions before signing up.
 
-Once registered you will have access to the Provider Portal, which gives you a single place to manage your Add-ons and your relationship with Heroku and offers instructions on how to submit your Add-ons to Heroku.
+Once registered you will have access to the Provider Portal, which gives you a single place to manage your Add-ons and your relationship with Heroku and offers instructions on how to submit your Add-ons to Heroku. 

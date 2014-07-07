@@ -5,7 +5,7 @@ url: https://devcenter.heroku.com/articles/rails4
 description: How to run a Ruby on Rails 4 application on Heroku.
 ---
 
-This article covers how to run a Ruby on Rails application on Heroku. It assumes a knowledge of both Heroku and with Rails. If you are new to either please see the [Getting Started with Rails 4.x on Heroku](https://devcenter.heroku.com/articles/rails4-getting-started) instead. This article assumes that you have a copy of the [Heroku toolbelt](https://toolbelt.heroku.com/) installed locally.
+This article covers how to run a Ruby on Rails application on Heroku. It assumes a knowledge of both Heroku and with Rails. If you are new to either please see the [Getting Started with Rails 4.x on Heroku](getting-started-with-rails4) instead. This article assumes that you have a copy of the [Heroku Toolbelt](https://toolbelt.heroku.com/) installed locally.
 
 Most of Rails works out of the box with Heroku, however there are a few things you can do to get the most out of the platform. To do this you will need to configure your Rails 4 app to connect to Postgres, your logs need to be configured to point to STDOUT, and your application needs to have serving assets enabled in production.
 
@@ -81,4 +81,4 @@ A Rails 4 application will be run the same way as a Rails 3 application. You can
 web: bundle exec unicorn -p $PORT -c ./config/unicorn.rb
 ```
 
-The `PORT` will be assigned to each of your dynos separately through the `PORT` environment variable. Heroku recomends running your Rails 4 app on a [concurrent webserver such as Unicorn](https://devcenter.heroku.com/articles/rails-unicorn). If you do not specify a Procfile, Heroku will run your application using webrick through the `$ rails server` command. While webrick is available through the standard library, we do not recommend using in production. To get the best performance and most consistent experience we recommend you specify how to run your web service in your Procfile.
+The `PORT` will be assigned to each of your dynos separately through the `PORT` environment variable. Heroku recomends running your Rails 4 app on a [concurrent webserver such as Unicorn](https://devcenter.heroku.com/articles/rails-unicorn). If you do not specify a Procfile, Heroku will run your application using webrick through the `$ rails server` command. While webrick is available through the standard library, we do not recommend using in production. To get the best performance and most consistent experience we recommend you specify how to run your web service in your Procfile. 

@@ -1,0 +1,172 @@
+<div class="warning">
+<p>This article describes a <a href="https://devcenter.heroku.com/articles/heroku-beta-features">beta feature</a>. Functionality may change prior to general availability.</p>
+</div>
+
+<p>PHP has a built-in web server that can be used to run on Heroku web <a href="https://devcenter.heroku.com/articles/dynos">dynos</a>, however this is not recommended. Instead you should be using a boot script which is referenced in your <code>Procfile</code> to launch a web server together with PHP.</p>
+
+<p>This article explains the different ways in which you can pass arguments to this boot script to customize settings for the PHP runtime and the web server software.</p>
+
+<h2 id="how-web-servers-are-launched">How web servers are launched</h2>
+
+<p>During a deploy, Heroku will install the <a href="https://packagist.org/packages/heroku/heroku-buildpack-php">heroku/heroku-buildpack-php</a> Composer package into your application as an additional dependency. This package contains boot scripts for launching PHP together with either Apache <code>heroku-php-apache2</code> or Nginx <code>heroku-php-nginx</code> and configuration files.</p>
+
+<p>These boot scripts installed by the <code>heroku/heroku-buildpack-php</code> package are placed into <code>vendor/bin/</code> by Composer and will use configuration files from <code>vendor/heroku/heroku-buildpack-php/conf/</code> to launch PHP-FPM together with the web server of your choice.</p>
+
+<div class="note">
+<p>Heroku recommends you maintain <a href="http://12factor.net/dev-prod-parity">dev/prod parity</a> by running the same packages locally. You can use the package you are running in production as a development dependency by adding it to the <code>require-dev</code> section of your <code>composer.json</code>. Then you can run <code>foreman start</code> to launch a <a href="https://devcenter.heroku.com/articles/procfile#developing-locally-with-foreman">local development environment</a> that will work seamlessly on your development machine, provided that you have the Apache or Nginx installed.</p>
+</div>
+
+<p>Once you’ve installed the <code>heroku/heroku-buildpack-php</code> package locally you can view the boot script help. The boot scripts accept various options and arguments that you can use to control settings related to PHP and the web server software. To get the detailed help you can execute the installed package with the <code>-h</code> flag. For Apache you would run:</p>
+
+<pre><code class="term">$ vendor/bin/heroku-php-apache2 -h
+</code></pre>
+
+<p>For Nginx the command is:</p>
+
+<pre><code class="term">$ vendor/bin/heroku-php-nginx -h
+</code></pre>
+
+<h2 id="specifying-which-web-server-to-use">Specifying which web server to use</h2>
+
+<p>In your <code>Procfile</code> you must specify which boot script to use and Heroku will launch the corresponding web server together with PHP on dyno startup.</p>
+
+<p>For example, to use Nginx, your <code>Procfile</code> should contain:</p>
+
+<pre><code>web: vendor/bin/heroku-php-nginx
+</code></pre>
+
+<p>on Apache:</p>
+
+<pre><code>web: vendor/bin/heroku-php-apache2
+</code></pre>
+
+<div class="note">
+<p>Vendor binaries are usually installed to <code>vendor/bin</code> by Composer, but under some circumstances (e.g. when running a Symfony2 standard edition project), the location will be different. Run <code>$ composer config bin-dir</code> to find the right location.</p>
+</div>
+
+<h2 id="default-behavior">Default behavior</h2>
+
+<p>Heroku will launch a <a href="http://docs.php.net/fpm">FastCGI Process Manager</a> (PHP-FPM) application server. This application server will get traffic from a web server, either <a href="http://httpd.apache.org">Apache</a> or <a href="http://nginx.org">Nginx</a>. The web server will <a href="https://devcenter.heroku.com/articles/dynos#web-dynos">bind to the port in the <code>$PORT</code> environment variable</a>. HTTP requests will come in, they will be received by the web server (Apache or Nginx) and passed to the application server (PHP-FPM) by default for any URLs ending in <code>.php</code>. The configuration for these web servers can be customized.</p>
+
+<p>Depending on the web server you chose (Apache or Nginx) each will come with different defaults. You can find them directly below.</p>
+
+<h3 id="apache-defaults">Apache defaults</h3>
+
+<p>Apache uses a <a href="http://httpd.apache.org/docs/2.4/vhosts/">Virtual Host</a> that responds to all hostnames. The document root is set up as a <a href="http://httpd.apache.org/docs/2.4/mod/core.html#directory"><code>&lt;Directory&gt;</code></a> reachable without access limitations and <a href="http://httpd.apache.org/docs/2.4/mod/core.html#allowoverride"><code>AllowOverride All</code></a> set to enable the use of <a href="http://httpd.apache.org/docs/2.4/howto/htaccess.html"><code>.htaccess</code></a> files. Any request to a URL ending on <code>.php</code> will be rewritten to PHP-FPM using a proxy endpoint  named <code>fcgi://heroku-fcgi</code> via <a href="https://httpd.apache.org/docs/2.4/mod/mod_proxy_fcgi.html">mod_proxy_fcgi</a>. The <code>DirectoryIndex</code> directive is set to “<code>index.php index.html index.html</code>”.</p>
+
+<h3 id="nginx-defaults">Nginx defaults</h3>
+
+<p>Nginx uses a <a href="http://nginx.org/en/docs/http/ngx_http_core_module.html#server"><code>server</code></a> that responds to all hostnames. The document root has no access limitations. Any request to a URL containing <code>.php</code> will be be rendered by <a href="http://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_pass"><code>fastcgi_pass</code></a> with PHP-FPM using an upstream called “heroku-fcgi” after a <a href="http://nginx.org/en/docs/http/ngx_http_core_module.html#try_files"><code>try_files</code></a> call on the entire URL. The <a href="http://nginx.org/en/docs/http/ngx_http_index_module.html#index"><code>index</code></a> directive is set to “<code>index.php index.html index.html</code>”</p>
+
+<h2 id="setting-the-document-root">Setting the document root</h2>
+
+<p>The document root is the directory where the application will begin looking for your <code>.php</code> files. To change the document root, you may supply the path to the directory (relative to your application root directory) as the argument to the <code>heroku-php-apache2</code> or <code>heroku-php-nginx</code> boot script without having to change a configuration file.</p>
+
+<p>For example, if you’re using Apache and your document root should be set to the <code>public</code> directory of your application, your <code>Procfile</code> would look like this:</p>
+
+<pre><code>web: vendor/bin/heroku-php-apache2 public/
+</code></pre>
+
+<h2 id="web-server-settings">Web server settings</h2>
+
+<p>You can configure Apache or Nginx, by providing your own site-specific settings (recommended). You can also replace the entire configuration for the host, this can be dangerous and should not be attempted unless you wish to maintain these settings manually. Replacing the configuration for the host is possible, but we cannot support your individual configuration choices.</p>
+
+<h3 id="apache">Apache</h3>
+
+<h4 id="using-htaccess">Using <code>.htaccess</code>
+</h4>
+
+<p>You may use regular <a href="http://httpd.apache.org/docs/2.4/howto/htaccess.html">.htaccess files</a> to customize the behavior of the Apache HTTP server. The <code>AllowOverride</code> option for the document root is set to <code>all</code>, which means you can use any configuration directive allowed in <code>.htaccess</code> <a href="http://httpd.apache.org/docs/2.4/mod/directive-dict.html#Context">contexts</a>.</p>
+
+<p>This is the recommended approach for customizing Apache settings, as it does not require the use of a custom (and potentially error-prone) config include.</p>
+
+<h4 id="using-a-custom-application-level-apache-configuration">Using a custom application level Apache configuration</h4>
+
+<p>Inside the default server level configuration file Heroku uses during the startup of Apache, it includes a very simple <a href="https://github.com/heroku/heroku-buildpack-php/blob/beta/conf/apache2/default_include.conf">default application level config</a> file. You can replace this file with your custom configuration. For example, to configure Apache to use some rewrite rules for your Symfony2 application, you’d create a <code>apache_app.conf</code> inside your application’s root directory with the following contents:</p>
+
+<pre><code>RewriteEngine On
+
+RewriteCond %{REQUEST_URI}::$1 ^(/.+)/(.*)::\2$
+RewriteRule ^(.*) - [E=BASE:%1]
+
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
+RewriteRule ^app\.php(/(.*)|$) %{ENV:BASE}/$2 [R=301,L]
+
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule .? - [L]
+
+RewriteRule .? %{ENV:BASE}/app.php [L]
+</code></pre>
+
+<div class="note">
+<p>In this particular case, you may also put the corresponding rewrite rules into a <code>.htaccess</code> file. In fact, the entire snippet was copied from the <a href="https://github.com/symfony/symfony-standard/blob/master/web/.htaccess">Symfony Standard Edition’s <code>.htaccess</code> file</a></p>
+</div>
+
+<p>Then, you can use the <code>-C</code> argument of the boot script to tell Heroku to include this file for you:</p>
+
+<pre><code>web: vendor/bin/heroku-php-apache2 -C apache_app.conf
+</code></pre>
+
+<div class="callout">
+<p>To understand in which context this configuration file will be included, we recommend you take a look at the <a href="https://github.com/heroku/heroku-buildpack-php/blob/beta/conf/apache2/heroku.conf">server-level configuration</a> for Apache that Heroku loads right after the system-wide configuration file during startup.</p>
+</div>
+
+<h3 id="nginx">Nginx</h3>
+
+<h4 id="using-a-custom-application-level-nginx-configuration">Using a custom application level Nginx configuration</h4>
+
+<p>Inside the default server level configuration file Heroku uses during the startup of Nginx, it includes a very simple <a href="https://github.com/heroku/heroku-buildpack-php/blob/beta/conf/nginx/default_include.conf">default application level config</a> file. You can replace this file with your custom configuration. For example, to <a href="http://symfony.com/doc/current/cookbook/configuration/web_server_configuration.html#nginx">configure Nginx to use some rewrite rules for your Symfony2 application</a>, you’d create a <code>nginx_app.conf</code> inside your application’s root directory with the following contents:</p>
+
+<pre><code>location / {
+    # try to serve file directly, fallback to rewrite
+    try_files $uri @rewriteapp;
+}
+
+location @rewriteapp {
+    # rewrite all to app.php
+    rewrite ^(.*)$ /app.php/$1 last;
+}
+
+location ~ ^/(app|app_dev|config)\.php(/|$) {
+    fastcgi_pass heroku-fcgi;
+    fastcgi_split_path_info ^(.+\.php)(/.*)$;
+    include fastcgi_params;
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    fastcgi_param HTTPS off;
+}
+</code></pre>
+
+<div class="note">
+<p>When using <code>fastcgi_pass</code>, use “<code>heroku-fcgi</code>” as the destination. It’s an <a href="http://nginx.org/en/docs/http/ngx_http_upstream_module.html">upstream group</a> and configured so that your FastCGI requests will always be handed to the correct backend process.</p>
+</div>
+
+<p>After you have created a new default configuration you can tell your application to start with this configuration by using the <code>-C</code> argument of the boot script.</p>
+
+<p>For example if you’ve written your own <code>nginx_app.conf</code> you can modify your <code>Procfile</code> to use this configuration file:</p>
+
+<pre><code>web: vendor/bin/heroku-php-nginx -C nginx_app.conf
+</code></pre>
+
+<div class="callout">
+<p>To understand in which context this configuration file will be included, we recommend you take a look at the <a href="https://github.com/heroku/heroku-buildpack-php/blob/beta/conf/nginx/heroku.conf.php">server-level configuration</a> for Nginx that Heroku loads right after the system-wide configuration file during startup.</p>
+</div>
+
+<h2 id="php-runtime-settings">PHP runtime settings</h2>
+
+<h3 id="ini-settings">INI settings</h3>
+
+<p>PHP allows you to change settings via directives in a <a href="http://docs.php.net/en/ini.list.php"><code>php.ini</code></a> file.
+Heroku allows you to use <a href="http://docs.php.net/ini_set"><code>ini_set</code></a>, as well as a per-directory <code>.user.ini</code> file. While not recommended you can also  replace <code>php.ini</code> entirely.</p>
+
+<div class="note">
+<p>In addition to its standard <code>php.ini</code> configuration file, Heroku will also read per-extension <code>.ini</code> configs from an internal directory used by Heroku on startup. This configuration is used to enable non-standard extensions as required in your <code>composer.json</code>. This behavior cannot be changed.</p>
+</div>
+
+<h4 id="user-ini-files-recommended">
+<code>.user.ini</code> files (recommended)</h4>
+
+<p>PHP will read settings from any <code>.user.ini</code> file in the same directory as the <code>.php</code> file that is being served. PHP will also read settings from a <code>.user.ini</code> file in any parent directory up to the document root. Heroku recommends using <code>.user.ini</code> files to customize PHP settings. Please refer to the <a href="http://docs.php.net/en/configuration.file.per-user.php">section on <code>.user.ini</code> files in the PHP manual</a> to learn more about this feature and which settings you can control through it.</p>
+
+<div class="note">
+<p>There is practically no performance penalty associated with this method, as the <code>user_ini.cache_ttl</code> setting is set high enough for PHP to only scan for this file once during the lifetime of a dyno. We recommend setting this to 24 hours.</p>
+</div>

@@ -9,11 +9,16 @@
 <p>If you’re new to Heroku or Node.js development, you’ll need to set up a few things first:</p>
 
 <ul>
-<li>A Heroku user account. <a href="https://api.heroku.com/signup/devcenter">Signup is free and instant</a>.</li>
-<li>Install the <a href="https://toolbelt.heroku.com">Heroku Toolbelt</a>, which gives you git, Foreman, and the Heroku command-line interface.</li>
+<li>A Heroku user account. <a href="https://signup.heroku.com/signup/dc">Signup is free and instant</a>.</li>
 <li>
 <a href="http://nodejs.org/">Node.js</a>, easily installed on Mac, Windows, and Linux with packages from <a href="http://nodejs.org/">nodejs.org</a>.</li>
 </ul><h2 id="local-workstation-setup">Local workstation setup</h2>
+
+<p>First, install the Heroku Toolbelt on your local workstation.</p>
+
+<p><a class="toolbelt" href="https://toolbelt.heroku.com/">Install the Heroku Toolbelt</a></p>
+
+<p>This ensures that you have access to the <a href="https://devcenter.heroku.com/categories/command-line">Heroku command-line client</a>, Foreman, and the Git revision control system.</p>
 
 <p>Once installed, you can use the <code>heroku</code> command from your command shell.  Log in using the email address and password you used when creating your Heroku account:</p>
 
@@ -44,7 +49,7 @@ app.get('/', function(req, res) {
   res.send('Hello World!');
 });
 
-var port = process.env.PORT || 5000;
+var port = Number(process.env.PORT || 5000);
 app.listen(port, function() {
   console.log("Listening on " + port);
 });
@@ -52,7 +57,7 @@ app.listen(port, function() {
 
 <h2 id="declare-dependencies-with-npm">Declare dependencies with npm</h2>
 
-<p>Heroku recognizes an app as Node.js by the existence of a <code>package.json</code> file. To create one, run <code>npm init</code> in the root directory of your app. The <code>npm init</code> utility will walk you through creating a <code>package.json</code> file. It only covers the most common items, and tries to guess sane defaults.</p>
+<p>Heroku recognizes an app as Node.js by the existence of a <code>package.json</code> file. To create one, run <code>npm init</code> in the root directory of your app. The <code>npm init</code> utility will walk you through creating a <code>package.json</code> file. It covers the most common items, and tries to guess sane defaults. You can skip any of the prompts by leaving them blank.</p>
 
 <pre><code class="term">$ cd node-example
 $ npm init
@@ -246,7 +251,7 @@ Opening sharp-rain-871... done
 
 <h2 id="console">Console</h2>
 
-<p>Heroku allows you to run commands in a <a href="https://devcenter.heroku.com/articles/oneoff-admin-ps">one-off dyno</a> - scripts and applications that only need to be executed when needed - using the <code>heroku run</code> command.   Use this to launch a REPL process attached to your local terminal for experimenting in your app’s environment:</p>
+<p>Heroku allows you to run commands in a <a href="https://devcenter.heroku.com/articles/one-off-dynos">one-off dyno</a> - scripts and applications that only need to be executed when needed - using the <code>heroku run</code> command.   Use this to launch a REPL process attached to your local terminal for experimenting in your app’s environment:</p>
 
 <pre><code class="term">$ heroku run node
 Running `node` attached to terminal... up, ps.1
@@ -315,7 +320,7 @@ pg.connect(process.env.DATABASE_URL, function(err, client, done) {
 
 <h2 id="using-mongodb">Using MongoDB</h2>
 
-<p>To add a MongoDB database to your app, provision one of the <a href="https://addons.heroku.com/marketplace/#data-stores">MongoDB add-ons</a>:</p>
+<p>To add a MongoDB database to your app, provision one of the <a href="https://addons.heroku.com/#data-stores">MongoDB add-ons</a>:</p>
 
 <pre><code class="term">$ heroku addons:add mongolab
 Adding mongolab on sharp-rain-871... done, v3 (free)
@@ -350,44 +355,10 @@ mongo.Db.connect(mongoUri, function (err, db) {
 });
 </code></pre>
 
-<h2 id="using-redis">Using Redis</h2>
-
-<p>To add a Redis database to your app, run this command:</p>
-
-<pre><code class="term">$ heroku addons:add redistogo
-Adding redistogo on sharp-rain-871... done, v3 (free)
-Use `heroku addons:docs redistogo` to view documentation.
-</code></pre>
-
-<p>This sets the <code>REDISTOGO_URL</code> environment variable.  Add the <code>redis-url</code> NPM module to your dependencies:</p>
-
-<pre><code class="term">$ npm install redis-url --save
-npm http GET https://registry.npmjs.org/redis-url
-npm http 200 https://registry.npmjs.org/redis-url
-npm http GET https://registry.npmjs.org/redis-url/-/redis-url-0.2.0.tgz
-npm http 200 https://registry.npmjs.org/redis-url/-/redis-url-0.2.0.tgz
-npm http GET https://registry.npmjs.org/redis
-npm http 200 https://registry.npmjs.org/redis
-npm http GET https://registry.npmjs.org/redis/-/redis-0.9.1.tgz
-npm http 200 https://registry.npmjs.org/redis/-/redis-0.9.1.tgz
-redis-url@0.2.0 node_modules/redis-url
-└── redis@0.9.1
-</code></pre>
-
-<p>And use the module to connect to <code>REDISTOGO_URL</code> from somewhere in your code:</p>
-
-<pre><code class="js">var redis = require('redis-url').connect(process.env.REDISTOGO_URL);
-
-redis.set('foo', 'bar');
-
-redis.get('foo', function(err, value) {
-  console.log('foo is: ' + value);
-});
-</code></pre>
-
 <h2 id="next-steps">Next steps</h2>
 
 <ul>
+<li>Read <a href="https://blog.heroku.com/archives/2014/3/11/node-habits">10 Habits of a Happy Node Hacker</a> on the Heroku blog.</li>
 <li>Visit the <a href="https://devcenter.heroku.com/categories/nodejs">Node.js category</a> to learn more about developing and deploying Node.js applications.</li>
 <li>Read <a href="https://devcenter.heroku.com/articles/how-heroku-works">How Heroku Works</a> for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.</li>
 </ul>

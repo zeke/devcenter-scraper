@@ -57,6 +57,9 @@ Note that failures to fetch the submodules will cause the build to fail.
 
 If it's at all possible to use your runtime's preferred dependency resolution mechanisms, you should prefer it to using submodules, which can often be confusing and error-prone.
 
+> warning
+> Using submodules for builds on Heroku is only supported for builds triggered with git pushes. Builds created with the [API](build-and-release-using-the-api) do not resolve submodules.
+
 ## Protected Git submodules
 
 If the referenced git repository is protected via a username and password it's still possible to reference it with a submodule. Since remote environments like Heroku don't have access to locally available credentials you will need to embed the username and password into the repository URL.
@@ -90,4 +93,4 @@ A downside of this approach is that it requires a manual download and copy proce
 
 A very robust and scalable approach to dependency management is to use a private _package_ repository. For Ruby, Python and Node.js this is available on Heroku with the [Gemfury add-on](https://devcenter.heroku.com/articles/gemfury). For JVM-based languages it's easy to use a private S3 bucket with the [s3-wagon-private](https://github.com/technomancy/s3-wagon-private/) tool. It may also be possible to [host your dependencies](https://github.com/hashicorp/heroku-buildpack-rubygem-server) on Heroku using custom [buildpack](https://devcenter.heroku.com/articles/buildpacks#using-a-custom-buildpack) functionality.
 
-Private package repositories allow you to use your language's  dependency management tools while limiting access to only your application or organization. While this does incur the overhead of having to properly package your referenced libraries for broader distribution it is a much more scalable approach that takes advantage of your language's well supported and vetted dependency toolset.
+Private package repositories allow you to use your language's  dependency management tools while limiting access to only your application or organization. While this does incur the overhead of having to properly package your referenced libraries for broader distribution it is a much more scalable approach that takes advantage of your language's well supported and vetted dependency toolset. 

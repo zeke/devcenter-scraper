@@ -37,7 +37,7 @@ The `source` field identifies a dyno in your [dyno formation](scaling#dyno-forma
 
 The following fields are reported for CPU load average:
 
-* **Load Average 1m** (`load_avg_1m`): The load average for the dyno in the last 1 minute. This reflects the number of CPU tasks that are in the [ready queue](http://en.wikipedia.org/wiki/Process_state#Ready_or_waiting) (i.e. waiting to be processed). More details about how load averages are calculated can be found [below](#load-averages).
+* **Load Average 1m** (`load_avg_1m`): The load average for the dyno in the last 1 minute. This reflects the number of CPU tasks that are in the [ready queue](http://en.wikipedia.org/wiki/Process_state#Ready_or_waiting) (i.e. waiting to be processed). More details about how load averages are calculated can be found [below](#understand-load-averages).
 * **Load Average 5m** (`load_avg_5m`): The load average for the dyno in the last 5 minutes. Computed in the same manner as 1m load average.
 * **Load Average 15m** (`load_avg_15m`): The load average for the dyno in the last 15 minutes. Computed in the same manner as 1m load average.
 
@@ -52,10 +52,35 @@ The following fields are reported for memory consumption and swap:
 * **Pages Written to Disk** (`memory_pgpgout`): The cumulative total of the pages written to disk. Sudden high variations on this number can indicate short duration spikes in swap usage. The other memory related metrics are point in time snapshots and can miss short spikes.
 * **Pages Read from Disk** (`memory_pgpgin`): The cumulative total of the pages read from disk. As with the previous metric, watch out for sudden variations.
  
-## Understand load averages
+## Understanding load averages
 
-Load averages represent the number of tasks (processes or system threads) waiting to run at a given time. See [this blog post by Scout](http://blog.scoutapp.com/articles/2009/07/31/understanding-load-averages) for an explanation and diagrams.
+Load average represents the number of tasks (e.g., processes, system
+threads) currently running or waiting to run on CPU. Load averages are
+typically depicted with programs like `uptime` or `top` on Linux
+systems with three values: 1-minute, 5-minute, and 15-minute. These
+values do not represent averages across the preceding 1-, 5-, or
+15-minutes and are calculated from values beyond those periods. Load
+averages are exponentially damped moving averages.  Taken as a set,
+these values demonstrate the trend of CPU utilization.
 
-The load averages exposed by the [dyno manager](dynos#the-dyno-manager) account only for tasks (processes and/or system threads) in the CPU run queue (or [ready queue](http://en.wikipedia.org/wiki/Process_state#Ready_or_waiting)), waiting for their opportunity to consume CPU time. This is different from how some [Unix-like OSes calculate it](http://en.wikipedia.org/wiki/Load_%28computing%29#Unix-style_load_calculation). In the Linux case, for example, tasks in the [uninterruptible sleep state](http://en.wikipedia.org/wiki/Uninterruptible_sleep) (usually blocked on I/O operations) are also included in load averages. Dynos **do not consider tasks blocked on I/O operations** for load averages.
+The dyno manager takes the count of runnable tasks from
+`/cgroup/<uuid>/tasks` about every 20 seconds. The load average is
+computed with the count of runnable tasks from the previous 30
+minutes in the following iterative algorithm:
 
-Periodically, the number of tasks in the ready queue are collected. Load averages are then calculated as [exponentially weighted moving averages](http://en.wikipedia.org/wiki/Moving_average#Application_to_measuring_computer_performance) of these values, with different average periods (`W`): 1m, 5m and 15m.
+```ruby
+expterm = Math.exp(-(count_of_runnable_tasks.time - avg.time) / (period))
+newavg = (1 - expterm) * count_of_runnable_tasks.value + expterm * avg.value
+```
+
+where `period` is either 1-, 5-, or 15-minutes (in seconds), the
+`count_of_runnable_tasks` is an entry of the number of tasks in the
+queue at a given point in time, and the `avg` is the previous
+calculated exponential load average from the last iteration.
+
+This load average calculation differs from the algorithm in Linux,
+which includes tasks in an uninterruptible state (e.g., tasks
+performing disk I/O). The choice to present load average values that
+include only runnable tasks enables Heroku users to evaluate their
+application's CPU saturation without confounding these statistics 
+with long-running uninterruptible tasks. 

@@ -2,7 +2,7 @@
 title: Heroku Postgres Legacy Plans
 slug: heroku-postgres-legacy-plans
 url: https://devcenter.heroku.com/articles/heroku-postgres-legacy-plans
-description: Heroku Postgres is Heroku’s database-as-a-service running an unmodified PostgreSQL installation. If you’re looking for Heroku Postgres' current plans please visit the pricing page. The below pertains to the legacy plans for Heroku Postgres. These legacy plans are still available and
+description: A description of the legacy Heroku Postgres plans and tiers.
 ---
 
 [Heroku Postgres](heroku-postgresql) is Heroku's database-as-a-service running an unmodified PostgreSQL installation. If you're looking for Heroku Postgres' current plans please visit the pricing page. The below pertains to the legacy plans for Heroku Postgres. These legacy plans are still available and provisionable, but not listed in `heroku addons:list` or within dashboard provisioning.
@@ -29,11 +29,8 @@ The legacy plans consist of two tiers, starter and production, across a variety 
 
 ### Starter Tier
 
-<p class="warning" markdown="1">
-The starter tier database plans are not intended for
-production-caliber applications or applications with high-uptime
-requirements.
-</p>
+>warning
+>The starter tier database plans are not intended for production-caliber applications or applications with high-uptime requirements.
 
 The starter tier, which includes the [`dev` and `basic`
 plans](https://addons.heroku.com/heroku-postgresql), has the following
@@ -136,4 +133,4 @@ The cache and price for each legacy production plan is:
 <td>64 GB</td>
 <td>$6400</td>
 </tr>
-</table>
+</table> 

@@ -15,11 +15,15 @@ This quickstart will get you going with the [Play! 1.x Framework](http://playfra
 * Basic Java knowledge, including an installed version of the JVM.
 * An installation of [Play Framework](http://www.playframework.org/download) version 1.2.3 or later (make sure you have the `play` command on your path).
 * Your application must run on the [OpenJDK](http://openjdk.java.net/) version 6.
-* A Heroku user account.  [Signup is free and instant.](https://api.heroku.com/signup/devcenter)
+* A Heroku user account.  [Signup is free and instant.](https://signup.heroku.com/signup/dc)
 
 ## Local workstation setup
 
-Install the [Heroku Toolbelt](https://toolbelt.heroku.com/) on your local workstation.  This ensures that you have access to the [Heroku command-line client](/categories/command-line), Foreman, and the Git revision control system.
+First, install the Heroku Toolbelt on your local workstation.  
+
+<a class="toolbelt" href="https://toolbelt.heroku.com/">Install the Heroku Toolbelt</a>
+
+This ensures that you have access to the [Heroku command-line client](/categories/command-line), Foreman, and the Git revision control system.
 
 Once installed, you can use the `heroku` command from your command shell.  Log in using the email address and password you used when creating your Heroku account:
 
@@ -283,4 +287,4 @@ $ heroku logs
 * Extend the app by reading [Building a Database-backed Play! application for Heroku](database-driven-play-apps)
 * Check out the technical aspects of [Heroku's Play support](play-support)
 * See the [Play! Framework documentation and tutorials](http://www.playframework.org/documentation)
-* Read [How Heroku Works](how-heroku-works) for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.
+* Read [How Heroku Works](how-heroku-works) for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications. 

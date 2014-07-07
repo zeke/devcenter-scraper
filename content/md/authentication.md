@@ -102,3 +102,4 @@ machine api.heroku.com
 
 One other type of record, `macdef`, can appear in `.netrc` files, but
 it is not commonly used and is ignored by the `heroku` command.
+ 

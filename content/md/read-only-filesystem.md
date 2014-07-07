@@ -5,7 +5,8 @@ url: https://devcenter.heroku.com/articles/read-only-filesystem
 description: Understand the read-only filesystem of the Heroku Bamboo stack.
 ---
 
-<div class="deprecated" markdown="1">This article applies to apps on the [Bamboo](bamboo) stack.  For the most recent stack, [Cedar](cedar), see the note on the [ephemeral writeable filesystem](dynos#ephemeral-filesystem).</div>
+>warning
+>This article applies to apps on the [Bamboo](bamboo) stack.  For the most recent stack, [Cedar](cedar), see the note on the [ephemeral writeable filesystem](dynos#ephemeral-filesystem).
 
 Your app is [compiled into a slug](slug-compiler) for fast distribution by the [dyno manager](dynos#the-dyno-manager). The filesystem for the slug is read-only, which means you cannot dynamically write to the filesystem for semi-permanent storage. The following types of behaviors are _not_ supported:
 
@@ -25,4 +26,6 @@ So how do you accomplish each of the following in a way that is compatible with 
 * **Accessing a git repo** - Sorry, but git-wiki and apps that use a similar technique won't work on Heroku. As clever as git-wiki is, it is fundamentally non-scalable and non-replicatable.
 
 ### Further reading
+
 * Adam Wiggins's [Read-only Source Trees](http://adam.heroku.com/past/2008/7/2/readonly_source_trees/)
+ 

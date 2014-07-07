@@ -52,3 +52,4 @@ To update a particular plugin:
 ```term
 $ heroku plugins:update heroku-accounts
 ```
+ 

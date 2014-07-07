@@ -7,12 +7,14 @@ description: Heroku Postgres log statements and common errors.
 
 [Heroku Postgres](heroku-postgresql) logs to the [logplex](logplex) which collates and publishes your application's log-stream. You can isolate Heroku Postgres events [with the `heroku logs` command](logging) by filtering for the `postgres` process.
 
-<p class="warning">Logs are a production-tier feature. They are not available on hobby-tier databases.</p>
+>warning
+>Logs are a production-tier feature. They are not available on hobby-tier databases.
 
-    :::term
-    $ heroku logs -p postgres -t
-    2012-11-01T17:41:42+00:00 app[postgres]: [15521-1]  [CHARCOAL] LOG:  checkpoint starting: time
-    2012-11-01T17:41:43+00:00 app[postgres]: [15522-1]  [CHARCOAL] LOG:  checkpoint complete: wrote 6 buffers (0.0%); 0 transaction log file(s) added, 0 rem...
+```term
+$ heroku logs -p postgres -t
+2012-11-01T17:41:42+00:00 app[postgres]: [15521-1]  [CHARCOAL] LOG:  checkpoint starting: time
+2012-11-01T17:41:43+00:00 app[postgres]: [15522-1]  [CHARCOAL] LOG:  checkpoint complete: wrote 6 buffers (0.0%); 0 transaction log file(s) added, 0 rem...
+```
 
 Besides seeing system-level Postgres activity, these logs are also useful for understanding your application's use of Postgres and for diagnosing common errors. This article lists common log statements, their purpose, and any action that should be taken.
 
@@ -20,7 +22,7 @@ Besides seeing system-level Postgres activity, these logs are also useful for un
 
     [12-1] u8akd9ajka [BRONZE] LOG:  duration: 64.847 ms  statement: SELECT  "articles".* FROM "articles"...
 
-Queries taking longer than 50ms (or 2 seconds on Postgres 9.2+, where pg_stat_statements becomes available as a better alternative) are logged so they can be identified and optimized. Although small numbers of these long-running queries will not adversely effect application performance, a large quantity may. 
+Queries taking longer than 50ms (or 2 seconds on Postgres 9.2+, where `pg_stat_statements` becomes available as a better alternative) are logged so they can be identified and optimized. Although small numbers of these long-running queries will not adversely effect application performance, a large quantity may. 
 
 Ideally, frequently used queries should be optimized to require < 10ms to execute. Queries are typically optimized by [adding indexes](postgresql-indexes) to avoid sequential scans of the database. Use [EXPLAIN](http://www.postgresql.org/docs/9.1/static/sql-explain.html) to diagnose queries. 
 
@@ -60,12 +62,13 @@ This occurs on Hobby Tier (hobby-dev and hobby-basic) plans, which have a [max c
 
 You can always find out the current number of commits a follower is behind by using `heroku pg:info`. Each follower has a "Behind By" entry that indicates how many commits the follower is behind its master.
 
-    :::term
-    $ heroku pg:info --app sushi
-    === HEROKU_POSTGRESQL_WHITE 
-    ...
-    Following    HEROKU_POSTGRESQL_LAVENDER (DATABASE_URL)
-    Behind By    125 commits
+```term
+$ heroku pg:info --app sushi
+=== HEROKU_POSTGRESQL_WHITE 
+...
+Following    HEROKU_POSTGRESQL_LAVENDER (DATABASE_URL)
+Behind By    125 commits
+```
 
 ## FATAL: role "role-name"…
 
@@ -75,6 +78,18 @@ This occurs when you have de-provisioned a [hobby tier database](heroku-postgres
 
 * If required, [provision a new database](heroku-postgresql) via `heroku addons:add heroku-postgresql`
 * Use `heroku pg:promote HEROKU_POSTGRESQL_<new-database-color>` to promote it, making it the primary database for your application.
+
+## FATAL: terminating connection due to administrator command
+
+    FATAL: terminating connection due to administrator command
+
+This message indicates a backend connection was terminated. This can happen when a user issues `pg:kill` from the command line client, or similarly runs `SELECT pg_cancel_backend(pid);` from a psql session.
+
+## FATAL: remaining connection slots are reserved for non-replication superuser connections
+
+    FATAL: remaining connection slots are reserved for non-replication superuser connections
+
+Each database plan has a maximum allowed number of connections available, which vary by plan. This message indicates you have reach the maximum number allowed for your applications, and remaining connections are reserved for super user access (restricted to Heroku Postgres staff). See [Heroku Postgres Production Tier Technical Characterization](https://devcenter.heroku.com/articles/heroku-postgres-production-tier-technical-characterization) for details on connection limits for a given plan. 
 
 ## PGError: permission denied for relation
 
@@ -133,10 +148,11 @@ between more than one process or thread.
 
 Some older Ronin and Fugu databases provisioned on a 32-bit processor architecture don't support forking and following to current plans, all of which are 64-bit. If have one of these databases, you will see an error message such as this:
 
-    :::term
-    $ heroku addons:add heroku-postgresql:ika --follow HEROKU_POSTGRESQL_RED
-    ----> Adding heroku-postgresql:ika to sushi... failed
-     !    This database does not support forking and following to the ika plan.
-     !    Please see http://devcenter.heroku.com/articles/unsupported-fork-follow
+```term
+$ heroku addons:add heroku-postgresql:ika --follow HEROKU_POSTGRESQL_RED
+----> Adding heroku-postgresql:ika to sushi... failed
+ !    This database does not support forking and following to the ika plan.
+ !    Please see http://devcenter.heroku.com/articles/unsupported-fork-follow
+```
 
-Your database is fine and is still supported. However if you'd like to use the fork or follow feature you will need to first create a fresh database with [PG Backups](upgrade-heroku-postgres-with-pgbackups) from which you can then fork or follow.              
+Your database is fine and is still supported. However if you'd like to use the fork or follow feature you will need to first create a fresh database with [PG Backups](upgrade-heroku-postgres-with-pgbackups) from which you can then fork or follow. 

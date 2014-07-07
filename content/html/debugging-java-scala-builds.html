@@ -1,19 +1,16 @@
-
 <p>When you push your source code to Heroku a build will be performed by the buildpack for your specific language. On occasion you may find that code which builds locally has issues when you push to Heroku. In these situations the best way to debug the problem is to understand how builds work on Heroku and drive towards the closest dev/prod parity you can get between your local development environment and Heroku.</p>
+
 <div class="note">
-
 <p>If you have questions about Java on Heroku, consider discussing them in the <a href="https://discussion.heroku.com/category/java">Java on Heroku forums</a>.</p>
-
 </div>
+
 <h2 id="builds-on-heroku">Builds on Heroku</h2>
 
 <p>The exact steps that are run to build your code can be found in the buildpack for your language. An overview of the build can also be found in the article describing Heroku’s support for each language/framework:</p>
 
 <ul>
 <li><a href="https://devcenter.heroku.com/articles/java-support#build-behavior">Java</a></li>
-
 <li><a href="https://devcenter.heroku.com/articles/scala-support#build-behavior">Scala</a></li>
-
 <li><a href="https://devcenter.heroku.com/articles/play-support#build-behavior">Play Framework</a></li>
 </ul><h2 id="matching-heroku-build-functionality-locally">Matching Heroku build functionality locally</h2>
 
@@ -31,7 +28,8 @@
 
 <p>You can point maven to a different local repository by adding this flag to your build command:</p>
 
-<pre><code>mvn -Dmaven.repo.local=/path/to/repo</code></pre>
+<pre><code class="term">$ mvn -Dmaven.repo.local=/path/to/repo
+</code></pre>
 
 <p>Just point your local repo at an empty temporary directory.</p>
 
@@ -39,7 +37,8 @@
 
 <p>You can point maven to a different local repository by adding this flag to your build command:</p>
 
-<pre><code>sbt -Dsbt.ivy.home=/path/to/repo clean compile stage</code></pre>
+<pre><code class="term">$ sbt -Dsbt.ivy.home=/path/to/repo clean compile stage
+</code></pre>
 
 <p>Just point your local repo at an empty temporary directory.</p>
 
@@ -67,8 +66,10 @@
 
 <h4 id="java-buildpack">Java Buildpack</h4>
 
-<pre><code>$ heroku config:set BUILDPACK_URL='http://github.com/heroku/heroku-buildpack-java.git#no-s3pository'</code></pre>
+<pre><code class="term">$ heroku config:set BUILDPACK_URL='http://github.com/heroku/heroku-buildpack-java.git#no-s3pository'
+</code></pre>
 
 <h4 id="scala-play-2-0-buildpack">Scala/Play 2.0 Buildpack</h4>
 
-<pre><code>$ heroku config:set BUILDPACK_URL='http://github.com/heroku/heroku-buildpack-scala.git#no-s3pository'</code></pre>
+<pre><code class="term">$ heroku config:set BUILDPACK_URL='http://github.com/heroku/heroku-buildpack-scala.git#no-s3pository'
+</code></pre>

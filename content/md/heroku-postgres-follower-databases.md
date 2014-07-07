@@ -38,7 +38,7 @@ To create a follower database you must first know the add-on name of the master 
 ```term
 $ heroku pg:info
 === HEROKU_POSTGRESQL_CHARCOAL_URL (DATABASE_URL)
-Plan:        Crane
+Plan:        Standard Yanari
 Status:      available
 ...
 ```
@@ -52,8 +52,8 @@ Create a follower database by provisioning a new heroku-postgresql [Standard, Pr
 > Followers do not have to be the same database plan as their master. Production tier database plans can be followed by, and can follow, all other production tier plans. If you are on an older 32-bit machine then the follower may only be followed by the same plan, you can identify this by running heroku pg:info on your database.
 
 ```term
-$ heroku addons:add heroku-postgresql:ronin --follow HEROKU_POSTGRESQL_CHARCOAL_URL
-Adding heroku-postgresql:ronin to sushi... done, v71 ($200/mo)
+$ heroku addons:add heroku-postgresql:standard-tengu --follow HEROKU_POSTGRESQL_CHARCOAL_URL
+Adding heroku-postgresql:standard-tengu to sushi... done, v71 ($200/mo)
 Attached as HEROKU_POSTGRESQL_WHITE
 Follower will become available for read-only queries when up-to-date
 Use `heroku pg:wait` to track status
@@ -89,7 +89,7 @@ Unfollowing... done
 ## Database upgrades and migrations with changeovers
 
 > warning
-> Using followers to migrate databases is not supported on the [Hobby tier](heroku-postgres-plans#hobby-tier). Use [the pgbackups-based migration process](upgrade-heroku-postgres-with-pgbackups) if you have a Hobby tier (dev or basic) database plan.
+> Using followers to migrate databases is not supported on the [Hobby tier](heroku-postgres-plans#hobby-tier). Additionally, followers must be the same major version of Postgres as the primary (9.2.x, 9.3.x), and cannot be used as a means of upgrading to a new version of Postgres. Use [the pgbackups-based migration process](upgrade-heroku-postgres-with-pgbackups) if you have a Hobby tier (dev or basic) database plan, or wish to upgrade your 9.2.x database to 9.3.
 
 In addition to providing data redundancy, followers can also be used to change database plans with minimal downtime. At a high level, a follower is created in order to move your data from one database to another (which can be the same or different production tier database plans). Once it has received the majority of the data and is closely following your main database, you will prevent new data from being written (usually by enabling maintenance mode on your app). The follower will then fully catch-up to the main database. The follower is then promoted to be the primary database for the application.
 
@@ -101,14 +101,14 @@ In addition to providing data redundancy, followers can also be used to change d
 To begin, create a new follower for your database and wait for the follower to catch up to the master database.
 
 ```term
-$ heroku addons:add heroku-postgresql:crane --follow HEROKU_POSTGRESQL_WHITE_URL --app sushi
-Adding heroku-postgresql:crane to sushi... done, v71 ($50/mo)
-Attached as HEROKU_POSTGRESQL_LAVENDER
+$ heroku addons:add heroku-postgresql:standard-yanari --follow HEROKU_POSTGRESQL_LAVENDER_URL --app sushi
+Adding heroku-postgresql:standard-yanari to sushi... done, v71 ($50/mo)
+Attached as HEROKU_POSTGRESQL_WHITE
 Follower will become available for read-only queries when up-to-date
 Use `heroku pg:wait` to track status
 
 $ heroku pg:wait
-Waiting for database HEROKU_POSTGRESQL_LAVENDER_URL... available
+Waiting for database HEROKU_POSTGRESQL_WHITE_URL... available
 ```
 
 Once a follower is caught up, it will generally be within 200 commits of the database. Monitor how many commits a follower is behind with the `pg:info` command (looking at the `Behind By` row of the follower database):
@@ -116,11 +116,11 @@ Once a follower is caught up, it will generally be within 200 commits of the dat
 ```term
 $ heroku pg:info --app sushi
 === HEROKU_POSTGRESQL_LAVENDER
-Plan:        Crane
+Plan:        Standard Yanari
 Status:      available
 ...
 === HEROKU_POSTGRESQL_WHITE 
-Plan:        Crane
+Plan:        Standard Yanari
 Status:      available
 ...
 Following:   HEROKU_POSTGRESQL_LAVENDER (DATABASE_URL)
@@ -149,11 +149,11 @@ In maintenance mode no new data will be written to the master database. Wait for
 ```term
 $ heroku pg:info
 === HEROKU_POSTGRESQL_LAVENDER_URL
-Plan:        Crane
+Plan:        Standard Yanari
 Status:      available
 ...
 === HEROKU_POSTGRESQL_WHITE_URL
-Plan:        Crane
+Plan:        Standard Yanari
 Status:      available
 ...
 Following:   HEROKU_POSTGRESQL_LAVENDER_URL (DATABASE_URL)
@@ -211,4 +211,4 @@ Having a follower provisioned, even if not being actively used as a read slave, 
 
 ### Manual failover
 
-Heroku does not automatically promote a follower database when the primary database is corrupt or inaccessible. If this functionality is required, use a premium or enterprise tier plan that does offer HA. Performing a database failover is the same manual process as a database migration starting with the [prevent data updates step](#prevent-new-data-updates).
+Heroku does not automatically promote a follower database when the primary database is corrupt or inaccessible. If this functionality is required, use a premium or enterprise tier plan that does offer HA. Performing a database failover is the same manual process as a database migration starting with the [prevent data updates step](#prevent-new-data-updates). 

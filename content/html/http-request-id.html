@@ -1,40 +1,19 @@
-<p>This <a href="https://devcenter.heroku.com/categories/labs">Heroku Labs</a> feature that allows you to correlate router logs for a given web request against the web dyno logs for that same request.</p>
-
-<div class="warning">
-<p>Features added through Heroku Labs are experimental and subject to change.</p>
-</div>
+<p>HTTP Request IDs let you correlate router logs for a given web request against the web dyno <a href="https://devcenter.heroku.com/articles/logging">logs</a> for that same request.</p>
 
 <h2 id="how-it-works">How it works</h2>
 
-<p>The Heroku router generates a unique request ID for every HTTP request that it receives. It logs this ID as <code>request_id</code>, and inserts it into the HTTP headers going to the web dyno as <code>Heroku-Request-ID</code>.</p>
+<p>The Heroku router generates a unique Request ID for every incoming HTTP request that it receives. This unique ID is then passed to your application as an HTTP header called <code>X-Request-ID</code>.</p>
 
-<p>Your app code can read the request ID from the header, and log it or use it for other purposes.</p>
+<p>Alternately, you can specify the <code>X-Request-ID</code> header when making a request. The value must be between 20 and 200 characters, and consist of ASCII letters, digits, or the characters <code>+</code>, <code>/</code>, <code>=</code>, and <code>-</code>. Invalid ids will be ignored and replaced with generated ones.</p>
 
-<h2 id="using-it">Using it</h2>
+<p>Your app code can then read this ID and simply log it or use it for other purposes.</p>
 
-<pre><code class="term">$ heroku labs:enable http-request-id
-Enabling http-request-id for myapp... done
-</code></pre>
+<h2 id="router-logs">Router logs</h2>
 
-<h2 id="router-log">Router log</h2>
+<p>These Request IDs will also also be visible in the Heroku router logs as <code>request_id</code>.  Here’s an example:</p>
 
-<p>The router log request ID parameter is <code>request_id</code>. Example:</p>
-
-<pre><code>2013-03-10T19:53:10+00:00 heroku[router]: at=info method=GET path=/ host=myapp.herokuapp.com request_id=f9ed4675f1c53513c61a3b3b4e25b4c0 fwd="215.90.1.17" dyno=web.4 connect=0ms service=61ms status=200 bytes=1382
-</code></pre>
-
-<h2 id="http-header">HTTP header</h2>
-
-<p>The HTTP header is named <code>Heroku-Request-ID</code>. Sample code for reading and logging this from Rack middleware:</p>
-
-<pre><code class="ruby">module Rack::LogRequestID
-  def initialize(app); @app = app; end
-
-  def call(env)
-    puts "request_id=#{env['HTTP_HEROKU_REQUEST_ID']}"
-    @app.call(env)
-  end
-end
+<pre><code class="term">$ heroku logs --ps router
+2013-03-10T19:53:10+00:00 heroku[router]: at=info method=GET path=/ host=myapp.herokuapp.com request_id=f9ed4675f1c53513c61a3b3b4e25b4c0 fwd="215.90.1.17" dyno=web.4 connect=0ms service=61ms status=200 bytes=1382
 </code></pre>
 
 <h2 id="example-correlate-h13-error-against-app-backtrace">Example: correlate H13 error against app backtrace</h2>
@@ -53,3 +32,149 @@ end
 </code></pre>
 
 <p>Here we see that this request is causing the dyno to crash due to a bug in the SSL library and/or the Ruby interpreter. Upgrading to a newer version of Ruby might help, or if not, you now have the backtrace that you can use to file a bug with.</p>
+
+<h2 id="usage-with-rails">Usage with Rails</h2>
+
+<p>By default Rails will pick up the <code>X-Request-ID</code> and set it as the requests UUID. To tie this request ID in with your application logs, add this line to your <code>config/environments/production.rb</code></p>
+
+<pre><code class="ruby">config.log_tags = [ :uuid ]
+</code></pre>
+
+<p>The values in your logs will then be tagged with the Request ID:</p>
+
+<pre><code>2014-02-07T00:58:00.978819+00:00 app[web.1]: [6a7f7b2f-889b-4ae8-b849-db1f635c971c] Started GET "/" for 99.61.71.11 at 2014-02-07 00:58:00 +0000
+</code></pre>
+
+<p>Here <code>6a7f7b2f-889b-4ae8-b849-db1f635c971c</code> is the Request ID. You can get more information on <a href="http://arun.im/2011/x-request-id-tracking-taggedlogging-rails">tagged logging with UUID in Rails here</a>. Note that if there is not an available <code>X-Request-ID</code>, then Rails will generate a UUID for you, so if you enable this in development you will see a “request ID” even though one may not be available.</p>
+
+<h2 id="usage-with-ruby-rack-middleware">Usage with Ruby Rack middleware</h2>
+
+<p>Here is a sample Rack module for logging the Request ID.</p>
+
+<pre><code class="ruby">module Rack::LogRequestID
+  def initialize(app); @app = app; end
+
+  def call(env)
+    puts "request_id=#{env['HTTP_X_REQUEST_ID']}"
+    @app.call(env)
+  end
+end
+</code></pre>
+
+<p>For a more comprehensive rack middleware we recommend the <a href="https://github.com/Octo-Labs/heroku-request-id">Heroku Request ID</a> gem, which can also provide timing information if you have <code>Rack::Runtime</code> enabled:</p>
+
+<pre><code class="ruby">use Rack::Runtime
+</code></pre>
+
+<h2 id="usage-with-node-js">Usage with Node.js</h2>
+
+<p>If you’re using the <a href="https://www.npmjs.org/package/logfmt">logfmt</a> node module <code>&gt;=0.21.0</code> as outlined in the <a href="https://devcenter.heroku.com/articles/getting-started-with-nodejs#write-your-app">Getting started with Node.js</a> article, the <code>X-Request-Id</code> header will automatically be output to your logs on every web request as <code>request_id</code>.</p>
+
+<p>If you prefer not to use <code>logfmt</code> in your node app, be aware that <a href="http://nodejs.org/api/http.html#http_http">node’s core http module</a> downcases header keys, so the header will be named <code>req.headers['x-request-id']</code>.</p>
+
+<h2 id="usage-with-django">Usage with Django</h2>
+
+<p>You can easily utilize all of the power of Request IDs in Django with the excellent <code>django-log-request-id</code> library. First, you’ll need to install it by adding it to your <code>requirements.txt</code> file:</p>
+
+<h4 id="requirements-txt">requirements.txt</h4>
+
+<pre><code>django-log-request-id==1.0.0
+</code></pre>
+
+<p>Next, you need to install the newly available Django middleware into your application’s <code>settings.py</code>. Make sure that it’s the first specified middleware, or it may not function properly:</p>
+
+<h4 id="usage-with-django-settings-py-1">settings.py</h4>
+
+<pre><code class="python">MIDDLEWARE_CLASSES = (
+    'log_request_id.middleware.RequestIDMiddleware',
+    ...
+</code></pre>
+
+<p>Finally, you need to configure Django to properly log outcoming requests to <code>stdout</code>.  The code below should work perfectly:</p>
+
+<h4 id="usage-with-django-settings-py-2">settings.py</h4>
+
+<pre><code class="python">
+# Support for X-Request-ID
+# https://devcenter.heroku.com/articles/http-request-id-staging
+
+LOG_REQUEST_ID_HEADER = 'HTTP_X_REQUEST_ID'
+LOG_REQUESTS = True
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'request_id': {
+            '()': 'log_request_id.filters.RequestIDFilter'
+        }
+    },
+    'formatters': {
+        'standard': {
+            'format': '%(levelname)-8s [%(asctime)s] [%(request_id)s] %(name)s: %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'filters': ['request_id'],
+            'formatter': 'standard',
+        },
+    },
+    'loggers': {
+        'log_request_id.middleware': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    }
+</code></pre>
+
+<h2 id="usage-with-java">Usage with Java</h2>
+
+<p>Depending on the framework your application is using, the method of accessing and logging the Request ID in Java can vary. This is a simplified example using a Java Servlet filter to access the header and print it to <code>System.out</code>.</p>
+
+<h4 id="requestidloggingfilter-java">RequestIdLoggingFilter.java</h4>
+
+<pre><code class="java">import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+
+public class RequestIdLoggingFilter implements Filter {
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {}
+
+    @Override
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        if (servletRequest instanceof HttpServletRequest) {
+            final String requestId = ((HttpServletRequest) servletRequest).getHeader("X-Request-ID");
+            if (requestId != null) {
+                System.out.println("request_id=" + requestId);
+            }
+        }
+        filterChain.doFilter(servletRequest, servletResponse);
+    }
+
+    @Override
+    public void destroy() {}
+}
+</code></pre>
+
+<h4 id="web-xml">web.xml</h4>
+
+<pre><code class="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         version="2.5"&gt;
+    &lt;filter&gt;
+      &lt;filter-name&gt;RequestIdLoggingFilter&lt;/filter-name&gt;
+      &lt;filter-class&gt;com.example.config.RequestIdLoggingFilter&lt;/filter-class&gt;
+    &lt;/filter&gt;
+    &lt;filter-mapping&gt;
+      &lt;filter-name&gt;RequestIdLoggingFilter&lt;/filter-name&gt;
+      &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+    &lt;/filter-mapping&gt;
+&lt;/web-app&gt;
+</code></pre>

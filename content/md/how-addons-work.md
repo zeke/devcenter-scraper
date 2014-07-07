@@ -151,4 +151,4 @@ Additional information can be supplied as GET parameters. The additional keys an
 
 ```term
 https://api.heroku.com/myapps/app123@heroku.com/addons/cloudcounter?issue_no=42
-```
+``` 

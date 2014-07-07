@@ -44,20 +44,20 @@
 <pre><code>GET {redirect-uri}?code={code}&amp;state={anti-forgery-token}
 </code></pre>
 
-<h4 id="token-exchange">Token exchange</h4>
+<h4 id="oauth-flow-token-exchange">Token exchange</h4>
 
 <p>Given the code from the redirect url, a token may now be acquired.</p>
 
 <pre><code>POST /oauth/token
 </code></pre>
 
-<h4 id="curl-example">Curl Example</h4>
+<h4 id="oauth-flow-curl-example">Curl Example</h4>
 
 <pre><code class="term">$ curl -X POST https://id.heroku.com/oauth/token \
 -d "grant_type=authorization_code&amp;code=01234567-89ab-cdef-0123-456789abcdef&amp;client_secret=01234567-89ab-cdef-0123-456789abcdef"
 </code></pre>
 
-<h4 id="response">Response</h4>
+<h4 id="oauth-flow-response">Response</h4>
 
 <pre><code>HTTP/1.1 200 OK
 Content-Type: application/json;charset=utf-8
@@ -82,13 +82,13 @@ Content-Type: application/json;charset=utf-8
 <pre><code>POST /oauth/token
 </code></pre>
 
-<h4 id="curl-example">Curl example</h4>
+<h4 id="token-refresh-curl-example">Curl example</h4>
 
 <pre><code class="term">$ curl -X POST https://id.heroku.com/oauth/token \
 -d "grant_type=refresh_token&amp;refresh_token=036b9495-b39d-4626-b53a-34399e7bc737&amp;client_secret=fa86a593-d854-4a3f-b68c-c6cc45fb6704"
 </code></pre>
 
-<h4 id="response">Response</h4>
+<h4 id="token-refresh-response">Response</h4>
 
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
@@ -125,7 +125,7 @@ RateLimit-Remaining: 1200
 
 <p>Direct authorization is used to provide a simpler workflow when users are creating authorizations for themselves. It allows the exchange of username and password for a non-expiring token.</p>
 
-<h3 id="token-exchange">Token exchange</h3>
+<h3 id="direct-authorization-token-exchange">Token exchange</h3>
 
 <p>In order to acquire a direct authorization, a request is made to create an authorization while passing username and password in basic auth. A description may also be included to help distinguish this authorization from others, and like the web flow, the authorization can also be scoped to particular permissions on the account.</p>
 
@@ -134,7 +134,7 @@ RateLimit-Remaining: 1200
 <pre><code>POST /oauth/authorizations
 </code></pre>
 
-<h4 id="curl-example">Curl example</h4>
+<h4 id="direct-authorization-token-exchange-curl-example">Curl example</h4>
 
 <pre><code class="term">$ curl -X POST https://api.heroku.com/oauth/authorizations \
 -H "Accept: application/vnd.heroku+json; version=3" \
@@ -143,7 +143,7 @@ RateLimit-Remaining: 1200
 -d "{\"description\":\"sample authorization\"}"
 </code></pre>
 
-<h4 id="response">Response</h4>
+<h4 id="direct-authorization-token-exchange-response">Response</h4>
 
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
@@ -181,7 +181,7 @@ RateLimit-Remaining: 1200
 }
 </code></pre>
 
-<p>Subsequent requests should use the access token’s <code>token</code> value base64 encoded and prepended with a colon in the Authorization header. For example, given the token <code>01234567-89ab-cdef-0123-456789abcdef</code>, you’d base64 encode the string <code>:01234567-89ab-cdef-0123-456789abcdef</code> and set the header to <code>Authorization: Bearer MDEyMzQ1NjctODlhYi1jZGVmLTAxMjMtNDU2Nzg5YWJjZGVm</code></p>
+<p>Subsequent requests should use the access token’s <code>token</code> value in the Authorization header. For example, given the token <code>01234567-89ab-cdef-0123-456789abcdef</code>, you’d set the header to <code>Authorization: Bearer 01234567-89ab-cdef-0123-456789abcdef</code>.</p>
 
 <p>Access tokens acquired through the direct authorization flow do not expire.</p>
 
@@ -192,14 +192,14 @@ RateLimit-Remaining: 1200
 <pre><code>DELETE /oauth/authorizations/{authorization-id}
 </code></pre>
 
-<h4 id="curl-example">Curl example</h4>
+<h4 id="revoking-authorization-token-exchange-curl-example">Curl example</h4>
 
 <pre><code class="term">$ curl -X DELETE https://api.heroku.com/oauth/authorizations/$AUTHORIZATION_ID \
 -H "Accept: application/vnd.heroku+json; version=3" \
--H "Authorization: Bearer 0123456789ABCDEF="
+-H "Authorization: Bearer 01234567-89ab-cdef-0123-456789abcdef"
 </code></pre>
 
-<h4 id="response">Response</h4>
+<h4 id="revoking-authorization-token-exchange-response">Response</h4>
 
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"

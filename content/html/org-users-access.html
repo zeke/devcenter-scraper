@@ -1,0 +1,166 @@
+<div class="note">
+<p>Organization Accounts are currently only available for purchase through our sales channel. <a href="https://www.heroku.com/critical">Contact us</a> if you would like to purchase an Organization Account.</p>
+</div>
+
+<p>Organization admins are responsible for adding and removing users, managing their access, and locking applications to prevent additional membership. This guide contains a description of the available user roles and commands to manage application access.</p>
+
+<h2 id="roles">Roles</h2>
+
+<p>Organization users can be assigned one of three roles: Admin, member or collaborator. An organization can have any number of each role, but must have at least one admin user.</p>
+
+<h3 id="admin">Admin</h3>
+
+<p>The admin role allows users to:</p>
+
+<ul>
+<li>List all apps in the organization</li>
+<li>Join all apps in the organization, even if locked</li>
+<li>Lock apps (that they’ve joined)</li>
+<li>Add/remove admins &amp; members in the organization</li>
+<li>Add collaborators to apps</li>
+<li>View resources for the organization</li>
+<li>Access billing for the organization</li>
+<li>Rename the organization</li>
+<li>Transfer in or out, create, and delete apps in the org (deleting the app currently requires joining it first)</li>
+<li>Deploy to all apps in the organization</li>
+<li>Scale dynos for all apps in the organization</li>
+<li>Add free and paid add-ons to apps</li>
+</ul><p>Each org must have at least one admin user. The last administrator in the organization cannot be removed to enforce this.</p>
+
+<p>Admin users can only be added by other org admins.</p>
+
+<h3 id="member">Member</h3>
+
+<p>Assigning a user the member role gives them access to all apps within an organization. Members can:</p>
+
+<ul>
+<li>List all apps in the organization</li>
+<li>Join unlocked apps</li>
+<li>View admins &amp; members in the organization</li>
+<li>Add collaborators to apps</li>
+<li>View resources for the organization</li>
+<li>Transfer personal apps into the org</li>
+<li>Create apps in the org (but not delete them)</li>
+<li>Deploy to all apps in the organization</li>
+<li>Scale dynos for all apps in the organization</li>
+<li>Add free and paid add-ons to apps</li>
+</ul><p>Member users can only be added by org admins.</p>
+
+<h3 id="collaborator">Collaborator</h3>
+
+<p>A collaborator is not formally a user in the organization, but is a per-app role given to individuals that need access to a specific application.</p>
+
+<p>Only for the apps in the organization they’ve been given direct access to, a collaborator can:</p>
+
+<ul>
+<li>List those apps</li>
+<li>Deploy</li>
+<li>Scale dynos</li>
+<li>Add and remove free add-ons</li>
+</ul><p>An app collaborator will be unable to:</p>
+
+<ul>
+<li>List or join other org apps</li>
+<li>View other org users</li>
+<li>Add collaborators to apps</li>
+<li>Create or transfer apps to the org</li>
+<li>Add or remove paid add-ons</li>
+</ul><p>App collaborators can be added to an app by org admin or member users.</p>
+
+<h2 id="adding-users">Adding users</h2>
+
+<p>Users can be managed from the Access tab in your org Dashboard.</p>
+
+<p><img src="https://s3.amazonaws.com/heroku.devcenter/heroku_assets/images/265-original.jpg" alt="" title="Add members"></p>
+
+<p>You can also manage users using the Heroku CLI. Add a new org member with:</p>
+
+<pre><code class="term">$ heroku members:add joe@acme.com --org acme-inc
+Adding joe@acme.com as member to organization acme-inc... done
+</code></pre>
+
+<p>Add additional admin users using the same command with the <code>--role</code> flag:</p>
+
+<pre><code class="term">$ heroku members:add joe@acme.com --org acme-inc --role admin
+Adding joe@acme.com as admin to organization acme-inc... done
+</code></pre>
+
+<p>Because of their app-level access, collaborators are a special case and require a different command.</p>
+
+<pre><code class="term">$ heroku sharing:add jill@daimyo-creative.com --app acme-website
+Adding jill@daimyo-creative.com to acme-website as collaborator... done
+</code></pre>
+
+<h2 id="changing-user-roles">Changing user roles</h2>
+
+<p>If you wish to change the role assigned to an existing org user, you can use the <code>members:set</code> command.</p>
+
+<pre><code class="term">$ heroku members:set joe@acme.com --org acme-inc --role admin
+Setting role of joe@acme.com to admin in organization acme-inc... done
+</code></pre>
+
+<p>The same rules apply here as when adding a user to an org: Only an admin user can set another user’s role to admin.</p>
+
+<div class="note">
+<p>Note that <code>members:set</code> can only be used for the admin and member roles. Collaborators are not considered org users and cannot be given another role until they are explicitly added to the org with <code>members:add</code>.</p>
+</div>
+
+<h2 id="removing-users">Removing users</h2>
+
+<p>Removing a user will prevent them from being able to access the org and all apps within it. You can remove users using the Access tab in the org Dashboard.</p>
+
+<p>From the CLI you can remove admin and member users with:</p>
+
+<pre><code class="term">$ heroku members:remove joe@acme.com --org acme-inc
+Removing joe@acme.com from organization acme-inc... done
+</code></pre>
+
+<p>To remove a collaborator from an app, use <code>sharing:remove</code> instead:</p>
+
+<pre><code class="term">$ heroku sharing:remove joe@acme.com --app acme-website
+Removing joe@acme.com from acme-website collaborators... done
+</code></pre>
+
+<h2 id="locking-an-app">Locking an app</h2>
+
+<p>Org members have access to all applications within an organization, but are unable to work on an application until they explicitly <a href="https://devcenter.heroku.com/articles/develop-orgs#developing-apps">“join” the app</a> themselves. Admin users can freeze application access by “locking” the app. This prevents any new members from joining the app.</p>
+
+<p>Locking an app is traditionally performed when the app has reached some level of maturity, i.e. production status, as a safeguard to prevent errant modification.</p>
+
+<p>To lock or unlock an app, navigate to the Access tab in the org Dashboard and click the “Lock this app” button.</p>
+
+<p><img src="https://s3.amazonaws.com/heroku.devcenter/heroku_assets/images/277-original.jpg" alt="" title="Lock an app"></p>
+
+<p>From the CLI use the <code>lock</code> command.</p>
+
+<pre><code class="term">$ heroku lock --app myapp
+Locking myapp...  done
+Organization members must be invited this app.
+</code></pre>
+
+<p>You can view the locked status of your joined apps with <code>list</code>.</p>
+
+<pre><code class="term">$ heroku list
+=== Apps joined in organization acme
+test
+myapp (locked)
+website-staging
+website-prod (locked)
+</code></pre>
+
+<h3 id="granting-access-to-locked-apps">Granting access to locked apps</h3>
+
+<p>When an app is locked no new members are allowed to join the app. However, users can be added to locked apps in the collaborator role. Admins can add an org user, or outside user, to a locked app by adding them as a collaborator:</p>
+
+<pre><code class="term">$ heroku sharing:add joe@acme.com --app myapp
+Adding joe@acme.com to myapp in acme-inc... done
+</code></pre>
+
+<h3 id="unlocking-apps">Unlocking apps</h3>
+
+<p>To open a locked app back up for general member access, use the “Access” tab of the org Dashboard or the <code>unlock</code> command from the CLI:</p>
+
+<pre><code class="term">$ heroku unlock --app myapp
+Unlocking myapp...  done
+All organization members can join this app.
+</code></pre>

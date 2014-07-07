@@ -1,28 +1,30 @@
 ---
-title: Heroku Labs: WebSockets
-slug: heroku-labs-websockets
-url: https://devcenter.heroku.com/articles/heroku-labs-websockets
-description: This Heroku Labs feature adds experimental support for WebSocket capable HTTP endpoints
+title: WebSockets on Heroku
+slug: websockets
+url: https://devcenter.heroku.com/articles/websockets
+description: The WebSocket protocol is a core technology of modern, real-time web applications
 ---
 
-## Introduction
+The WebSocket protocol is a core technology of modern, real-time web applications.  It provides a bidirectional channel for delivering data between clients and servers.  It gives you the flexibility of a TCP connection with the additional security model and meta data built into the HTTP protocol.
 
-The WebSocket protocol is a core technology of modern, real-time web applications.  It provides a bidirectional channel for delivering data between clients and servers.  It gives you the flexibility of a TCP connection with the additional security model and meta data built into the HTTP protocol.  For more details on the WebSocket protocol refer to [RFC 6455](http://tools.ietf.org/html/rfc6455).
+For more details on the WebSocket protocol refer to [RFC 6455](http://tools.ietf.org/html/rfc6455), which is the version supported on Heroku.
 
-This [Heroku Labs](http://devcenter.heroku.com/categories/labs) feature adds experimental WebSocket support to your `herokuapp.com` domain, custom domains and custom SSL endpoints.
+Previous drafts may be compatible, but not directly supported. A known incompatibility exists with [draft hixie-76](http://tools.ietf.org/html/draft-hixie-thewebsocketprotocol-76), which used a mechanism breaking reverse-proxies and gateways by including key data after the headers without advertising it.
 
->warning
->Features added through Heroku Labs are experimental and subject to change.
+WebSocket support is available on new apps for `herokuapp.com` domains, custom domains and custom SSL endpoints.
+
+>note
+>All applications on the platform will be using the [new Heroku router](https://devcenter.heroku.com/articles/heroku-improved-router) in the coming weeks.
 
 ### Enabling WebSockets
+
+WebSocket functionality is available by default for all new apps, but must be enabled via the Heroku Labs feature for apps created before July 7th, 2014. Websockets will become a standard feature of all apps over the next few weeks.
 
 ```term
 $ heroku labs:enable websockets -a myapp
 Enabling websockets for myapp... done
 WARNING: This feature is experimental and may change or be removed without notice.
 ```
-
-[Custom SSL Endpoints](https://devcenter.heroku.com/articles/ssl-endpoint) can be provisioned with WebSocket support.  The `websockets` labs feature must be enabled __before__ the endpoint has been provisioned though.
 
 Enabling the `websockets` labs feature on an app with an existing SSL Endpoint will fail with the following error message:
 
@@ -39,10 +41,10 @@ Remove the existing endpoint, enable the `websockets` labs feature and add the S
 ```term
 $ heroku labs:disable websockets -a myapp
 Disabling websockets for myapp... done
-```
 ### Domains and DNS configuration
+```
 
-When the `websockets` labs feature is enabled for your app, the DNS record for your `herokuapp.com` domain is updated to point at a WebSocket capable endpoint.  It may take a moment for the DNS change to propagate.  If you have custom domains attached to your app, make sure they are [configured properly](https://devcenter.heroku.com/articles/custom-domains) to ensure WebSocket support on all domains.
+If you have custom domains attached to your app, make sure they are [configured properly](https://devcenter.heroku.com/articles/custom-domains) to ensure WebSocket support on all domains.
 
 ## Application architecture
 
@@ -76,15 +78,15 @@ Refer to the [WebSocket Security article](https://devcenter.heroku.com/articles/
 
 ### Timeouts
 
-The normal [Heroku HTTP routing timeout rules](https://devcenter.heroku.com/articles/http-routing#timeouts) apply to the WebSocket labs feature. Either client or server can prevent the connection from idling by sending an occasional ping packet over the connection.
+The normal [Heroku HTTP routing timeout rules](https://devcenter.heroku.com/articles/http-routing#timeouts) apply to WebSocket connections. Either client or server can prevent the connection from idling by sending an occasional ping packet over the connection.
 
 ### Keep-alive
 
-WebSocket capable endpoints do not support HTTP keep-alive. This means that after each HTTP request, the client establishes a new connection to the endpoint. For HTTPS and WSS requests the SSL negotiation is performed for every request.
+WebSocket capable endpoints now support HTTP keep-alive. Refer to the documentation for the [new Heroku router](https://devcenter.heroku.com/articles/heroku-improved-router) for complete details.
 
 ### Example implementations
 
-The following examples demonstrate the minimal code required to establish a WebSocket connection and send/receive data. Refer to the [Further reading](https://devcenter.heroku.com/articles/heroku-labs-websockets#further-reading) section for language specific guides for developing more powerful applications.
+The following examples demonstrate the minimal code required to establish a WebSocket connection and send/receive data. Refer to the [Further reading](https://devcenter.heroku.com/articles/websockets#further-reading) section for language specific guides for developing more powerful applications.
 
 * [Ruby faye app](https://github.com/heroku-examples/ruby-ws-test)
 * [Node.js ws app](https://github.com/heroku-examples/node-ws-test)
@@ -94,4 +96,4 @@ The following examples demonstrate the minimal code required to establish a WebS
 * [Using WebSockets on Heroku with Ruby](https://devcenter.heroku.com/articles/ruby-websockets)
 * [Using WebSockets on Heroku with Node.js](https://devcenter.heroku.com/articles/node-websockets)
 * [Using WebSockets on Heroku with Python](https://devcenter.heroku.com/articles/python-websockets)
-* [Using WebSockets on Heroku in Java with the Play Framework](https://devcenter.heroku.com/articles/play-java-websockets)
+* [Using WebSockets on Heroku in Java with the Play Framework](https://devcenter.heroku.com/articles/play-java-websockets) 

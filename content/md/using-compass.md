@@ -52,4 +52,4 @@ Rails.configuration.middleware.insert_before('Rack::Sendfile', 'Rack::Static',
 
 ## Start using Compass
 
-Once your configuration is complete, you're free to start using Compass. For detailed instructions, check out the [Compass documentation](http://compass-style.org/docs/).
+Once your configuration is complete, you're free to start using Compass. For detailed instructions, check out the [Compass documentation](http://compass-style.org/docs/). 

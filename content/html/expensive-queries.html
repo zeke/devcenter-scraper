@@ -1,0 +1,31 @@
+<p>Expensive queries are the most significant cause of performance issues
+on Heroku Postgres databases. Optimizing expensive queries can yield tremendous improvements to you application’s performance and overall response times.</p>
+
+<p>Heroku Postgres (<a href="https://devcenter.heroku.com/articles/heroku-postgres-plans#standard-tier">Standard Tier</a> and <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans#premium-tier">above</a>) monitors trending information for queries on a database, tracking the queries executed per minute, average time, and total IO time.</p>
+
+<p>To view the expensive queries for your database, navigate to your <a href="https://postgres.heroku.com/databases">database list</a> and scroll down to the “Expensive Queries” section. A graph of the trending information for a query can be viewed by clicking on the query. The timezone on the graph is your local browser time. One week of performance information is stored.</p>
+
+<p><img src="https://s3.amazonaws.com/heroku.devcenter/heroku_assets/images/349-original.jpg" alt="Alt text" title="Expensive Query Screenshot"></p>
+
+<h2 id="causes-of-expensive-queries">Causes of Expensive Queries</h2>
+
+<p>The most common causes of expensive queries are:</p>
+
+<ul>
+<li>Lack of indexes, causing slow lookups on large tables,</li>
+<li>Unused indexes, causing slow <code>INSERT</code>, <code>UPDATE</code> and <code>DELETE</code> operations,</li>
+<li>Inefficient schema leading to bad queries, and</li>
+<li>Queries that are written poorly and require rewrite</li>
+</ul><h2 id="solutions-to-expensive-queries">Solutions to Expensive Queries</h2>
+
+<p>These are some guidelines that may help fixing expensive queries:</p>
+
+<ul>
+<li>Run <code>EXPLAIN ANALYZE</code> to find out what is taking up most of the execution                                        time of the query. A sequential scan on a large table is typically, but not
+always, a bad sign. Efficient indexes can improve query performance
+dramatically. Consider <a href="https://devcenter.heroku.com/articles/postgresql-indexes">all Postgres techniques</a> such as partial indexes and
+others when devising your index strategy.</li>
+<li>Find out if there are unused indexes by running <code>heroku pg:unused_indexes</code>,
+available on the pg-extras plugin, and remove them.</li>
+<li>Upgrade your database to the latest version: Postgres performance is known to improve on every release.</li>
+</ul>

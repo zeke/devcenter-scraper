@@ -30,13 +30,10 @@ table and index data on disk, including database bloat.</li>
 <code>sample#table-cache-hit-rate</code>: Rate of table lookups served from <a href="https://devcenter.heroku.com/articles/understanding-postgres-data-caching">shared buffer cache</a>, rounded to five decimal points.</li>
 <li>
 <code>sample#waiting-connections</code>: Number of connections waiting on a lock to be acquired. If many connections are waiting, this can be a sign of mishandled <a href="https://devcenter.heroku.com/articles/postgresql-concurrency">database concurrency</a>.</li>
-</ul><p>These extra attributes are also available for all non multi-tenant databases:</p>
-
-<ul>
 <li>
 <code>sample#load-avg-1m</code>, <code>sample#load-avg-5m</code> and <code>sample#load-avg-15m</code>: The average system load over a period of 1 minute, 5 minutes and 15 minutes, divided by the number of available cpu.</li>
 <li>
-<code>sample#read-iops</code> and <code>sample#write-iops</code>: Number of read or write operations per second.</li>
+<code>sample#read-iops</code> and <code>sample#write-iops</code>: Number of reads or writes operations in I/O sizes of 16KB blocks.</li>
 <li>
 <code>sample#memory-total</code>: Total amount of memory available in kB.</li>
 <li>

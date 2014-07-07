@@ -1,0 +1,36 @@
+<p>The Heroku Platform API has a machine-readable JSON schema that describes what resources are available via the API, what their URLs are, how they are represented and what operations they support. Example intended uses for the schema include:</p>
+
+<ul>
+<li>Auto-creating client libraries for your favorite programming language</li>
+<li>Generating up-to-date reference docs</li>
+<li>Writing automatic acceptance and integration tests</li>
+</ul><p>A number of Platform API client libraries are already being generated using the schema:</p>
+
+<ul>
+<li>
+<a href="https://github.com/heroku/heroics">Heroics</a>, for Ruby</li>
+<li>
+<a href="https://github.com/heroku/node-heroku-client">node-heroku-client</a> for Node.js</li>
+<li><a href="https://github.com/heroku/heroku.scala">Heroku.scala</a></li>
+<li>and <a href="https://github.com/bgentry/heroku-go">heroku-go</a>
+</li>
+</ul><h2 id="format">Format</h2>
+
+<p>Heroku uses <a href="http://json-schema.org/">JSON Schema</a> to describe the Platform API. The draft <a href="http://tools.ietf.org/html/draft-fge-json-schema-validation-00">Validation</a> and <a href="http://tools.ietf.org/html/draft-luff-json-hyper-schema-00">Hypertext</a> extension standards are also used.</p>
+
+<p>JSON Schema is also used as the basis for <a href="https://developers.helloreverb.com/swagger/">Swagger</a> and the <a href="https://developers.google.com/discovery/v1/getting_started">Google API discovery service</a> and the <a href="http://json-schema.org/implementations.html">JSON Schema website lists many resources and links</a> that demonstrate how to get started.</p>
+
+<h2 id="how-to-use">How to use</h2>
+
+<p>The API serves up its own JSON-formatted schema using HTTP:</p>
+
+<pre><code class="term">$ curl https://api.heroku.com/schema  -H "Accept: application/vnd.heroku+json; version=3"
+{
+  "description": "The platform API empowers developers to automate, extend and combine Heroku with other services.",
+  "definitions": {
+  ...
+  }
+}
+</code></pre>
+
+<p>Please see client libraries mentioned in the introduction for examples of how to consume the schema.</p>

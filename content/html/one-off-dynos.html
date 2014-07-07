@@ -1,44 +1,44 @@
-
-<p>The set of dynos declared in your <a href="https://devcenter.heroku.com/articles/procfile">Procfile</a> and managed by the <a href="https://devcenter.heroku.com/articles/dynos#the-dyno-manager">dyno manager</a> via <code>heroku ps:scale</code> are known as the <a href="https://devcenter.heroku.com/articles/scaling">dyno formation</a>. These dynos do the app’s regular business (such as handling web requests and processing background jobs) as it runs. But when you wish to do one-off administrative or maintenance tasks for the app, you’ll want to spin up a one-off dyno using the <code>heroku run</code> command.</p>
+<p>The set of dynos declared in your <a href="https://devcenter.heroku.com/articles/procfile">Procfile</a> and managed by the <a href="https://devcenter.heroku.com/articles/dynos#the-dyno-manager">dyno manager</a> via <code>heroku ps:scale</code> are known as the <a href="https://devcenter.heroku.com/articles/scaling">dyno formation</a>.  These dynos do the app’s regular business (such as handling web requests and processing background jobs) as it runs.  But when you wish to do one-off administrative or maintenance tasks for the app, you’ll want to spin up a one-off dyno using the <code>heroku run</code> command.</p>
 
 <h2 id="one-off-dynos">One-off dynos</h2>
 
-<p>After you push your application to Heroku, the <a href="https://devcenter.heroku.com/articles/slug-compiler">slug compiler</a> generates a slug containing the application. The application may contain many components, including a web server, a console application, and scripts to initialize the database. While the web dyno would be defined in the <a href="https://devcenter.heroku.com/articles/procfile">Procfile</a> and managed by the platform, the console and script would only be executed when needed. These are one-off dynos.</p>
-<p class="note">
-Any time spent executing a one-off dyno will contribute to usage and <a href="https://devcenter.heroku.com/articles/usage-and-billing#one-off-dynos">will be charged</a> just like any other dyno.
-</p>
+<p>After you push your application to Heroku, the <a href="https://devcenter.heroku.com/articles/slug-compiler">slug compiler</a> generates a slug  containing the application. The application may contain many components, including a web server, a console application, and scripts to initialize the database. While the web dyno would be defined in the <a href="https://devcenter.heroku.com/articles/procfile">Procfile</a> and managed by the platform, the console and script would only be executed when needed. These are one-off dynos.</p>
+
+<div class="note">
+<p>Any time spent executing a one-off dyno will contribute to usage and <a href="https://devcenter.heroku.com/articles/usage-and-billing#one-off-dynos">will be charged</a> just like any other dyno.</p>
+</div>
+
 <h2 id="formation-dynos-vs-one-off-dynos">Formation dynos vs. one-off dynos</h2>
 
 <p>One-off dynos run alongside other dynos, exactly like the app’s web, worker, and other formation dynos. They get all the benefits of <a href="https://devcenter.heroku.com/articles/dynos#isolation-and-security">dyno isolation</a>.</p>
 
-<p>Each dyno has its own ephemeral filesystem, not shared with any other dyno, that is discarded as soon as you disconnect. This filesystem is populated with the slug archive - so one-off dynos can make full use of anything deployed in the application.</p>
+<p>Each dyno has its own ephemeral filesystem, not shared with any other dyno, that is discarded as soon as you disconnect.  This filesystem is populated with the slug archive - so one-off dynos can make full use of anything deployed in the application.</p>
 
 <p>There are four differences between one-off dynos (run with <code>heroku run</code>) and formation dynos (run with <code>heroku ps:scale</code>):</p>
 
 <ul>
-<li>One-off dynos run attached to your terminal, with a character-by-character TCP connection for <code>STDIN</code> and <code>STDOUT</code>. This allows you to use interactive processes like a console. Since <code>STDOUT</code> is going to your terminal, the only thing recorded in the app’s logs is the startup and shutdown of the dyno.</li>
-
-<li>One-off dynos terminate as soon as you press Ctrl-C or otherwise disconnect in your local terminal. One-off dynos never automatically restart, whether the process ends on its own or whether you manually disconnect.</li>
-
+<li>One-off dynos run attached to your terminal, with a character-by-character TCP connection for <code>STDIN</code> and <code>STDOUT</code>.  This allows you to use interactive processes like a console.  Since <code>STDOUT</code> is going to your terminal, the only thing recorded in the app’s logs is the startup and shutdown of the dyno.</li>
+<li>One-off dynos terminate as soon as you press Ctrl-C or otherwise disconnect in your local terminal.  One-off dynos never automatically restart, whether the process ends on its own or whether you manually disconnect.</li>
 <li>One-off dynos are named in the scheme <code>run.N</code> rather than the scheme <code>&lt;process-type&gt;.N</code>.</li>
-
 <li>One-off dynos can never receive HTTP traffic, since the routers only routes traffic to dynos named <code>web.N</code>.</li>
 </ul><p>Other than these differences, the dyno manager makes no distinction between one-off dynos and formation dynos.</p>
 
 <h2 id="an-example-one-off-dyno">An example one-off dyno</h2>
 
-<p>One-off dynos are created using <code>heroku run</code>. To see one-off dynos in action, execute the <code>bash</code> command, available in all applications deployed to Heroku:</p>
+<p>One-off dynos are created using <code>heroku run</code>.  To see one-off dynos in action, execute the <code>bash</code> command, available in all applications deployed to Heroku:</p>
 
 <pre><code class="term">$ heroku run bash
 Running bash attached to terminal... up, run.1
-~ $</code></pre>
+~ $
+</code></pre>
 
 <p>At this point you have a one-off dyno executing the <code>bash</code> command - which provides a shell environment that can be used to explore the file system and process environment.</p>
 
 <p>Interact with the shell and list all the files that you deployed:</p>
 
 <pre><code class="term">~ $ ls
-Procfile project.clj src bin ...</code></pre>
+Procfile project.clj src bin ...
+</code></pre>
 
 <p>If you had a batch file in the <code>bin</code> directory, you can simply execute it, just as you can many other unix commands:</p>
 
@@ -46,24 +46,27 @@ Procfile project.clj src bin ...</code></pre>
 Hi there
 ~ $ pwd
 /app
-~ $ bin/do-work</code></pre>
+~ $ bin/do-work
+</code></pre>
 
 <p>Remove a few files, and exit:</p>
 
 <pre><code class="term">~ $ rm Procfile project.clj
-~ $ exit</code></pre>
+~ $ exit
+</code></pre>
 
 <p>Because each dyno is populated with its own copy of the slug-archive, the deleted files won’t change your running application.</p>
 
 <h2 id="one-off-dyno-execution-syntax">One-off dyno execution syntax</h2>
 
-<p><code>heroku run</code> takes two types of parameters - you can either supply the command to execute, or a dyno type that is present in your application’s <a href="https://devcenter.heroku.com/articles/procfile">Procfile</a>.</p>
+<p><code>heroku run</code> takes two types of parameters - you can either supply the command to execute, or a process type that is present in your application’s <a href="https://devcenter.heroku.com/articles/procfile">Procfile</a>.</p>
 
-<p>If you supply a command, either a script or other executable available to your application, then it will be executed as a one-off dyno, together with any additional arguments. For example, to execute the Python interpreter with a file <code>dowork.py</code> supplied as an argument, then execute <code>heroku run python dowork.py</code>.</p>
+<p>If you supply a command, either a script or other executable available to your application, then it will be executed as a one-off dyno, together with any additional arguments.  For example, to  execute the Python interpreter with a file <code>dowork.py</code> supplied as an argument, then execute <code>heroku run python dowork.py</code>.</p>
 
-<p>If you instead supply a process type, as declared in a <code>Procfile</code>, then its definition will be substituted, and executed together with any additional arguments. For example, given the following <code>Procfile</code>:</p>
+<p>If you instead supply a process type, as declared in a <code>Procfile</code>, then its definition will be substituted, and executed together with any additional arguments.  For example, given the following <code>Procfile</code>:</p>
 
-<pre><code>myworker:  python dowork.py</code></pre>
+<pre><code>myworker:  python dowork.py
+</code></pre>
 
 <p>Executing <code>heroku run myworker 42</code> will run <code>python dowork.py 42</code> as a one-off dyno.</p>
 
@@ -72,21 +75,22 @@ Hi there
 <p>Some types of one-off dynos include:</p>
 
 <ul>
-<li>Initialising databases or running database migrations. (e.g. <code>rake db:migrate</code> or <code>node migrate.js migrate</code>)</li>
-
-<li>Running a console (also known as a REPL shell) to run arbitrary code or inspect the app’s models against the live database. (e.g. <code>rails console</code>, <code>irb</code>, or <code>node</code>)</li>
-
+<li>Initialising databases or running database migrations.  (e.g. <code>rake db:migrate</code> or <code>node migrate.js migrate</code>)</li>
+<li>Running a console (also known as a REPL shell) to run arbitrary code or inspect the app’s models against the live database.  (e.g. <code>rails console</code>, <code>irb</code>, or <code>node</code>)</li>
 <li>One-time scripts committed into the app’s repo (e.g. <code>ruby scripts/fix_bad_records.rb</code> or <code>node tally_results.js</code>).</li>
-</ul><p>In your local environment, you invoke these one-off dynos by a direct shell command inside the app’s checkout directory. For example:</p>
+</ul><p>In your local environment, you invoke these one-off dynos by a direct shell command inside the app’s checkout directory.  For example:</p>
+
 <div class="callout">
-<p>To pass command line flags to the command being executed, you can quote the entire string to be executed to avoid the Heroku CLI processing the flags: <code>heroku run &amp;quot;rake --help&amp;quot;</code></p>
+<p>To pass command line flags to the command being executed, you can quote the entire string to be executed to avoid the Heroku CLI processing the flags: <code>heroku run "rake --help"</code></p>
 </div>
+
 <pre><code class="term">$ rake db:migrate
 (in /Users/adam/widgets)
 ==  CreateWidgets: migrating ==================================================
 -- create_table(:widgets)
    -&gt; 0.0040s
-==  CreateWidgets: migrated (0.0041s) =========================================</code></pre>
+==  CreateWidgets: migrated (0.0041s) =========================================
+</code></pre>
 
 <p>You can do the exact same thing, but run against your latest Heroku release by prefixing your command with <code>heroku run</code>:</p>
 
@@ -96,14 +100,16 @@ Migrating to CreateWidgets (20110204210157)
 ==  CreateWidgets: migrating ==================================================
 -- create_table(:widgets)
    -&gt; 0.0497s
-==  CreateWidgets: migrated (0.0498s) =========================================</code></pre>
+==  CreateWidgets: migrated (0.0498s) =========================================
+</code></pre>
 
 <p>Likewise, if you can run a console in your local environment by executing a command, as you can with Rails and <code>rails console</code> command:</p>
 
 <pre><code class="term">$ rails console
 Loading development environment (Rails 3.0.3)
 ruby-1.9.2-p136 :001 &gt; Widget.create :name =&gt; 'Test'
- =&gt; #&lt;Widget id: 1, name: "Test", size: nil, created_at: "2011-05-31 02:36:39", updated_at: "2011-05-31 02:36:39"&gt;</code></pre>
+ =&gt; #&lt;Widget id: 1, name: "Test", size: nil, created_at: "2011-05-31 02:36:39", updated_at: "2011-05-31 02:36:39"&gt;
+</code></pre>
 
 <p>Running the same command against your deployed Heroku app will execute it, and attach it to your terminal:</p>
 
@@ -111,7 +117,8 @@ ruby-1.9.2-p136 :001 &gt; Widget.create :name =&gt; 'Test'
 Running rails console attached to terminal... up, run.2
 Loading production environment (Rails 3.0.3)
 irb(main):001:0&gt; Widget.create :name =&gt; 'Test'
-=&gt; #&lt;Widget id: 1, name: "Test", size: nil, created_at: "2011-05-31 02:37:51", updated_at: "2011-05-31 02:37:51"&gt;</code></pre>
+=&gt; #&lt;Widget id: 1, name: "Test", size: nil, created_at: "2011-05-31 02:37:51", updated_at: "2011-05-31 02:37:51"&gt;
+</code></pre>
 
 <h2 id="running-tasks-in-background">Running tasks in background</h2>
 
@@ -119,7 +126,8 @@ irb(main):001:0&gt; Widget.create :name =&gt; 'Test'
 
 <pre><code class="term">$ heroku run:detached rake db:migrate
 Running rake db:migrate... up, run.2
-Use 'heroku logs -p run.2' to view the log output.</code></pre>
+Use 'heroku logs -p run.2' to view the log output.
+</code></pre>
 
 <h2 id="stopping-one-off-dynos">Stopping one-off dynos</h2>
 
@@ -131,30 +139,42 @@ run.7364: starting 2013/03/13 15:38:08 (~ 1s ago): `bash`
 
 === web: `bundle exec unicorn -p $PORT -c ./config/unicorn.rb`
 web.1: up 2013/03/13 15:08:07 (~ 30m ago)
-web.2: up 2013/03/12 17:06:09 (~ 22h ago)</code></pre>
+web.2: up 2013/03/12 17:06:09 (~ 22h ago)
+</code></pre>
 
 <p>If you wish to stop a running one-off dyno, use <code>heroku ps:stop</code> with its name.</p>
 
 <pre><code class="term">$ heroku ps:stop run.1
-Stopping run.1 process... done</code></pre>
+Stopping run.1 process... done
+</code></pre>
+
+<p>A one-off dyno will not stop if you issue <code>heroku ps:restart</code> on your application.</p>
 
 <h2 id="one-off-dyno-timeout">One-off dyno timeout</h2>
+
 <div class="callout">
 <p>It is possible to trap <code>SIGHUP</code> and cause your dyno to continue running even when the connection is closed. See the <a href="http://man.cx/signal%287%29">signal manual page</a> for more information.</p>
 </div>
+
 <p>Connections to one-off dynos will be closed after one hour of inactivity (in both input and output). When the connection is closed, the dyno will be sent <code>SIGHUP</code>. This idle timeout helps prevent unintended charges from leaving interactive console sessions open and unused.</p>
 
-<p>Detached dynos have no connection, so they have no timeout.</p>
+<p>Detached dynos have no connection, so they have no timeout.  However, like all dynos, one-off dynos <a href="https://devcenter.heroku.com/articles/dynos#automatic-dyno-restarts">are cycle</a> every 24 hours.  As a result, a one-off dyno will run for a maximum of 24 hours.</p>
 
 <h2 id="one-off-dyno-size">One-off dyno size</h2>
 
-<p>By default, one-off dynos run at the <a href="https://devcenter.heroku.com/articles/dyno-size">1X size</a>. You can run one-off dynos as a <a href="https://devcenter.heroku.com/articles/dyno-size">2X dyno</a> by passing the size flag:</p>
+<p>By default, one-off dynos run at the <a href="https://devcenter.heroku.com/articles/dyno-size">1X size</a> irrespective of the default dyno size of your app. You can run one-off dynos at a 2X or PX size by using the <code>size</code> argument:</p>
 
-<pre><code class="term">$ heroku run --size=2X rake heavy:job</code></pre>
+<pre><code class="term">$ heroku run --size=2X rake heavy:job
+</code></pre>
+
+<p>or</p>
+
+<pre><code class="term">$ heroku run --size=PX rake heavy:job
+</code></pre>
 
 <h2 id="limits">Limits</h2>
 
-<p>Heroku accounts <a href="https://devcenter.heroku.com/articles/account-verification">that aren’t verified</a> cannot have more than 3 one-off dynos running concurrently.</p>
+<p>See the <a href="https://devcenter.heroku.com/articles/dyno-size#default-scaling-limits">Default scaling limits</a> section for limits on how many one-off dynos can run concurrently.</p>
 
 <h2 id="troubleshooting">Troubleshooting</h2>
 
@@ -164,14 +184,16 @@ Stopping run.1 process... done</code></pre>
 
 <pre><code class="term">$ heroku run rails console
 Running rails console attached to terminal...
-Timeout awaiting process</code></pre>
+Timeout awaiting process
+</code></pre>
 
 <p>You can test your connection to Heroku by trying to connect directly to port 5000 by using telnet to <code>rendezvous.runtime.heroku.com</code>. A successful session will look like this:</p>
 
 <pre><code class="term">$ telnet rendezvous.runtime.heroku.com 5000
 Trying 50.19.103.36...
 Connected to ec2-50-19-103-36.compute-1.amazonaws.com.
-Escape character is '^]'.</code></pre>
+Escape character is '^]'.
+</code></pre>
 
 <p>If you do not get this output, your computer is being blocked from accessing our services. We recommend contacting your IT department, ISP, or firewall manufacturer to move forward with this issue.</p>
 
@@ -181,8 +203,9 @@ Escape character is '^]'.</code></pre>
 
 <p>You can invoke a shell as a one-off dyno:</p>
 
-<pre><code class="term">$ heroku run bash</code></pre>
+<pre><code class="term">$ heroku run bash
+</code></pre>
 
-<p>However, there is little to be gained from doing so. The filesystem is <a href="https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem">ephemeral</a>, and the dyno itself will only live as long as your console session.</p>
+<p>However, there is little to be gained from doing so.  The filesystem is <a href="https://devcenter.heroku.com/articles/dynos#ephemeral-filesystem">ephemeral</a>, and the dyno itself will only live as long as your console session.</p>
 
 <p>When you find yourself wanting SSH access, instead try using tools that properly accounts for Heroku’s distributed environment, such as the <a href="https://devcenter.heroku.com/articles/heroku-command">heroku command line tool</a> and one-off dynos.</p>

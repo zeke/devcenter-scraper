@@ -1,5 +1,5 @@
 ---
-title: Extensions, PostGIS and Full Text Search Dictionaries on Heroku Postgres
+title: Extensions, PostGIS, and Full Text Search Dictionaries on Heroku Postgres
 slug: heroku-postgres-extensions-postgis-full-text-search
 url: https://devcenter.heroku.com/articles/heroku-postgres-extensions-postgis-full-text-search
 description: Heroku Postgres supports many Postgres extensions as well as features such as PostGIS and full text search that are not bundled as part of the extensions system
@@ -15,90 +15,94 @@ database extension is also available.
 You can always query your database for the list of supported
 extensions:
 
-	:::term
-	$ echo 'show extwlist.extensions' | heroku pg:psql
-		 extwlist.extensions
-	-----------------------------
-	btree_gist,chkpass,cube,dblink,dict_int...
+```term
+$ echo 'show extwlist.extensions' | heroku pg:psql
+     extwlist.extensions
+-----------------------------
+btree_gist,chkpass,cube,dblink,dict_int...
+```
 
 To create any supported extension, open a session with `heroku
 pg:psql` and run the appropriate command:
 
-	:::term
-	$ heroku pg:psql
-	Pager usage is off.
-	psql (9.2.4)
-	SSL connection (cipher: DHE-RSA-AES256-SHA, bits: 256)
-	Type "help" for help.
+```term
+$ heroku pg:psql
+Pager usage is off.
+psql (9.2.4)
+SSL connection (cipher: DHE-RSA-AES256-SHA, bits: 256)
+Type "help" for help.
 
-	ad27m1eao6kqb1=> CREATE EXTENSION hstore;
-	CREATE EXTENSION
-	ad27m1eao6kqb1=>
-
+ad27m1eao6kqb1=> CREATE EXTENSION hstore;
+CREATE EXTENSION
+ad27m1eao6kqb1=>
+```
 
 ## Data types
 
-* [HStore](http://www.postgresql.org/docs/9.1/static/hstore.html): Key
+* [HStore](http://www.postgresql.org/docs/current/static/hstore.html): Key
   value store inside Postgres. `create extension hstore`
 
 * [Case Insensitve
-  Text](http://www.postgresql.org/docs/9.1/static/citext.html): Case
+  Text](http://www.postgresql.org/docs/current/static/citext.html): Case
   insenstive text datatype. Although strings stored in citext do
   retain case information, they are case insensitive when used in
   queries. `create extension citext`.
 
-* [Label Tree](http://www.postgresql.org/docs/9.1/static/ltree.html):
+* [Label Tree](http://www.postgresql.org/docs/current/static/ltree.html):
   Tree-like hierachies, with associated functions. `create extension
   ltree`
 
-* [Product Numbering](http://www.postgresql.org/docs/9.1/static/isn.html):
+* [Product Numbering](http://www.postgresql.org/docs/current/static/isn.html):
   Store product IDs and serial numbers such as
   [UPC](http://en.wikipedia.org/wiki/Universal_Product_Code)
   [ISBN](http://en.wikipedia.org/wiki/ISBN) and
   [ISSN](http://en.wikipedia.org/wiki/International_Standard_Serial_Number). `create
   extension isn`
 
-* [Cube](http://www.postgresql.org/docs/9.1/static/cube.html):
+* [Cube](http://www.postgresql.org/docs/current/static/cube.html):
   Multi-dimensional cubes. `create extension cube`
 
 ## Functions
 
-* [PGCrypto](http://www.postgresql.org/docs/9.1/static/pgcrypto.html):
+* [PGCrypto](http://www.postgresql.org/docs/current/static/pgcrypto.html):
   Cyptographic functions allow for encryption within the database
   `create extension pgcrypto`.
 
-* [Table Functions & Pivot Tables](http://www.postgresql.org/docs/9.1/static/tablefunc.html):
+* [Table Functions & Pivot Tables](http://www.postgresql.org/docs/current/static/tablefunc.html):
   Functions returning full tables, including the ability to manipulate
   query results in a manner similar to spreadsheet pivot tables
   `create extension tablefunc`.
 
-* [UUID Generation](http://www.postgresql.org/docs/9.1/static/uuid-ossp.html):
+* [UUID Generation](http://www.postgresql.org/docs/current/static/uuid-ossp.html):
   Generate v1, v3, v4, and v5 UUIDs in-database. Works great with the
   existing
-  [UUID datatype](http://www.postgresql.org/docs/9.1/static/datatype-uuid.html)
+  [UUID datatype](http://www.postgresql.org/docs/current/static/datatype-uuid.html)
   `create extension "uuid-ossp"`.
 
-* [Earth Distance](http://www.postgresql.org/docs/9.1/static/earthdistance.html):
+* [Earth Distance](http://www.postgresql.org/docs/current/static/earthdistance.html):
   Functions for calculating the distance between points on the
   earth. `create extension earthdistance`
 
-* [Trigram](http://www.postgresql.org/docs/9.1/static/pgtrgm.html):
+* [Trigram](http://www.postgresql.org/docs/current/static/pgtrgm.html):
   Determine the similarity (or lack thereof) of alphanumeric string
   based on
   [trigram matching](http://en.wikipedia.org/wiki/N-gram). Useful for
   natural language processing problems such as search. `create
   extension pg_trgm`.
 
-* [Fuzzy Match](http://www.postgresql.org/docs/9.1/static/fuzzystrmatch.html):
+* [Fuzzy Match](http://www.postgresql.org/docs/current/static/fuzzystrmatch.html):
   Another method for determining the similarity between
-  strings. Limited UTF-8 support. `create extension fuzzystrmatch`
+  strings. Limited UTF-8 support. `create extension fuzzystrmatch`.
+
+* [Intarray](http://www.postgresql.org/docs/current/static/intarray.html):
+  Sorting, manipulate, and create indexes on null-free arrays of integers.
 
 ## Statistics
 
-* [Row Locking](http://www.postgresql.org/docs/9.1/static/pgrowlocks.html):
+* [Row Locking](http://www.postgresql.org/docs/current/static/pgrowlocks.html):
   Show row lock information for a table. `create extension pgrowlocks`
 
-* [Tuple Statistics](http://www.postgresql.org/docs/9.1/static/pgstattuple.html):
+* [Tuple Statistics](http://www.postgresql.org/docs/current/static/pgstattuple.html):
   Database tuple-level statistics such as physical length and
   aliveness. `create extension pgstattuple`
 
@@ -117,63 +121,60 @@ pg:psql` and run the appropriate command:
 
 ## Full text search dictionaries
 
-* [dict-int](http://www.postgresql.org/docs/9.1/static/dict-int.html) -
+* [dict-int](http://www.postgresql.org/docs/current/static/dict-int.html) -
   A full-text search dictionary for full-text search which controls
   how integers are indexed. `create extension dict_int`
 
-* [dict-xsyn](http://www.postgresql.org/docs/9.1/static/dict-xsyn.html) -
-  A full-text search dictionary for that makes it possible to search
-  for a word using any of its synonyms. `create extension dict_xsyn`
-
-* [unaccent](http://www.postgresql.org/docs/9.1/static/unaccent.html) -
+* [unaccent](http://www.postgresql.org/docs/current/static/unaccent.html) -
   A filtering text dictionary which removes accents from
   characters. `create extension unaccent`
 
 Additionally, the following dictionaries are installed by default and
 don't require creation via the extension system:
 
-	:::term
-	$ heroku pg:psql
-	=> \dFd
-								 List of text search dictionaries
-	   Schema   |      Name       |                        Description
-	------------+-----------------+-------------------------------
-	 pg_catalog | danish_stem     | snowball stemmer for danish language
-	 pg_catalog | dutch_stem      | snowball stemmer for dutch language
-	 pg_catalog | english_stem    | snowball stemmer for english language
-	 pg_catalog | finnish_stem    | snowball stemmer for finnish language
-	 pg_catalog | french_stem     | snowball stemmer for french language
-	 pg_catalog | german_stem     | snowball stemmer for german language
-	 pg_catalog | hungarian_stem  | snowball stemmer for hungarian language
-	 pg_catalog | italian_stem    | snowball stemmer for italian language
-	 pg_catalog | norwegian_stem  | snowball stemmer for norwegian language
-	 pg_catalog | portuguese_stem | snowball stemmer for portuguese language
-	 pg_catalog | romanian_stem   | snowball stemmer for romanian language
-	 pg_catalog | russian_stem    | snowball stemmer for russian language
-	 pg_catalog | simple          | simple dictionary: just lower case and check for stopword
-	 pg_catalog | spanish_stem    | snowball stemmer for spanish language
-	 pg_catalog | swedish_stem    | snowball stemmer for swedish language
-	 pg_catalog | turkish_stem    | snowball stemmer for turkish language
-
+```term
+$ heroku pg:psql
+=> \dFd
+                             List of text search dictionaries
+   Schema   |      Name       |                        Description
+------------+-----------------+-------------------------------
+ pg_catalog | danish_stem     | snowball stemmer for danish language
+ pg_catalog | dutch_stem      | snowball stemmer for dutch language
+ pg_catalog | english_stem    | snowball stemmer for english language
+ pg_catalog | finnish_stem    | snowball stemmer for finnish language
+ pg_catalog | french_stem     | snowball stemmer for french language
+ pg_catalog | german_stem     | snowball stemmer for german language
+ pg_catalog | hungarian_stem  | snowball stemmer for hungarian language
+ pg_catalog | italian_stem    | snowball stemmer for italian language
+ pg_catalog | norwegian_stem  | snowball stemmer for norwegian language
+ pg_catalog | portuguese_stem | snowball stemmer for portuguese language
+ pg_catalog | romanian_stem   | snowball stemmer for romanian language
+ pg_catalog | russian_stem    | snowball stemmer for russian language
+ pg_catalog | simple          | simple dictionary: just lower case and check for stopword
+ pg_catalog | spanish_stem    | snowball stemmer for spanish language
+ pg_catalog | swedish_stem    | snowball stemmer for swedish language
+ pg_catalog | turkish_stem    | snowball stemmer for turkish language
+```
 
 ## dblink
 
-[dblink](http://www.postgresql.org/docs/9.1/static/dblink.html) Adds
+[dblink](http://www.postgresql.org/docs/current/static/dblink.html) Adds
 support for querying between Postgres databases. With dblink you can
 query between separate Heroku Postgres databases or to/from external
 Postgres databases.
 
 ## pg_stat_statements
 
-[pg_stat_statements](http://www.postgresql.org/docs/9.2/static/pgstatstatements.html):
+[pg_stat_statements](http://www.postgresql.org/docs/current/static/pgstatstatements.html):
 
 > The pg_stat_statements module provides a means for
 > tracking execution statistics of all SQL statements executed
 > by a server.
 
-<p class="warning" markdown="1">
-pg_stat_statements support on Heroku Postgres is currently limited to Postgres 9.2 databases.
-</p>
+This extension is enabled by default for all new Postgres 9.2 databases, created after 2014-February-11, and those on the Hobby tier.
+
+>warning
+>pg_stat_statements support on Heroku Postgres is limited to Postgres 9.2 or later databases.
 
 ### Usage
 
@@ -188,14 +189,13 @@ pg_stat_statements can be used to [track performance problems] (http://www.craig
 > the PostgreSQL server, allowing it to be used as a backend spatial
 > database for geographic information systems (GIS)
 
-<p class="warning" markdown="1">
-PostGIS support on Heroku Postgres is in beta and is subject to change in the future.
-</p>
+>warning
+>PostGIS support on Heroku Postgres is in beta and is subject to change in the future.
 
 ### Requirements
 
 Currently, PostGIS can only be used on Production tier [Heroku Postgres
-plans](https://addons.heroku.com/heroku-postgresql). It is not available
+plans](https://addons.heroku.com/heroku-postgresql). It is available
 on non-hobby tier databases. Additionally, PostGIS is only
 available as v2.1 with Postgres 9.3 or as v2.0 with Postgres v9.2.
 
@@ -204,8 +204,9 @@ available as v2.1 with Postgres 9.3 or as v2.0 with Postgres v9.2.
 PostGIS support can be added like any other extension, as long as your
 database meets the requirements above
 
-	:::term
-	$ heroku addons:add heroku-postgresql:ronin --version=9.3
+```term
+$ heroku addons:add heroku-postgresql:standard-yanari
+```
 
 and then simply run `create extension postgis`. Note also that this
 functionality is only availble on newer databases. If your database
@@ -218,10 +219,10 @@ procedure to move to a fresh database with PostGIS support.
 To detect if PostGIS is installed on a database, execute the following
 query from psql:
 
-	:::sql
-	=> SELECT postgis_version();
-			postgis_version
-	---------------------------------------
-	 2.1 USE_GEOS=1 USE_PROJ=1 USE_STATS=1
-	(1 row)
-                
+```sql
+=> SELECT postgis_version();
+        postgis_version
+---------------------------------------
+ 2.1 USE_GEOS=1 USE_PROJ=1 USE_STATS=1
+(1 row)
+```

@@ -94,3 +94,4 @@ To git@heroku.com:vivid-moon-60.git
 
 The push is aborted if the gem manifest is invalid or a gem fails to install,
 ensuring that an application is not deployed in an inconsistent state.
+ 

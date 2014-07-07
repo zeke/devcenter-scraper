@@ -1,34 +1,42 @@
-<div class="deprecated">
-<p>This article applies to apps on the <a href="https://devcenter.heroku.com/articles/bamboo">Bamboo</a> stack. For the most recent stack, <a href="https://devcenter.heroku.com/articles/cedar">Cedar</a>, see <a href="https://devcenter.heroku.com/articles/delayed-job">Delayed Job</a>.</p>
+<div class="warning">
+<p>This article applies to apps on the <a href="https://devcenter.heroku.com/articles/bamboo">Bamboo</a> stack.  For the most recent stack, <a href="https://devcenter.heroku.com/articles/cedar">Cedar</a>, see <a href="https://devcenter.heroku.com/articles/delayed-job">Delayed Job</a>.</p>
 </div>
-<p>Delayed Job, also known as DJ, is a queueing system for Rails. Please reference the <a href="https://devcenter.heroku.com/articles/delayed-job">Delayed Job</a> documentation on Dev Center to learn how to configure Delayed Job, enqueue jobs, and build workers.</p>
+
+<p>Delayed Job, also known as DJ, is a queueing system for Rails.    Please reference the <a href="https://devcenter.heroku.com/articles/delayed-job">Delayed Job</a> documentation on Dev Center to learn how to configure Delayed Job, enqueue jobs, and build workers.</p>
 
 <h2 id="running-workers">Running Workers</h2>
 
 <p>These instructions apply to the <a href="https://devcenter.heroku.com/articles/bamboo">Bamboo</a> stack only.</p>
 
-<p>Once your app uses DJ, you can start workers locally, or on a traditional host, using <code>rake jobs:work</code>. On Heroku’s Bamboo stack, start your worker process via the <code>heroku
+<p>Once your app uses DJ, you can start workers locally, or on a traditional host,
+using <code>rake jobs:work</code>.  On Heroku’s Bamboo stack, start your worker process via the <code>heroku
 workers</code> command:</p>
 
 <pre><code class="term">$ cd myapp
 $ heroku scale workers=1
-myapp is now running 1 worker</code></pre>
+myapp is now running 1 worker
+</code></pre>
 
-<p>You can verify that the DJ process started without error by inspecting the logs:</p>
+<p>You can verify that the DJ process started without error by inspecting the
+logs:</p>
 
 <pre><code class="term">$ heroku logs
 2011-05-31T15:58:43+00:00 app[dj.1]: (in /app)
-2011-05-31T15:58:43+00:00 app[dj.1]: *** Starting job worker host:runtime.51985 pid:2476</code></pre>
+2011-05-31T15:58:43+00:00 app[dj.1]: *** Starting job worker host:runtime.51985 pid:2476
+</code></pre>
 
 <h2 id="managing-workers">Managing Workers</h2>
+
 <div class="callout">
-
 <p>To shut down all worker processes, set workers to zero: <code>heroku scale workers=0</code></p>
-
 </div>
-<p>Heroku will run and manage the number of worker processes you specify, and you’ll be billed to a prorated second, exactly like dynos. You can increase or decrease your workers as needed:</p>
+
+<p>Heroku will run and manage the number of worker processes you specify, and
+you’ll be billed to a prorated second, exactly like dynos.  You can increase or decrease
+your workers as needed:</p>
 
 <pre><code class="term">$ heroku scale workers=3
 myapp is now running 3 workers
 $ heroku scale workers=2
-myapp is now running 2 workers</code></pre>
+myapp is now running 2 workers
+</code></pre>

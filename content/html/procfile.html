@@ -4,12 +4,12 @@
 
 <p>A Procfile is a text file named <code>Procfile</code> placed in the root of your application, that lists the process types in an application.  Each process type is a declaration of a command that is executed when a dyno of that process type is started.</p>
 
-<p>All the language and frameworks on the <a href="https://devcenter.heroku.com/articles/cedar">Cedar</a> stack declare a <code>web</code> process type, which starts the application server.  <a href="https://devcenter.heroku.com/articles/rails3">Rails 3</a> has the following process type:</p>
+<p>All the language and frameworks on the <a href="https://devcenter.heroku.com/articles/cedar">Cedar</a> stack declare a <code>web</code> process type, which starts the application server.  <a href="https://devcenter.heroku.com/articles/getting-started-with-rails3">Rails 3</a> has the following process type:</p>
 
 <pre><code>web: bundle exec rails server -p $PORT
 </code></pre>
 
-<p><a href="https://devcenter.heroku.com/articles/clojure">Clojure</a>’s <code>web</code> process type looks something like this:</p>
+<p><a href="https://devcenter.heroku.com/articles/getting-started-with-clojure">Clojure</a>’s <code>web</code> process type looks something like this:</p>
 
 <pre><code>web: lein run -m demo.web $PORT
 </code></pre>

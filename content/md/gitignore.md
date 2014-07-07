@@ -52,3 +52,4 @@ Further reading
 ---------------
 
 * Git Community Book on [.gitignore](http://book.git-scm.com/4_ignoring_files.html)
+ 

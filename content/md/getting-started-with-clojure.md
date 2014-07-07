@@ -15,11 +15,15 @@ Prerequisites
 * Basic Clojure knowledge, including an installed version of [Leiningen](https://github.com/technomancy/leiningen#readme) and a JVM.
 * Your application must use [Leiningen](http://leiningen.org). This article assumes the use of Leiningen 2.x, but 1.x is [also available](clojure-support).
 * Your application must run on the [OpenJDK](http://openjdk.java.net/) [version 6 or 7](customizing-the-jdk).
-* A Heroku user account.  [Signup is free and instant](https://api.heroku.com/signup/devcenter).
+* A Heroku user account.  [Signup is free and instant](https://signup.heroku.com/signup/dc).
 
 ## Local workstation setup
 
-Install the [Heroku Toolbelt](https://toolbelt.heroku.com/) on your local workstation.  This ensures that you have access to the [Heroku command-line client](/categories/command-line), Foreman, and the Git revision control system.
+First, install the Heroku Toolbelt on your local workstation.  
+
+<a class="toolbelt" href="https://toolbelt.heroku.com/">Install the Heroku Toolbelt</a>
+
+This ensures that you have access to the [Heroku command-line client](/categories/command-line), Foreman, and the Git revision control system.
 
 Once installed, you'll have access to the `heroku` command from your
 shell. Log in using the email address and password you used when
@@ -106,6 +110,8 @@ Here's a `Procfile` for the sample app we've been working on:
     web: java $JVM_OPTS -cp target/helloworld-standalone.jar clojure.main -m hello.world $PORT
 
 This declares a single process type, `web`, and the command needed to run it.  The name "web" is important here.  It declares that this process type will be attached to the [HTTP routing](http-routing) stack of Heroku, and receive web traffic when deployed.
+
+Note that your app's config is exported to the command in the Procfile as environment variables. For instance, running `heroku config:add JVM_OPTS=...` will change the value used here.
 
 You can run your app locally with `lein run -m hello.world 5000` for a
 quick check, or you can launch the server from a repl for interactive
@@ -236,7 +242,7 @@ View information about your running app using one of the [logging commands](logg
 Console
 -------
 
-Heroku allows you to run [one-off proceses](oneoff-admin-ps) - scripts and applications that only need to be executed when needed - using the `heroku run` command.   Use this to launch a REPL process attached to your local terminal for experimenting in your app's environment:
+Heroku allows you to run [one-off dynos](one-off-dynos) - scripts and applications that only need to be executed when needed - using the `heroku run` command.   Use this to launch a REPL process attached to your local terminal for experimenting in your app's environment:
 
 <div class="callout" markdown="1">Running `heroku run lein repl` uses
 a simplified version of the `repl` task provided by Leiningen.</div>
@@ -284,7 +290,7 @@ Commit and deploy this new code:
     $ git commit -m hi
     $ git push heroku master
 
-Run the script in a [one-off dyno](oneoff-admin-ps) with `heroku run`:
+Run the script in a [one-off dyno](one-off-dynos) with `heroku run`:
 
     :::term
     $ heroku run lein run -m hello.hi
@@ -311,4 +317,4 @@ Next steps
 * Extend the app by reading [Building a Database-Backed Clojure Web Application](clojure-web-application)
 * Read the technical aspects of [Heroku's Clojure support](clojure-support)
 * Learn to debug in [Live-Debugging Remote Clojure apps with Drawbridge](debugging-clojure)
-* Read [How Heroku Works](how-heroku-works) for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.
+* Read [How Heroku Works](how-heroku-works) for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications. 

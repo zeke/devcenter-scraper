@@ -5,13 +5,13 @@ url: https://devcenter.heroku.com/articles/dynos
 description: A dyno is a lightweight container running a single user-specified command managed the dyno manager.
 ---
 
-<div class="callout" markdown="1">
+>callout
 Read [How it Works](how-heroku-works) for a technical introduction to the concepts behind the Heroku platform.
-</div>
+
 
 A dyno is a lightweight container running a single user-specified command. You can think of it as a virtualized Unix container---it can run any command available in its default environment (what we supply in the [Cedar stack](cedar)) combined with your app's [slug](slug-compiler) (which will be based on your code and its dependencies).
 
-The commands run within dynos include web processes, worker processes (such as timed jobs and queuing systems), and any process types declared in the app’s [Procfile](procfile).  Admin and maintenance commands can also be run in [one-off dynos](oneoff-admin-ps).
+The commands run within dynos include web processes, worker processes (such as timed jobs and queuing systems), and any process types declared in the app’s [Procfile](procfile).  Admin and maintenance commands can also be run in [one-off dynos](one-off-dynos).
 
 ## Features
 
@@ -27,12 +27,12 @@ The commands run within dynos include web processes, worker processes (such as t
 
 ## Memory behavior
 
-Dynos are available in [1X or 2X sizes](https://devcenter.heroku.com/articles/dyno-size) and are allocated 512MB or 1024MB respectively.
+Dynos are available in [a few different sizes](https://devcenter.heroku.com/articles/dyno-size).  The maximum amount of RAM available to your application depends on the dyno size you use.
 
 Dynos whose processes exceed their memory quota are identified by an [R14 error](https://devcenter.heroku.com/articles/error-codes#r14-memory-quota-exceeded) in the [logs](logging). This doesn't terminate the process, but it does warn of deteriorating application conditions: memory used above quota will [swap out to disk](http://en.wikipedia.org/wiki/Virtual_memory), which **substantially degrades** dyno performance.
 
-If the memory size keeps growing until it reaches three times its quota, the dyno manager will restart your dyno with an [R15 error](https://devcenter.heroku.com/articles/error-codes#r15-memory-quota-vastly-exceeded).
-
+If the memory size of your dyno keeps growing until it reaches five times its quota (for a 1X dyno, 512MB x 5 = 2.5GB) or two times its quota for PX dynos (6GB * 2 = 12GB), the dyno manager will restart your dyno with an [R15 error](https://devcenter.heroku.com/articles/error-codes#r15-memory-quota-vastly-exceeded).
+ 
 If you suspect a [memory leak](http://www.ibm.com/developerworks/java/library/j-leaks/) in your application, memory profiling tools such as [Oink](https://github.com/noahd1/oink) for Ruby or [Heapy](http://guppy-pe.sourceforge.net/#Heapy) for Python can be helpful.
 
 ## The dyno manager
@@ -57,11 +57,17 @@ As app developers, we tend to see the first two errors as "boot crashes" and the
 
 ### Dyno crash restart policy
 
-If a dyno crashes during boot, Heroku will immediately attempt to restart it again. If a dyno crashes during subsequent attempts, Heroku will continue to attempt to restart it again, but the attempts will be spaced apart by increasing intervals. If the second restart attempt fails, there will be a 10 minute cool-off period before the third attempt. If the third restart attempt fails, there will be a 20 minute cool-off period, followed by a 40 minute cool-off period and so forth up to a maximum 24 hour cool-off period between restart attempts.
+If a dyno crashes within the first 10 minutes of launch, Heroku will immediately attempt to restart it. If a dyno again crashes within 10 minutes of starting, Heroku will continue to attempt to restart it, but the attempts will be spaced apart by increasing intervals. If the second restart attempt results in the dyno crashing within 10 minutes of start, there will be a 10 minute cool-off period before the third attempt. If the third restart attempt fails, there will be a 20 minute cool-off period, followed by a 40 minute cool-off period and so forth up to a maximum 24 hour cool-off period between restart attempts.
+
+> callout
+> A dyno "crash" represents any event originating with the process running in the dyno that causes the dyno to stop. That includes the process exiting with an exit code of `0` (or any other exit code).
+> callout
+> Crashes that happen more than 10 minutes after dyno start do not count as a "boot crash" and Heroku will restart the dyno immediately.
 
 ### Dyno sleeping
 
-<p class="callout" markdown="1">If your app has only a single web dyno running, that web dyno will sleep - irrespective of the number of worker dynos. You have to have more than one **web** dyno to prevent web dynos from sleeping.  Worker dynos do not sleep.</p>
+>callout
+>If your app has only a single web dyno running, that web dyno will sleep - irrespective of the number of worker dynos. You have to have more than one **web** dyno to prevent web dynos from sleeping.  Worker dynos do not sleep.
 
 Apps that have scaled the number of web dynos (dynos running the `web` [process type](process-model#process-types-vs-dynos)) so that only a single web dyno is running, will have that web dyno sleep after one hour of inactivity.  When this happens, you'll see the following in your [logs](logging):
 
@@ -83,9 +89,8 @@ During startup, the container starts a `bash` shell that runs any code in `$HOME
 
 #### Example `.profile`
 
-<div class="callout" markdown="1">
+>callout
 The `.profile` script will be sourced *after* the app's config vars. To have the config vars take precedence, use a technique like that shown here with `LANG`.
-</div>
 
 
     # add vendor binaries to the path
@@ -94,19 +99,19 @@ The `.profile` script will be sourced *after* the app's config vars. To have the
     # set a default LANG if it does not exist in the environment
     LANG=${LANG:-en_US.UTF-8}
 
-<div class="warning" markdown="1">
-For most purposes, [config vars](config-vars) are more convenient and flexible. You need not push new code to edit config vars, whereas `.profile` is part of your source tree and must be edited and deployed like any code change.
-</div>
+>warning
+>For most purposes, [config vars](config-vars) are more convenient and flexible. You need not push new code to edit config vars, whereas `.profile` is part of your source tree and must be edited and deployed like any code change.
 
 #### Local environment variables
 
 The Dyno Manager sets up a number of default environment variables that you can access in your application. 
 
 * If the dyno is a web dyno, the `$PORT` variable will be set.  The dyno must bind to this port number to receive incoming requests.
-<div class="callout" markdown="1">
-The `$DYNO` variable is experimental and subject to change or removal.
+
+>callout
+>The `$DYNO` variable is experimental and subject to change or removal.
 Also, `$DYNO` is not guaranteed to be unique within an app. For example, during a deploy or restart, the same dyno identifier could be used for two running dynos. It will be eventually consistent, however.
-</div>
+
 * The `$DYNO` variable will be set to the dyno identifier. e.g. `web.1`, `worker.2`, `run.9157`.
 
 #### Processes
@@ -115,21 +120,31 @@ After the `.profile` script is executed, the dyno executes the command associate
 
 Any command that's executed may spawn additional processes. 
 
-No more than 256 created processes/threads can exist at any one time in a dyno - whether they're executing, sleeping or in any other state.  Note that the dyno counts threads and processes towards this limit.  For example, a dyno with 255 threads and one process is at the limit, as is a dyno with 256 processes.
+[Orphan processes](https://en.wikipedia.org/wiki/Orphan_process) within a dyno will be regularly [reaped](https://en.wikipedia.org/wiki/Wait_(system_call)) to prevent the accumulation of zombie/defunct processes.
+
+#### Process/thread limits
+
+The maximum number of processes/threads that can exist in a dyno at any one time depends on [dyno size](https://devcenter.heroku.com/articles/dyno-size):
+
+* 1X dynos support no more than 256
+* 2X dynos support no more than 512
+* PX dynos support no more than 32768
+
+These limits include all processes and threads, whether they are executing, sleeping or in any other state.  Note that the dyno counts threads and processes towards this limit.  For example, a 1X dyno with 255 threads and one process is at the limit, as is a dyno with 256 processes.
 
 #### Web dynos
 
 A web dyno must bind to its assigned `$PORT` within 60 seconds of startup. If it doesn't, it is terminated by the dyno manager and a [R10 Boot Timeout](https://devcenter.heroku.com/articles/error-codes#r10-boot-timeout) error is logged. Processes can bind to other ports before and after binding to `$PORT`.
 
-<div class="callout" markdown="1">
-Contact support to increase this limit to 120 seconds on a per-application basis. In general, slow boot times will make it harder to deploy your application and will make recovery from dyno failures slower, so this should be considered a temporary solution.
-</div>
+>callout
+>Contact support to increase this limit to 120 seconds on a per-application basis. In general, slow boot times will make it harder to deploy your application and will make recovery from dyno failures slower, so this should be considered a temporary solution.
 
 ### Graceful shutdown with SIGTERM
 
 When the dyno manager restarts a dyno, the dyno manager will request that your processes shut down gracefully by sending them [`SIGTERM`](http://en.wikipedia.org/wiki/SIGTERM). This signal is sent to all processes in the dyno, not just the process type.
 
-<div class="callout" markdown="1">Please note that it is currently possible that processes in a dyno that is being shut down may receive multiple SIGTERMs</div>
+>callout
+>Please note that it is currently possible that processes in a dyno that is being shut down may receive multiple SIGTERMs
 
 The application processes have ten seconds to shut down cleanly (ideally, they will do so more quickly than that).  During this time they should stop accepting new requests or jobs and attempt to finish their current requests, or put jobs back on the queue for other worker processes to handle.  If any processes remain after ten seconds, the dyno manager will terminate them forcefully with `SIGKILL`.
 
@@ -137,76 +152,81 @@ When performing controlled or periodic restarts, new dynos are spun up as soon a
 
 We can see how this works in practice with a sample worker process.  We'll use Ruby here as an illustrative language - the mechanism is identical in other languages.  Imagine a process that does nothing but loop and print out a message periodically:
 
-    :::ruby
-    STDOUT.sync = true
-    puts "Starting up"
+```ruby
+STDOUT.sync = true
+puts "Starting up"
 
-    trap('TERM') do
-      puts "Graceful shutdown"
-      exit
-    end
+trap('TERM') do
+  puts "Graceful shutdown"
+  exit
+end
 
-    loop do
-      puts "Pretending to do work"
-      sleep 3
-    end
+loop do
+  puts "Pretending to do work"
+  sleep 3
+end
+```
 
 If we deploy this (along with [the appropriate `Gemfile` and `Procfile`](https://github.com/adamwiggins/sigterm)) and `heroku ps:scale worker=1`, we'll see the process in its loop running on dyno `worker.1`:
 
-    :::term
-    $ heroku logs
-    2011-05-31T23:31:16+00:00 heroku[worker.1]: Starting process with command: `bundle exec ruby worker.rb`
-    2011-05-31T23:31:17+00:00 heroku[worker.1]: State changed from starting to up
-    2011-05-31T23:31:17+00:00 app[worker.1]: Starting up
-    2011-05-31T23:31:17+00:00 app[worker.1]: Pretending to do work
-    2011-05-31T23:31:20+00:00 app[worker.1]: Pretending to do work
-    2011-05-31T23:31:23+00:00 app[worker.1]: Pretending to do work
+```term
+$ heroku logs
+2011-05-31T23:31:16+00:00 heroku[worker.1]: Starting process with command: `bundle exec ruby worker.rb`
+2011-05-31T23:31:17+00:00 heroku[worker.1]: State changed from starting to up
+2011-05-31T23:31:17+00:00 app[worker.1]: Starting up
+2011-05-31T23:31:17+00:00 app[worker.1]: Pretending to do work
+2011-05-31T23:31:20+00:00 app[worker.1]: Pretending to do work
+2011-05-31T23:31:23+00:00 app[worker.1]: Pretending to do work
+```
 
 Restart the dyno, which causes the dyno to receive `SIGTERM`:
 
-    :::term
-    $ heroku restart worker.1
-    Restarting worker.1 process... done
+```term
+$ heroku restart worker.1
+Restarting worker.1 process... done
 
-    $ heroku logs
-    2011-05-31T23:31:26+00:00 app[worker.1]: Pretending to do work
-    2011-05-31T23:31:28+00:00 heroku[worker.1]: State changed from up to starting
-    2011-05-31T23:31:29+00:00 heroku[worker.1]: Stopping all processes with SIGTERM
-    2011-05-31T23:31:29+00:00 app[worker.1]: Graceful shutdown
-    2011-05-31T23:31:29+00:00 heroku[worker.1]: Process exited
+$ heroku logs
+2011-05-31T23:31:26+00:00 app[worker.1]: Pretending to do work
+2011-05-31T23:31:28+00:00 heroku[worker.1]: State changed from up to starting
+2011-05-31T23:31:29+00:00 heroku[worker.1]: Stopping all processes with SIGTERM
+2011-05-31T23:31:29+00:00 app[worker.1]: Graceful shutdown
+2011-05-31T23:31:29+00:00 heroku[worker.1]: Process exited
+```
 
 Note that `app[worker.1]` logged "Graceful shutdown" (as we expect from our code); all the dyno manager messages log as `heroku[worker.1]`.
 
 If we modify `worker.rb` to ignore the `TERM` signal, like so:
 
-    :::ruby
-    STDOUT.sync = true
-    puts "Starting up"
+```ruby
+STDOUT.sync = true
+puts "Starting up"
 
-    trap('TERM') do
-      puts "Ignoring TERM signal - not a good idea"
-    end
+trap('TERM') do
+  puts "Ignoring TERM signal - not a good idea"
+end
 
-    loop do
-      puts "Pretending to do work"
-      sleep 3
-    end
+loop do
+  puts "Pretending to do work"
+  sleep 3
+end
+```
 
 Now we see the behavior is changed:
 
-    :::term
-    $ heroku restart worker.1
-    Restarting worker.1 process... done
+```term
+$ heroku restart worker.1
+Restarting worker.1 process... done
 
-    $ heroku logs
-    2011-05-31T23:40:57+00:00 heroku[worker.1]: Stopping all processes with SIGTERM
-    2011-05-31T23:40:57+00:00 app[worker.1]: Ignoring TERM signal - not a good idea
-    2011-05-31T23:40:58+00:00 app[worker.1]: Pretending to do work
-    2011-05-31T23:41:01+00:00 app[worker.1]: Pretending to do work
-    2011-05-31T23:41:04+00:00 app[worker.1]: Pretending to do work
-    2011-05-31T23:41:07+00:00 heroku[worker.1]: Error R12 (Exit timeout) -> Process failed to exit within 10 seconds of SIGTERM
-    2011-05-31T23:41:07+00:00 heroku[worker.1]: Stopping all processes with SIGKILL
-    2011-05-31T23:41:08+00:00 heroku[worker.1]: Process exited
+$ heroku logs
+2011-05-31T23:40:57+00:00 heroku[worker.1]: Stopping all processes with SIGTERM
+2011-05-31T23:40:57+00:00 app[worker.1]: Ignoring TERM signal - not a good idea
+2011-05-31T23:40:58+00:00 app[worker.1]: Pretending to do work
+2011-05-31T23:41:01+00:00 app[worker.1]: Pretending to do work
+2011-05-31T23:41:04+00:00 app[worker.1]: Pretending to do work
+2011-05-31T23:41:07+00:00 heroku[worker.1]: Error R12 (Exit timeout) -> Process failed to exit within 10 seconds of SIGTERM
+2011-05-31T23:41:07+00:00 heroku[worker.1]: Stopping all processes with SIGKILL
+2011-05-31T23:41:08+00:00 heroku[worker.1]: Process exited
+```
 
 Our process ignores `SIGTERM` and blindly continues on processing.  After ten seconds, the dyno manager gives up on waiting for the process to shut down gracefully, and kills it with `SIGKILL`.  It logs [Error R12](error-codes) to indicate that the process is not behaving correctly.
 
@@ -248,8 +268,8 @@ A single dyno can serve thousands of requests per second, but performance depend
 
 A single-threaded, non-concurrent web framework (like Rails 3 in its default configuration) can process one request at a time. For an app that takes 100ms on average to process each request, this translates to about 10 requests per second per dyno, which is not optimal.
 
-<p class="warning" markdown="1">
-Single threaded backends are not recommended for production applications for their inefficient handling of concurrent requests. Choose a concurrent backend whenever developing and running a production service.
-</p>
+>warning
+>Single threaded backends are not recommended for production applications for their inefficient handling of concurrent requests. Choose a concurrent backend whenever developing and running a production service.
 
-Multi-threaded or event-driven environments like Java, Unicorn, EventMachine, and Node.js can handle many concurrent requests. Load testing your app is the only realistic way to determine request throughput.
+
+Multi-threaded or event-driven environments like Java, Unicorn, EventMachine, and Node.js can handle many concurrent requests. Load testing your app is the only realistic way to determine request throughput. 

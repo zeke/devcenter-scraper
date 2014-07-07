@@ -7,9 +7,8 @@ description: A guide to better matching Heroku build functionality locally, so a
 
 When you push your source code to Heroku a build will be performed by the buildpack for your specific language. On occasion you may find that code which builds locally has issues when you push to Heroku. In these situations the best way to debug the problem is to understand how builds work on Heroku and drive towards the closest dev/prod parity you can get between your local development environment and Heroku.
 
-<div class="note" markdown="1">
-If you have questions about Java on Heroku, consider discussing them in the [Java on Heroku forums](https://discussion.heroku.com/category/java).
-</div>
+>note
+>If you have questions about Java on Heroku, consider discussing them in the [Java on Heroku forums](https://discussion.heroku.com/category/java).
 
 ## Builds on Heroku
 
@@ -35,7 +34,9 @@ __Maven__
 
 You can point maven to a different local repository by adding this flag to your build command:
 
-    mvn -Dmaven.repo.local=/path/to/repo
+```term
+$ mvn -Dmaven.repo.local=/path/to/repo
+```
 
 Just point your local repo at an empty temporary directory.
 
@@ -43,7 +44,9 @@ __SBT or Play 2.x__
 
 You can point maven to a different local repository by adding this flag to your build command:
 
-    sbt -Dsbt.ivy.home=/path/to/repo clean compile stage
+```term
+$ sbt -Dsbt.ivy.home=/path/to/repo clean compile stage
+```
 
 Just point your local repo at an empty temporary directory.
 
@@ -71,9 +74,12 @@ If you find that s3pository is causing an issue with your build you can run your
 
 #### Java Buildpack
 
-    $ heroku config:set BUILDPACK_URL='http://github.com/heroku/heroku-buildpack-java.git#no-s3pository'
+```term
+$ heroku config:set BUILDPACK_URL='http://github.com/heroku/heroku-buildpack-java.git#no-s3pository'
+```
 
 #### Scala/Play 2.0 Buildpack
 
-    $ heroku config:set BUILDPACK_URL='http://github.com/heroku/heroku-buildpack-scala.git#no-s3pository'
- 
+```term
+$ heroku config:set BUILDPACK_URL='http://github.com/heroku/heroku-buildpack-scala.git#no-s3pository'
+```  

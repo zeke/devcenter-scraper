@@ -2,10 +2,12 @@
 
 <h2 id="installation">Installation</h2>
 
-<p>You’ll need to <a href="http://www.ruby-lang.org/en/downloads/">set up Ruby</a> on your local machine. Then install the Dev Center CLI gem:</p>
+<p><a href="http://www.ruby-lang.org/en/downloads/">Set up Ruby</a> on your local machine. Then install the Dev Center CLI gem:</p>
 
 <pre><code class="term">$ gem install devcenter
 </code></pre>
+
+<p>You’ll also need the <a href="https://toolbelt.heroku.com">Heroku toolbelt</a> if you want to <a href="#save-the-article-to-dev-center">save your articles</a> to Dev Center.</p>
 
 <h2 id="pull-your-article">Pull your article</h2>
 
@@ -41,24 +43,23 @@ Press Ctrl+C to exit...
 <li>
 <code>markdown_flavour</code>: indicates which of the two markdown parsers available in Dev Center should be used to parse the content. The available values are <code>maruku</code> (applied by default if no flavour is specified) and <code>github</code> (corresponding to a new experimental parser).</li>
 </ul><div class="warning">
-<p>Never overwrite the id: you’ll need it to save your changes in Dev Center.</p>
+<p>Never overwrite the <code>id</code>: you’ll need it to save your changes in Dev Center.</p>
 </div>
-
-<h2 id="save-the-article-to-dev-center">Save the article to Dev Center</h2>
-
-<p>At the end of the preview, you will see a button to save your changes in the Dev Center website:</p>
-
-<p><img src="https://s3.amazonaws.com/heroku.devcenter/heroku_assets/images/171-original.jpg?1367999232" alt="Save button" title="Save button"></p>
-
-<div class="warning">
-<p>You need to be logged in into Dev Center to save the article.</p>
-</div>
-
-<p>After clicking the button you will be redirected to the editing form in Dev Center, prepopulated with your local changes, ready to save the article.</p>
 
 <h2 id="stop-the-preview">Stop the preview</h2>
 
 <p>To stop the <code>preview</code> command, press Ctrl+C.</p>
+
+<h2 id="save-the-article-to-dev-center">Save the article to Dev Center</h2>
+
+<p>Save your local changes to Dev Center using the <code>devcenter push</code> command:</p>
+
+<pre><code class="term">$ devcenter push dev-center-cli.md
+</code></pre>
+
+<div class="warning">
+<p>Your local heroku account will be used to push the article. Use <code>heroku auth:whoami</code> to see which account will be used to push the article and <code>heroku auth:login</code> if you need to login with a different account.</p>
+</div>
 
 <h2 id="additional-help">Additional help</h2>
 

@@ -19,7 +19,7 @@
 <code>bin/release</code>: Provides metadata back to the runtime.</li>
 </ul><h3 id="bin-detect">bin/detect</h3>
 
-<h4 id="usage">Usage</h4>
+<h4 id="bin-detect-usage">Usage</h4>
 
 <pre><code>bin/detect BUILD_DIR
 </code></pre>
@@ -28,11 +28,11 @@
 <p>The name sent to <code>stdout</code> will be displayed as the application type during push.</p>
 </div>
 
-<h4 id="summary">Summary</h4>
+<h4 id="bin-detect-summary">Summary</h4>
 
 <p>This script takes <code>BUILD_DIR</code> as a single argument and should return an exit code of <code>0</code> if the app present at <code>BUILD_DIR</code> can be serviced by this buildpack. If the exit code is <code>0</code>, the script should print a human-readable framework name to <code>stdout</code>.</p>
 
-<h4 id="example">Example</h4>
+<h4 id="bin-detect-example">Example</h4>
 
 <pre><code class="bash">#!/bin/sh
 
@@ -47,23 +47,51 @@ fi
 
 <h3 id="bin-compile">bin/compile</h3>
 
-<h4 id="usage">Usage</h4>
+<h4 id="bin-compile-usage">Usage</h4>
 
-<pre><code>bin/compile BUILD_DIR CACHE_DIR
+<pre><code>bin/compile BUILD_DIR CACHE_DIR ENV_DIR
 </code></pre>
 
-<h4 id="summary">Summary</h4>
+<h4 id="bin-compile-summary">Summary</h4>
 
 <div class="callout">
 <p>The contents of <code>CACHE_DIR</code> will be persisted between builds. You can cache the results of long processes like dependency resolution here to speed up future builds.</p>
 </div>
 
-<p>This script performs the buildpack transformation. <code>BUILD_DIR</code> will be the location of the app and
-<code>CACHE_DIR</code> will be a location the buildpack can use to cache build artifacts between builds.</p>
+<p>This script performs the buildpack transformation. <code>BUILD_DIR</code> will be the location of the app and <code>CACHE_DIR</code> will be a location the buildpack can use to cache build artifacts between builds.</p>
 
-<p>All output received on <code>stdout</code> from this script will be displayed to the user.</p>
+<p>All output received on <code>stdout</code> from this script will be displayed to the user (for interactive git-push builds) and stored with the build.</p>
 
 <p>The application in <code>BUILD_DIR</code> along with all changes made by the <code>compile</code> script will be packaged into a slug.</p>
+
+<p><code>ENV_DIR</code> is a directory that contains a file for each of the application’s <a href="https://devcenter.heroku.com/articles/config-vars">configuration variables</a>. These are the same configuration variables that are injected into the apps runtime environment.</p>
+
+<div class="callout">
+<p>The application config vars are passed to the buildpack as an argument (versus set in the environment) so that the buildpack can optionally export none, all or parts of the app config vars available in <code>ENV_DIR</code> when the <code>compile</code> script is run. Exporting the config can be scoped to only certain steps in the compile script or to the entire compile phase.
+The reason application config vars are passed to the compile script in individual files is to make it easier for buildpacks to correctly handle config vars with multi-line values</p>
+</div>
+
+<p>The name of the file is the config key and the contents of the file is the config value. The equivalent of config var <code>S3_KEY=8N029N81</code> is a file with the name <code>S3_KEY</code> and contents <code>8N029N81</code>.</p>
+
+<p>Below is a Bash function demonstrating how to export the content of the <code>ENV_DIR</code> into the environment.</p>
+
+<pre><code class="bash">export_env_dir() {
+  env_dir=$1
+  whitelist_regex=${2:-''}
+  blacklist_regex=${3:-'^(PATH|GIT_DIR|CPATH|CPPATH|LD_PRELOAD|LIBRARY_PATH)$'}
+  if [ -d "$env_dir" ]; then
+    for e in $(ls $env_dir); do
+      echo "$e" | grep -E "$whitelist_regex" | grep -qvE "$blacklist_regex" &amp;&amp;
+      export "$e=$(cat $env_dir/$e)"
+      :
+    done
+  fi
+}
+</code></pre>
+
+<p>Use the regular expressions to blacklist or whitelist config keys for export. For example, runtime config vars like PATH can sometimes conflict with build tools so blacklisting that might be a good idea. Whitelisting is recommended if you know that builds will only require a specific subset of config vars (like <code>DATABASE_URL</code>) to run.</p>
+
+<p>A <code>STACK</code> environment variable is available to the compile script. The value of the <code>STACK</code> variable is the <a href="https://devcenter.heroku.com/articles/stack">stack</a> of the app that the slug is being built for, eg. <code>cedar</code>. Currently, <code>cedar</code> is the only possible value (Bamboo apps don’t use buildpacks). Buildpacks can use the <code>STACK</code> variable to selectively pull binaries and other dependencies appropriate for that stack. Builds are always done inside a dyno running on the same stack as the app that the build is running for.</p>
 
 <h4 id="style">Style</h4>
 
@@ -78,7 +106,7 @@ fi
 <pre><code>-----&gt; Installing dependencies with npm 1.0.27
 </code></pre>
 
-<h4 id="example">Example</h4>
+<h4 id="bin-compile-example">Example</h4>
 
 <pre><code class="bash">#!/bin/sh
 
@@ -102,12 +130,12 @@ fi | indent
 
 <h3 id="bin-release">bin/release</h3>
 
-<h4 id="usage">Usage</h4>
+<h4 id="bin-release-usage">Usage</h4>
 
 <pre><code>bin/release BUILD_DIR
 </code></pre>
 
-<h4 id="summary">Summary</h4>
+<h4 id="bin-release-summary">Summary</h4>
 
 <div class="callout">
 <p><code>addons</code> will only be applied the first time an app is deployed.</p>
@@ -124,7 +152,7 @@ fi | indent
 <code>default_process_types</code> is a hash of default <code>Procfile</code> entries.</li>
 </ul><p>This script will only be run if present.</p>
 
-<h4 id="example">Example</h4>
+<h4 id="bin-release-example">Example</h4>
 
 <pre><code class="bash">#!/bin/sh
 
@@ -161,9 +189,13 @@ PATH=$PATH:$HOME/.node/bin
 
 <p>The <code>bin/compile</code> script will be given a <code>CACHE_DIR</code> as its second argument which can be used to store artifacts between builds. Artifacts stored in this directory will be available in the <code>CACHE_DIR</code> during successive builds. <code>CACHE_DIR</code> is available only during slug compilation, and is specific to the app being built.</p>
 
-<p>If the build pack does intend to use a cache, it should create the the CACHE_DIR directory if it doesn’t exist.</p>
+<p>If the build pack does intend to use a cache, it should create the CACHE_DIR directory if it doesn’t exist.</p>
 
 <p>Build packs often use this cache to store resolved dependencies to reduce build time on successive deploys.</p>
+
+<div class="callout">
+<p>Heroku users can use the <a href="https://github.com/heroku/heroku-repo"><code>heroku-repo</code></a> plugin to clear the build cache created by the buildpack they use for their app</p>
+</div>
 
 <h2 id="binaries">Binaries</h2>
 

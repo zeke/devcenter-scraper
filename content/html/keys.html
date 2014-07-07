@@ -1,10 +1,9 @@
-
 <p>If you don’t already use SSH, you’ll need to create a public/private key pair to deploy code to Heroku. This keypair is used for the strong cryptography and that uniquely identifies you as a developer when pushing code changes.</p>
+
 <div class="callout">
-
-<p>You can use DSA keys if you prefer, using the <code>-t dsa</code> option. Heroku can use either type of key.</p>
-
+<p>You can use DSA keys if you prefer, using the <code>-t dsa</code> option.  Heroku can use either type of key.</p>
 </div>
+
 <p>To generate a public key:</p>
 
 <pre><code class="term">$ ssh-keygen -t rsa
@@ -15,37 +14,63 @@ Enter same passphrase again:
 Your identification has been saved in /Users/adam/.ssh/id_rsa.
 Your public key has been saved in /Users/adam/.ssh/id_rsa.pub.
 The key fingerprint is:
-a6:88:0a:0b:74:90:c6:e9:d5:49:d6:e3:04:d5:6c:3e adam@workstation.local</code></pre>
+a6:88:0a:0b:74:90:c6:e9:d5:49:d6:e3:04:d5:6c:3e adam@workstation.local
+</code></pre>
 
-<p>Press enter at the first prompt to use the default file location. You may wish to provide a password for the key, although this is not necessary - if your workstation is physically secure and is not used by anyone other than you, pressing enter at both prompts to make a passwordless key is secure. As long as you keep the contents of <code>~/.ssh/id_rsa</code> secret, your key will be secure even without a password.</p>
+<p>Press enter at the first prompt to use the default file location.  You may wish
+to provide a password for the key, although this is not necessary - if your
+workstation is physically secure and is not used by anyone other than you,
+pressing enter at both prompts to make a passwordless key is secure.  As long as
+you keep the contents of <code>~/.ssh/id_rsa</code> secret, your key will be secure even
+without a password.</p>
 
 <h2 id="adding-keys-to-heroku">Adding keys to Heroku</h2>
 
-<p>The first time you run the <code>heroku</code> command, you’ll be prompted for your credentials. Your public key will then be automatically uploaded to Heroku. This will allow you to deploy code to all of your apps.</p>
+<p>The first time you run the <code>heroku</code> command, you’ll be prompted for your
+credentials. Your public key will then be automatically uploaded to Heroku.
+This will allow you to deploy code to all of your apps.</p>
+
 <div class="callout">
-<p>A common key error is: <code>Permission denied (publickey).</code> You can fix this by using <code>keys:add</code> to notify Heroku of your new key.</p>
+<p>A common key error is: <code>Permission denied (publickey).</code>
+You can fix this by using <code>keys:add</code> to notify Heroku of your new key.</p>
 </div>
+
 <p>If you wish to add other keys, use this command:</p>
 
 <pre><code class="term">$ heroku keys:add
 Found existing public key: /Users/adam/.ssh/id_rsa.pub
-Uploading SSH public key /Users/adam/.ssh/id_rsa.pub... done</code></pre>
+Uploading SSH public key /Users/adam/.ssh/id_rsa.pub... done
+</code></pre>
 
-<p>Without an argument, it will look for the key in the default place (<code>~/.ssh/id_rsa.pub</code> or <code>~/.ssh/id_dsa.pub</code>). If you wish to use an alternate key file, specify it as an argument. Be certain you specify the public part of the key (the file ending in .pub). The private part of the key should never be transmitted to any third party, ever.</p>
+<p>Without an argument, it will look for the key in the default place
+(<code>~/.ssh/id_rsa.pub</code> or <code>~/.ssh/id_dsa.pub</code>).  If you wish to use an alternate
+key file, specify it as an argument.  Be certain you specify the public part of
+the key (the file ending in .pub).  The private part of the key should never be
+transmitted to any third party, ever.</p>
 
-<p>For security purposes Heroku will email you whenever a new SSH key is added to your account.</p>
+<p>For security purposes Heroku will email you whenever a new SSH key is
+added to your account.</p>
 
-<p>Revoke old keys you’re no longer using or that you think might be compromised (for example, if your workstation is lost or stolen):</p>
+<p>Revoke old keys you’re no longer using or that you think might be compromised
+(for example, if your workstation is lost or stolen):</p>
 
 <pre><code class="term">$ heroku keys:remove adam@workstation.local
-Removing adam@workstation.local SSH key... done</code></pre>
+Removing adam@workstation.local SSH key... done
+</code></pre>
+
 <div class="callout">
-
-<p>The ASCII-armored key data is shortened for readability. If you wish to see the full public key, use the <code>--long</code> argument. You will probably want to redirect this to a file (<code>heroku keys --long &amp;gt; keys.txt</code>), since it will be easier to look at in a text editor.</p>
-
+<p>If your key doesn’t have a name or its name is shared by another key, a key can also be removed by passing in some portion of its public key (e.g. <code>heroku keys:remove DVj3R4W</code>). All keys on the account can be removed with <code>heroku keys:clear</code>.</p>
 </div>
-<p>The key’s name is the <code>user@workstation</code> bit that appears at the end of the key line in your public key file. You can see a list of all keys, including the key’s name, like this:</p>
+
+<p>The key’s name is the <code>user@workstation</code> bit that appears at the end of the key line
+in your public key file.  You can see a list of all keys, including the key’s
+name, like this:</p>
 
 <pre><code class="term">$ heroku keys
 === joe@example.com Keys
-ssh-dss AAAAB8NzaC...DVj3R4Ww== joe@workstation.local</code></pre>
+ssh-dss AAAAB8NzaC...DVj3R4Ww== adam@workstation.local
+</code></pre>
+
+<div class="callout">
+<p>The ASCII-armored key data is shortened for readability.  If you wish to see the full public key, use the <code>--long</code> argument.  You will probably want to redirect this to a file (<code>heroku keys --long &gt; keys.txt</code>), since it will be easier to look at in a text editor.</p>
+</div>

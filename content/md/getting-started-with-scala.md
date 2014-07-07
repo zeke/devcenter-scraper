@@ -12,11 +12,15 @@ This quickstart will get you going with Scala and the [Finagle](http://github.co
 * Basic knowledge of [Scala](http://scala-lang.org) and [sbt](http://www.scala-sbt.org/). 
 * Your application must be compatible with a [supported SBT version](scala-support#build-behavior).
 * Your application must run on the [OpenJDK](http://openjdk.java.net/) version 6.
-* A Heroku user account.  [Signup is free and instant.](https://api.heroku.com/signup/devcenter)
+* A Heroku user account.  [Signup is free and instant.](https://signup.heroku.com/signup/dc)
 
 ## Local workstation setup
 
-Install the [Heroku Toolbelt](https://toolbelt.heroku.com/) on your local workstation.  This ensures that you have access to the [Heroku command-line client](/categories/command-line), Foreman, and the Git revision control system.
+First, install the Heroku Toolbelt on your local workstation.  
+
+<a class="toolbelt" href="https://toolbelt.heroku.com/">Install the Heroku Toolbelt</a>
+
+This ensures that you have access to the [Heroku command-line client](/categories/command-line), Foreman, and the Git revision control system.
 
 Once installed, you can use the `heroku` command from your command shell.  Log in using the email address and password you used when creating your Heroku account:
 
@@ -83,7 +87,7 @@ You can use [light](https://github.com/harrah/xsbt/wiki/Basic-Configuration) or 
 ### build.sbt
 
     :::scala
-    import com.typesafe.startscript.StartScriptPlugin
+    import com.typesafe.sbt.SbtStartScript
     
     seq(StartScriptPlugin.startScriptForClassesSettings: _*)
 
@@ -99,7 +103,7 @@ You can use [light](https://github.com/harrah/xsbt/wiki/Basic-Configuration) or 
 
 ## Add the start script plugin
 
-At deploy time, Heroku runs `sbt clean compile stage` to build your Scala app.  [Typesafe](http://typesafe.com/)'s [`xbst-start-script-plugin`](http://github.com/typesafehub/xsbt-start-script-plugin) adds a `stage` task to sbt that generates start scripts for your application.
+At deploy time, Heroku runs `sbt compile stage` to build your Scala app.  [Typesafe](http://typesafe.com/)'s [`sbt-start-script`](https://github.com/sbt/sbt-start-script) adds a `stage` task to sbt that generates start scripts for your application.
 
 To use the plugin, create this file:
 
@@ -108,7 +112,7 @@ To use the plugin, create this file:
     :::scala
     resolvers += Classpaths.typesafeResolver
 
-    addSbtPlugin("com.typesafe.startscript" % "xsbt-start-script-plugin" % "0.5.3")
+    addSbtPlugin("com.typesafe.sbt" %% "sbt-start-script" % "0.10.0")
 
 The `stage` task, by convention, performs any tasks needed to prepare an app to be run in-place. Other plugins that use a different approach to prepare an app to run could define `stage` as well.
 
@@ -127,7 +131,7 @@ You can specify 1.6, 1.7, or 1.8 (1.8 is in beta) for Java 6, 7, or 8 (with lamb
 Build your app locally:
 
     :::term
-    $ sbt clean compile stage
+    $ sbt compile stage
     ...
     [info] Compiling 1 Scala source to .../target/scala-2.9.2/classes...
     [success] Total time: 5 s, completed Sep 5, 2012 12:42:56 PM
@@ -138,7 +142,7 @@ Build your app locally:
 
 Use a [Procfile](procfile), a text file in the root directory of your application, to explicitly declare what command should be executed to start a web [dyno](dynos). In this case, you need to execute the `Web` main method.
 
-The `xsbt-start-script-plugin` we added above generates a start script in `target/start`.  This simple shell script sets the `CLASSPATH` and executes the main method for the object you specify.  Invoke it from your Procfile:
+The `sbt-start-script` we added above generates a start script in `target/start`.  This simple shell script sets the `CLASSPATH` and executes the main method for the object you specify.  Invoke it from your Procfile:
 
 ### Procfile
 
@@ -198,7 +202,7 @@ Deploy your code:
     -----> Heroku receiving push
     -----> Scala app detected
     -----> Building app with sbt
-    -----> Running: sbt clean compile stage
+    -----> Running: sbt compile stage
            Getting net.java.dev.jna jna 3.2.3 ...
            ...
            [info] Compiling 1 Scala source to /tmp/build_1otpp7ujqznr3/target/scala-2.9.2/classes...
@@ -268,7 +272,7 @@ View information about your running app using one of the [logging commands](logg
 
 ## Console
 
-Heroku allows you to run [one-off proceses](oneoff-admin-ps) - scripts and applications that only need to be executed when needed - using the `heroku run` command.   Use this to launch a REPL process attached to your local terminal for experimenting in your app's environment:
+Heroku allows you to run [one-off dynos](one-off-dynos) - scripts and applications that only need to be executed when needed - using the `heroku run` command.   Use this to launch a REPL process attached to your local terminal for experimenting in your app's environment:
 
     :::term
     $ heroku run sbt console
@@ -340,4 +344,4 @@ sbt has been under rapid development during the past year, and major releases ar
 - Visit the [Scala category](/categories/scala) to learn more about developing and deploying Scala applications.
 * [Scaling Out with Scala and Akka on Heroku](scaling-out-with-scala-and-akka) looks at using Akka with Scala.
 * [Heroku Scala Support](scala-support) provides the reference documentation for Heroku's Scala support.
-* Read [How Heroku Works](how-heroku-works) for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.
+* Read [How Heroku Works](how-heroku-works) for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications. 

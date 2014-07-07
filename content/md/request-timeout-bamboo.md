@@ -5,11 +5,11 @@ url: https://devcenter.heroku.com/articles/request-timeout-bamboo
 description: On the Heroku Bamboo stack web dynos have 30 seconds to respond before an error page is served to the user and an error logged.
 ---
 
-<div class="deprecated" markdown="1">This article applies to apps on the [Bamboo](bamboo) stacks.  For the most recent stack, [Cedar](cedar), see [Request Timeout](request-timeout).</div>
+>warning
+>This article applies to apps on the [Bamboo](bamboo) stacks.  For the most recent stack, [Cedar](cedar), see [Request Timeout](request-timeout).
 
-<div class="callout"><p>
-Additional concurrency usually doesn't help much if you are encountering request timeouts, since the most common causes affect only individual requests. You can crank your dynos to the maximum and you'll still get a request timeout, since it is a single request that is failing to serve in the correct amount of time.  Extra dynos increase your concurrency, not the speed of your requests.
-</p></div>
+>callout
+>Additional concurrency usually doesn't help much if you are encountering request timeouts, since the most common causes affect only individual requests. You can crank your dynos to the maximum and you'll still get a request timeout, since it is a single request that is failing to serve in the correct amount of time.  Extra dynos increase your concurrency, not the speed of your requests.
 
 Heroku's routers can detect long-running requests.  If your dyno takes more than 30 seconds to respond to a request, a router will serve an error page to the user and record an [H12 error](error-codes) in your application logs.
 
@@ -48,4 +48,4 @@ Request timeouts can also be caused by queueing of TCP connections inside the dy
 - *Make slow requests faster* by optimizing app code. To do this effectively, focus on the 99th percentile and maximum service time for your app. This decreases the amount of time requests will spend waiting behind other, slower requests.
 - *Run more dynos*, thus increasing total concurrency. This slightly decreases the probability that any given request will get stuck behind another one.
 
-You can also use [rack-timeout](https://github.com/kch/rack-timeout) to abort requests that take more than a certain time. This should be used as a fallback measure so that abnormal requests do not hang forever, causing your app performance to degrade for all users.
+You can also use [rack-timeout](https://github.com/kch/rack-timeout) to abort requests that take more than a certain time. This should be used as a fallback measure so that abnormal requests do not hang forever, causing your app performance to degrade for all users. 

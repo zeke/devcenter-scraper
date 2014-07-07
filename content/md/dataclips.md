@@ -25,7 +25,9 @@ Dataclips can be accessed in several forms:
 * CSV
 * XLS
 
-You may access each format by selecting the format from the dataclips menu, or by appending the file format to the URL of the dataclip. The JSON endpoint is handy for prototyping APIs but should not be used as a replacement for a production API. 
+You may access each format by selecting the format from the dataclips menu, or by appending the file format to the URL of the dataclip. 
+
+The JSON endpoint is handy for prototyping APIs but should not be used as a replacement for a production API. The JSON endpoint also supports [Cross-Origin Resource Sharing](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing) (CORS) on GET requests to a clip's JSON URL.
 
 ## Interacting with dataclips
 
@@ -53,7 +55,7 @@ https://dataclips.heroku.com/xqzzcwmlubhblavdipydzzqmlmbm.csv?result=1&version=1
 
 ### Data Refresh
 
-When visiting a dataclip it will immediately show the last run results and alert you if there is a new result set available. New data will be automatically shown only if the last run of your query executed in under 2 seconds. Queries that take longer than 10 minutes to run are automatically cancelled.
+When visiting a dataclip it will immediately show the last run results and alert you if there is a new result set available. Queries that take longer than 10 minutes to run are automatically cancelled.
 
 When connecting your dataclips to google docs your data is refreshed on an hourly basis.
 
@@ -65,4 +67,4 @@ All dataclips are secured through unique un-guessable URLs. [Standard, Premium a
 
 * Dataclips may return up to 29,999 rows
 * Dataclips can only be secured via authentication on [Standard, Premium and Enterprise tier] (https://devcenter.heroku.com/articles/heroku-postgres-plans#standard-tier) databases
-* By default, Dataclips will cancel queries after 10 minutes. 
+* By default, Dataclips will cancel queries after 10 minutes.  

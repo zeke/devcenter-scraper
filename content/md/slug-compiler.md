@@ -46,11 +46,12 @@ repository. Examples of files you may wish to exclude from the slug:
 The format is roughly the same as `.gitignore`. Here's an example
 `.slugignore`:
 
-    :::text
-    *.psd
-    *.pdf
-    /test
-    /spec
+```text
+*.psd
+*.pdf
+/test
+/spec
+```
 
 The `.slugignore` file causes files to be removed after you push code
 to Heroku and before the [buildpack](buildpacks) runs. This lets you
@@ -64,12 +65,10 @@ git, in which case they won't be deployed to Heroku either. See
 
 ## Slug size
 
-Your slug size is displayed at the end of a successful compile. The maximum allowed slug size (after compression) is 300MB.
+Your slug size is displayed at the end of a successful compile after the `Compressing` message. The maximum allowed slug size (after compression) is 300MB.
 
-<p class="callout" markdown="1">
-You can inspect the extracted contents of your slug with `heroku run bash`
-and by using commands such as `ls` and `du`.
-</p>
+>callout
+>You can inspect the extracted contents of your slug with `heroku run bash` and by using commands such as `ls` and `du`.
 
 Slug size varies greatly depending on what language and framework you are using, how many dependencies you have added and other factors specific to your app. Smaller slugs can be transferred to the dyno manager more quickly, allowing for more immediate scaling. You should try to keep your slugs as small and nimble as possible.
 
@@ -77,4 +76,4 @@ Here are some techniques for reducing slug size:
 
 * Move large assets like PDFs or audio files to [asset storage](s3).
 * Remove unneeded dependencies and exclude unnecessary files via
-`.slugignore`.
+`.slugignore`. 

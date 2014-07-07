@@ -9,8 +9,8 @@ The [Heroku Cedar stack](cedar) is capable of running Ruby applications across a
 
 This document describes the general behavior of the Cedar stack as it relates to the recognition and execution of Ruby applications. For framework specific tutorials please see:
 
-* [Getting Started with Ruby on Heroku/Cedar](http://devcenter.heroku.com/articles/ruby)
-* [Getting Started with Rails 4 on Heroku/Cedar](http://devcenter.heroku.com/articles/getting-started-with-rails4).
+* [Getting Started with Ruby on Heroku](getting-started-with-ruby)
+* [Getting Started with Rails 4 on Heroku](getting-started-with-rails4).
 
 > note
 > If you have questions about Ruby on Heroku, consider discussing it in the [Ruby on Heroku forums](https://discussion.heroku.com/category/ruby).
@@ -34,7 +34,7 @@ Particular actions, documented in subsequent sections, are taken depending on th
 
 The following libraries are used by the platform for managing and running Ruby applications and cannot be specified.
 
-* Bundler v1.3.2: Application dependency resolution and management.
+* Bundler v1.6.3: Application dependency resolution and management.
 
 ### Environment
 
@@ -61,23 +61,36 @@ When an application is deployed, the build phase configures the underlying Rack 
 
 ## Ruby versions
 
-You will get the latest available patchlevel for each Ruby version. If your `Gemfile` does not contain a `ruby` entry, you will get MRI `2.0.0`. Default rubies are locked into the app until you specify a Ruby version. If you were previously on `1.9.2`, you will continue to stay on `1.9.2`.
+Heroku makes a number of different Ruby runtimes available. You can configure your app to select a particular runtime.
 
-Please see our [Ruby Versions](ruby-versions) document for instructions on how to specify your ruby version.
+You will get the latest available patchlevel for each Ruby version. If your `Gemfile` does not contain a `ruby` entry, you will get MRI `2.0.0`. Default rubies are locked into the app until you specify a Ruby version.  For example, if you were previously on `1.9.3`, you will continue to stay on `1.9.3`.
 
-Heroku supports the following Ruby Versions and the associated Rubygems:
+### Supported runtimes
+
+Heroku supports the following Ruby versions and the associated Rubygems:
 
 **MRI:**
 
-* `1.8.7` : patchlevel 375, Rubygems : `1.8.24`
-* `1.9.2` : patchlevel 321, Rubygems: `1.3.7.1`
-* `1.9.3` : patchlevel 484, Rubygems : `1.8.23`
-* `2.0.0` : patchlevel 353, Rubygems : `2.0.14`
-* `2.1.0` : patchlevel preview2, Rubygems: : `2.2.0`
+* `1.8.7` : patchlevel 376, Rubygems : `1.8.24`
+* `1.9.2` : patchlevel 327, Rubygems: `1.3.7.1`
+* `1.9.3` : patchlevel 547, Rubygems : `1.8.23.2`
+* `2.0.0` : patchlevel 481, Rubygems : `2.0.14`
+* `2.1.2` : patchlevel 95, Rubygems: : `2.2.2`
+
+>warning 
+>Ruby 1.8.7 and Ruby 1.9.2 will reach end-of-life on 30 June 2014. After this date, security patches will no longer be available for these versions of Ruby.
 
 **JRuby:**
 
+* `1.7.13`, Ruby Versions: [`1.9.3`], Java Version: `1.7.0_45-b31`
+
 JRuby versions support multiple ruby versions listed below. You need to specify one in your Gemfile. JRuby runs on the JVM which is also installed alongside JRuby.
+
+### Available runtimes
+
+Additional, unsupported runtimes, are also available for JRuby:
+
+**JRuby:**
 
 * `1.7.1`, Ruby Versions: [`1.8.7`, `1.9.3`], Java Version: `1.7.0_25-b30`
 * `1.7.2`, Ruby Versions: [`1.8.7`, `1.9.3`], Java Version: `1.7.0_25-b30`
@@ -87,8 +100,16 @@ JRuby versions support multiple ruby versions listed below. You need to specify 
 * `1.7.6`, Ruby Versions: [`1.8.7`, `1.9.3`, `2.0.0` (experimental)], Java Version: `1.7.0_45-b31`
 * `1.7.8`, Ruby Versions: [`1.8.7`, `1.9.3`, `2.0.0` (experimental)], Java Version: `1.7.0_45-b31`
 * `1.7.9`, Ruby Versions: [`1.8.7`, `1.9.3`, `2.0.0` (experimental)], Java Version: `1.7.0_45-b31`
+* `1.7.10`, Ruby Versions: [`1.8.7`, `1.9.3`, `2.0.0` (experimental)], Java Version: `1.7.0_45-b31`
+* `1.7.11`, Ruby Versions: [`1.8.7`, `1.9.3`, `2.0.0` (experimental)], Java Version: `1.7.0_45-b31`
+* `1.7.12`, Ruby Versions: [`1.9.3`, `2.0.0` (experimental)], Java Version: `1.7.0_45-b31`
 
-The ruby runtime that your app uses will be included in your [slug](slug-compiler), which will affect the [slug size](limits#build).
+### Selecting a runtime
+
+Please see our [Ruby Versions](ruby-versions) document for instructions on how to specify your Ruby version.
+
+The Ruby runtime that your app uses will be included in your [slug](slug-compiler), which will affect the [slug size](limits#build).
+
 
 ## Ruby applications
 
@@ -142,7 +163,7 @@ If you don't include a [`Procfile`](procfile), Rack apps will define a web proce
 web: bundle exec rackup config.ru -p $PORT
 ```
 >callout
->On Cedar, [we recommend Unicorn as the webserver](ruby-production-web-server). Regardless of the webserver you choose, production apps should always specify the webserver explicitly in the `Procfile`.
+>On Cedar, [we recommend Unicorn as the webserver](rails-unicorn). Regardless of the webserver you choose, production apps should always specify the webserver explicitly in the `Procfile`.
 
 As a special case to assist in migration from Bamboo, Ruby apps which bundle the `thin` gem will get this web process type:
 
@@ -181,7 +202,7 @@ web: bundle exec ruby script/server -p $PORT
 ```
 
 >callout
->On Cedar, [we recommend Unicorn as the webserver](ruby-production-web-server). Regardless of the webserver you choose, production apps should always specify the webserver explicitly in the `Procfile`.
+>On Cedar, [we recommend Unicorn as the webserver](rails-unicorn). Regardless of the webserver you choose, production apps should always specify the webserver explicitly in the `Procfile`.
 
 As a special case to assist in migration from Bamboo, Ruby apps which bundle the `thin` gem will get this web process type:
 
@@ -229,7 +250,7 @@ If you don't include a [`Procfile`](procfile), Rails 3 apps will define a web an
     console: bundle exec rails console
 
 >callout
->On Cedar, [we recommend Unicorn as the webserver](ruby-production-web-server). Regardless of the webserver you choose, production apps should always specify the webserver explicitly in the `Procfile`.
+>On Cedar, [we recommend Unicorn as the webserver](rails-unicorn). Regardless of the webserver you choose, production apps should always specify the webserver explicitly in the `Procfile`.
 
 As a special case to assist in migration from Bamboo, Ruby apps which bundle the `thin` gem will get this web process type:
 
@@ -278,7 +299,7 @@ If you don't include a [`Procfile`](procfile), Rails 4 apps will define a web an
     console: bundle exec bin/rails console
 
 >callout
->On Cedar, [we recommend Unicorn as the webserver](ruby-production-web-server). Regardless of the webserver you choose, production apps should always specify the webserver explicitly in the `Procfile`.
+>On Cedar, [we recommend Unicorn as the webserver](rails-unicorn). Regardless of the webserver you choose, production apps should always specify the webserver explicitly in the `Procfile`.
 
 ### Compile phase
 

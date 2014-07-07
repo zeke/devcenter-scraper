@@ -8,7 +8,7 @@ description: A list of third-party buildpacks that can be used to create applica
 The following is a list of third-party [buildpacks](buildpacks) available for use with your Heroku apps. These buildpacks enable you to use languages and frameworks beyond those officially supported by Heroku. 
 
 > warning
-> Third-party buildpacks contain software that is not under Heroku's control. Please inspect the source of any buildpack you plan to use and proceed with caution.
+> Third-party buildpacks contain software that is not under Heroku's control and are not supported by Heroku. Please inspect the source of any buildpack you plan to use and proceed with caution.
 
 > note
 > If you have questions about the build process on Heroku, consider discussing it in the [Build forums](https://discussion.heroku.com/category/build).
@@ -144,6 +144,14 @@ GeoDjango, including GDAL 3.3.2, Proj.4 4.7.0, and GDAL 1.8.1</td>
     <td style="text-align:left"><a href="https://github.com/jordansissel">Jordan Sissel</a></td>
     <td style="text-align:left"><a href="https://github.com/jordansissel/heroku-buildpack-meteor">https://github.com/jordansissel/heroku-buildpack-meteor</a></td>
   </tr>
+
+  <tr>
+    <td style="text-align:left">Middleman</td>
+    <td style="text-align:left">Builds Middleman sites on deployment</td>
+    <td style="text-align:left"><a href="https://github.com/mitchellh">Mitchell Hashimoto</a></td>
+    <td style="text-align:left"><a href="https://github.com/hashicorp/heroku-buildpack-middleman">https://github.com/hashicorp/heroku-buildpack-middleman</a></td>
+  </tr>
+
   <tr>
     <td style="text-align:left">Monit</td>
     <td style="text-align:left">Run Monit, the open source monitoring utility, on Heroku</td>
@@ -268,4 +276,4 @@ You can also specify an exact commit in your `BUILDPACK_URL` (a good safety prec
 
 ```term
 $ heroku config:set BUILDPACK_URL="https://github.com/some/buildpack.git#0123cdef"
-```
+``` 

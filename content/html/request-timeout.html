@@ -2,6 +2,12 @@
 <p>Additional concurrency usually doesn’t help much if you are encountering request timeouts, since the most common causes affect only individual requests. You can crank your dynos to the maximum and you’ll still get a request timeout, since it is a single request that is failing to serve in the correct amount of time.  Extra dynos increase your concurrency, not the speed of your requests.</p>
 </div>
 
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<div class="note">
+<p>Tuning your applications' dynos may help to prevent timeouts and generally improve performance. Learn more: <a href="https://devcenter.heroku.com/articles/optimizing-dyno-usage">Optimizing Dyno Usage</a></p>
+</div>
+
 <p>Web requests processed by Heroku are directed to your dynos via a number of Heroku <a href="https://devcenter.heroku.com/articles/http-routing">routers</a>. These requests are intended to be served by your application quickly. Best practice is to get the response time of your web application to be under 500ms, this will free up the application for more requests and deliver a high quality user experience to your visitors. Occasionally a web request may hang or take an excessive amount of time to process by your application. When this happens the router will terminate the request if it takes longer than 30 seconds to complete. The timeout countdown begins when the request leaves the router. The request must then be processed in the dyno by your application, and then a response delivered back to the router within 30 seconds to avoid the timeout.</p>
 
 <p>When a timeout is detected the router will return a <a href="https://devcenter.heroku.com/articles/error-pages">customizable error page</a> to the client and an <a href="https://devcenter.heroku.com/articles/error-codes">H12 error</a> is emitted to your application logs. While the router has returned a response to the client, your application will not know that the request it is processing has reached a time-out, and your application will continue to work on the request. To avoid this situation Heroku recommends setting a timeout within your application and keeping the value well under 30 seconds, such as 10 or 15 seconds. Unlike the routing timeout, these timers will begin when the request begins being processed by your application. You can read more about this below in: Timeout behavior.</p>
@@ -42,7 +48,7 @@
 <li>Rendering an image or PDF</li>
 <li>Heavy computation (computing a fibonacci sequence, etc.)</li>
 <li>Heavy database usage (slow or numerous queries, N+1 queries)</li>
-</ul><p>If so, you should move this heavy lifting into a background job which can run asynchronously from your web request.  See <a href="https://devcenter.heroku.com/articles/background-jobs-queueing">background workers</a> for details.</p>
+</ul><p>If so, you should move this heavy lifting into a background job which can run asynchronously from your web request.  See <a href="https://devcenter.heroku.com/articles/background-jobs-queueing">Worker Dynos, Background Jobs and Queueing</a> for details.</p>
 
 <p>Another class of timeouts occur when an external service used by your application is unavailable or overloaded.  In this case, your web app is highly likely to timeout unless you move the work to the background. In some cases where you must process these requests during your web request, you should always plan for the failure case.  Most languages let you specify a timeout on HTTP requests, for example.</p>
 
@@ -57,4 +63,6 @@
 <em>Make slow requests faster</em> by optimizing app code. To do this effectively, focus on the 99th percentile and maximum service time for your app. This decreases the amount of time requests will spend waiting behind other, slower requests.</li>
 <li>
 <em>Run more dynos</em>, thus increasing total concurrency. This slightly decreases the probability that any given request will get stuck behind another one.</li>
-</ul>
+</ul><h2 id="uploading-large-files">Uploading large files</h2>
+
+<p>Many web applications allow users to upload files. When these files are large, or the user is on a slow internet connection, the upload can take longer than 30 seconds. For this we recommend <a href="https://devcenter.heroku.com/articles/s3#direct-upload">directly uploading to S3</a>.</p>

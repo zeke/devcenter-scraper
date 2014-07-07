@@ -1,11 +1,18 @@
+<p>Extensions allow related pieces of functionality, such as datatypes
+and functions, to be bundled together and installed in a database with
+a single command. Heroku Postgres supports many Postgres extensions as
+well as features such as full text search that are not bundled as part
+of the extensions system. A beta version of the PostGIS spatial
+database extension is also available.</p>
 
-<p>Extensions allow related pieces of functionality, such as datatypes and functions, to be bundled together and installed in a database with a single command. Heroku Postgres supports many Postgres extensions as well as features such as full text search that are not bundled as part of the extensions system. A beta version of the PostGIS spatial database extension is also available.</p>
-
-<p>You can always query your database for the list of supported extensions:</p>
+<p>You can always query your database for the list of supported
+extensions:</p>
 
 <pre><code class="term">$ echo 'show extwlist.extensions' | heroku pg:psql
-	 extwlist.extensions</code></pre>
-<hr><pre><code>btree_gist,chkpass,cube,dblink,dict_int...</code></pre>
+     extwlist.extensions
+-----------------------------
+btree_gist,chkpass,cube,dblink,dict_int...
+</code></pre>
 
 <p>To create any supported extension, open a session with <code>heroku
 pg:psql</code> and run the appropriate command:</p>
@@ -18,74 +25,76 @@ Type "help" for help.
 
 ad27m1eao6kqb1=&gt; CREATE EXTENSION hstore;
 CREATE EXTENSION
-ad27m1eao6kqb1=&gt;</code></pre>
+ad27m1eao6kqb1=&gt;
+</code></pre>
 
 <h2 id="data-types">Data types</h2>
 
 <ul>
-<li>
-<p><a href="http://www.postgresql.org/docs/9.1/static/hstore.html">HStore</a>: Key value store inside Postgres. <code>create extension hstore</code></p>
-</li>
-
-<li>
-<p><a href="http://www.postgresql.org/docs/9.1/static/citext.html">Case Insensitve Text</a>: Case insenstive text datatype. Although strings stored in citext do retain case information, they are case insensitive when used in queries. <code>create extension citext</code>.</p>
-</li>
-
-<li>
-<p><a href="http://www.postgresql.org/docs/9.1/static/ltree.html">Label Tree</a>: Tree-like hierachies, with associated functions. <code>create extension
-ltree</code></p>
-</li>
-
-<li>
-<p><a href="http://www.postgresql.org/docs/9.1/static/isn.html">Product Numbering</a>: Store product IDs and serial numbers such as <a href="http://en.wikipedia.org/wiki/Universal_Product_Code">UPC</a> <a href="http://en.wikipedia.org/wiki/ISBN">ISBN</a> and <a href="http://en.wikipedia.org/wiki/International_Standard_Serial_Number">ISSN</a>. <code>create
-extension isn</code></p>
-</li>
-
-<li>
-<p><a href="http://www.postgresql.org/docs/9.1/static/cube.html">Cube</a>: Multi-dimensional cubes. <code>create extension cube</code></p>
-</li>
+<li><p><a href="http://www.postgresql.org/docs/current/static/hstore.html">HStore</a>: Key
+value store inside Postgres. <code>create extension hstore</code></p></li>
+<li><p><a href="http://www.postgresql.org/docs/current/static/citext.html">Case Insensitve
+Text</a>: Case
+insenstive text datatype. Although strings stored in citext do
+retain case information, they are case insensitive when used in
+queries. <code>create extension citext</code>.</p></li>
+<li><p><a href="http://www.postgresql.org/docs/current/static/ltree.html">Label Tree</a>:
+Tree-like hierachies, with associated functions. <code>create extension
+ltree</code></p></li>
+<li><p><a href="http://www.postgresql.org/docs/current/static/isn.html">Product Numbering</a>:
+Store product IDs and serial numbers such as
+<a href="http://en.wikipedia.org/wiki/Universal_Product_Code">UPC</a>
+<a href="http://en.wikipedia.org/wiki/ISBN">ISBN</a> and
+<a href="http://en.wikipedia.org/wiki/International_Standard_Serial_Number">ISSN</a>. <code>create
+extension isn</code></p></li>
+<li><p><a href="http://www.postgresql.org/docs/current/static/cube.html">Cube</a>:
+Multi-dimensional cubes. <code>create extension cube</code></p></li>
 </ul><h2 id="functions">Functions</h2>
 
 <ul>
-<li>
-<p><a href="http://www.postgresql.org/docs/9.1/static/pgcrypto.html">PGCrypto</a>: Cyptographic functions allow for encryption within the database <code>create extension pgcrypto</code>.</p>
-</li>
-
-<li>
-<p><a href="http://www.postgresql.org/docs/9.1/static/tablefunc.html">Table Functions &amp; Pivot Tables</a>: Functions returning full tables, including the ability to manipulate query results in a manner similar to spreadsheet pivot tables <code>create extension tablefunc</code>.</p>
-</li>
-
-<li>
-<p><a href="http://www.postgresql.org/docs/9.1/static/uuid-ossp.html">UUID Generation</a>: Generate v1, v3, v4, and v5 UUIDs in-database. Works great with the existing <a href="http://www.postgresql.org/docs/9.1/static/datatype-uuid.html">UUID datatype</a> <code>create extension "uuid-ossp"</code>.</p>
-</li>
-
-<li>
-<p><a href="http://www.postgresql.org/docs/9.1/static/earthdistance.html">Earth Distance</a>: Functions for calculating the distance between points on the earth. <code>create extension earthdistance</code></p>
-</li>
-
-<li>
-<p><a href="http://www.postgresql.org/docs/9.1/static/pgtrgm.html">Trigram</a>: Determine the similarity (or lack thereof) of alphanumeric string based on <a href="http://en.wikipedia.org/wiki/N-gram">trigram matching</a>. Useful for natural language processing problems such as search. <code>create
-extension pg_trgm</code>.</p>
-</li>
-
-<li>
-<p><a href="http://www.postgresql.org/docs/9.1/static/fuzzystrmatch.html">Fuzzy Match</a>: Another method for determining the similarity between strings. Limited UTF-8 support. <code>create extension fuzzystrmatch</code></p>
-</li>
+<li><p><a href="http://www.postgresql.org/docs/current/static/pgcrypto.html">PGCrypto</a>:
+Cyptographic functions allow for encryption within the database
+<code>create extension pgcrypto</code>.</p></li>
+<li><p><a href="http://www.postgresql.org/docs/current/static/tablefunc.html">Table Functions &amp; Pivot Tables</a>:
+Functions returning full tables, including the ability to manipulate
+query results in a manner similar to spreadsheet pivot tables
+<code>create extension tablefunc</code>.</p></li>
+<li><p><a href="http://www.postgresql.org/docs/current/static/uuid-ossp.html">UUID Generation</a>:
+Generate v1, v3, v4, and v5 UUIDs in-database. Works great with the
+existing
+<a href="http://www.postgresql.org/docs/current/static/datatype-uuid.html">UUID datatype</a>
+<code>create extension "uuid-ossp"</code>.</p></li>
+<li><p><a href="http://www.postgresql.org/docs/current/static/earthdistance.html">Earth Distance</a>:
+Functions for calculating the distance between points on the
+earth. <code>create extension earthdistance</code></p></li>
+<li><p><a href="http://www.postgresql.org/docs/current/static/pgtrgm.html">Trigram</a>:
+Determine the similarity (or lack thereof) of alphanumeric string
+based on
+<a href="http://en.wikipedia.org/wiki/N-gram">trigram matching</a>. Useful for
+natural language processing problems such as search. <code>create
+extension pg_trgm</code>.</p></li>
+<li><p><a href="http://www.postgresql.org/docs/current/static/fuzzystrmatch.html">Fuzzy Match</a>:
+Another method for determining the similarity between
+strings. Limited UTF-8 support. <code>create extension fuzzystrmatch</code>.</p></li>
+<li><p><a href="http://www.postgresql.org/docs/current/static/intarray.html">Intarray</a>:
+Sorting, manipulate, and create indexes on null-free arrays of integers.</p></li>
 </ul><h2 id="statistics">Statistics</h2>
 
 <ul>
-<li>
-<p><a href="http://www.postgresql.org/docs/9.1/static/pgrowlocks.html">Row Locking</a>: Show row lock information for a table. <code>create extension pgrowlocks</code></p>
-</li>
-
-<li>
-<p><a href="http://www.postgresql.org/docs/9.1/static/pgstattuple.html">Tuple Statistics</a>: Database tuple-level statistics such as physical length and aliveness. <code>create extension pgstattuple</code></p>
-</li>
+<li><p><a href="http://www.postgresql.org/docs/current/static/pgrowlocks.html">Row Locking</a>:
+Show row lock information for a table. <code>create extension pgrowlocks</code></p></li>
+<li><p><a href="http://www.postgresql.org/docs/current/static/pgstattuple.html">Tuple Statistics</a>:
+Database tuple-level statistics such as physical length and
+aliveness. <code>create extension pgstattuple</code></p></li>
 </ul><h2 id="index-types">Index types</h2>
 
 <ul>
 <li>
-<a href="http://www.postgresql.org/docs/current/static/btree-gist.html">btree-gist</a>: A <a href="http://en.wikipedia.org/wiki/GiST">GiST</a> index operator. It is generally inferior to the standard btree index, except for multi-column indexes that can’t be used with btree and <a href="http://www.postgresql.org/docs/current/static/sql-createtable.html#SQL-CREATETABLE-EXCLUDE">exclusion constrations</a>. <code>create
+<a href="http://www.postgresql.org/docs/current/static/btree-gist.html">btree-gist</a>:
+A <a href="http://en.wikipedia.org/wiki/GiST">GiST</a> index operator. It is
+generally inferior to the standard btree index, except for
+multi-column indexes that can’t be used with btree and
+<a href="http://www.postgresql.org/docs/current/static/sql-createtable.html#SQL-CREATETABLE-EXCLUDE">exclusion constrations</a>. <code>create
 extension btree_gist</code>
 </li>
 </ul><h2 id="languages">Languages</h2>
@@ -96,22 +105,18 @@ extension btree_gist</code>
 </ul><h2 id="full-text-search-dictionaries">Full text search dictionaries</h2>
 
 <ul>
-<li>
-<p><a href="http://www.postgresql.org/docs/9.1/static/dict-int.html">dict-int</a> - A full-text search dictionary for full-text search which controls how integers are indexed. <code>create extension dict_int</code></p>
-</li>
-
-<li>
-<p><a href="http://www.postgresql.org/docs/9.1/static/dict-xsyn.html">dict-xsyn</a> - A full-text search dictionary for that makes it possible to search for a word using any of its synonyms. <code>create extension dict_xsyn</code></p>
-</li>
-
-<li>
-<p><a href="http://www.postgresql.org/docs/9.1/static/unaccent.html">unaccent</a> - A filtering text dictionary which removes accents from characters. <code>create extension unaccent</code></p>
-</li>
-</ul><p>Additionally, the following dictionaries are installed by default and don’t require creation via the extension system:</p>
+<li><p><a href="http://www.postgresql.org/docs/current/static/dict-int.html">dict-int</a> -
+A full-text search dictionary for full-text search which controls
+how integers are indexed. <code>create extension dict_int</code></p></li>
+<li><p><a href="http://www.postgresql.org/docs/current/static/unaccent.html">unaccent</a> -
+A filtering text dictionary which removes accents from
+characters. <code>create extension unaccent</code></p></li>
+</ul><p>Additionally, the following dictionaries are installed by default and
+don’t require creation via the extension system:</p>
 
 <pre><code class="term">$ heroku pg:psql
 =&gt; \dFd
-							 List of text search dictionaries
+                             List of text search dictionaries
    Schema   |      Name       |                        Description
 ------------+-----------------+-------------------------------
  pg_catalog | danish_stem     | snowball stemmer for danish language
@@ -129,22 +134,32 @@ extension btree_gist</code>
  pg_catalog | simple          | simple dictionary: just lower case and check for stopword
  pg_catalog | spanish_stem    | snowball stemmer for spanish language
  pg_catalog | swedish_stem    | snowball stemmer for swedish language
- pg_catalog | turkish_stem    | snowball stemmer for turkish language</code></pre>
+ pg_catalog | turkish_stem    | snowball stemmer for turkish language
+</code></pre>
 
 <h2 id="dblink">dblink</h2>
 
-<p><a href="http://www.postgresql.org/docs/9.1/static/dblink.html">dblink</a> Adds support for querying between Postgres databases. With dblink you can query between separate Heroku Postgres databases or to/from external Postgres databases.</p>
+<p><a href="http://www.postgresql.org/docs/current/static/dblink.html">dblink</a> Adds
+support for querying between Postgres databases. With dblink you can
+query between separate Heroku Postgres databases or to/from external
+Postgres databases.</p>
 
 <h2 id="pg_stat_statements">pg_stat_statements</h2>
 
-<p><a href="http://www.postgresql.org/docs/9.2/static/pgstatstatements.html">pg_stat_statements</a>:</p>
+<p><a href="http://www.postgresql.org/docs/current/static/pgstatstatements.html">pg_stat_statements</a>:</p>
 
 <blockquote>
-<p>The pg_stat_statements module provides a means for tracking execution statistics of all SQL statements executed by a server.</p>
+<p>The pg_stat_statements module provides a means for
+tracking execution statistics of all SQL statements executed
+by a server.</p>
 </blockquote>
-<p class="warning">
-pg_stat_statements support on Heroku Postgres is currently limited to Postgres 9.2 databases.
-</p>
+
+<p>This extension is enabled by default for all new Postgres 9.2 databases, created after 2014-February-11, and those on the Hobby tier.</p>
+
+<div class="warning">
+<p>pg_stat_statements support on Heroku Postgres is limited to Postgres 9.2 or later databases.</p>
+</div>
+
 <h3 id="usage">Usage</h3>
 
 <p>pg_stat_statements can be used to <a href="http://www.craigkerstiens.com/2013/01/10/more-on-postgres-performance/">track performance problems</a>. It provides a view called pg_stat_statements that displays each query that has been executed, and associated costs, including the number of times the query was executed, the total system time execution has taken in aggregate, and the total number of blocks in shared memory hit in aggregate.</p>
@@ -154,26 +169,46 @@ pg_stat_statements support on Heroku Postgres is currently limited to Postgres 9
 <p><a href="http://postgis.refractions.net/">PostGIS</a>:</p>
 
 <blockquote>
-<p>adds support for geographic objects to the PostgreSQL object-relational database. In effect, PostGIS “spatially enables” the PostgreSQL server, allowing it to be used as a backend spatial database for geographic information systems (GIS)</p>
+<p>adds support for geographic objects to the PostgreSQL
+object-relational database. In effect, PostGIS “spatially enables”
+the PostgreSQL server, allowing it to be used as a backend spatial
+database for geographic information systems (GIS)</p>
 </blockquote>
-<p class="warning">
-PostGIS support on Heroku Postgres is in beta and is subject to change in the future.
-</p>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<div class="warning">
+<p>PostGIS support on Heroku Postgres is in beta and is subject to change in the future.</p>
+</div>
+
 <h3 id="requirements">Requirements</h3>
 
-<p>Currently, PostGIS can only be used on Production tier <a href="https://addons.heroku.com/heroku-postgresql">Heroku Postgres plans</a>. It is not available on non-hobby tier databases. Additionally, PostGIS is only available as v2.1 with Postgres 9.3 or as v2.0 with Postgres v9.2.</p>
+<p>Currently, PostGIS can only be used on Production tier <a href="https://addons.heroku.com/heroku-postgresql">Heroku Postgres
+plans</a>. It is available
+on non-hobby tier databases. Additionally, PostGIS is only
+available as v2.1 with Postgres 9.3 or as v2.0 with Postgres v9.2.</p>
 
 <h3 id="provisioning">Provisioning</h3>
 
-<p>PostGIS support can be added like any other extension, as long as your database meets the requirements above</p>
+<p>PostGIS support can be added like any other extension, as long as your
+database meets the requirements above</p>
 
-<pre><code class="term">$ heroku addons:add heroku-postgresql:ronin --version=9.3</code></pre>
+<pre><code class="term">$ heroku addons:add heroku-postgresql:standard-yanari
+</code></pre>
 
-<p>and then simply run <code>create extension postgis</code>. Note also that this functionality is only availble on newer databases. If your database meets the requirements above but you still receive an error when running <code>create extension postgis</code>, you can use the <a href="https://devcenter.heroku.com/articles/heroku-postgres-follower-databases#database-upgrades-and-migrations-with-changeovers">fast changeover</a> procedure to move to a fresh database with PostGIS support.</p>
+<p>and then simply run <code>create extension postgis</code>. Note also that this
+functionality is only availble on newer databases. If your database
+meets the requirements above but you still receive an error when
+running <code>create extension postgis</code>, you can use the
+<a href="https://devcenter.heroku.com/articles/heroku-postgres-follower-databases#database-upgrades-and-migrations-with-changeovers">fast changeover</a>
+procedure to move to a fresh database with PostGIS support.</p>
 
-<p>To detect if PostGIS is installed on a database, execute the following query from psql:</p>
+<p>To detect if PostGIS is installed on a database, execute the following
+query from psql:</p>
 
 <pre><code class="sql">=&gt; SELECT postgis_version();
-		postgis_version</code></pre>
-<hr><pre><code> 2.1 USE_GEOS=1 USE_PROJ=1 USE_STATS=1
-(1 row)</code></pre>
+        postgis_version
+---------------------------------------
+ 2.1 USE_GEOS=1 USE_PROJ=1 USE_STATS=1
+(1 row)
+</code></pre>

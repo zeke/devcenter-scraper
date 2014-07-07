@@ -15,11 +15,12 @@ The current status and history of platform issues is shown at:
 
 The heroku client can be used to ascertain the current status:
 
-    :::term
-    $ heroku status
-    === Heroku Status
-    Development: No known issues at this time.
-    Production:  No known issues at this time.
+```term
+$ heroku status
+=== Heroku Status
+Development: No known issues at this time.
+Production:  No known issues at this time.
+```
 
 ## Status information
 
@@ -72,18 +73,24 @@ Check the status site if there is a current incident. If nothing is reported, or
 
 ### Get current status
 
-    :::term
-    $ curl "https://status.heroku.com/api/v3/current-status"
-    {"status":{"Production":"green","Development":"green"},"issues":[]}
+>callout
+>The Heroku Status API has CORS support, allowing client-side JavaScript requests.
+
+```term
+$ curl "https://status.heroku.com/api/v3/current-status"
+{"status":{"Production":"green","Development":"green"},"issues":[]}
+```
 
 ### Get list of issues (optionally limited by date or count)
 
-    :::term
-    $ curl "https://status.heroku.com/api/v3/issues?since=2012-04-24&limit=1"
-    [{"created_at":"2012-04-24T14:02:39Z","id":336,"resolved":true,"title":"Custom Domains: Errors Adding / Updating","updated_at":"2012-04-24T15:24:58Z","updates":[{"contents":"The fix has been applied, and custom domains are functioning as expected.\r\n\r\nFurther investigation shows that custom domains created or updated after 4/23/2012 19:50 UTC were affected.","created_at":"2012-04-24T15:24:58Z","id":980,"incident_id":336,"status_dev":"green","status_prod":"green","update_type":"resolved","updated_at":"2012-04-24T15:24:58Z"},{"contents":"All previously malfunctioning custom domains are now online.  Engineers are continuing to roll out the fix.","created_at":"2012-04-24T15:06:53Z","id":979,"incident_id":336,"status_dev":"green","status_prod":"green","update_type":"update","updated_at":"2012-04-24T15:06:53Z"},{"contents":"The issue has been identified and engineers are working to fix.","created_at":"2012-04-24T14:45:49Z","id":978,"incident_id":336,"status_dev":"green","status_prod":"green","update_type":"update","updated_at":"2012-04-24T14:45:49Z"},{"contents":"Engineers are still investigating the source of issues regarding custom domains. We have determined that only domains added or updated in the past 24 hours should be affected.\r\n\r\nWe'll continue to provide more information as it becomes available.","created_at":"2012-04-24T14:23:58Z","id":977,"incident_id":336,"status_dev":"green","status_prod":"green","update_type":"update","updated_at":"2012-04-24T15:08:53Z"},{"contents":"Engineers are investigating issues with custom domains around applications. We will provide more information as it becomes available.","created_at":"2012-04-24T14:02:39Z","id":976,"incident_id":336,"status_dev":"yellow","status_prod":"yellow","update_type":"issue","updated_at":"2012-04-24T14:02:50Z"}]}]
+```term
+$ curl "https://status.heroku.com/api/v3/issues?since=2012-04-24&limit=1"
+[{"created_at":"2014-04-01T17:16:00Z","id":604,"resolved":true,"status_dev":"green","status_prod":"green","title":"Error when deploying certain apps","upcoming":false,"updated_at":"2014-04-02T06:03:49Z","href":"https://status.heroku.com/api/v3/issues/604","full_url":"https://status.heroku.com/incidents/604","updates":[{"contents":"This change was reverted at 7:26 PM PDT (02:26 UTC).","created_at":"2014-04-01T19:26:00Z","id":1961,"incident_id":604,"status_dev":"green","status_prod":"green","title":"Error when deploying certain apps","update_type":"resolved","updated_at":"2014-04-02T06:03:55Z"},{"contents":"At 5:16 PM PDT (00:16 UTC), we deployed a change which validated the list of add-ons being returned from buildpacks. Buildpacks failing this validation would fail with the following error:\r\n\r\n```\r\nInvalid add-on specification. Buildpacks must inform addons as a string.\r\n```\r\n\r\nThis impacted some of our own buildpacks, such as Python, Clojure, and PHP, when these buildpacks did not specify any add-ons to install.","created_at":"2014-04-01T17:16:00Z","id":1960,"incident_id":604,"status_dev":"yellow","status_prod":"green","title":"Error when deploying certain apps","update_type":"issue","updated_at":"2014-04-02T06:04:32Z"}]}]
+```
 
 ### Get a single issue by ID number
 
-    :::term
-    $ curl "https://status.heroku.com/api/v3/issues/336"
-    {"created_at":"2012-04-24T14:02:39Z","id":336,"resolved":true,"title":"Custom Domains: Errors Adding / Updating","updated_at":"2012-04-24T15:24:58Z","updates":[{"contents":"The fix has been applied, and custom domains are functioning as expected.\r\n\r\nFurther investigation shows that custom domains created or updated after 4/23/2012 19:50 UTC were affected.","created_at":"2012-04-24T15:24:58Z","id":980,"incident_id":336,"status_dev":"green","status_prod":"green","update_type":"resolved","updated_at":"2012-04-24T15:24:58Z"},{"contents":"All previously malfunctioning custom domains are now online.  Engineers are continuing to roll out the fix.","created_at":"2012-04-24T15:06:53Z","id":979,"incident_id":336,"status_dev":"green","status_prod":"green","update_type":"update","updated_at":"2012-04-24T15:06:53Z"},{"contents":"The issue has been identified and engineers are working to fix.","created_at":"2012-04-24T14:45:49Z","id":978,"incident_id":336,"status_dev":"green","status_prod":"green","update_type":"update","updated_at":"2012-04-24T14:45:49Z"},{"contents":"Engineers are still investigating the source of issues regarding custom domains. We have determined that only domains added or updated in the past 24 hours should be affected.\r\n\r\nWe'll continue to provide more information as it becomes available.","created_at":"2012-04-24T14:23:58Z","id":977,"incident_id":336,"status_dev":"green","status_prod":"green","update_type":"update","updated_at":"2012-04-24T15:08:53Z"},{"contents":"Engineers are investigating issues with custom domains around applications. We will provide more information as it becomes available.","created_at":"2012-04-24T14:02:39Z","id":976,"incident_id":336,"status_dev":"yellow","status_prod":"yellow","update_type":"issue","updated_at":"2012-04-24T14:02:50Z"}]}
+```term
+$ curl "https://status.heroku.com/api/v3/issues/336"
+{"created_at":"2012-04-24T14:02:39Z","id":336,"resolved":true,"status_dev":"green","status_prod":"green","title":"Custom Domains: Errors Adding / Updating","upcoming":false,"updated_at":"2012-06-22T23:41:08Z","href":"https://status.heroku.com/api/v3/issues/336","full_url":"https://status.heroku.com/incidents/336","updates":[{"contents":"The fix has been applied, and custom domains are functioning as expected.\r\n\r\nFurther investigation shows that custom domains created or updated after 4/23/2012 19:50 UTC were affected.","created_at":"2012-04-24T15:24:58Z","id":980,"incident_id":336,"status_dev":"green","status_prod":"green","title":null,"update_type":"resolved","updated_at":"2012-06-22T23:39:21Z"},{"contents":"All previously malfunctioning custom domains are now online.  Engineers are continuing to roll out the fix.","created_at":"2012-04-24T15:06:53Z","id":979,"incident_id":336,"status_dev":"yellow","status_prod":"green","title":null,"update_type":"update","updated_at":"2012-06-22T23:39:22Z"},{"contents":"The issue has been identified and engineers are working to fix.","created_at":"2012-04-24T14:45:49Z","id":978,"incident_id":336,"status_dev":"yellow","status_prod":"green","title":null,"update_type":"update","updated_at":"2012-06-22T23:39:22Z"},{"contents":"Engineers are still investigating the source of issues regarding custom domains. We have determined that only domains added or updated in the past 24 hours should be affected.\r\n\r\nWe'll continue to provide more information as it becomes available.","created_at":"2012-04-24T14:23:58Z","id":977,"incident_id":336,"status_dev":"yellow","status_prod":"green","title":null,"update_type":"update","updated_at":"2012-06-22T23:39:22Z"},{"contents":"Engineers are investigating issues with custom domains around applications. We will provide more information as it becomes available.","created_at":"2012-04-24T14:02:39Z","id":976,"incident_id":336,"status_dev":"yellow","status_prod":"green","title":null,"update_type":"issue","updated_at":"2012-06-22T23:39:22Z"}]}
+```

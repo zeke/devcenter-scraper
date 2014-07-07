@@ -42,7 +42,7 @@ All tests (provision, consume, deprovision) should pass before proceeding to the
 
 Now you're almost ready to load your manifest onto Heroku, and start testing as a real Heroku users. First, collect your add-on manifest (`addon-manifest.json`) which describes provisioning.
 
-If you haven't done so already, you will now need to <a href="https://addons.heroku.com/provider/">go to the Provider Portal and register as and Add-on Provider</a>. Once you have registered, you can use the kensa gem to send your manifest to heroku with one simple command.
+If you haven't done so already, you will now need to <a href="https://addons.heroku.com/provider/">go to the Provider Portal and register as an Add-on Provider</a>. Once you have registered, you can use the kensa gem to send your manifest to heroku with one simple command.
 
 ```term
 $ kensa push
@@ -50,4 +50,4 @@ $ kensa push
 
 Now your add-on is loaded on Heroku, although it's disabled and not visible to anyone yet. To activate your add-on and advance it through the stages of alpha, private beta, beta and general availability you must go to the Provider Portal and follow the instructions for verifying your Heroku account, providing docs, and inviting users.
 
-The process of getting from the build stage to the general availability usually takes anywhere between 4-8 weeks. If you have questions that aren't addressed in these docs, or in the Provider Portal, you are always welcome to <a href="mailto:addons@heroku.com">contact us</a>. Good luck! We look forward to seeing your add-on on Heroku.
+The process of getting from the build stage to the general availability usually takes anywhere between 4-8 weeks. If you have questions that aren't addressed in these docs, or in the Provider Portal, you are always welcome to <a href="mailto:provider@heroku.com">contact us</a>. Good luck! We look forward to seeing your add-on on Heroku. 

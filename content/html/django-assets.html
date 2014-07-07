@@ -1,8 +1,7 @@
 <div class="note">
-
 <p>If you have questions about Python on Heroku, consider discussing it in the <a href="https://discussion.heroku.com/category/python">Python on Heroku forums</a>. Both Heroku and community-based Python experts are available.</p>
-
 </div>
+
 <p>Django settings for static assets can be a bit difficult to configure and debug.</p>
 
 <p>However, if you just add the following settings to your <code>settings.py</code>, everything should work exactly as you expect:</p>
@@ -17,13 +16,15 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
     os.path.join(PROJECT_PATH, 'static'),
-)</code></pre>
+)
+</code></pre>
 
 <p>To serve static files in production, you can use the <a href="https://github.com/kennethreitz/dj-static">dj-static</a> library.</p>
 
 <pre><code class="term">$ pip install dj-static
 ...
-$ pip freeze &gt; requirements.txt</code></pre>
+$ pip freeze &gt; requirements.txt
+</code></pre>
 
 <p>Next, you can add the following code to <code>wsgi.py</code> to serve static files in production:</p>
 
@@ -32,7 +33,8 @@ $ pip freeze &gt; requirements.txt</code></pre>
 <pre><code class="python">from django.core.wsgi import get_wsgi_application
 from dj_static import Cling
 
-application = Cling(get_wsgi_application())</code></pre>
+application = Cling(get_wsgi_application())
+</code></pre>
 
 <p>Your application will now serve static assets directly from Gunicorn in production. This will be perfectly adequate for most applications, but top-tier applications may want to explore using a CDN with <a href="http://django-storages.readthedocs.org/en/latest/">Django-Storages</a>.</p>
 
@@ -44,9 +46,10 @@ application = Cling(get_wsgi_application())</code></pre>
 
 <p>We determine if collectstatic is configured by running the following against your codebase:</p>
 
-<pre><code class="term">$ python manage.py collectstatic --dry-run --noinput</code></pre>
+<pre><code class="term">$ python manage.py collectstatic --dry-run --noinput
+</code></pre>
 
-<p>If required configurations are missing, this command will fail and no collecstatic support will be applied to your application.</p>
+<p>If required configurations are missing, this command will fail and no collectstatic support will be applied to your application.</p>
 
 <h3 id="debugging">Debugging</h3>
 
@@ -54,23 +57,12 @@ application = Cling(get_wsgi_application())</code></pre>
 
 <pre><code class="term">$ heroku run python manage.py collectstatic --noinput
 ...
-django.core.exceptions.ImproperlyConfigured: You're using the staticfiles app without having set the STATIC_ROOT setting.</code></pre>
-
-<h3 id="config-vars-during-build">Config Vars during build</h3>
-
-<p>Normally, <a href="https://devcenter.heroku.com/articles/config-vars">application configuration</a> isn’t available when your application is being compiled. This can be a problem with, for example, using <code>collectstatic</code> to upload files to S3 with <a href="http://django-storages.readthedocs.org/en/latest/">Django-Storages</a>.</p>
-
-<p>If your application needs access to runtime configuration during the build, you can turn it on with <a href="https://devcenter.heroku.com/articles/labs-user-env-compile">user-env-compile</a>:</p>
-
-<pre><code class="term">$ heroku labs:enable user-env-compile
------&gt; Enabling user-env-compile for myapp... done
-WARNING: This feature is experimental and may change or be removed without notice.</code></pre>
-
-<p>Once enabled, your application deploys will have the latest set of runtime configurations available as environment variables.</p>
+django.core.exceptions.ImproperlyConfigured: You're using the staticfiles app without having set the STATIC_ROOT setting.
+</code></pre>
 
 <h3 id="disabling-collectstatic">Disabling Collectstatic</h3>
 
-<p>Sometimes, you may not want Heroku to run <code>collectstatic</code> on your behalf. You can disable collectstatic by enabling <a href="https://devcenter.heroku.com/articles/labs-user-env-compile">user-env-compile</a> as well:</p>
+<p>Sometimes, you may not want Heroku to run <code>collectstatic</code> on your behalf. You can disable collectstatic with the <code>DISABLE_COLLECTSTATIC</code> configuration:</p>
 
-<pre><code class="term">$ heroku labs:enable user-env-compile
-$ heroku config:set DISABLE_COLLECTSTATIC=1</code></pre>
+<pre><code class="term">$ heroku config:set DISABLE_COLLECTSTATIC=1
+</code></pre>

@@ -5,13 +5,16 @@ url: https://devcenter.heroku.com/articles/heroku-postgres-plans
 description: Understand the differences between the various Heroku Postgres plans and how to choose which one is most appropriate for your use-case.
 ---
 
-  [Heroku Postgres](heroku-postgresql) offers a wide spectrum of plans
+[Heroku Postgres](heroku-postgresql) offers a wide spectrum of plans
 appropriate for everything from personal blogs all the way to
 large-dataset and high-transaction applications. Choosing the right
 plan depends on the unique usage characteristics of your app as well
 as your organization's availability and uptime expectations.
 
 ## Plan tiers
+
+>callout
+>If you're on one of our legacy plans you can still provision and use those. Details of those plans can be found at [https://devcenter.heroku.com/articles/heroku-postgres-legacy-plans](https://devcenter.heroku.com/articles/heroku-postgres-legacy-plans)
 
 [Heroku Postgres's many plans](https://postgres.heroku.com/pricing)
 are segmented in four broad tiers. While each tier has a few differences, the key factor in each tier is the uptime expectation for your database. The four tiers are designed as:
@@ -62,6 +65,7 @@ limitations:
   and follow, used to create replica databases and master-slave
   setups, are not supported.
 * Expected uptime of 99.5% each month
+* Unannounced maintenances and database upgrades
 * No postgres logs
 
 ### Row limit enforcement
@@ -72,7 +76,7 @@ When you are over the hobby tier row limits and try to insert you will see a Pos
 
 The row limits of the hobby tier database plans are enforced with the following mechanism:
 
-1. When a `hobby-dev` database hits 7,000 rows, or a `hobby-basic` database hits 1
+1. When a `hobby-dev` database hits 7,000 rows, or a `hobby-basic` database hits 7
    million rows , the owner receives a warning e-mail stating they are
    nearing their row limits.
 2. When the database exceeds its row capacity, the owner will receive
@@ -138,7 +142,7 @@ Within the premium tier plans have differing memory, connection limits, and stor
 Each [production tier plan's](https://www.heroku.com/pricing)
 RAM size constitutes the total amount of System Memory on the 
 underlying instance's hardware, most of which is given to
-Postgres and used for caching.. While a small amount of RAM is
+Postgres and used for caching. While a small amount of RAM is
 used for managing each connection and other tasks, Postgres will 
 take advantage of almost all this RAM for its cache. Learn more
 about how this works [in this article](https://devcenter.heroku.com/articles/understanding-postgres-data-caching)
@@ -149,10 +153,9 @@ data needed for a query is entirely in that cache, performance is very
 fast. Queries made from cached data are often 100-1000x faster than
 from the full data set.
 
-<p class="note" markdown="1">
-Well engineered, high performance web applications will have 99% or more
-of their queries be served from cache.
-</p>
+>note
+>99% or more of queries served from well engineered, high performance
+>web applications will be served from cache.
 
 Conversely, having to fall back to disk is at least an order of
 magnitude slower. Additionally, columns with large data types
@@ -174,13 +177,14 @@ ensuring that their entire dataset fits in memory. To determine the
 total size of your dataset use the `heroku pg:info` command and look
 for the `Data Size` row:
 
-    :::term
-    $ heroku pg:info
-    === HEROKU_POSTGRESQL_CHARCOAL_URL (DATABASE_URL)
-    Plan:        Crane
-    Status:      available
-    Data Size:   9.4 MB
-    ...
+```term
+$ heroku pg:info
+=== HEROKU_POSTGRESQL_CHARCOAL_URL (DATABASE_URL)
+Plan:        Crane
+Status:      available
+Data Size:   9.4 MB
+...
+```
 
 Though a crude measure, choosing a plan that has at least as much
 in-memory cache available as the size of your total dataset will
@@ -196,42 +200,43 @@ application with live traffic to determine the appropriate
 cache-size. Cache hit ratio should be in the 99%+ range. Uncommon
 queries should be less than 100ms and common ones less than 10ms.
 
-<div class="callout" markdown="1">
-[This blog post](http://www.craigkerstiens.com/2012/10/01/understanding-postgres-performance/)
-includes a deeper discussion of Postgres performance concerns and techniques.
-</div>
+>callout
+>[This blog post](http://www.craigkerstiens.com/2012/10/01/understanding-postgres-performance/)
+>includes a deeper discussion of Postgres performance concerns and techniques.
 
 To measure the cache hit ratio for tables:
 
-    :::sql
-    SELECT
-        'cache hit rate' AS name,
-         sum(heap_blks_hit) / (sum(heap_blks_hit) + sum(heap_blks_read)) AS ratio
-    FROM pg_statio_user_tables;
+```sql
+SELECT
+    'cache hit rate' AS name,
+     sum(heap_blks_hit) / (sum(heap_blks_hit) + sum(heap_blks_read)) AS ratio
+FROM pg_statio_user_tables;
+```
 
 or the cache hit ratio for indexes:
 
-    :::sql
-    SELECT
-        'index hit rate' AS name,
-        (sum(idx_blks_hit)) / sum(idx_blks_hit + idx_blks_read) AS ratio
-    FROM pg_statio_user_indexes
+```sql
+SELECT
+    'index hit rate' AS name,
+    (sum(idx_blks_hit)) / sum(idx_blks_hit + idx_blks_read) AS ratio
+FROM pg_statio_user_indexes
+```
 
-<div class="callout" markdown="1">
-You can also install the [pg extras plugin](http://www.github.com/heroku/heroku-pg-extras)
-and then simply run heroku pg:cache_hit.
-</div>
+>callout
+>You can also install the [pg extras plugin](http://www.github.com/heroku/heroku-pg-extras)
+>and then simply run heroku pg:cache_hit.
 
 Both queries should indicate a `ratio` near `0.99`:
 
-    :::sql
-    heap_read | heap_hit |         ratio          
-    -----------+----------+------------------------
-           171 |   503551 | 0.99966041175571094090
+```sql
+heap_read | heap_hit |         ratio          
+-----------+----------+------------------------
+       171 |   503551 | 0.99966041175571094090
+```
 
 When the cache hit ratio begins to decrease, upgrading your database
 will generally put it back in the green. The best way is to use the
-[fast-changeover technique](fast-database-changeovers) to move between
+[fast-changeover technique](heroku-postgres-follower-databases#database-upgrades-and-migrations-with-changeovers) to move between
 plans, watch [New Relic](https://addons.heroku.com/newrelic), and see
 what works best for your application's access patterns.
 
@@ -265,9 +270,8 @@ If you are interested in CLI administration, you should create
 the database via the CLI, even if you intend to principally
 access it via [postgres.heroku.com](https://postgres.heroku.com/).
 
-<p class="note" markdown="1">
-Applications on Heroku requiring a SQL database should [provision
-Heroku Postgres as an add-on](heroku-postgresql) with the `heroku
-addons:add heroku-postgresql` command.
-</p>      
-        
+>note
+>Applications on Heroku requiring a SQL database should [provision
+>Heroku Postgres as an add-on](heroku-postgresql) with the `heroku
+>addons:add heroku-postgresql` command.
+         

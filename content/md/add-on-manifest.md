@@ -5,8 +5,7 @@ url: https://devcenter.heroku.com/articles/add-on-manifest
 description: Heroku Add-on manifest format definition
 ---
 
-The add-on manifest is a JSON document which describes the interface between Heroku and your cloud service. You write the manifest and use it with the Kensa testing tool in your d
-evelopment environment, then send the final manifest to Heroku when you're ready to submit your add-on to our marketplace.
+The add-on manifest is a JSON document which describes the interface between Heroku and your cloud service. You write the manifest and use it with the Kensa testing tool in your development environment, then send the final manifest to Heroku when you're ready to submit your add-on to our marketplace.
 
 ## Generating a manifest
 
@@ -49,8 +48,8 @@ Initialized new addon manifest in addon-manifest.json
 * **api/password** - Password that Heroku will send in HTTP basic auth when making provisioning calls.
 * **api/sso_salt** - Shared secret used in single sign-on between the Heroku admin panel and your service's admin panel.
 * **api/regions** - The list of geographical regions supported by your add-on.  It cannot be empty.  It must either contain the elements "us", "eu", or both "us" and "eu".
-* **api/production/base_url** - The production endpoint for heroku api actions (provision, deprovision, and plan change)
+* **api/production/base_url** - The production endpoint for heroku api actions (provision, deprovision, and plan change). The path `/heroku/resources` must always be at the end of this URL, and will be automatically appended on the server-side if it is missing.
 * **api/production/sso_url** - The production endpoint for single sign-on
 * **api/test** - The root URL of your development host, typically local, or a map of URLs.
 * **api/test/base_url** - The test endpoint for heroku api actions
-* **api/test/sso_url** - The test endpoint for single sign-on
+* **api/test/sso_url** - The test endpoint for single sign-on 

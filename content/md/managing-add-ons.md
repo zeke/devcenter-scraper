@@ -71,4 +71,4 @@ From the app Resources tab, find the add-on resource and click the remove icon n
 ![Remove add-on resources](https://s3.amazonaws.com/heroku.devcenter/heroku_assets/images/68-original.jpg?1348681909 'Remove add-on resources')
 
 ### Configure an add-on
-From the app Resources tab, find the add-on resource you want to configure and click on the name. This will take you to a configuration page that allows you to change the settings for the add-on.
+From the app Resources tab, find the add-on resource you want to configure and click on the name. This will take you to a configuration page that allows you to change the settings for the add-on. 

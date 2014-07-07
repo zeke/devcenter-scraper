@@ -27,10 +27,10 @@ If you wish to access information which can change (e.g., owner email address or
 
 <p>The <code>logplex_token</code> attribute is provided so that logs can be sent to the app’s log stream. For more information, see <a href="https://devcenter.heroku.com/articles/add-on-provider-log-integration">the article describing logplex input</a>.</p>
 
-<p>The <code>options</code> object in the request are <a href="https://devcenter.heroku.com/articles/additional-provisioning-options">extra command line options</a> passed in to the <code>heroku addons:add</code> command.</p>
+<p>The <code>options</code> object in the request are <a href="https://devcenter.heroku.com/articles/add-on-parameter-handling">extra command line options</a> passed in to the <code>heroku addons:add</code> command.</p>
 
 <p>The <code>id</code> value returned in the response may be a string or integer value. It should be an
-immutable value that can be used to address the relationship between this app and resource. This means that a plan change can <em>not</em> change the value of this <code>id</code>, you can however update the
+immutable value that can be used to address the relationship between this app and resource. This means that a plan change can <em>not</em> change the value of this <code>id</code>, although you can update the
 <code>config</code> later to point the app to a different resource.</p>
 
 <p>The <code>config</code> object and <code>message</code> in the response are both optional.</p>
@@ -78,4 +78,8 @@ Response Body: Web view for logged-in user
 <pre><code>https://api.heroku.com/myapps/&lt;heroku_app_id&gt;/addons/&lt;addon-name&gt;?other=vals
 </code></pre>
 
-<p>See <a href="https://addons.heroku.com/provider/resources/technical/reference/manifest">manifest formats</a> for more information about configuring single sign-on via GET or POST.</p>
+<p>See <a href="https://addons.heroku.com/provider/resources/technical/reference/manifest">manifest formats</a> for more information about configuring single sign-on.</p>
+
+<h2 id="app-info-api">App Info API</h2>
+
+<p>After your addon is provisioned, you can use the <a href="https://addons.heroku.com/provider/resources/technical/reference/app-info">App Info API</a> to query information about your addon installations or to update the Config Vars for your addon.</p>

@@ -245,4 +245,4 @@ VACUUM
 ```
 
 With carefully managed autovacuum settings, manual vacuuming should
-rarely be necessary, but it's important to understand how it works.        
+rarely be necessary, but it's important to understand how it works.         

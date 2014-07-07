@@ -2,7 +2,7 @@
 title: Stages of Add-on Development
 slug: stages-of-add-on-development
 url: https://devcenter.heroku.com/articles/stages-of-add-on-development
-description: This document describes the 4 stages of Add-on development.
+description: This document describes the 3 stages of Add-on development.
 ---
 
 Before you can start selling your add-on in the marketplace, you must complete
@@ -85,4 +85,4 @@ Sometimes it's necessary to change pricing in response to customer feedback or b
 
 Plan names, feature descriptions and pricing are defined in the Provider Portal. Names and descriptions should follow [these simple rules](https://devcenter.heroku.com/articles/add-on-plan-creation).
 
-You can add new plans later. If you're unsure of how many plans you'll need, err on the side of fewer plans and watch your user feedback to determine if you need additional offerings.
+You can add new plans later. If you're unsure of how many plans you'll need, err on the side of fewer plans and watch your user feedback to determine if you need additional offerings. 

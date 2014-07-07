@@ -5,7 +5,7 @@
 <p>For framework specific tutorials visit:</p>
 
 <ul>
-<li><a href="https://devcenter.heroku.com/articles/java">Getting Started with Java on Heroku/Cedar</a></li>
+<li><a href="https://devcenter.heroku.com/articles/getting-started-with-java">Getting Started with Java on Heroku</a></li>
 <li><a href="https://devcenter.heroku.com/categories/java">Java Tutorials</a></li>
 </ul><p>You can also find template applications that can be cloned directly into your Heroku account at <a href="http://java.heroku.com">java.heroku.com</a></p>
 
@@ -30,7 +30,7 @@
 <pre><code class="term">$ mvn -B -DskipTests=true clean install
 </code></pre>
 
-<p>The local repo is cached between builds to improve performance.</p>
+<p>The maven repo is cached between builds to improve performance.</p>
 
 <h2 id="environment">Environment</h2>
 
@@ -48,16 +48,58 @@
 <li>
 <code>DATABASE_URL</code>: URL of the database connection</li>
 </ul><div class="note">
-<p><a href="https://devcenter.heroku.com/articles/dyno-size">Resizing dynos</a> does not automatically change Java memory settings. The <code>JAVA_OPTS</code> and <code>MAVEN_OPTS</code> <a href="https://devcenter.heroku.com/articles/config-vars">config vars</a> should be manually adjust  resources for the JVM.</p>
+<p><a href="https://devcenter.heroku.com/articles/dyno-size">Resizing dynos</a> does not automatically change Java memory settings. The <code>JAVA_OPTS</code> and <code>MAVEN_OPTS</code> <a href="https://devcenter.heroku.com/articles/config-vars">config vars</a> should be manually adjusted for the JVM.</p>
 </div>
 
-<h2 id="runtime-behavior">Runtime behavior</h2>
+<h3 id="adjusting-environment-for-a-dyno-size">Adjusting Environment for a Dyno Size</h3>
 
-<p>Heroku currently uses OpenJDK to run your application. OpenJDK versions 6 and 7 are available using a <code>system.properties</code> file. OpenJDK 8 with Lambdas is also available as an early preview. See the <a href="https://devcenter.heroku.com/categories/java">Java Tutorials</a> for more information.</p>
+<p>When a new dyno size is selected, the following <code>JAVA_OPTS</code> updates are recommended:</p>
+
+<ul>
+<li>
+<code>1X</code>: -Xmx384m -Xss512k</li>
+<li>
+<code>2X</code>: -Xms768m -Xmx768m -Xmn192m</li>
+<li>
+<code>PX</code>: -Xmx4g -Xms4g -Xmn2g</li>
+</ul><h3 id="monitoring-resource-usage">Monitoring Resource Usage</h3>
+
+<p>Additional JVM flags can be used to monitor resource usage in a dyno. The following flags are recommended for monitoring resource usage:</p>
+
+<pre><code>-XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintTenuringDistribution -XX:+UseConcMarkSweepGC
+</code></pre>
+
+<p>See the <a href="https://devcenter.heroku.com/articles/java-memory-issues">troubleshooting</a> article for more information about tuning a JVM process.</p>
+
+<h3 id="supported-java-versions">Supported Java versions</h3>
+
+<p>Heroku currently uses OpenJDK to run your application. OpenJDK versions 6 and 7 are available.</p>
+
+<p>You’re able to select Java 6 or 7. Depending on which you select the latest available version of that Java runtime will be used each time you deploy your app.</p>
+
+<p>Current versions are:</p>
+
+<ul>
+<li>Java 6 - <code>1.6.0_27</code>
+</li>
+<li>Java 7 - <code>1.7.0_45</code>
+</li>
+</ul><p>The JDK that your app uses will be included in the slug, which will affect your slug size.</p>
+
+<h3 id="specifying-a-java-version">Specifying a Java version</h3>
+
+<p>You can specify a Java version by adding a file called <code>system.properties</code> to your application.</p>
+
+<p>Set a property <code>java.runtime.version</code> in the file:</p>
+
+<pre><code>java.runtime.version=1.7
+</code></pre>
+
+<p>1.6 is the default so if you’d like to use Java 6 you don’t need this file at all.</p>
+
+<h3 id="default-web-process-type">Default web process type</h3>
 
 <p>No default <code>web</code> process type is defined for Java applications. See one of the <a href="https://devcenter.heroku.com/categories/java">Java tutorials</a> for information on setting up your <code>Procfile</code>.</p>
-
-<p>The JDK that your app uses will be included in the slug, which will affect your slug size.</p>
 
 <h2 id="add-ons">Add-ons</h2>
 

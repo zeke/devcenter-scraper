@@ -86,4 +86,4 @@ $ heroku apps:info --app example
 
 ### Using an HTTP proxy
 
-If you're behind a firewall that requires use of a proxy to connect with external HTTP/HTTPS services, you can set the `HTTP_PROXY` or `HTTPS_PROXY` environment variables before running the `heroku` command.
+If you're behind a firewall that requires use of a proxy to connect with external HTTP/HTTPS services, you can set the `HTTP_PROXY` or `HTTPS_PROXY` environment variables before running the `heroku` command. 

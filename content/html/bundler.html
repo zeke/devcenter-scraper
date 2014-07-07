@@ -1,36 +1,38 @@
+<p>Bundler is the default gem manager for Rails 3, though it can be used with any Ruby project as it has no dependency on framework.  Bundler is the way to manage your gems on Heroku.</p>
 
-<p>Bundler is the default gem manager for Rails 3, though it can be used with any Ruby project as it has no dependency on framework. Bundler is the way to manage your gems on Heroku.</p>
 <div class="note">
-
 <p>If you have questions about Ruby on Heroku, consider discussing it in the <a href="https://discussion.heroku.com/category/ruby">Ruby on Heroku forums</a>.</p>
-
 </div>
+
 <h2 id="using-bundler">Using Bundler</h2>
 
 <p>To use, install bundler:</p>
 
-<pre><code class="term">$ gem install bundler</code></pre>
+<pre><code class="term">$ gem install bundler
+</code></pre>
 
 <p>Create a file named <code>Gemfile</code> in the root of your app specifying what gems are required to run it:</p>
 
 <pre><code class="ruby">source "https://rubygems.org"
-gem 'sinatra', '1.0'</code></pre>
+gem 'sinatra', '1.0'
+</code></pre>
 
-<p>This file should be added to the git repository since it is part of the app. You should also add the <code>.bundle</code> directory to your <code>.gitignore</code> file. Once you have added the <code>Gemfile</code>, it makes it easy for other developers to get their environment ready to run the app:</p>
+<p>This file should be added to the git repository since it is part of the app. You should also add the <code>.bundle</code> directory to your <code>.gitignore</code> file.  Once you have added the <code>Gemfile</code>, it makes it easy for other developers to get their environment ready to run the app:</p>
 
-<pre><code class="term">$ bundle install</code></pre>
+<pre><code class="term">$ bundle install -j4
+</code></pre>
 
-<p>This ensures that all gems specified in <code>Gemfile</code>, together with their dependencies, are available for your application. Running <code>bundle install</code> also generates a <code>Gemfile.lock</code> file, which should be added to your git repository. <code>Gemfile.lock</code> ensures that your deployed versions of gems on Heroku match the version installed locally on your development machine.</p>
+<p>This ensures that all gems specified in <code>Gemfile</code>, together with their dependencies, are available for your application.  Running <code>bundle install</code> also generates a <code>Gemfile.lock</code> file, which should be added to your git repository. <code>Gemfile.lock</code> ensures that your deployed versions of gems on Heroku match the version installed locally on your development machine. The flag <code>-j4</code> will use 4 parallel jobs to install all of your dependencies. This feature was introduced in bundler 1.5.0</p>
+
 <div class="warning">
-
 <p>If the <code>platforms</code> section of your <code>Gemfile</code> contains Windows entries, such as <code>mswin</code> or <code>mingw</code>, then the <code>Gemfile.lock</code> file will be ignored.</p>
-
 </div>
+
 <p>Heroku also uses that file to resolve and install your application dependencies automatically. All you need to do is to push it:</p>
 
 <pre><code class="term">-----&gt; Heroku receiving push
 -----&gt; Sinatra app detected
------&gt; Gemfile detected, running Bundler version 1.0.0
+-----&gt; Gemfile detected, running Bundler version 1.5.2
        Unresolved dependencies detected; Installing...
        Using rack (1.2.1)
        Using sinatra (1.0)
@@ -39,17 +41,19 @@ gem 'sinatra', '1.0'</code></pre>
 
        Your bundle was installed to `.bundle/gems`
        Compiled slug size is 10.7MB
------&gt; Launching.... done</code></pre>
+-----&gt; Launching.... done
+</code></pre>
 
 <h2 id="specifying-gems-and-groups">Specifying gems and groups</h2>
 
-<p>The recommended use of gem bundler is to bundle absolutely every gem your app depends upon. This includes your framework (Rails, Sinatra, etc) and your database connectors.</p>
+<p>The recommended use of gem bundler is to bundle absolutely every gem your app depends upon.  This includes your framework (Rails, Sinatra, etc) and your database connectors.</p>
 
-<p>Bundling Rails and other dependencies does increase your slug size by a few megabytes. Increased slug size is a worthwhile tradeoff for vastly simplified dependency management, as well as the flexibility of being able to use any version of Rails you wish.</p>
+<p>Bundling Rails and other dependencies does increase your slug size by a few megabytes.  Increased slug size is a worthwhile tradeoff for vastly simplified dependency management, as well as the flexibility of being able to use any version of Rails you wish.</p>
 
-<p>Please note, for the time being, the Cedar stack does not officially support <code>BUNDLE_WITHOUT</code>. If you would like to use <code>BUNDLE_WITHOUT</code> on cedar, you need to enable the <a href="https://devcenter.heroku.com/articles/labs-user-env-compile"><code>user_env_compile</code> feature flag</a>. After enabling the feature flag, you can exclude certain groups from being installed by using the <code>BUNDLE_WITHOUT</code> config var.</p>
+<p>To specify groups of gems to not to be installed, you can use the <code>BUNDLE_WITHOUT</code> config var.</p>
 
-<pre><code class="term">$ heroku config:set BUNDLE_WITHOUT="development:test"</code></pre>
+<pre><code class="term">$ heroku config:set BUNDLE_WITHOUT="development:test"
+</code></pre>
 
 <h2 id="frameworks">Frameworks</h2>
 
@@ -59,14 +63,16 @@ gem 'sinatra', '1.0'</code></pre>
 
 <h3 id="using-bundler-with-rails-2-3-x">Using Bundler with Rails 2.3.X</h3>
 
-<p>Follow the instructions <a href="http://gembundler.com/rails23.html">here</a>. Remember to remove all your <code>config.gem</code> lines from your environment configuration file! Also remember to specify the appropriate database gem for your app.</p>
+<p>Follow the instructions <a href="http://gembundler.com/rails23.html">here</a>.  Remember to remove all your <code>config.gem</code> lines from your environment configuration file!  Also remember to specify the appropriate database gem for your app.</p>
 
 <pre><code class="ruby">gem "pg", :group =&gt; :production
-gem "sqlite3-ruby", :group =&gt; :development</code></pre>
+gem "sqlite3-ruby", :group =&gt; :development
+</code></pre>
 
 <p>After you have added the code to your application, run</p>
 
-<pre><code class="term">$ bundle install</code></pre>
+<pre><code class="term">$ bundle install
+</code></pre>
 
 <p>And your app is running with Bundler.</p>
 

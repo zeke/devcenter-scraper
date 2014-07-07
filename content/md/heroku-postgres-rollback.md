@@ -41,7 +41,7 @@ the `pg:info` command:
 ```term
 $ heroku pg:info --app sushi
 === HEROKU_POSTGRESQL_ROSE_URL (DATABASE_URL)
-Plan:        Standard Crane
+Plan:        Standard Yanari
 Status:      Available
 Data Size:   584.6 MB
 Tables:      29
@@ -76,8 +76,8 @@ one must be present, but not both.
 A full rollback command looks like this:
 
 ```term
-$ heroku addons:add heroku-postgresql:crane --rollback green --to '2013-10-21 15:52:52+00' --app sushi
-Adding heroku-postgresql:crane on db-corral... done, v754 ($50/mo)
+$ heroku addons:add heroku-postgresql:standard-yanari --rollback green --to '2013-10-21 15:52:52+00' --app sushi
+Adding heroku-postgresql:standard-yanari on sushi... done, v754 ($50/mo)
 Attached as HEROKU_POSTGRESQL_YELLOW_URL
 Database will become available after it completes rolling back
 to 2013-10-21 15:52:00 +0000 (08:37:22 ago)
@@ -112,4 +112,4 @@ $ heroku addons:remove HEROKU_POSTGRESQL_YELLOW --app sushi
     !    This command will affect the app: sushi
     !    To proceed, type "sushi" or re-run this command with --confirm sushi
 ```
-        
+         

@@ -15,8 +15,9 @@ The first step is to check your [application's logs][logging]. Many
 common application errors as well as Heroku's errors are printed to your
 applications logs. To view your logs, run:
 
-    :::term
-    $ heroku logs
+```term
+$ heroku logs
+```
 
 Note that many frameworks, including Ruby on Rails, will serve a default
 error page for your application when there are errors. You can compare
@@ -27,15 +28,35 @@ If your logs show one of Heroku's error codes, you should investigate
 the cause of this issue. Our [descriptions of these errors][errorcodes]
 is the best place to start.
 
+## Check your processes
+
+Check on the current status of your process formation:
+
+```term
+$ heroku ps
+```
+
+This will tell you the current state of your application's dynos. Ensure
+you are running the right number of each process type (at least one)
+and your dynos are booting correctly. 
+
+```term
+$ heroku scale web=1
+```
+
+If your dynos are crashed, restarting the app can help debug the issue.
+
 ## Restart your application
 
-If the problem is not immediately present, it can also be helpful to
+If the problem is not immediately present, it can be helpful to
 restart your application, [tail your logs][logging], and then try
 viewing your application in a web browser.
 
-    :::term
-    $ heroku restart
-    $ heroku logs --tail
+```term
+$ heroku restart
+$ heroku logs --tail
+$ heroku open
+```
 
 Some application issues are solved by restart. For example, your
 application may need to be restarted after a schema change to your
@@ -44,18 +65,17 @@ application.
 
 ## Test using curl
 
-<p class="callout" markdown="1">If you do not have curl on your
-computer, you can use [http://hurl.it/](http://hurl.it) to run curl from
-your web browser.</p>
+>callout
+>If you do not have curl on your computer, you can use [http://hurl.it/](http://hurl.it) to run curl from your web browser.
 
 A number of issues can be detected using curl:
 
-    :::term
-    $ curl -v http://example.herokuapp.com/
+```term
+$ curl -v http://example.herokuapp.com/
+```
 
-<p class="note" markdown="1">Testing your `herokuapp.com` hostname in addition to
-your custom domains will help determine if the issue is specific to your
-custom domain or your application.</p>
+>note 
+>Testing your `herokuapp.com` hostname in addition to your custom domains will help determine if the issue is specific to your custom domain or your application.</p>
 
 Some common issues you may discover are:
 
@@ -76,9 +96,6 @@ Some common issues you may discover are:
 ## Check application health
 
 Heroku provides several additional tools to check the health of your application.
-
-* Use `heroku ps` to check the current status of your dynos. You can
-  adjust your [dyno formation][scale] using `heroku scale`.
 
 * Check `heroku releases` for recent changes made to your application.
   You can [rollback to an older release][releases] if necessary.
@@ -116,6 +133,7 @@ get in touch with us via our [support channels][].
 [scale]: https://devcenter.heroku.com/articles/scaling
 [New Relic]: https://devcenter.heroku.com/articles/newrelic
 [migrate data]: https://devcenter.heroku.com/articles/migrating-data-between-plans
-[cache size]: https://devcenter.heroku.com/articles/cache-size
+[cache size]: https://devcenter.heroku.com/articles/heroku-postgres-plans
 [production check]: https://devcenter.heroku.com/articles/production-check
 [releases]: https://devcenter.heroku.com/articles/releases
+ 

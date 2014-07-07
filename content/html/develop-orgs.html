@@ -1,0 +1,123 @@
+<p>Developing and deploying applications within an organization account is largely the same experience as doing so in your personal account. Git-based deploys, command line scaling, add-ons etc… are all the same. However, just as with <a href="https://devcenter.heroku.com/articles/create-manage-org">account administration</a>, there are a few additions to the experience you should be aware of when working within an org.</p>
+
+<div class="note">
+<p>Organization Accounts are currently only available for purchase through our sales channel. <a href="https://www.heroku.com/critical">Contact us</a> if you would like to purchase an Organization Account.</p>
+</div>
+
+<h2 id="joining-an-org">Joining an org</h2>
+
+<p>Org accounts centralize the management of users and roles. If you wish to join an org, an <a href="https://devcenter.heroku.com/articles/create-manage-org#adding-users">admin user must add you directly</a>.</p>
+
+<p>Once you have been added to an org you will be able to see the list of apps included in that org using the CLI. Use the familiar <code>heroku list</code> command, but now include the <code>--org</code> flag to specify which apps to show, and the <code>-all</code> flag to list all org apps.</p>
+
+<pre><code class="term">$ heroku apps --org acme-inc --all
+=== Apps joined in organization acme-inc
+frozen-wave-4030
+salty-depths-3445
+
+=== Apps available to join in organization acme-inc
+acme-website
+acme-website-staging
+</code></pre>
+
+<p>You can also go the org Dashboard to view its applications. Switch between your personal account and the org using the drop-down available in the top left corner of the purple context bar:</p>
+
+<p><img src="https://s3.amazonaws.com/heroku.devcenter/heroku_assets/images/255-original.jpg" alt="" title="Dashboard context toggle"></p>
+
+<h2 id="developing-apps">Developing apps</h2>
+
+<p>As an admin or member user in an org you have the ability to access all applications in the org. However, most development groups are working on several projects simultaneously while each individual developer is only working on one or two projects simultaneously. Within an org account you indicate the apps you’re working on right now by “joining” them.</p>
+
+<h3 id="joining-apps">Joining apps</h3>
+
+<p>Most of the Dashboard and CLI views automatically filter to the apps you’ve explicitly joined, so as not to overwhelm you with apps that may be part of your org but are not ones you’re directly involved with.</p>
+
+<p>To join an app so you can begin developing against it use the <code>heroku join</code> command.</p>
+
+<pre><code class="term">$ heroku join --app acme-website
+Joining application acme-website... done
+</code></pre>
+
+<p>Once an app is joined, it will be in your default list of org apps.</p>
+
+<pre><code class="term">$ heroku apps --org acme-inc
+=== Apps joined in organization acme-inc
+acme-website
+</code></pre>
+
+<p>You can also join an app from the org dashboard. In the top section of the apps view of your org Dashboard, all the apps you have currently joined are listed. The bottom section shows the rest of the organization’s applications (“Unjoined apps”). To join an app, click on the Join button next to the unjoined app you wish to work on:</p>
+
+<p><img src="https://s3.amazonaws.com/heroku.devcenter/heroku_assets/images/267-original.jpg" alt="" title="Join apps"></p>
+
+<h3 id="leaving-an-app">Leaving an app</h3>
+
+<p>Once you are no longer working with an application on a regular basis, you can leave the app. This will remove it from your list of joined apps, though you can always rejoin it yourself at a later time.</p>
+
+<p>From the CLI, use the <code>leave</code> command.</p>
+
+<pre><code class="term">$ heroku leave --app acme-website
+Leaving application acme-website... done
+</code></pre>
+
+<p>Or, in the org dashboard, go to the Access tab of the app and remove yourself from the list of members.</p>
+
+<p><img src="https://s3.amazonaws.com/heroku.devcenter/heroku_assets/images/268-original.jpg" alt="" title="Leave apps"></p>
+
+<h2 id="adding-apps-to-an-org">Adding apps to an org</h2>
+
+<p>If you have existing apps you’ve been developing under your personal account, you will need to transfer them to your org in order for them to be consider a part of the org and billed against the org.</p>
+
+<p>You can use the CLI to transfer apps to your org (where <code>acme-inc</code> is your org name and <code>deep-spring-4274</code> is the app):</p>
+
+<pre><code class="term">$ heroku sharing:transfer acme-inc --app deep-spring-4274
+Transferring deep-spring-4274 to acme-inc... done
+</code></pre>
+
+<p>You can also use the org Dashboard to <a href="https://devcenter.heroku.com/articles/create-manage-org#transferring-apps">transfer personal apps in bulk</a>.</p>
+
+<p>Apps can also be created directly in the org:</p>
+
+<pre><code class="term">$ heroku create --org acme-inc
+Creating frozen-wave-4030 in organization acme-inc...done, stack is cedar
+http://frozen-wave-4030.herokuapp.com/ | git@heroku.com:frozen-wave-4030.git
+Git remote heroku added
+</code></pre>
+
+<h2 id="default-org">Default org</h2>
+
+<p>The <a href="https://devcenter.heroku.com/articles/heroku-command">Heroku CLI</a> defaults to your personal account and requires the <code>--org</code> flag when performing org actions. Having to specify the org on every command quickly becomes burdensome and can be alleviated by setting a default org.</p>
+
+<pre><code class="term">$ heroku orgs:default acme-inc
+Setting acme-inc as the default organization... done
+</code></pre>
+
+<p>With a default org set, CLI commands like <code>create</code> and <code>apps</code> will operate within the context of that org.</p>
+
+<pre><code class="term">$ heroku apps
+=== Apps joined in organization acme-inc
+frozen-wave-4030
+salty-depths-3445
+</code></pre>
+
+<p>You can see your default org at any time with the <code>orgs</code> command.</p>
+
+<pre><code class="term">$ heroku orgs
+acme-inc  admin, default
+foo       member
+bar       member
+</code></pre>
+
+<p>You may occasionally wish to work against a personal app without unsetting your default org. You can do so by specifying the <code>--personal</code> flag on account-specific commands.</p>
+
+<pre><code class="term">$ heroku apps --personal
+=== My Apps
+morning-forest-9083
+warm-temple-1487
+
+=== Collaborated Apps
+blazing-dusk-89           john.doe@johndoe.me
+</code></pre>
+
+<h2 id="next-steps">Next steps</h2>
+
+<p>This guide gives you a high-level overview of developing applications within an organization account. To learn how to manage an org as an administrator more see one of the articles on <a href="https://devcenter.heroku.com/articles/create-manage-org">creating and managing an org</a> or <a href="https://devcenter.heroku.com/articles/org-users-access">managing org users and app access</a>.</p>

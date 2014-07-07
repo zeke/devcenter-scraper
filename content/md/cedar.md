@@ -100,7 +100,7 @@ Clojure 1.3.0
 user=>
 ```
 
-[One-off dynos](oneoff-admin-ps), such as rake tasks for Ruby applications, can also be executed against their remote environment on Heroku.
+[One-off dynos](one-off-dynos), such as rake tasks for Ruby applications, can also be executed against their remote environment on Heroku.
 
 ```term
 $ heroku run rake db:migrate
@@ -191,4 +191,4 @@ Cedar does not include a reverse proxy cache such as Varnish, preferring to empo
 
 Migrating from Bamboo to Cedar allows an application to take advantage of a much more flexible and powerful stack. Because the significant architectural differences, migrating to Cedar is a largely manual process.
 
-Instructions for migrating to Cedar can be [found here](cedar-migration).
+Instructions for migrating to Cedar can be [found here](cedar-migration). 

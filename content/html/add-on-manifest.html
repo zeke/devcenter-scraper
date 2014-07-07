@@ -1,5 +1,4 @@
-<p>The add-on manifest is a JSON document which describes the interface between Heroku and your cloud service. You write the manifest and use it with the Kensa testing tool in your d
-evelopment environment, then send the final manifest to Heroku when you’re ready to submit your add-on to our marketplace.</p>
+<p>The add-on manifest is a JSON document which describes the interface between Heroku and your cloud service. You write the manifest and use it with the Kensa testing tool in your development environment, then send the final manifest to Heroku when you’re ready to submit your add-on to our marketplace.</p>
 
 <h2 id="generating-a-manifest">Generating a manifest</h2>
 
@@ -48,7 +47,7 @@ Initialized new addon manifest in addon-manifest.json
 <li>
 <strong>api/regions</strong> - The list of geographical regions supported by your add-on.  It cannot be empty.  It must either contain the elements “us”, “eu”, or both “us” and “eu”.</li>
 <li>
-<strong>api/production/base_url</strong> - The production endpoint for heroku api actions (provision, deprovision, and plan change)</li>
+<strong>api/production/base_url</strong> - The production endpoint for heroku api actions (provision, deprovision, and plan change). The path <code>/heroku/resources</code> must always be at the end of this URL, and will be automatically appended on the server-side if it is missing.</li>
 <li>
 <strong>api/production/sso_url</strong> - The production endpoint for single sign-on</li>
 <li>

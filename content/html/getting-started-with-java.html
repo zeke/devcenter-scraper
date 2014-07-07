@@ -15,13 +15,15 @@
 <ul>
 <li>Basic Java knowledge, including an installed version of the JVM and <a href="http://maven.apache.org/download.html">Maven 3</a>.</li>
 <li>Your application must run on the <a href="http://openjdk.java.net/">OpenJDK</a> version 6, or 7 (8 is also available in beta).</li>
-<li>A Heroku user account.  <a href="https://api.heroku.com/signup/devcenter">Signup is free and instant.</a>
+<li>A Heroku user account.  <a href="https://signup.heroku.com/signup/dc">Signup is free and instant.</a>
 </li>
 </ul><h2 id="local-workstation-setup">Local workstation setup</h2>
 
-<p>If you’re an Eclipse user you can skip these steps and get started inside of an Eclipse workspace. See <a href="https://devcenter.heroku.com/articles/getting-started-with-heroku-eclipse">Getting Started with Heroku &amp; Eclipse</a>.</p>
+<p>First, install the Heroku Toolbelt on your local workstation.</p>
 
-<p>Install the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a> on your local workstation.  This ensures that you have access to the <a href="https://devcenter.heroku.com/categories/command-line">Heroku command-line client</a>, Foreman, and the Git revision control system.</p>
+<p><a class="toolbelt" href="https://toolbelt.heroku.com/">Install the Heroku Toolbelt</a></p>
+
+<p>This ensures that you have access to the <a href="https://devcenter.heroku.com/categories/command-line">Heroku command-line client</a>, Foreman, and the Git revision control system.</p>
 
 <p>Once installed, you can use the <code>heroku</code> command from your command shell.  Log in using the email address and password you used when creating your Heroku account:</p>
 
@@ -158,7 +160,7 @@ $ java -cp target\classes;"target\dependency\*" HelloWorld
 
 <p>Here’s what the <code>Procfile</code> looks like:</p>
 
-<pre><code class="term">web:    java -cp target/classes:target/dependency/* HelloWorld
+<pre><code class="term">web:    java $JAVA_OPTS -cp target/classes:target/dependency/* HelloWorld
 </code></pre>
 
 <p>(note: no double quotes needed in Procfile)</p>
@@ -283,7 +285,7 @@ Opening empty-fire-6534... done
 <h2 id="next-steps">Next steps</h2>
 
 <ul>
-<li>The <a href="https://devcenter.heroku.com/articles/spring-mvc-hibernate">Spring MVC Hibernate tutorial</a> will guide you through setting up a database-driven application on Heroku.</li>
+<li>The <a href="https://devcenter.heroku.com/articles/getting-started-with-spring-mvc-hibernate">Spring MVC Hibernate tutorial</a> will guide you through setting up a database-driven application on Heroku.</li>
 <li>Visit the <a href="https://devcenter.heroku.com/categories/java">Java category</a> to learn more about developing and deploying Java applications.</li>
 <li>Read <a href="https://devcenter.heroku.com/articles/how-heroku-works">How Heroku Works</a> for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.</li>
 </ul>

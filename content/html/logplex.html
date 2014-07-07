@@ -3,7 +3,7 @@
 <p>In a distributed system such as Heroku, manually accessing logs spread across many dynos provides a very disjointed view of an application’s event stream and omits relevant platform-level events. The logplex facility solves these issues in an accessible and extensible manner.</p>
 
 <!--
-Without a facility like logplex, accessing logs from many processes in a distributed system such as Heroku would require ssh-ing to each machine and copying log files (without forgetting also to set up log rotation), or dealing with syslog daemons and the unstandardized network syslog protocol and management of a log processing server.
+Without a facility like logplex, accessing logs from many processes in a distributed system such as Heroku would require ssh-ing to each machine and copying log files without forgetting also to set up log rotation, or dealing with syslog daemons and the unstandardized network syslog protocol and management of a log processing server.
 -->
 
 <h2 id="sources-and-drains">Sources and drains</h2>
@@ -11,7 +11,7 @@ Without a facility like logplex, accessing logs from many processes in a distrib
 <p>Logplex routes messages from sources to drains.</p>
 
 <!--
-![Routing diagram](https://github.com/heroku/routing-docs/blob/master/components/logplex/Logplex%20architecture%20scribble.pdf?raw=true)
+!Routing diagramhttps://github.com/heroku/routing-docs/blob/master/components/logplex/Logplex%20architecture%20scribble.pdf?raw=true
 -->
 
 <ul>

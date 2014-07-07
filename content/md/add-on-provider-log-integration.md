@@ -8,7 +8,7 @@ description: How to send logs to an app's log stream
 Add-on providers can improve the development experience of their Add-on by inserting data into the app's log stream. This article explains how to connect your service to an app's log stream via [Logplex](https://devcenter.heroku.com/articles/logplex).
 
 ## Setup
-To gain access to the app’s Logplex token, which will give you the capability to write to an app’s log stream, you will first need to store the log drain token that is submitted in the Add-on provision request. More details of the provision request can be found in the [Add-on Provider API Spec](https://devcenter.heroku.com/articles/add-on-provider-api). If you have not previously stored the logplex_token from the provision request, you can use the [App Info API](https://devcenter.heroku.com/articles/add-on-app-info) to query for the token.
+To gain access to the app’s Logplex token, which will give you the capability to write to an app’s log stream, you will first need to store the token that is submitted in the Add-on provision request. More details of the provision request can be found in the [Add-on Provider API Spec](https://devcenter.heroku.com/articles/add-on-provider-api). If you have not previously stored the logplex_token from the provision request, you can use the [App Info API](https://devcenter.heroku.com/articles/add-on-app-info) to query for the token.
 
 ## Transport
 Data must be delivered to Logplex via HTTP. Using keep-alive connections and dense payloads, you can efficiently deliver all of your customer’s logs to Logplex via HTTP. Here is cURL example demonstrating a simple HTTP request:
@@ -53,20 +53,6 @@ readability and machine parsability. With that in mind, log data should:
 - Units must immediately follow the number and must only include `a-zA-Z`
   (example: `10ms`).
 
-#### One-off events
-
-These are log messages that should be written at the time something occurs. For
-example: when a process crashes, an SMS is delivered, or when approaching usage
-limits.
-
-    event#title=queued source=myworker.4f3595381cf75447be029da5
-    event#title=deploy event#start_time=1234567890
-
-These messages can be correlated with quantifiable metrics, like Librato
-[Annotations](http://blog.librato.com/posts/2012/09/annotations) or
-[Deployments](http://blog.newrelic.com/2010/07/22/what-changed-using-deployment-tracking-in-rpm/)
-in NewRelic.
-
 #### High-frequency events
 
 These are log events that would benefit from statistical aggregation by a log
@@ -94,4 +80,4 @@ connections, cache usage:
 
 ## Example
 
-A reference implementation is provided at [ryandotsmith/lpxc](https://github.com/ryandotsmith/lpxc). This implementation highlights batching and keep-alive connections.
+A reference implementation is provided at [ryandotsmith/lpxc](https://github.com/ryandotsmith/lpxc). This implementation highlights batching and keep-alive connections. 

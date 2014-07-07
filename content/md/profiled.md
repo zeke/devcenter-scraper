@@ -32,4 +32,4 @@ LANG=${LANG:-en_US.UTF-8}
 
 ## Order
 
-Scripts in the `.profile.d/` directory will be executed in an arbitrary order.
+Scripts in the `.profile.d/` directory will be executed in an arbitrary order. 

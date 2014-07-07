@@ -17,13 +17,15 @@ This quickstart will get you going with Java and the [Jetty](http://eclipse.org/
 
 * Basic Java knowledge, including an installed version of the JVM and [Maven 3](http://maven.apache.org/download.html).
 * Your application must run on the [OpenJDK](http://openjdk.java.net/) version 6, or 7 (8 is also available in beta).
-* A Heroku user account.  [Signup is free and instant.](https://api.heroku.com/signup/devcenter)
+* A Heroku user account.  [Signup is free and instant.](https://signup.heroku.com/signup/dc)
 
 ## Local workstation setup
 
-If you're an Eclipse user you can skip these steps and get started inside of an Eclipse workspace. See [Getting Started with Heroku & Eclipse](https://devcenter.heroku.com/articles/getting-started-with-heroku-eclipse).
+First, install the Heroku Toolbelt on your local workstation.  
 
-Install the [Heroku Toolbelt](https://toolbelt.heroku.com/) on your local workstation.  This ensures that you have access to the [Heroku command-line client](/categories/command-line), Foreman, and the Git revision control system.
+<a class="toolbelt" href="https://toolbelt.heroku.com/">Install the Heroku Toolbelt</a>
+
+This ensures that you have access to the [Heroku command-line client](/categories/command-line), Foreman, and the Git revision control system.
 
 Once installed, you can use the `heroku` command from your command shell.  Log in using the email address and password you used when creating your Heroku account:
 
@@ -169,7 +171,7 @@ Use a [Procfile](procfile), a text file in the root directory of your applicatio
 Here's what the `Procfile` looks like:
 
 ```term
-web:    java -cp target/classes:target/dependency/* HelloWorld
+web:    java $JAVA_OPTS -cp target/classes:target/dependency/* HelloWorld
 ```
 
 (note: no double quotes needed in Procfile)
@@ -302,6 +304,6 @@ $ heroku logs
 
 ## Next steps
 
-* The [Spring MVC Hibernate tutorial](spring-mvc-hibernate) will guide you through setting up a database-driven application on Heroku.
+* The [Spring MVC Hibernate tutorial](getting-started-with-spring-mvc-hibernate) will guide you through setting up a database-driven application on Heroku.
 * Visit the [Java category](/categories/java) to learn more about developing and deploying Java applications.
-* Read [How Heroku Works](how-heroku-works) for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.
+* Read [How Heroku Works](how-heroku-works) for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications. 

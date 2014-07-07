@@ -9,17 +9,15 @@ When you `git push heroku`, Heroku's slug compiler prepares your code for execut
 
 Heroku's [Cedar stack](cedar) has no native language or framework support; Ruby, Python, Java, Clojure, Node.js and Scala are all implemented as buildpacks.
 
-<div class="note" markdown="1">
-If you have questions about the build process on Heroku, consider discussing it in the [Build forums](https://discussion.heroku.com/category/build).
-</div>
+>note
+>If you have questions about the build process on Heroku, consider discussing it in the [Build forums](https://discussion.heroku.com/category/build).
 
-## Default Buildpacks
+## Default buildpacks
 
 Heroku maintains a collection of buildpacks that are available by default to all Heroku apps during slug compilation.
 
-<div class="callout" markdown="1">
-These buildpacks are open-source and available on Github. If you have a change that would be useful to all Heroku developers, we encourage you to submit a pull request.
-</div>
+>callout
+>These buildpacks are open-source and available on Github. If you have a change that would be useful to all Heroku developers, we encourage you to submit a pull request.
 
 <table>
   <tr>
@@ -62,35 +60,46 @@ These buildpacks are open-source and available on Github. If you have a change t
   	<td>Play</td>
   	<td style="text-align:left"><a href="https://github.com/heroku/heroku-buildpack-play">https://github.com/heroku/heroku-buildpack-play</a></td>
   </tr>
+  <tr>
+  	<td>PHP</td>
+  	<td style="text-align:left"><a href="https://github.com/heroku/heroku-buildpack-php">https://github.com/heroku/heroku-buildpack-php</a></td>
+  </tr>
 </table>
 
-By default, these buildpacks will be searched in order until a match is detected and used to compile your app.
+By default, these buildpacks will be searched in this order until a match is detected and used to compile your app.
 
 Custom buildpacks can be used to support languages or frameworks that are not convered by Heroku's default buildpacks. For a list of known third-party buildpacks, see [Third-Party Buildpacks](third-party-buildpacks).
 
 ## Using a custom Buildpack
 
-<div class="callout" markdown="1">
-  You can specify an exact version of a buildpack by using a a git [revision](http://git-scm.com/book/en/Git-Tools-Revision-Selection) in your `BUILDPACK_URL`.
-  
-  `git://repo.git#master`
-  `git://repo.git#v1.2.0`
-</div>
+>callout
+>You can specify an exact version of a buildpack by using a git [revision](http://git-scm.com/book/en/Git-Tools-Revision-Selection) in your `BUILDPACK_URL`.
+>  
+>  `git://repo.git#master`
+>  `git://repo.git#v1.2.0`
 
 You can override the Heroku default buildpacks by specifying a custom buildpack in the `BUILDPACK_URL` [config var](config-vars):
 
-    $ heroku config:set BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-ruby
+```term
+$ heroku config:set BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-ruby
+```
+
+You can change the buildpack used by an application by setting a new `BUILDPACK_URL`.  When the application is next pushed, the new buildpack will be used.
 
 You can also specify a buildpack during app creation:
 
-    $ heroku create myapp --buildpack https://github.com/heroku/heroku-buildpack-ruby
+```term
+$ heroku create myapp --buildpack https://github.com/heroku/heroku-buildpack-ruby
+```
+
+## Buildpack URLs
 
 Buildpack URLs can point to either git repositories or tarballs. Hosting a buildpack on S3 can be a good way to ensure it's highly available.
 
-## Creating a Buildpack
+## Creating a buildpack
 
 If you'd like to use a language or framework not yet supported on Heroku you can create a custom buildpack. To get started, see the following articles:
 
 * To learn about the structure of a buildpack, see [Buildpack API](buildpack-api).
 
-You can use the [heroku-buildpacks](https://github.com/heroku/heroku-buildpacks) CLI plugin to publish buildpacks to our catalog.
+You can use the [heroku-buildpacks](https://github.com/heroku/heroku-buildpacks) CLI plugin to publish buildpacks to our catalog. 

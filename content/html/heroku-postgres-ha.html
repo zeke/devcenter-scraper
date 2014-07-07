@@ -27,6 +27,8 @@ Typically there is little loss to committed data.</p>
 
 <p>After a successful failover, there are a few things to keep in mind. First, the URL for the database will have changed, and your app will automatically restart with the new credentials. Secondly, the <a href="https://devcenter.heroku.com/articles/understanding-postgres-data-caching">new database’s cache</a> will be cold, so your application’s performance may be degraded for a short period of time. This will fix itself through normal usage. Finally, a new standby is automatically recreated, and HA procedures cannot be performed until it becomes available and meets our failover conditions.</p>
 
+<p>If there are standard followers of your primary database, they would be destroyed and recreated upon the failover event.</p>
+
 <h2 id="ha-status">HA Status</h2>
 
 <p>You can check the status of HA for your database by running <code>heroku pg:info</code>. Under normal situations will show <code>HA Status: Available</code>. After unfollowing or after a failover event, it will show <code>HA Status: Temporarily Unavailable</code> while rebuilding the standby. It can also show ‘Temporarily Unavailable’ when the standby is more than 10 segments behind, as failover will not be attempted at that time.</p>

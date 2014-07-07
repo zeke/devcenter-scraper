@@ -70,4 +70,4 @@ $ kensa test deprovision <id>
 $ kensa test all
 ```
 
-After you've confirmed everything is working, you can rename your add-on by editing the `addon-manifest.json` and `.env` files and concentrate on your application logic.
+After you've confirmed everything is working, you can rename your add-on by editing the `addon-manifest.json` and `.env` files and concentrate on your application logic. 

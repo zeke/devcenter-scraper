@@ -37,4 +37,4 @@ If you see multiple instances of a $1.00 charge, it may be because the card info
 
 If you do not have a credit or debit card (or do not have one that we are able to accept), **you may still use Heroku as a free service**. Without a credit card, each app will allow you 1 free dyno as well as the use of the add-ons heroku-postgresql:dev and pgbackups:plus.
 
-Anything more will require account verification with a credit or debit card.
+Anything more will require account verification with a credit or debit card. 

@@ -38,7 +38,7 @@ your code to Heroku.
 
 ## Creating a Heroku remote
 
-[Git remotes](http://progit.org/book/ch2-5.html) are references to remote repositories.  You can have any number of
+[Git remotes](http://git-scm.com/book/en/Git-Basics-Working-with-Remotes) are references to remote repositories.  You can have any number of
 these, but for now we'll focus on just the remote to Heroku.  The `heroku create` command creates a new application on Heroku – along with a git remote that must be used to receive your application source.
 
 ```term
@@ -81,11 +81,14 @@ push to. You can do your first push:
 
 ```term
 $ git push heroku master
+Initializing repository, done.
 updating 'refs/heads/master'
 ...
 ```
 
 This will push your code to the `heroku` remote, created earlier. Use this whenever you want to deploy the latest code committed in Git to Heroku.
+
+During the start of your first build, `Initializing repository` will be displayed while your app’s repository is created on Heroku. On subsequent builds, `Fetching repository` will be displayed while your app’s repository is fetched and prepared to accept your push.
 
 Branches pushed to Heroku other than `master` will be ignored by this command.  If you're
 working out of another branch locally, you can either merge to master before
@@ -99,7 +102,7 @@ $ git push heroku yourbranch:master
 >note
 >Applications that rely on git submodules are supported, in addition to many other [dependency resolution strategies](git-submodules).
 
-## Cancelling a deployment
+## Canceling a deployment
 
 When deploying code using `git push`, you can interrupt the build process on Heroku by pressing Ctrl + C on your machine.  As long as this is not done as the build process completes (generally around the "Launching..." message), and you've taken latency into account, then it will halt the build process and no new release will be generated.
 
@@ -107,13 +110,19 @@ When deploying code using `git push`, you can interrupt the build process on Her
 
 The same techniques used to deploy to production can be used to deploy a development branch of your application to a staging application on Heroku, as described in [Managing Multiple Environments for an App](multiple-environments).
 
+## Build cache
+
+Buildpacks can optionally cache content for re-use between builds. A typical use-case for the buildpack is to speed up builds by caching dependencies so that they don't have to be re-fetched on every build. This greatly speeds up builds.
+
+If you suspect that a build-problem is related to this caching, you can use the [`heroku-repo`](https://github.com/heroku/heroku-repo) plugin to clear the cache.
+
 ## Repo size
 
 While there is not a hard limit on your repository size, very large
 repositories (over 600MB) are not recommended; they may cause timeouts
 and slow pushes overall. Running `heroku apps:info` will show you your
-repository size. Your build cache is stored inside your repository, so
-don't be surprised if it's larger remotely than locally.
+repository size. The app build cache is stored inside the app repository, so
+don't be surprised if the repository is larger remotely than locally.
 
 Common causes of large repositories are binary files checked into the
 repo (git is notoriously bad at handling binaries) or
@@ -179,4 +188,4 @@ $ git push -f heroku
 * Git cheat sheets for [web](http://cheat.errtheblog.com/s/git) and
    [print](https://na1.salesforce.com/help/doc/en/salesforce_git_developer_cheatsheet.pdf) consumption.
 * [Git - SVN Crash Course](http://git.or.cz/course/svn.html)
-* [Pro Git](http://progit.org/book/) and [The Git Community Book](http://book.git-scm.com/) are great books covering all of Git.
+* [Pro Git](http://progit.org/book/) and [The Git Community Book](http://book.git-scm.com/) are great books covering all of Git. 

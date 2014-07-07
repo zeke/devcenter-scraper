@@ -11,7 +11,7 @@ When archived, an app won't be accessible via any web domain.  In particular, ac
 
 Currently apps are archived only if they have never had a [user-initiated deploy](git), i.e. they are empty apps or apps created from templates and never changed.
 
-Use the [Heroku CLI](articles/heroku-command) to determine whether an app has been archived:
+Use the [Heroku CLI](/articles/heroku-command) to determine whether an app has been archived:
 
 ```term
 $ heroku apps:info -a example-app

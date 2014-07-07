@@ -33,10 +33,10 @@ The `region` attribute in the request specifies geographical region of the app t
 
 The `logplex_token` attribute is provided so that logs can be sent to the app's log stream. For more information, see [the article describing logplex input](add-on-provider-log-integration).
 
-The `options` object in the request are [extra command line options](/articles/additional-provisioning-options) passed in to the `heroku addons:add` command.
+The `options` object in the request are [extra command line options](add-on-parameter-handling) passed in to the `heroku addons:add` command.
 
 The `id` value returned in the response may be a string or integer value. It should be an
-immutable value that can be used to address the relationship between this app and resource. This means that a plan change can *not* change the value of this `id`, you can however update the
+immutable value that can be used to address the relationship between this app and resource. This means that a plan change can *not* change the value of this `id`, although you can update the
 `config` later to point the app to a different resource.
 
 The `config` object and `message` in the response are both optional.
@@ -89,4 +89,8 @@ Optional values can be passed through by appending them to the Heroku API SSO UR
 https://api.heroku.com/myapps/<heroku_app_id>/addons/<addon-name>?other=vals
 ```
 
-See [manifest formats](https://addons.heroku.com/provider/resources/technical/reference/manifest) for more information about configuring single sign-on via GET or POST.
+See [manifest formats](https://addons.heroku.com/provider/resources/technical/reference/manifest) for more information about configuring single sign-on.
+
+## App Info API
+
+After your addon is provisioned, you can use the [App Info API](https://addons.heroku.com/provider/resources/technical/reference/app-info) to query information about your addon installations or to update the Config Vars for your addon. 

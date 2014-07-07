@@ -1,0 +1,203 @@
+<p>A fundamental aspect to optimizing any application is to ensure it is <a href="https://devcenter.heroku.com/articles/architecting-apps">architected appropriately</a>. For example, it should use <a href="https://devcenter.heroku.com/articles/background-jobs-queueing">background jobs</a> for computationally intensive tasks in order to keep request times short, and use a <a href="https://devcenter.heroku.com/articles/runtime-principles#process-model">process model</a> to ensure that separate parts of the application can be scaled independently.</p>
+
+<p>Beyond this, you may reach a point where you need to scale or optimize by making more efficient use of available resources. For example, if your web requests are short and handled efficiently, you could be able to increase throughput on a dyno by increasing the ability of the web server to handle more requests concurrently, usually at the expense of using more RAM.</p>
+
+<p>The article provides a bird’s-eye view of how to go about optimizing an application for the various dyno sizes.  It provides some rough estimates of capabilities, and pays particular attention to memory usage and concurrency. The techniques suggested in this article are relevant to any environment that runs your application, not just a dyno.</p>
+
+<h2 id="considering-different-dyno-sizes">Considering different dyno sizes</h2>
+
+<p>Heroku offers a range of <a href="https://devcenter.heroku.com/articles/dyno-size">dyno sizes</a> - 1X, 2X and PX. Each size has a different CPU and RAM profile.</p>
+
+<p>Changing the dyno size of an application increases complexity: as a developer you have introduced a new variable, the size of the dyno, in addition to the number of dynos.</p>
+
+<p>However, a well designed app will quite naturally be able to make use of different dyno sizes, and thinking about optimizing your application to make better use of a dyno is a worthwhile endeavor.</p>
+
+<p>Even if your application doesn’t need to make use of different dyno sizes, consider applying these optimization techniques to your current dyno size anyway.</p>
+
+<p>The different <a href="https://devcenter.heroku.com/articles/dyno-size">dyno sizes</a> offer three important axes of optimization: CPU, RAM and the performance profile.</p>
+
+<h3 id="cpu">CPU</h3>
+
+<p>Most applications are not CPU-bound on the web server.</p>
+
+<p>If you are processing individual requests slowly due to CPU or other shared resource constraints (such as database), then optimizing concurrency on the dyno may not help your application’s throughput at all. Put another way, if your application is slow when there is little traffic, the techniques in this article may not increase performance.</p>
+
+<p>The different dyno sizes do offer different CPU performance characteristics, and will aid a little in a high-CPU situations, but ideally you should consider offloading work to a <a href="https://devcenter.heroku.com/articles/background-jobs-queueing">background worker</a> as a first step in optimization, as well as optimizing the code.</p>
+
+<p>A final aspect of CPU is the number of cores. The different dyno sizes, PX in particular, offer multiple cores.  With multiple cores, you may be able to execute multiple threads in parallel.  This article points out where you need to take action to make use of these cores.</p>
+
+<p>The rest of this article will assume the application is not CPU-bound.</p>
+
+<h3 id="ram">RAM</h3>
+
+<p>Depending on language and web framework, there is typically a direct correspondence between RAM and concurrency.</p>
+
+<p>For example, web servers like Unicorn for Ruby, or Gunicorn for Python, pre-fork a number of identical copies of your web servers (called workers). Unicorn then has its own connection queue, and as workers finish a web request, they pull a new request off of the queue.</p>
+
+<p>Having more RAM in this scenario means that you can have more workers running concurrently - and there is typically a fairly linear correlation between RAM and concurrency.  Optimizing concurrency for RAM is something this article addresses.</p>
+
+<h3 id="performance-profile">Performance profile</h3>
+
+<p>The performance profile of each dyno size can have an impact.  In particular, 1X and 2X dynos operate on a CPU-share basis, whereas PX dynos have a single tenant 8-core CPU.</p>
+
+<p>Much like the various <a href="https://devcenter.heroku.com/articles/heroku-postgres-production-tier-technical-characterization#multitenancy">Heroku Postgres</a> tiers, PX dynos therefore offer a higher level of resource isolation.</p>
+
+<p>This can have a significant impact on applications, depending on the amount of traffic that they’re receiving and how well they’re optimized.  In particular, a more consistent performance profile can lead to reduced tail latencies.</p>
+
+<h2 id="when-to-try-a-different-dyno-size">When to try a different dyno size</h2>
+
+<p>There are many factors that come into play when considering different dyno sizes. Some of them are inherent to your application (how much CPU does it use), some are due to optimization factors introduced by increased concurrency (due to having more RAM) and some due to the inherent characteristics of the dyno itself.</p>
+
+<p>This complexity can be difficult to navigate, but the simple techniques suggested in this article for applications that are not CPU bound can be found make it a lot more tractable and easy to optimise for any dyno size.</p>
+
+<p>Once you have optimized for a particular dyno size, say 1X dynos, apply the same techniques on a 2X or PX dyno - taking into account the factors that each dyno size introduce.</p>
+
+<p>Here are some rough rules of thumb:</p>
+
+<ul>
+<li>For most applications that aren’t receiving tremendously high volumes of traffic, consider 1X dynos.</li>
+<li>If the application is particularly memory-hungry, as seen in some Java-based frameworks such as Play and JRuby, consider 2X dynos which doubles the memory.</li>
+<li>For very high volume web apps, running on more than 20 1X dynos, consider PX dynos.</li>
+</ul><h2 id="basic-methodology-for-optimizing-memory">Basic methodology for optimizing memory</h2>
+
+<p>We suggest that you follow these steps, making use of visibility tools listed below, as well as the per-language suggestions.  This will get you to a point where you can easily optimise for a single dyno size, or for moving between dyno sizes.</p>
+
+<ol>
+<li>Using a concurrent web server.</li>
+<li>Set up instrumentation to measure the impact of load on the app</li>
+<li>Observing the app performance, and adjusting the concurrency as necessary.</li>
+</ol><p>Optimizing is an iterative process - there is no golden path.  Different languages, web frameworks and applications behave quite differently.</p>
+
+<p>For example, a standard Ruby application may need to use a web server that forks multiple copies of an application to make use of all the RAM that is available.  A standard Java application, on the other hand, may simply need a parameter to the JVM in order to allocate a larger heap.</p>
+
+<h2 id="concurrent-web-servers">Concurrent web servers</h2>
+
+<p>Different languages and platforms have different approaches to concurrency. Here’s a brief look at how to establish concurrency in apps running on Ruby, Java, Python and Node.js.</p>
+
+<h3 id="ruby">Ruby</h3>
+
+<p>Traditional Ruby web servers such as WEBrick and Thin default to only accepting a single request at a time. If you want to optimize for increased concurrency, Heroku recommends that you use Unicorn.</p>
+
+<p>Unicorn works by forking a configurable number of child processes, called workers. Each worker can only process a single request at a time. Concurrency comes about because the master Unicorn process queues new web requests, and these are then delegated to workers if they are free and have completed processing a previous request.</p>
+
+<p>Increasing the concurrency is then configured by increasing the number of workers.</p>
+
+<p>However, as each worker is effectively a forked version of your application, moving from a single worker to two workers will roughly double the memory requirements of your application.</p>
+
+<p>It’s this trade off - between increased concurrency and memory available in a dyno, that you will measure and tune.</p>
+
+<p>Read <a href="https://devcenter.heroku.com/articles/rails-unicorn">Deploying Rails Applications With Unicorn</a> to learn how to set up Unicorn for Ruby on Heroku. This will result in a web server with a config var, <code>WEB_CONCURRENCY</code>, which will let you adjust the number of workers the main Unicorn process will fork.</p>
+
+<p>While highly app dependent, the following table lists some rough rules of thumb for how many Unicorn workers can be run on each dyno size:</p>
+
+<table>
+<tr>
+<th>Dyno Size</th>
+<th>Number of Unicorn workers</th>
+</tr>
+<tr>
+<td>1X</td>
+<td>2-3</td>
+</tr>
+<tr>
+<td>2X</td>
+<td>4-6</td>
+</tr>
+<tr>
+<td>PX</td>
+<td>20-30</td>
+</tr>
+</table><h3 id="java">Java</h3>
+
+<p>Java web servers like Jetty and Tomcat make good use of concurrency out of the box.</p>
+
+<p>However, you will need to tune the amount of memory allocated to the JVM, depending on dyno size.</p>
+
+<p>Read <a href="https://devcenter.heroku.com/articles/java-support#adjusting-environment-for-a-dyno-size">Adjusting Environment for a Dyno Size</a> for appropriate <code>JAVA_OPTS</code> flags to accomplish this.</p>
+
+<h3 id="python">Python</h3>
+
+<p>If you want to optimize for increased concurrency, Heroku recommends that you use Gunicorn for Python apps.</p>
+
+<p>Gunicorn works by forking a configurable number of child processes, called workers. Each worker can only process a single request at a time. Concurrency comes about because the master Gunicorn process queues new web requests, and these are then delegated to workers if they are free and have completed processing a previous request.</p>
+
+<p>Increasing the concurrency is then configured by increasing the number of workers.</p>
+
+<p>However, as each worker is effectively a forked version of your application, moving from a single worker to two workers will roughly double the memory requirements of your application.</p>
+
+<p>It’s this trade off - between increased concurrency and memory available in a dyno, that you will measure and tune.</p>
+
+<p>Read <a href="https://devcenter.heroku.com/articles/python-gunicorn">Deploying Python Applications with Gunicorn</a> to learn how to set up Gunicorn for Python on Heroku. This will result in a web server with a config var, <code>WEB_CONCURRENCY</code>, which will let you adjust the number of workers the main Unicorn process will fork.</p>
+
+<p>While highly app dependent, the following table lists some rough rules of thumb for how many Unicorn workers can be run on each dyno size:</p>
+
+<table>
+<tr>
+<th>Dyno Size</th>
+<th>Number of Gunicorn workers</th>
+</tr>
+<tr>
+<td>1X</td>
+<td>2-3</td>
+</tr>
+<tr>
+<td>2X</td>
+<td>4-6</td>
+</tr>
+<tr>
+<td>PX</td>
+<td>20-30</td>
+</tr>
+</table><div class="warning">
+<p>These are just estimates, and will vary from app to app.  Use something in the lower range, measure, and adjust as necessary.</p>
+</div>
+
+<h3 id="node-js">Node.js</h3>
+
+<p>Node offers a single-threaded non-blocking concurrent web server environment.</p>
+
+<p>Node will automatically make use of an appropriate amount of memory, so no action is needed if you migrate between 1X and 2X dynos.</p>
+
+<p>The situation is slightly different for PX.  Because Node is single-threaded, a single node instance will never be able to take advantage of the multiple cores offered by PX-sized dynos. To do so, use Node Cluster. In this configuration, node will spawn as many threads as there are cores in the CPU.</p>
+
+<p>Read <a href="https://devcenter.heroku.com/articles/node-cluster">Improving Node.js concurrency with node-cluster</a> to learn how to configure Node Cluster on Heroku.</p>
+
+<h2 id="measuring">Measuring</h2>
+
+<p>After setting up a concurrent web server, you’ll want to tune it for a particular dyno size.   Measuring memory and throughput should provide enough guidance for you to make a judgement as to the impact of a change.</p>
+
+<h3 id="measuring-memory-with-log-runtime-metrics">Measuring memory with log-runtime-metrics</h3>
+
+<p>This Heroku Labs <a href="https://devcenter.heroku.com/articles/log-runtime-metrics">log-runtime-metrics</a> feature adds support for enabling visibility into load and memory usage for running dynos.</p>
+
+<p>Per-dyno stats on memory use, swap use, and load average are inserted into the app’s log stream.</p>
+
+<p>Here is some example output with this feature enabled:</p>
+
+<pre><code>source=web.1 dyno=heroku.2808254.d97d0ea7-cf3d-411b-b453-d2943a50b456 sample#load_avg_1m=2.46 sample#load_avg_5m=1.06 sample#load_avg_15m=0.99
+source=web.1 dyno=heroku.2808254.d97d0ea7-cf3d-411b-b453-d2943a50b456 sample#memory_total=21.00MB sample#memory_rss=21.22MB sample#memory_cache=0.00MB sample#memory_swap=0.00MB sample#memory_pgpgin=348836pages sample#memory_pgpgout=343403pages
+</code></pre>
+
+<p>The <code>memory_rss</code> is the most significant number here, providing an indication of total resident memory.  Ensure that you don’t exceed the memory of your dyno size - and leave some head room too.   Likewise, make sure you keep swap usage at minimum and the swapping activity (<code>memory_pgpgin</code>/<code>memory_pgpgout</code>) is minimal. Ideally <code>memory_pgpgin</code>/<code>memory_pgpgout</code> shouldn’t change much over time (rate of change is zero).</p>
+
+<p>See <a href="https://devcenter.heroku.com/articles/log-runtime-metrics#memory-swap">log-runtime-metrics</a> to understand how to interpret these figures.</p>
+
+<p>The output of log-runtime-metrics is particularly useful as it lets you look at per-dyno memory usage.  If you’re over-provisioned, you may see a single dyno peaking before any other.</p>
+
+<p>There are other ways of visualising this memory data:</p>
+
+<p>The <a href="https://addons.heroku.com/librato#nickel">Librato add-on</a>, with the Nickel plan and above, provides a way to graph the various output from log-runtime-metrics, averaging the values across all the dynos.</p>
+
+<p>Here is sample output for a Rails application on 1X dynos using 4 Unicorn workers.  The memory, about 359MB at a peak, fits comfortably into the 1X 512MB of RAM.</p>
+
+<p><img src="https://s3.amazonaws.com/f.cl.ly/items/272D0L0N2m0C413l3W0Y/Heroku%20Overview%20%7C%20Librato-1.png" alt=""></p>
+
+<p>Another tool that can be used is <a href="https://blog.heroku.com/archives/2013/3/19/log2viz">log2viz</a>, an experimental application that also aggregates the memory (and load) of dynos in an app.</p>
+
+<p><img src="https://s3.amazonaws.com/f.cl.ly/items/1S1Q3e2z2i0u3A2V3k3j/log2viz%20%7C%20devcenter-eu.png" alt=""></p>
+
+<h3 id="measuring-throughput-and-response-time">Measuring throughput and response time</h3>
+
+<p>Throughput, the number of requests being handled per minute, as well as response times, are particularly useful indicators of how an optimization has affected the performance of a dyno.</p>
+
+<p>In particular, the 95th and 99th percentile response time values provided by add-ons like <a href="https://devcenter.heroku.com/articles/librato">Librato</a> or <a href="https://devcenter.heroku.com/articles/newrelic">New Relic</a> should be monitored closely.</p>

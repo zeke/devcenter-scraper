@@ -44,9 +44,12 @@ To aid in this task, Heroku provides a starter-template that can be used as
 a starting point for add-on documentation. It includes topics that have been
 found to increase clarity and reduce developer confusion.
 
-Copy [the template](https://gist.github.com/rwdaigle/44bca0418bc77e54e972/raw/eff355ba5d7892123f20307dcc5d2c0308e02576/README.md) to your local environment for editing.
+Copy [the template](https://gist.githubusercontent.com/jonmountjoy/3aa2739ec0984a67ef97/raw/79683477b6596e989453752dac1bdfa86eb2cf94/README.md) to your local environment for editing.
 
-    $ curl https://gist.github.com/rwdaigle/44bca0418bc77e54e972/raw/eff355ba5d7892123f20307dcc5d2c0308e02576/README.md > addon-doc.md
+```term
+$ curl 
+https://gist.githubusercontent.com/jonmountjoy/3aa2739ec0984a67ef97/raw/79683477b6596e989453752dac1bdfa86eb2cf94/README.md > addon-doc.md
+```
 
 Dev Center documentation is written using a slight extension to the text-based [GitHub Flavored 
 Markdown](http://daringfireball.net/projects/markdown/) format. Any text
@@ -63,15 +66,15 @@ values for the article's add-on.
     <th>with</th>
   </tr>
   <tr>
-    <td><code>ADDON_NAME</code></td>
+    <td><code>ADDON-NAME</code></td>
     <td style="text-align: left">The name of the add-on. E.g. <code>New Relic</code>.</td>
   </tr>
   <tr>
-    <td><code>ADDON_SLUG</code></td>
+    <td><code>ADDON-SLUG</code></td>
     <td style="text-align: left">The shorthand name used by the CLI and Add-on site URL. E.g. <code>newrelic</code>.</td>
   </tr>
   <tr>
-    <td><code>ADDON_CONFIG_NAME</code></td>
+    <td><code>ADDON-CONFIG-NAME</code></td>
     <td style="text-align: left">The name of the add-on config expose to integrated apps. E.g. <code>CLOUDANT_URL</code>.</td>
   </tr>
 </table>
@@ -142,4 +145,4 @@ to submit the documentation.
 
 Content is only as compelling as it is relevant. Add-on providers should
 ensure their Dev Center documentation stays up-to-date with new versions and
-language releases.
+language releases. 

@@ -11,11 +11,11 @@ Let's get started.
 
 ## Step 1: Sign up 
 
-[Sign up](https://api.heroku.com/signup/devcenter) for a Heroku account, if you don't already have one.
+[Sign up](https://signup.heroku.com/signup/dc) for a Heroku account, if you don't already have one.
 
 ## Step 2: Install the Heroku Toolbelt
 
-Install the [Heroku Toolbelt](https://toolbelt.heroku.com/) for your development operating system. 
+<a class="toolbelt" href="https://toolbelt.heroku.com/">Install the Heroku Toolbelt</a>
 
 The toolbelt contains the [Heroku client](http://devcenter.heroku.com/categories/command-line), a command-line tool for creating and managing Heroku apps; Foreman, an easy option for running your apps locally; and Git, the revision control system needed for deploying applications to Heroku.
 
@@ -71,4 +71,12 @@ Choose from the following getting started tutorials to learn how to deploy your 
 <a href="https://devcenter.heroku.com/articles/getting-started-with-scala">Scala</a>
 </td>
   </tr>
-</table>
+ <tr>
+    <td style="text-align: left">
+<a href="https://devcenter.heroku.com/articles/getting-started-with-php">PHP</a> (beta)
+</td>
+    <td style="text-align: left">
+&nbsp;
+</td>
+  </tr>
+</table> 

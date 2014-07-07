@@ -54,4 +54,4 @@ Unexpected downtime happens. When it does, it's critical that you:
 
 * Acknowledge the problem as soon as you know of it. Use the status page and email notifications.
 * Restore service as quickly as possible, and notify using the same channels.
-* Provide a post-mortem analysis explaining what went wrong, and what is being done to prevent a similar outage in the future.
+* Provide a post-mortem analysis explaining what went wrong, and what is being done to prevent a similar outage in the future. 

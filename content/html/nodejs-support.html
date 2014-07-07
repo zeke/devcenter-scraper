@@ -1,6 +1,6 @@
 <p>This document describes the general behavior of the Cedar stack as it relates
 to the recognition and execution of Node.js applications. For a more detailed
-explanation of how to deploy an application, see <a href="https://devcenter.heroku.com/articles/nodejs">Getting Started with Node.js
+explanation of how to deploy an application, see <a href="https://devcenter.heroku.com/articles/getting-started-with-nodejs">Getting Started with Node.js
 on Heroku</a>.</p>
 
 <div class="note">
@@ -12,13 +12,43 @@ on Heroku</a>.</p>
 <p>The Heroku Node.js buildpack is employed only when the application has a
 <code>package.json</code> file in the root directory.</p>
 
-<h2 id="versions">Versions</h2>
+<h2 id="node-js-runtimes">Node.js runtimes</h2>
 
-<p>Heroku allows you to run any version of Node.js greater than <code>0.8.5</code>, including unstable
-pre-release versions like <code>0.11.8</code>. Use the <code>engines</code> section of your <code>package.json</code> to
-specify the version of Node.js to use on Heroku.</p>
+<p>Node versions adhere to <a href="http://semver.org/">SemVer</a>, the semantic versioning convention popularized by GitHub. SemVer uses a version scheme in the form <code>MAJOR.MINOR.PATCH</code>.</p>
 
-<p>To see what versions of node are currently available, visit <a href="http://semver.io/node.json">semver.io/node.json</a> or <a href="http://what-is-the-latest-version-of-node.com/">what-is-the-latest-version-of-node.com</a>.</p>
+<ul>
+<li>
+<code>MAJOR</code> denotes incompatible API changes</li>
+<li>
+<code>MINOR</code> denotes added functionality in a backwards-compatible manner</li>
+<li>
+<code>PATCH</code> denotes backwards-compatible bug fixes</li>
+</ul><p>Node’s versioning strategy is <a href="http://en.wikipedia.org/wiki/Software_versioning#Odd-numbered_versions_for_development_releases">borrowed from Linux</a>, where odd <code>MINOR</code> version numbers denote unstable development releases, and even <code>MINOR</code> version numbers denote stable releases. Here are some examples for node:</p>
+
+<ul>
+<li>
+<code>0.8.x</code>: stable</li>
+<li>
+<code>0.9.x</code>: unstable</li>
+<li>
+<code>0.10.x</code>: stable</li>
+<li>
+<code>0.11.x</code>: unstable</li>
+</ul><h3 id="supported-runtimes">Supported runtimes</h3>
+
+<p>Heroku’s node support extends to the latest stable <code>MINOR</code> version and the previous <code>MINOR</code> stable version that still receives security updates.</p>
+
+<p>Currently, those versions are <code>0.10.x</code> and <code>0.8.x</code>.</p>
+
+<p>Version <code>0.12</code> is expected to be the <a href="http://venturebeat.com/2014/03/12/nodes-new-leader-tj-fontaine-explains-why-version-0-12-will-blow-developers-minds/">last stable minor version before <code>1.0</code></a>. When <code>0.12</code> is released, Heroku support for <code>0.8</code> will be dropped. When <code>1.0</code> is released, Heroku support for <code>0.10</code> will be dropped, and so on.</p>
+
+<h3 id="other-available-runtimes">Other available runtimes</h3>
+
+<p>While there are limits to the Node versions officially Heroku supports, it is technically possible to run any available version of Node beyond <code>0.8.5</code>, including unstable pre-release versions like <code>0.11.13</code>. To see what versions of node are currently available for use on Heroku, visit <a href="http://semver.io/node.json">semver.io/node.json</a> or <a href="http://what-is-the-latest-version-of-node.com/">what-is-the-latest-version-of-node.com</a>.</p>
+
+<h2 id="specifying-a-node-js-version">Specifying a Node.js Version</h2>
+
+<p>Use the <code>engines</code> section of your <code>package.json</code> to specify the version of Node.js to use on Heroku:</p>
 
 <pre><code class="json">{
   "name": "myapp",
@@ -26,6 +56,15 @@ specify the version of Node.js to use on Heroku.</p>
   "version": "0.0.1",
   "engines": {
     "node": "0.10.x"
+  }
+}
+</code></pre>
+
+<p>To run a newer (unsupported) version of node with support for generators, promises, and other new features, use the <code>0.11.x</code> SemVer range:</p>
+
+<pre><code class="json">{
+  "engines": {
+    "node": "0.11.x"
   }
 }
 </code></pre>
@@ -46,24 +85,64 @@ override it if you wish:</p>
 <pre><code class="sh">heroku config:set NODE_ENV=staging
 </code></pre>
 
-<h2 id="build-behavior">Build behavior</h2>
+<h2 id="build-behavior">Build Behavior</h2>
 
-<p>Heroku maintains a <a href="https://devcenter.heroku.com/articles%0A/buildpack-api#caching">cache directory</a> that is persisted between builds. This
+<p>Heroku maintains a <a href="https://devcenter.heroku.com/articles/buildpack-api#caching">cache directory</a> that is persisted between builds. This
 cache is used to store resolved dependencies so they don’t have to be
 downloaded and installed every time you deploy.</p>
 
-<p>If you add <code>node_modules</code> to your <code>.gitignore</code> file, the build cache is used. If, however, you check your <code>node_modules</code> directory into source control, the build cache is <strong>not</strong> used.</p>
+<p>If you add <code>node_modules</code> to your <code>.gitignore</code> file, the build cache is used. If you check your <code>node_modules</code> directory into source control, the build cache is <strong>not</strong> used.</p>
 
 <p><code>npm install --production</code> is run on every build, even if the node_modules directory is already present, to ensure execution of any <a href="https://npmjs.org/doc/misc/npm-scripts.html">npm script hooks</a> defined in your package.json.</p>
 
 <p><code>npm prune</code> is run after restoring cached modules to ensure cleanup of any unused dependencies. You must specify all of your application’s dependencies in <code>package.json</code>, else they will be removed by <code>npm prune</code>.</p>
 
-<h2 id="runtime-behavior">Runtime behavior</h2>
+<p>On each build, the node runtime version is checked against the version in the previous build. If the version has changed, <code>npm rebuild</code> is run automatically to recompile any binary dependencies. This ensures your app’s dependencies are compatible with the installed node version.</p>
+
+<h2 id="customizing-the-build-process">Customizing the Build Process</h2>
+
+<p>If your app has a build step that you’d like to run when you deploy, you can use
+an npm <code>postinstall</code> script, which will be executed automatically after the
+buildpack runs <code>npm install --production</code>. Here’s an example:</p>
+
+<pre><code class="json">"scripts": {
+  "start": "node index.js",
+  "test": "mocha",
+  "postinstall": "bower install &amp;&amp; grunt build"
+}
+</code></pre>
+
+<p>Your app’s <a href="https://devcenter.heroku.com/changelog-items/416">environment is
+available</a> during the build,
+allowing you to adjust build behavior based on the values of
+environment variables such as <code>NODE_ENV</code>.</p>
+
+<p>By default, the Heroku node buildpack runs <code>npm install --production</code>, which doesn’t install <code>devDependencies</code> in
+your package.json file. If you wish to install development dependencies when deploying to Heroku, there are two ways to do so:</p>
+
+<ul>
+<li>Move your build dependencies (such as grunt plugins) from <code>devDependencies</code> to <code>dependencies</code> in package.json.</li>
+<li>Configure npm to install all dependencies by setting a config var:</li>
+</ul><pre><code class="term">$ heroku config:set npm_config_production=false
+</code></pre>
+
+<h2 id="runtime-behavior">Runtime Behavior</h2>
 
 <p>The buildpack puts <code>node</code> and <code>npm</code> on the <code>PATH</code> so they can be executed with <a href="https://devcenter.heroku.com/articles/one-off-dynos#an-example-one-off-dyno">heroku run</a> or used directly in a Procfile:</p>
 
-<pre><code>web: node web.js
+<pre><code class="term">$ cat Procfile
+web: npm start
 </code></pre>
+
+<h2 id="default-web-process-type">Default Web Process Type</h2>
+
+<p>A <code>Procfile</code> is not required to run a Node.js app on Heroku. If no <code>Procfile</code> is present in the root directory of your app during the build process, we will check for a <code>scripts.start</code> entry in your <code>package.json</code> file. If a start script entry is present, a default Procfile is generated automatically:</p>
+
+<pre><code class="term">$ cat Procfile
+web: npm start
+</code></pre>
+
+<p>Read more about npm script behavior at <a href="https://npmjs.org/doc/misc/npm-scripts.html">npmjs.org</a>.</p>
 
 <h2 id="add-ons">Add-ons</h2>
 

@@ -37,7 +37,7 @@ The options are included as part of the JSON in the provision request:
 
 ``` json
 POST /heroku/resources HTTP/1.0
-Content-Type: text/json
+Content-Type: application/json
 {
   "options": {"foo":"bar","bar":"foo","baz":"true"},
   "heroku_id": "app12345@heroku.com",
@@ -50,4 +50,4 @@ You can use the `kensa` gem to test the extra command line parameters:
 
 ``` term
 $ kensa test provision --foo=bar --bar foo --baz
-```
+``` 

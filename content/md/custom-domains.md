@@ -5,7 +5,7 @@ url: https://devcenter.heroku.com/articles/custom-domains
 description: Assign additional custom and wildcard DNS domain names to your Heroku applications.
 ---
 
-All apps on Heroku are accessible via their `herokuapp.com` app subdomain. E.g., for an app named `example` it's available at `example.herokuapp.com`. To serve traffic on a non-herokuapp.com domain, e.g., `www.example.com`, you need to configure your application with a custom domain.
+All apps on Heroku are accessible via their `herokuapp.com` app subdomain. E.g., for an app named `example` it's available at `example.herokuapp.com`. To serve traffic on a non-herokuapp.com domain, e.g., `www.example.com`, you need to configure your application with a custom domain (a free feature on Heroku).
 
 The process to add a custom domain to your application can vary slightly, depending on the type of domain(s).
 
@@ -86,6 +86,9 @@ Some DNS hosts provide a way to get CNAME-like functionality at the zone apex us
 
 * [ALIAS at DNSimple](http://support.dnsimple.com/articles/alias-record)
 * [ANAME at DNS Made Easy](http://www.dnsmadeeasy.com/technology/aname-records/)
+* [ANAME at easyDNS](http://docs.easydns.com/aname-records/)
+* [CNAME at CloudFlare](https://support.cloudflare.com/hc/en-us/articles/200169056-Does-CloudFlare-support-CNAME-APEX-at-the-root-)
+* [ALIAS at PointDNS](https://devcenter.heroku.com/articles/pointdns)
 
 For each provider, the setup is similar: point the ALIAS or ANAME entry for your apex domain to example.herokuapp.com, just as you would with a CNAME record.
 
@@ -222,4 +225,4 @@ Domain names that contain accented, or other non-ASCII, characters should be add
 
 ```term
 $ heroku domains:add xn--ste-9la.com
-```
+``` 

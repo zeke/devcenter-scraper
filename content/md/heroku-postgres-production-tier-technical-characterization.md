@@ -72,4 +72,4 @@ All instances are backed by EBS optimized instances where EBS disks with provisi
 per second. The amount of IOPs provisioned for each plan determines its I/O throughput. 
 On write-heavy applications, I/O can be a significant bottleneck, but on read-heavy ones, your
 hot dataset should fit in RAM and can therefore have very high performance with
-lower IOPs values.
+lower IOPs values. 

@@ -1,0 +1,75 @@
+<p>This article describes Heroku’s commitment to compatibility for services built on the Platform API. It also describes how we will introduce changes to the API and how those changes are communicated.</p>
+
+<h2 id="versions-and-resource-stability">Versions and resource stability</h2>
+
+<p>V3 is the current and only supported version of the Platform API.</p>
+
+<p>Within any given version of the API, any given resource (eg. <code>/apps</code>, <code>/account</code> or <code>/apps/:id/addons</code>) has a specified level of stability. The stability of a resource is specified in the <a href="https://devcenter.heroku.com/articles/json-schema-for-platform-api">JSON Schema</a> <code>stability</code> property. It’s also displayed in the <a href="https://devcenter.heroku.com/articles/platform-api-reference">Platform API reference document</a>.</p>
+
+<p>The stability of a resource specifies what changes (if any) Heroku will make to the resource and how changes will be communicated. The possible types of changes are detailed below. All changes are communicated in the <a href="https://devcenter.heroku.com/changelog">Heroku Changelog</a>.</p>
+
+<p>There are three levels of stability: prototype, development, and production.</p>
+
+<h3 id="prototype">Prototype</h3>
+
+<p>A prototype resource is experimental and major changes are likely. In time, a prototype resource may or may not advance to production.</p>
+
+<ul>
+<li>Compatible and emergency changes may be made with no advance notice</li>
+<li>Disruptive changes may be made with one week notice</li>
+<li>Deprecated resources will remain available for at least one month after deprecation</li>
+</ul><h3 id="development">Development</h3>
+
+<p>A Development resource is a work-in-progress, but major changes should be infrequent. Development resources should advance to production stability in time.</p>
+
+<ul>
+<li>Compatible and emergency changes may be made with no advance notice</li>
+<li>Disruptive changes may be made with one month notice</li>
+<li>Deprecated resources will remain available for at least six months after deprecation</li>
+</ul><h3 id="production">Production</h3>
+
+<p>A production resources is complete and major changes will no longer occur.</p>
+
+<ul>
+<li>Compatible and emergency changes may be made with no advance notice</li>
+<li>Disruptive changes may not occur, instead a new major version is developed</li>
+<li>Deprecated resources will remain available for at least twelve months after deprecation</li>
+</ul><h3 id="deprecation">Deprecation</h3>
+
+<p>Deprecated resources have a <code>deprecated_at</code> date property in the JSON Schema which is also displayed in the API Reference documentation. Deprecated resources will keep working for at least as long after deprecation as mandated by their stability: 1 month for prototype resources, 6 month for development resources and 12 months for production resources. Deprecated resources will not change stability.</p>
+
+<p>Once a resource has been completely deactivated, it will return HTTP 410 for all requests.</p>
+
+<h2 id="types-of-changes">Types of changes</h2>
+
+<h3 id="compatible-change">Compatible change</h3>
+
+<p>Small in scope and unlikely to break or change semantics of existing methods.</p>
+
+<ul>
+<li>Add resources, methods and attributes</li>
+<li>Change documentation</li>
+<li>Change undocumented behavior</li>
+</ul><h3 id="disruptive-change">Disruptive change</h3>
+
+<p>May have larger impact and effort will be made to provide migration paths as needed.</p>
+
+<ul>
+<li>Change semantics of existing methods</li>
+<li>Remove resources, methods and attributes</li>
+</ul><h3 id="emergency-change">Emergency change</h3>
+
+<p>May have larger impact, but are unavoidable due to legal compliance, security vulnerabilities or violation of specification.</p>
+
+<h2 id="selecting-api-version">Selecting API version</h2>
+
+<p>To use the current v3 version of the API, pass this header in requests: <code>Accept: application/vnd.heroku+json; version=3</code>.</p>
+
+<p>A particular resource will only ever have one stability for a particular version of the API. That means that if the <code>/apps</code> endpoint is of production stability in v3, there’s is no “prototype” work happening for <code>/apps</code> in v3.</p>
+
+<p>If Heroku wanted to introduce breaking changes to the <code>/apps</code> endpoint after it had reached production stability in v3, that work would happen in a new API version, eg. v4. No such version currently exists, but if it did, you could access it by passing the correct header: <code>Accept: application/vnd.heroku+json; version=4</code>.</p>
+
+<p>A future API version may not support all resources available in current API versions, it might support new ones, or resources may be re-organized or re-named. A future v4 API may thus have an <code>/apps</code> resource, but no <code>/account</code> resource (requests to that would return HTTP 404). To see what resources are supported for a particular API version, you can always inspect its published JSON Schema:</p>
+
+<pre><code class="term">$ curl https://api.heroku.com/schema  -H "Accept: application/vnd.heroku+json; version=4"
+</code></pre>

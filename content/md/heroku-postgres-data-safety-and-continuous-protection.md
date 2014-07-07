@@ -68,4 +68,4 @@ In general, PGBackups are intended for moderately loaded databases up to 20 GB. 
 ## Combining physical and logical backups
 Fork and followers may be employed to reduce the load of a logical backup. Capturing a logical backup from a follower will preserve the leader's performance and allow the backup operation to consume as many resources as necessary for the dump to succeed. Launching a short lived fork will also allow for logical backups to be taken without effecting your primary database's performance, although the initial base backup of a new fork will compete with the logical backup for disk IO. 
 
-At the moment, PGBackups are only able to capture automatic backups of the database at the `DATABASE_URL` config var. Until this changes, we suggest using the [Heroku Scheduler](https://addons.heroku.com/scheduler) addon to tune when your logical backups are taken. 
+At the moment, PGBackups are only able to capture automatic backups of the database at the `DATABASE_URL` config var. Until this changes, we suggest using the [Heroku Scheduler](https://addons.heroku.com/scheduler) addon to tune when your logical backups are taken.  

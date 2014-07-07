@@ -5,21 +5,21 @@ url: https://devcenter.heroku.com/articles/platform-api-quickstart
 description: A tutorial showing how to get started with the Heroku Platform API, which lets you programmatically automate, extend and combine Heroku with other services.
 ---
 
-<div class="warning">The Platform API is a <a href="https://devcenter.heroku.com/articles/heroku-beta-features">beta feature</a>. Functionality may change prior to general availability.</div>
-
 This is a brief guide to help you get started with the Heroku Platform API. For a detailed reference, please see the [Platform API Reference](https://devcenter.heroku.com/articles/platform-api-reference) article.
 
 > note
-> If you have questions about the Heroku API, consider discussing it in the [Heroku API forum](https://discussion.heroku.com/category/api).
+> If you have questions about the Heroku API, consider posting in the [Heroku API forum](https://discussion.heroku.com/category/api).
 
 ## Prerequisites
 
 1. A shell with [`curl`](http://curl.haxx.se/)
-2. A Heroku user account. [Signup is free and instant](https://api.heroku.com/signup/devcenter).
+2. A Heroku user account. [Signup is free and instant](https://signup.heroku.com/signup/dc).
 
 ## Samples
 
 The samples below use `curl` simply for convenience. We recommend using your favorite programming language and a HTTP library with the API.
+
+Alternatively, several client libraries are available, including [platform-api](https://github.com/heroku/platform-api) for Ruby, [node-heroku-client](https://github.com/heroku/node-heroku-client), [Heroku.scala](https://github.com/heroku/heroku.scala) and [heroku-go](https://github.com/bgentry/heroku-go).
 
 ## Authentication
 
@@ -107,4 +107,4 @@ $ curl -X DELETE https://api.heroku.com/apps/01234567-89ab-cdef-0123-456789abcde
 
 ## Wrap-up
 
-This tutorial demonstrates how to call the Heroku Platform API from Bash and using `curl`, but you can transfer this approach to whatever language and environment you favor. The tutorial focused specifically on creating, updating and deleting apps. The API has many more resources available, including add-ons, config vars and domains. They all work quite similarly to apps and detailed information can be found in the [API reference](https://devcenter.heroku.com/articles/platform-api-reference).
+This tutorial demonstrates how to call the Heroku Platform API from Bash and using `curl`, but you can transfer this approach to whatever language and environment you favor. The tutorial focused specifically on creating, updating and deleting apps. The API has many more resources available, including add-ons, config vars and domains. They all work quite similarly to apps and detailed information can be found in the [API reference](https://devcenter.heroku.com/articles/platform-api-reference). 

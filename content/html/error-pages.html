@@ -1,17 +1,21 @@
-<p class="callout">
-To learn more about tracking down errors that may lead to the error pages being generated, visit the article on <a href="https://devcenter.heroku.com/articles/logging">Logging</a>.
-</p>
-<p>Heroku’s <a href="https://devcenter.heroku.com/articles/http-routing">HTTP router</a> serves unstyled HTML with HTTP status code 503 (Service Unavailable) when your app encounters a system-level error, or while maintenance mode is enabled. Customizing these pages allows you to present a more consistent UI to your users.</p>
-<p class="note">
-Other errors, such as application errors (a 404 or 500), will display your application's error page and not the Heroku error page. Only system-level errors that result in no response, or a malformed one, will display the Heroku error page discussed here.
-</p>
+<div class="callout">
+<p>To learn more about tracking down errors that may lead to the error pages being generated, visit the article on <a href="https://devcenter.heroku.com/articles/logging">Logging</a>.</p>
+</div>
+
+<p>Heroku’s <a href="https://devcenter.heroku.com/articles/http-routing">HTTP router</a> serves unstyled HTML with HTTP status code 503 (Service Unavailable) when your app encounters a system-level error, or while maintenance mode is enabled.  Customizing these pages allows you to present a more consistent UI to your users.</p>
+
+<div class="note">
+<p>Other errors, such as application errors (a 404 or 500), will display your application’s error page and not the Heroku error page. Only system-level errors that result in no response, or a malformed one, will display the Heroku error page discussed here.</p>
+</div>
+
 <h2 id="debugging">Debugging</h2>
 
 <p>Logs are the first place to look when your users report seeing the Heroku error pages. Use the <code>heroku logs</code> command to view the unified event stream for your application and the state of the Heroku platform components supporting your application.</p>
 
 <pre><code class="term">$ heroku logs
 2011-03-01T16:16:29-08:00 heroku[web.1]: State changed from starting to crashed
-2011-03-01T16:16:59-08:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=</code></pre>
+2011-03-01T16:16:59-08:00 heroku[router]: at=error code=H10 desc="App crashed" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=
+</code></pre>
 
 <p>In this example, the router tried to serve a page for the app, but the web process is crashed. The <code>Error H10</code> log entry contains the <a href="https://devcenter.heroku.com/articles/error-codes">error code</a> (H10) that identifies the cause of this particular issue. Refer to the full list of <a href="https://devcenter.heroku.com/articles/error-codes">error codes</a> to determine the cause of the error you’re seeing.</p>
 
@@ -21,42 +25,45 @@ Other errors, such as application errors (a 404 or 500), will display your appli
 
 <h3 id="create-and-store-the-custom-pages">Create and store the custom pages</h3>
 
-<p>Create your custom pages as static HTML. You may wish to use the default HTML served by Heroku as a template:</p>
+<p>Create your custom pages as static HTML.  You may wish to use the default HTML served by Heroku as a template:</p>
 
 <ul>
 <li><a href="http://s3.amazonaws.com/heroku_pages/error.html">http://s3.amazonaws.com/heroku_pages/error.html</a></li>
-
 <li><a href="http://s3.amazonaws.com/heroku_pages/maintenance.html">http://s3.amazonaws.com/heroku_pages/maintenance.html</a></li>
 </ul><p>You can reference images or CSS from the HTML as long as you use relative paths (e.g., <code>&lt;img src="error.png"&gt;</code>) and you upload the other assets into the same place as the HTML.</p>
 
-<p>You can host the pages anywhere that can serve web pages; we recommend uploading to Amazon S3. If you use S3, don’t forget to set the HTML and all assets to be publicly readable.</p>
+<p>You can host the pages anywhere that can serve web pages; we recommend uploading to Amazon S3.  If you use S3, don’t forget to set the HTML and all assets to be publicly readable.</p>
 
 <h3 id="configure-application">Configure application</h3>
 
 <p>Set the <code>ERROR_PAGE_URL</code> and <code>MAINTENANCE_PAGE_URL</code> <a href="https://devcenter.heroku.com/articles/config-vars">config vars</a> to the publicly accessible URLs of your custom pages:</p>
 
 <pre><code class="term">$ heroku config:set \
-  ERROR_PAGE_URL=http://s3.amazonaws.com/your_bucket/your_error_page.html \
-  MAINTENANCE_PAGE_URL=http://s3.amazonaws.com/your_bucket/your_maintenance_page.html</code></pre>
+  ERROR_PAGE_URL=//s3.amazonaws.com/&lt;your_bucket&gt;/your_error_page.html \
+  MAINTENANCE_PAGE_URL=//s3.amazonaws.com/&lt;your_bucket&gt;/your_maintenance_page.html
+</code></pre>
 
 <h3 id="testing">Testing</h3>
 
 <p>To test your maintenance page:</p>
 
 <pre><code class="term">$ heroku maintenance:on
-$ heroku open</code></pre>
+$ heroku open
+</code></pre>
 
 <p>The custom page will be served and your application logs will show an <a href="https://devcenter.heroku.com/articles/error-codes#h80-maintenance-mode">H80 code</a> for that web hit indicating that a maintenance page was served to the user:</p>
 
 <pre><code class="term">$ heroku logs -p router -n 1
-2010-10-08T17:44:18-07:00 heroku[router]: at=info code=H80 desc="Maintenance mode" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=</code></pre>
+2010-10-08T17:44:18-07:00 heroku[router]: at=info code=H80 desc="Maintenance mode" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno= connect= service= status=503 bytes=
+</code></pre>
 
-<p>To test your error page, you can push a bad deploy such as putting a syntax error into a key configuration file, or by creating a path on your app that sleeps for 35 seconds (thereby triggering the error <a href="https://devcenter.heroku.com/articles/error-codes#h12-request-timeout">H12 Request Timeout</a>. Visit an app or path with such an error, while watching the logs:</p>
+<p>To test your error page, you can push a bad deploy such as putting a syntax error into a key configuration file, or by creating a path on your app that sleeps for 35 seconds (thereby triggering the error <a href="https://devcenter.heroku.com/articles/error-codes#h12-request-timeout">H12 Request Timeout</a>.  Visit an app or path with such an error, while watching the logs:</p>
 
 <pre><code class="term">$ heroku logs --tail
 2010-10-08T18:04:40-07:00 app[web.1]: Sleeping 35 seconds before I serve this page
 2010-10-08T18:05:10-07:00 heroku[router]: at=error code=H12 desc="Request timeout" method=GET path=/ host=myapp.herokuapp.com fwd=17.17.17.17 dyno=web.1 connect=6ms service=30001ms status=503 bytes=0
-2010-10-08T18:05:15-07:00 app[web.1]: Done sleeping</code></pre>
+2010-10-08T18:05:15-07:00 app[web.1]: Done sleeping
+</code></pre>
 
 <p>The custom error page will be displayed in your browser.</p>
 

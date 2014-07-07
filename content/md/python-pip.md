@@ -119,7 +119,7 @@ In order to minimize points of failure, it is considered best practice within th
 To point to a custom Cheeseshop's index, you can add the following to the top of your requirements file:
 
 ```
--i https://simple.crate.io/
+-i https://pypi.python.org/simple/
 ```
 
 All dependencies specified in that requirements file will resolve against that index.
@@ -147,4 +147,4 @@ If you already have a requirements file but would like to utilize this feature, 
 -e . 
 ```
 
-This causes pip to run `python setup.py develop` on your application.
+This causes pip to run `python setup.py develop` on your application. 

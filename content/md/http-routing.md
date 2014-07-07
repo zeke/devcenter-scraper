@@ -37,11 +37,13 @@ After a dyno connection has been established, HTTP requests have an initial 30 s
 
 After the initial response, each byte sent (either from the client or from your app process) resets a rolling 55 second window. If no data is sent during this 55 second window then the connection is terminated and a [H15](error-codes#h15-idle-connection) error is logged.
 
+Additional details can be found in the [Request Timeout article](https://devcenter.heroku.com/articles/request-timeout).
+
 ## Simultaneous connections
 
 The `herokuapp.com` routing stack allows many concurrent connections to web dynos. For production apps, you should always choose an embedded webserver that allows multiple concurrent connections to maximize the responsiveness of your app. You can also take advantage of concurrent connections for long-polling requests.
 
-Almost all modern web frameworks and embeddable webservers support multiple concurrent connections. Examples of webservers that allow concurrent request processing in the dyno include Unicorn (Ruby), Goliath (Ruby), Puma (JRuby), Gunicorn (Python), and Jetty (Java).
+Almost all modern web frameworks and embeddable webservers support multiple concurrent connections. Examples of webservers that allow concurrent request processing in the dyno include [Unicorn](https://devcenter.heroku.com/articles/rails-unicorn) (Ruby), Goliath (Ruby), Puma (JRuby), [Gunicorn](https://devcenter.heroku.com/articles/python-gunicorn) (Python), and Jetty (Java).
 
 ## Request buffering
 
@@ -64,7 +66,9 @@ The router maintains a 1MB buffer for responses from the dyno per connection. Th
 
 #### info logs
 
-    2012-10-11T03:47:20+00:00 heroku[router]: at=info method=GET path=/ host=myapp.herokuapp.com fwd="204.204.204.204" dyno=web.1 connect=1ms service=18ms status=200 bytes=13
+```
+2012-10-11T03:47:20+00:00 heroku[router]: at=info method=GET path=/ host=myapp.herokuapp.com fwd="204.204.204.204" dyno=web.1 connect=1ms service=18ms status=200 bytes=13
+```
 
 * `method`: HTTP request method
 * `path`: HTTP request path
@@ -78,7 +82,9 @@ The router maintains a 1MB buffer for responses from the dyno per connection. Th
 
 #### Error logs
 
-    2012-10-11T03:47:20+00:00 heroku[router]: at=error code=H12 desc="Request timeout" method=GET path=/ host=myapp.herokuapp.com fwd="204.204.204.204" dyno=web.1 connect= service=30000ms status=503 bytes=0
+```
+2012-10-11T03:47:20+00:00 heroku[router]: at=error code=H12 desc="Request timeout" method=GET path=/ host=myapp.herokuapp.com fwd="204.204.204.204" dyno=web.1 connect= service=30000ms status=503 bytes=0
+```
 
 * `code`: [Heroku error code](https://devcenter.heroku.com/articles/error-codes)
 * `desc`: description of error
@@ -110,4 +116,4 @@ Commonly used methods include [GET][method-get], [POST][method-post], [PUT][meth
 [method-delete]: https://tools.ietf.org/html/rfc2616#section-9.7 "HTTP/1.1 - DELETE"
 [method-patch]: http://tools.ietf.org/html/rfc5789 "PATCH Method for HTTP"
 [method-connect]: https://tools.ietf.org/html/rfc2616#section-9.9 "CONNECT method"
-[rfc2616]: https://tools.ietf.org/html/rfc2616 "RFC2616: Hypertext Transfer Protocol -- HTTP/1.1"
+[rfc2616]: https://tools.ietf.org/html/rfc2616 "RFC2616: Hypertext Transfer Protocol -- HTTP/1.1" 

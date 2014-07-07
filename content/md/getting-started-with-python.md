@@ -6,7 +6,7 @@ description: Create, configure, deploy and scale a Python application on Heroku,
 ---
 
 This quickstart will get you going with a [Python](http://python.org/) application that uses the
-[Flask](http://flask.pocoo.org/) web framework, deployed to Heroku. For Django apps, please see the [Getting Started with Django on Heroku](django).  For general information on how to develop and architect apps for use on Heroku, see [Architecting Applications for Heroku](https://devcenter.heroku.com/articles/architecting-apps).
+[Flask](http://flask.pocoo.org/) web framework, deployed to Heroku. For Django apps, please see the [Getting Started with Django on Heroku](getting-started-with-django).  For general information on how to develop and architect apps for use on Heroku, see [Architecting Applications for Heroku](https://devcenter.heroku.com/articles/architecting-apps).
 
 <div class="note" markdown="1">
 If you have questions about Python on Heroku, consider discussing it in the [Python on Heroku forums](https://discussion.heroku.com/category/python). Both Heroku and community-based Python experts are available.
@@ -16,13 +16,17 @@ If you have questions about Python on Heroku, consider discussing it in the [Pyt
 
 
 * Basic Python knowledge.
-* Installed [Python](http://python.org/) and [Virtualenv](http://pypi.python.org/pypi/virtualenv). See [this guide](http://install.python-guide.org/) for guidance.
+* Installed [Python](http://python.org/) and [Virtualenv](http://pypi.python.org/pypi/virtualenv) in a unix-style environment. See [this guide](http://install.python-guide.org/) for guidance.
 * Your application must use Pip to resolve dependencies.
-* A Heroku user account.  [Signup is free and instant.](https://api.heroku.com/signup/devcenter)
+* A Heroku user account.  [Signup is free and instant.](https://signup.heroku.com/signup/dc)
 
 ## Local workstation setup
 
-First, install the [Heroku Toolbelt](https://toolbelt.heroku.com/) on your local workstation.  This ensures that you have access to the [Heroku command-line client](/categories/command-line), Foreman, and the Git revision control system.
+First, install the Heroku Toolbelt on your local workstation.  
+
+<a class="toolbelt" href="https://toolbelt.heroku.com/">Install the Heroku Toolbelt</a>
+
+This ensures that you have access to the [Heroku command-line client](/categories/command-line), Foreman, and the Git revision control system.
 
 Once installed, you can use the `heroku` command from your command shell.  Log in using the email address and password you used when creating your Heroku account:
 
@@ -46,19 +50,16 @@ First, we'll create an empty top-level directory for our project:
     $ mkdir helloflask
     $ cd helloflask
 
-Next, we'll create a Python [Virtualenv](http://pypi.python.org/pypi/virtualenv) (v0.7):
+Next, we'll create a Python [Virtualenv](http://pypi.python.org/pypi/virtualenv) (v1.0+):
 
 <div class="callout" markdown="1">Make sure you're using the latest virtualenv release. If you're using a version that comes with Ubuntu, you may need to add the `--no-site-packages` flag.</div>
 
     :::term
-    $ virtualenv venv --distribute
+    $ virtualenv venv
     New python executable in venv/bin/python
-    Installing distribute...............done.
-    Installing pip...............done.
+    Installing setuptools, pip...done.
 
 To use our new virtualenv, we need to activate it. (You must source the virtualenv environment for each terminal session where you wish to run your app.)
-
-<div class="callout" markdown="1">Windows users can run `venv\Scripts\activate.bat` for the same effect.</div>
 
     :::term
     $ source venv/bin/activate
@@ -119,9 +120,9 @@ You can now start the processes in your Procfile locally using [Foreman](http://
     :::term
     $ foreman start
     2013-04-03 16:11:22 [8469] [INFO] Starting gunicorn 0.14.6
-    2013-04-03 16:11:22 [8469] [INFO] Listening at: http://127.0.0.1:8000 (8469)
+    2013-04-03 16:11:22 [8469] [INFO] Listening at: http://127.0.0.1:5000 (8469)
 
-Make sure things are working properly with `curl` or a web browser, then Ctrl-C to exit.
+Make sure things are working properly with `curl` or a web browser at http://localhost:5000/, then Ctrl-C to exit.
 
 ## Specify dependencies with Pip
 
@@ -186,8 +187,8 @@ This automatically added the Heroku remote for our app (`git@heroku.com:stark-wi
 
     -----> Heroku receiving push
     -----> Python app detected
-    -----> No runtime.txt provided; assuming python-2.7.4.
-    -----> Preparing Python runtime (python-2.7.4)
+    -----> No runtime.txt provided; assuming python-2.7.6.
+    -----> Preparing Python runtime (python-2.7.6)
     -----> Installing Distribute (0.6.36)
     -----> Installing Pip (1.3.1)
     -----> Installing dependencies using Pip (1.3.1)
@@ -264,12 +265,12 @@ View information about your running app using one of the [logging commands](logg
 
 ### Interactive shell
 
-Heroku allows you to run commands in a [one-off dyno](oneoff-admin-ps) - scripts and applications that only need to be executed when needed - using the `heroku run` command.   Use this to launch a Python shell attached to your local terminal for experimenting in your app's environment:
+Heroku allows you to run commands in a [one-off dyno](one-off-dynos) - scripts and applications that only need to be executed when needed - using the `heroku run` command.   Use this to launch a Python shell attached to your local terminal for experimenting in your app's environment:
 
     :::term
     $ heroku run python
     Running python attached to terminal... up, run.1
-    Python 2.7.4 (default, Apr  6 2013, 22:14:13)
+    Python 2.7.6 (default, Jan 16 2014, 02:39:37) 
     [GCC 4.4.3] on linux2
     Type "help", "copyright", "credits" or "license" for more information.
     >>> 
@@ -283,7 +284,7 @@ The `Procfile` format lets you run any number of different [process types](procf
 
 #### Procfile
 
-    web: gunicorn hello:app
+    web: gunicorn hello:app --log-file -
     worker: python worker.py
 
 <div class="callout" markdown="1">Running more than one dyno for an extended period may incur charges to your account.  Read more about [dyno-hour costs](usage-and-billing).</div>
@@ -298,8 +299,17 @@ Check `heroku ps` to see that your worker comes up, and `heroku logs` to see you
 
 ## Next steps
 
-- Visit the [Python category](/categories/python) to learn more about developing and deploying Python applications.
-- Learn about [Python Dependencies via Pip](https://devcenter.heroku.com/articles/python-pip) and  [Specifying a Python Runtime](https://devcenter.heroku.com/articles/python-runtimes)
-- Extend your app architecture with [Background Tasks in Python with RQ](https://devcenter.heroku.com/articles/python-rq)
-- Learn how to [Get Started with Django on Heroku](https://devcenter.heroku.com/articles/django)
-- Read [How Heroku Works](how-heroku-works) for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.
+Now that you've deployed your first Python application to Heroku, it's time to take the next step! If if you'd like to learn more about Heroku, these articles are a great place to start.
+
+### Heroku Reference
+
+- [How Heroku Works](how-heroku-works)
+- [Heroku Reference Documentation](/categories/reference)
+
+### Python Reference
+
+- [Python Dependencies via Pip](/articles/python-pip)
+- [Deploying Python Applications with Gunicorn](/articles/python-gunicorn)
+- [Specifying a Python Runtime](/articles/python-runtimes)
+- [Get Started with Django on Heroku](getting-started-with-django)
+- [Background Tasks in Python with RQ](python-rq) 

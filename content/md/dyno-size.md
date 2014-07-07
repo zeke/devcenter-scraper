@@ -2,61 +2,83 @@
 title: Dyno Size
 slug: dyno-size
 url: https://devcenter.heroku.com/articles/dyno-size
-description: 2X dynos let you double the memory and double the CPU share on a per dyno-type basis.
+description: Characteristics of the various dyno sizes supported by Heroku.
 ---
 
-Heroku dynos get 512MB of memory and 1x CPU share in their default configuration ("1X"). If your app [needs more memory][R14] or more CPU share, you can resize dynos to a "2X" configuration for double the memory and double the CPU share on a per process-type basis.
+A [dyno](dynos) is a lightweight container running a single user-specified command.  Dynos are the containers in which your application components run.
 
-Use cases include running more [concurrency in a Ruby/Unicorn web dyno][unicorn], or doing large image processing or geospacial processing in a worker dyno.
+Heroku offers three different dyno sizes.  Each size has different memory and CPU characteristics, as listed in the table below.  
 
-For help determining the right dyno size measure memory usage with the [`log-runtime-metrics` Labs flag][log-runtime-metrics]. The logged metrics can be
-viewed with [`heroku logs -t`][heroku-logs], [log2viz][], or any addon that
-consumes logs.
+See [Optimizing Dyno Usage](optimizing-dyno-usage) for guidance on when to consider a different size.
 
 ## Available dyno sizes
 
 <table>
-  <tr>
+  <tr style="width: 100%">
     <th style="text-align: left;">Dyno Size</th>
     <th style="text-align: left;">Memory (RAM)</th>
     <th style="text-align: left;">CPU Share</th>
+    <th style="text-align: left;">Multitenant</th>
+    <th style="text-align: left;">Compute (<i>2</i>)</th>
     <th style="text-align: left;">Price/dyno-hour</th>
   </tr>
   <tr>
-    <td style="text-align: left; width: 25%;">1X</td>
-    <td style="text-align: left; width: 25%;">512MB</td>
-    <td style="text-align: left; width: 25%;">1x</td>
-    <td style="text-align: left; width: 25%;">$0.05</td>
+    <td style="text-align: left; ">1X</td>
+    <td style="text-align: left; ">512MB</td>
+    <td style="text-align: left; ">1x</td>
+    <td style="text-align: left; ">yes</td>
+    <td style="text-align: left; ">1x-4x</td>
+    <td style="text-align: left; ">$0.05</td>
   </tr>
   <tr>
-    <td style="text-align: left; width: 25%;">2X</td>
-    <td style="text-align: left; width: 25%;">1024MB</td>
-    <td style="text-align: left; width: 25%;">2x</td>
-    <td style="text-align: left; width: 25%;">$0.10</td>
+    <td style="text-align: left; ">2X</td>
+    <td style="text-align: left; ">1024MB</td>
+    <td style="text-align: left; ">2x</td>
+    <td style="text-align: left; ">yes</td>
+    <td style="text-align: left; ">4x-8x</td>
+    <td style="text-align: left; ">$0.10</td>
+  </tr>
+  <tr>
+    <td style="text-align: left; ">PX</td>
+    <td style="text-align: left; ">6GB</td>
+    <td style="text-align: left; ">100%  (1)</td>
+    <td style="text-align: left; ">no</td>
+    <td style="text-align: left; ">40x</td>
+    <td style="text-align: left; ">$0.80</td>
   </tr>
 </table>
 
+1. The PX dyno size (performance dynos) has 8 cores and is highly-isolated.
+2. Overall performance will vary heavily based on app implementation, these figures are expected performance based on perc99 of historical system loads.  1X and 2X dyno performance will vary based on available system resources.
+
+PX and 2X dynos consume free dyno-hours at different rates as 1X dynos. See [Usage and Billing](https://devcenter.heroku.com/articles/usage-and-billing#750-free-dyno-hours-per-app) for more details.
+
 > callout
-> **2X dynos consume twice as many free dyno-hours per hour** as 1X dynos. Example: A 2X one dyno app will run for free for 375 hours compared to 750 hours for a 1X one dyno app.
->
->  If your app has only a **single 2X web dyno** running, it **will sleep**.
+>  If your app has only a single web dyno of any size running, it [will sleep](https://devcenter.heroku.com/articles/dynos#dyno-sleeping).
+
+### Notes on PX dynos
+
+Heroku previously published a AWS account id and security group name to let customers reference it in their own AWS security group settings. This is [no longer recommended](https://devcenter.heroku.com/changelog-items/353) and Heroku is no longer publishing our AWS account id. If you have the legacy AWS account id and security group name, referencing those may still work, but _only_  for 1X and 2X dynos. PX dynos run under a different AWS account, and Heroku will not make the id for that account available to customers.
 
 ## Setting dyno size
 
-> warning
-> **Important:** Resizing dynos restarts the affected dynos.
+Resizing dynos changes the dyno size for all dynos of a process type, and restarts the affected dynos.
 
 ### CLI
 
-Using the [Heroku Toolbelt][toolbelt], resize your dynos
-with the `resize` command:
+Using the [Heroku Toolbelt][toolbelt], you can resize and scale at the same time.  The following command scales the number of web dynos to 3, and resizes them to PX:
 
-``` term
-$ heroku ps:resize web=2X worker=1X
-Resizing dynos and restarting specified processes... done
-web dynos now 2X ($0.10/dyno-hour)
-worker dynos now 1X ($0.05/dyno-hour)
+```term
+$ heroku ps:scale web=3:PX
 ```
+
+To just resize:
+
+```term
+$ heroku ps:resize worker=2X
+```
+
+If you're resizing to a larger size, you may want to scale down the number of dynos as well.  See [Optimizing Dyno Usage](optimizing-dyno-usage) for guidance.
 
 To view the dyno size of a process type, use the `ps` command:
 
@@ -77,7 +99,7 @@ worker.3: up 2013/03/27 14:30:55 (~ 6h ago)
 
 Using the app's resources page on [Dashboard][dashboard]:
 
-![](https://s3.amazonaws.com/f.cl.ly/items/3S1U0T1z1i0m382g2s3K/2x-dynos-dashboard.png)
+![dashboard dyno size](https://s3.amazonaws.com/heroku.devcenter/heroku_assets/images/288-original.jpg 'Optional title')
 
 ### One-off dynos
 
@@ -87,7 +109,34 @@ Memory intensive one-off dynos can also be sized:
 $ heroku run --size=2X rake heavy:job
 ```
 
-[Scheduler][scheduler] also supports running one-off 2X dynos.
+or
+
+```term
+$ heroku run --size=PX rake heavy:job
+```
+
+>note
+>Without the `--size` flag, one-off dynos will always use the 1X size.
+
+### Scheduler
+
+[Scheduler][scheduler] supports running one-off 1X, 2X, and PX dynos.
+
+## Default scaling limits
+
+By default, a process type can’t be scaled to more than 100 dynos for 1X or 2X sized dynos. A process type can't be scaled to more than 10 dynos for PX-sized dynos.
+
+[Contact sales](https://www.heroku.com/critical) to raise this limit for your application.
+
+### One-off dynos
+
+There are different limits that apply depending on whether the Heroku account [is verified](https://devcenter.heroku.com/articles/account-verification) or not.
+
+If the account is not verified, then it cannot have more than 3 [one-off dynos](https://devcenter.heroku.com/articles/one-off-dynos) of size 1X running concurrently.  Accounts that aren't verified can't create one-off 2X or one-off PX dynos. 
+
+For verified accounts, no more than 5 PX-sized one-off dynos can run concurrently. 
+
+[Contact sales](https://www.heroku.com/critical) to raise this limit for your application.
 
 [dashboard]: https://dashboard.heroku.com/
 [heroku-logs]: https://devcenter.heroku.com/articles/logging#log-retrieval
@@ -96,4 +145,4 @@ $ heroku run --size=2X rake heavy:job
 [R14]: https://devcenter.heroku.com/articles/error-codes#r14-memory-quota-exceeded
 [scheduler]: https://devcenter.heroku.com/articles/scheduler
 [toolbelt]: https://toolbelt.heroku.com/
-[unicorn]: https://devcenter.heroku.com/articles/rails-unicorn
+[unicorn]: https://devcenter.heroku.com/articles/rails-unicorn 

@@ -5,15 +5,16 @@ url: https://devcenter.heroku.com/articles/rails-asset-pipeline
 description: Rails applications running on the Heroku Cedar stack can have the asset pipeline compiled at deploy-time.
 ---
 
-Rails applications running on the Heroku Cedar stack can have the asset pipeline compiled locally, at deploy-time, or at run time. For new users, we recommend reading [our tutorial for creating a Rails 3.x app on Cedar](/articles/rails3) before proceeding further.
+Rails applications running on the Heroku Cedar stack can have the asset pipeline compiled locally, at deploy-time, or at run time. For new users, we recommend reading [Getting Started with Rails 3.x on Heroku](getting-started-with-rails3) before proceeding further.
 
 >note
->Heroku recommends [using the asset pipeline with a CDN](https://devcenter.heroku.com/articles/using-amazon-cloudfront-cdn-with-rails) to increase end user experience and decrease load on your Heroku app. If you have questions about Ruby on Heroku, consider discussing it in the [Ruby on Heroku forums](https://discussion.heroku.com/category/ruby).
+>Heroku recommends [using the asset pipeline with a CDN](using-amazon-cloudfront-cdn#adding-cloudfront-to-rails) to increase end user experience and decrease load on your Heroku app. If you have questions about Ruby on Heroku, consider discussing it in the [Ruby on Heroku forums](https://discussion.heroku.com/category/ruby).
 
->callout
->Environment variables are not available to your app at compile time. This means if you need them for your asset compilation, the task may not run properly. Best practice is to re-write your application to not require environment variables at compile time. If you cannot do this, you can use the <a href='https://devcenter.heroku.com/articles/labs-user-env-compile'>user-env-compile</a> labs feature, though its use should be avoided.
+## The Rails 4 Asset Pipeline
 
-## The Rails 3 Asset pipeline
+If you are using Rails 4 and the asset pipeline it is recommended to familiarize yourself with the document below. Much of the behavior between Rails 3 and Rails 4 is similar. Once finished please read the [Rails 4 Asset Pipeline on Heroku](https://devcenter.heroku.com/articles/rails-4-asset-pipeline) which covers the differences between the two experiences. 
+
+## The Rails 3 Asset Pipeline
 
 The Rails 3 asset pipeline is supported on Heroku's Cedar stack. The new pipeline makes assets a first class citizen in the Rails stack. By default, Rails uses [CoffeeScript](http://jashkenas.github.com/coffee-script/) for JavaScript and [SCSS](http://sass-lang.com/) for CSS. DHH has a great introduction during his [keynote for RailsConf](http://www.youtube.com/watch?v=cGdCI2HhfAU).
 
@@ -51,9 +52,6 @@ Now when pushing, the output should show that your locally compiled assets were 
 
 ### Compiling assets during slug compilation ###
 
->callout
->The app's config vars are not available in the environment during the slug compilation process. Because the app must be loaded to run the `assets:precompile` task, any initialization code that requires existence of config vars should gracefully handle the `nil` case.
-
 If you have not compiled assets locally, we will attempt to run the `assets:precompile` task during slug compilation. Your push output will show:
 
 ```term
@@ -69,32 +67,14 @@ If the `assets:precompile` task fails, the output will be displayed and the buil
 
 ## Asset caching
 
-Caching of static assets can be implemented in-application using the [Rack::Cache](rack-cache-memcached-static-assets-rails31) middleware or in a more distributed fashion with a [CDN](cdn-asset-host-rails31). Serving assets from your application does require dyno-resources so please consider an appropriate asset caching strategy for your needs.
+Caching of static assets can be implemented in-application using the [Rack::Cache](rack-cache-memcached-rails31) middleware or in a more distributed fashion with a [CDN](using-amazon-cloudfront-cdn). Serving assets from your application does require dyno-resources so please consider an appropriate asset caching strategy for your needs.
 
 Troubleshooting
 ---------------
 
-### assets:precompile failures
+### Failures in the assets:precompile task
 
-There's no fix or workaround at this time if assets:precompile is failing during slug compilation. Below we describe common issues you might run into and the reasons why it isn't working.
-
-The most common cause of failures in `assets:precompile` is an app that relies on having its environment present to boot. Your app's config vars are not present in the environment during slug compilation, so you should take steps to handle the `nil` case for config vars (and add-on resources) in your initializers.
-
-If you see something similar to the following:
-
-```term
-could not connect to server: Connection refused
-Is the server running on host "127.0.0.1" and accepting
-TCP/IP connections on port xxxx?
-```
-
-This means that your app is attempting to connect to the database as part of `rake assets:precompile`. Because the config vars are not present in the environment, we use a placeholder `DATABASE_URL` to satisfy Rails. The full command run during slug compilation is:
-
-     env RAILS_ENV=production DATABASE_URL=scheme://user:pass@127.0.0.1/dbname bundle exec rake assets:precompile 2>&1
-
-* `scheme` will be replaced with an appropriate database adapter as detected from your `Gemfile`
-
-While precompiling assets, in Rails 3.x, you can prevent initializing your application and connecting to the database by ensuring that the following line is in your `config/application.rb`:
+In Rails 3.x, you can prevent initializing your application and connecting to the database by ensuring that the following line is in your `config/application.rb`:
 
 ```term
 config.assets.initialize_on_precompile = false
@@ -104,11 +84,34 @@ Do not forget to commit to git after changing this setting.
 
 In Rails 4.x this option has been removed and is no longer needed.
 
+When deploying if you see something similar to the following:
+
+```term
+could not connect to server: Connection refused
+Is the server running on host "127.0.0.1" and accepting
+TCP/IP connections on port xxxx?
+```
+
+This means that your app is attempting to connect to the database as part of `rake assets:precompile`. Because your database may not be available, the command may fail. You should be able to see the same error by running this command:
+
+    env -i GEM_PATH=$GEM_PATH \
+           PATH=$PATH \
+           RAILS_ENV=$RAILS_ENV\
+           DATABASE_URL=postgres://user:pass@127.0.0.1/does_not_exist_dbname \
+           /bin/sh -c 'bundle exec rake --trace  assets:precompile'
+
+
+The above command uses `env -i` which runs everything following it without any environment variables. We then manually pass in `GEM_PATH`, `PATH` and a nonexistent `DATABASE_URL`. Finally we run the command using `bin/sh -c` this tells our shell to execute `bundle exec rake --trace assets:precompile`.
+
+**Note** If you are using another database you will need to replace `postgres` with the database adapter you are using as detected from your `Gemfile`
+
 If `rake assets:precompile` is still not working, you can debug this locally by configuring a nonexistent database in your local `config/database.yml` and attempting to run `rake assets:precompile`. Ideally you should be able to run this command without connecting to the database.
 
 ### therubyracer
 
-If you were previously using `therubyracer` or `therubyracer-heroku`, these gems are no longer required and strongly discouraged as these gems use a very large amount of memory.
+If you were previously using `therubyracer` or `therubyracer-heroku`, these gems are no longer required and strongly discouraged as these gems use a very large amount of memory. 
+
+A version of Node is installed by the Ruby buildpack that will be used to compile your assets.
 
 ### Updating PATH
 
@@ -127,3 +130,7 @@ Adding config vars:
   PATH => vendor/bundle/ru...usr/bin:/bin:bin
 Restarting app... done, v7.
 ```
+
+## No debug output at all
+
+If you see no debug output and your `asset:precompile` task is not run, ensure that `rake` is in your `Gemfile` and properly committed.  

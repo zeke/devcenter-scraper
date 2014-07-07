@@ -17,7 +17,7 @@ Visit [Dev Center](https://devcenter.heroku.com) to find documentation on everyt
 
 ## Developer community
 
-Engage in our [Developer Community](http://stackoverflow.com) by seeking or providing advice on application and development level questions. We have a very strong community of developers using our platform and you can help make it stronger.
+Engage in our [Developer Community](http://stackoverflow.com/questions/tagged/heroku) by seeking or providing advice on application and development level questions. We have a very strong community of developers using our platform and you can help make it stronger.
 
 ## Heroku Help
 
@@ -31,4 +31,4 @@ Get more information and contact our sales team at the [Critical Application Sup
 
 ## Partners
 
-The [Heroku Partner Directory](https://partners.heroku.com) lists experienced service partners that can extend your team with product design and development resources.
+The [Heroku Partner Directory](https://partners.heroku.com) lists experienced service partners that can extend your team with product design and development resources. 

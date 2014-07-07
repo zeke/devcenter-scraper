@@ -58,4 +58,4 @@ Here, the app is running on [Celadon Cedar](cedar).
 
 Migrating from previous stacks to Cedar allows an application to take advantage of a much more flexible and powerful runtime. Because the significant architectural differences, migrating to Cedar is a largely manual process.
 
-You can find instructions for [migrating to Cedar](cedar-migration) here.
+You can find instructions for [migrating to Cedar](cedar-migration) here. 

@@ -1,16 +1,14 @@
-<p>Rails applications running on the Heroku Cedar stack can have the asset pipeline compiled locally, at deploy-time, or at run time. For new users, we recommend reading <a href="https://devcenter.heroku.com/articles/rails3">our tutorial for creating a Rails 3.x app on Cedar</a> before proceeding further.</p>
+<p>Rails applications running on the Heroku Cedar stack can have the asset pipeline compiled locally, at deploy-time, or at run time. For new users, we recommend reading <a href="https://devcenter.heroku.com/articles/getting-started-with-rails3">Getting Started with Rails 3.x on Heroku</a> before proceeding further.</p>
 
 <div class="note">
-<p>Heroku recommends <a href="https://devcenter.heroku.com/articles/using-amazon-cloudfront-cdn-with-rails">using the asset pipeline with a CDN</a> to increase end user experience and decrease load on your Heroku app. If you have questions about Ruby on Heroku, consider discussing it in the <a href="https://discussion.heroku.com/category/ruby">Ruby on Heroku forums</a>.</p>
+<p>Heroku recommends <a href="https://devcenter.heroku.com/articles/using-amazon-cloudfront-cdn#adding-cloudfront-to-rails">using the asset pipeline with a CDN</a> to increase end user experience and decrease load on your Heroku app. If you have questions about Ruby on Heroku, consider discussing it in the <a href="https://discussion.heroku.com/category/ruby">Ruby on Heroku forums</a>.</p>
 </div>
 
-<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+<h2 id="the-rails-4-asset-pipeline">The Rails 4 Asset Pipeline</h2>
 
-<div class="callout">
-<p>Environment variables are not available to your app at compile time. This means if you need them for your asset compilation, the task may not run properly. Best practice is to re-write your application to not require environment variables at compile time. If you cannot do this, you can use the <a href="https://devcenter.heroku.com/articles/labs-user-env-compile">user-env-compile</a> labs feature, though its use should be avoided.</p>
-</div>
+<p>If you are using Rails 4 and the asset pipeline it is recommended to familiarize yourself with the document below. Much of the behavior between Rails 3 and Rails 4 is similar. Once finished please read the <a href="https://devcenter.heroku.com/articles/rails-4-asset-pipeline">Rails 4 Asset Pipeline on Heroku</a> which covers the differences between the two experiences.</p>
 
-<h2 id="the-rails-3-asset-pipeline">The Rails 3 Asset pipeline</h2>
+<h2 id="the-rails-3-asset-pipeline">The Rails 3 Asset Pipeline</h2>
 
 <p>The Rails 3 asset pipeline is supported on Heroku’s Cedar stack. The new pipeline makes assets a first class citizen in the Rails stack. By default, Rails uses <a href="http://jashkenas.github.com/coffee-script/">CoffeeScript</a> for JavaScript and <a href="http://sass-lang.com/">SCSS</a> for CSS. DHH has a great introduction during his <a href="http://www.youtube.com/watch?v=cGdCI2HhfAU">keynote for RailsConf</a>.</p>
 
@@ -46,10 +44,6 @@ git commit -m "vendor compiled assets"
 
 <h3 id="compiling-assets-during-slug-compilation">Compiling assets during slug compilation</h3>
 
-<div class="callout">
-<p>The app’s config vars are not available in the environment during the slug compilation process. Because the app must be loaded to run the <code>assets:precompile</code> task, any initialization code that requires existence of config vars should gracefully handle the <code>nil</code> case.</p>
-</div>
-
 <p>If you have not compiled assets locally, we will attempt to run the <code>assets:precompile</code> task during slug compilation. Your push output will show:</p>
 
 <pre><code class="term">-----&gt; Preparing Rails asset pipeline
@@ -64,33 +58,13 @@ git commit -m "vendor compiled assets"
 
 <h2 id="asset-caching">Asset caching</h2>
 
-<p>Caching of static assets can be implemented in-application using the <a href="https://devcenter.heroku.com/articles/rack-cache-memcached-static-assets-rails31">Rack::Cache</a> middleware or in a more distributed fashion with a <a href="https://devcenter.heroku.com/articles/cdn-asset-host-rails31">CDN</a>. Serving assets from your application does require dyno-resources so please consider an appropriate asset caching strategy for your needs.</p>
+<p>Caching of static assets can be implemented in-application using the <a href="https://devcenter.heroku.com/articles/rack-cache-memcached-rails31">Rack::Cache</a> middleware or in a more distributed fashion with a <a href="https://devcenter.heroku.com/articles/using-amazon-cloudfront-cdn">CDN</a>. Serving assets from your application does require dyno-resources so please consider an appropriate asset caching strategy for your needs.</p>
 
 <h2 id="troubleshooting">Troubleshooting</h2>
 
-<h3 id="assets-precompile-failures">assets:precompile failures</h3>
+<h3 id="failures-in-the-assets-precompile-task">Failures in the assets:precompile task</h3>
 
-<p>There’s no fix or workaround at this time if assets:precompile is failing during slug compilation. Below we describe common issues you might run into and the reasons why it isn’t working.</p>
-
-<p>The most common cause of failures in <code>assets:precompile</code> is an app that relies on having its environment present to boot. Your app’s config vars are not present in the environment during slug compilation, so you should take steps to handle the <code>nil</code> case for config vars (and add-on resources) in your initializers.</p>
-
-<p>If you see something similar to the following:</p>
-
-<pre><code class="term">could not connect to server: Connection refused
-Is the server running on host "127.0.0.1" and accepting
-TCP/IP connections on port xxxx?
-</code></pre>
-
-<p>This means that your app is attempting to connect to the database as part of <code>rake assets:precompile</code>. Because the config vars are not present in the environment, we use a placeholder <code>DATABASE_URL</code> to satisfy Rails. The full command run during slug compilation is:</p>
-
-<pre><code> env RAILS_ENV=production DATABASE_URL=scheme://user:pass@127.0.0.1/dbname bundle exec rake assets:precompile 2&gt;&amp;1
-</code></pre>
-
-<ul>
-<li>
-<code>scheme</code> will be replaced with an appropriate database adapter as detected from your <code>Gemfile</code>
-</li>
-</ul><p>While precompiling assets, in Rails 3.x, you can prevent initializing your application and connecting to the database by ensuring that the following line is in your <code>config/application.rb</code>:</p>
+<p>In Rails 3.x, you can prevent initializing your application and connecting to the database by ensuring that the following line is in your <code>config/application.rb</code>:</p>
 
 <pre><code class="term">config.assets.initialize_on_precompile = false
 </code></pre>
@@ -99,11 +73,33 @@ TCP/IP connections on port xxxx?
 
 <p>In Rails 4.x this option has been removed and is no longer needed.</p>
 
+<p>When deploying if you see something similar to the following:</p>
+
+<pre><code class="term">could not connect to server: Connection refused
+Is the server running on host "127.0.0.1" and accepting
+TCP/IP connections on port xxxx?
+</code></pre>
+
+<p>This means that your app is attempting to connect to the database as part of <code>rake assets:precompile</code>. Because your database may not be available, the command may fail. You should be able to see the same error by running this command:</p>
+
+<pre><code>env -i GEM_PATH=$GEM_PATH \
+       PATH=$PATH \
+       RAILS_ENV=$RAILS_ENV\
+       DATABASE_URL=postgres://user:pass@127.0.0.1/does_not_exist_dbname \
+       /bin/sh -c 'bundle exec rake --trace  assets:precompile'
+</code></pre>
+
+<p>The above command uses <code>env -i</code> which runs everything following it without any environment variables. We then manually pass in <code>GEM_PATH</code>, <code>PATH</code> and a nonexistent <code>DATABASE_URL</code>. Finally we run the command using <code>bin/sh -c</code> this tells our shell to execute <code>bundle exec rake --trace assets:precompile</code>.</p>
+
+<p><strong>Note</strong> If you are using another database you will need to replace <code>postgres</code> with the database adapter you are using as detected from your <code>Gemfile</code></p>
+
 <p>If <code>rake assets:precompile</code> is still not working, you can debug this locally by configuring a nonexistent database in your local <code>config/database.yml</code> and attempting to run <code>rake assets:precompile</code>. Ideally you should be able to run this command without connecting to the database.</p>
 
 <h3 id="therubyracer">therubyracer</h3>
 
 <p>If you were previously using <code>therubyracer</code> or <code>therubyracer-heroku</code>, these gems are no longer required and strongly discouraged as these gems use a very large amount of memory.</p>
+
+<p>A version of Node is installed by the Ruby buildpack that will be used to compile your assets.</p>
 
 <h3 id="updating-path">Updating PATH</h3>
 
@@ -120,3 +116,7 @@ Adding config vars:
   PATH =&gt; vendor/bundle/ru...usr/bin:/bin:bin
 Restarting app... done, v7.
 </code></pre>
+
+<h2 id="no-debug-output-at-all">No debug output at all</h2>
+
+<p>If you see no debug output and your <code>asset:precompile</code> task is not run, ensure that <code>rake</code> is in your <code>Gemfile</code> and properly committed.</p>

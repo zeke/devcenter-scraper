@@ -29,4 +29,4 @@ Logplex routes messages from sources to drains.
 
 Logplex is a high-performance, real-time system for log delivery -- not storage. It keeps a [limited buffer of log entries](logging#log-history-limits).
 
-Logplex interacts directly with various external tools and services, and requires prompt action for real-time processing. If one of these services has trouble keeping up, Logplex may be forced to discard log entries for some time. If this happens, it will insert a [warning entry](error-codes#l10-drain-buffer-overflow) to indicate that some entries are missing.
+Logplex interacts directly with various external tools and services, and requires prompt action for real-time processing. If one of these services has trouble keeping up, Logplex may be forced to discard log entries for some time. If this happens, it will insert a [warning entry](error-codes#l10-drain-buffer-overflow) to indicate that some entries are missing. 

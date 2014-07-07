@@ -1,41 +1,64 @@
-
 <p>Forking creates a new database containing a snapshot of an existing database at the current point in time. Forked databases differ from follower databases in that they <em>do not</em> stay up-to-date with the original database and are themselves writable.</p>
-<p class="warning">
-Forking is only supported on <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans">production tier database plans</a>. Follow these steps to <a href="https://devcenter.heroku.com/articles/upgrade-heroku-postgres-with-pgbackups">upgrade from a starter tier (dev or basic)</a> plan to a production plan.
-</p>
+
+<div class="warning">
+<p>Forking is only supported on <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans">production tier database plans</a>. Follow these steps to <a href="https://devcenter.heroku.com/articles/upgrade-heroku-postgres-with-pgbackups">upgrade from a starter tier (dev or basic)</a> plan to a production plan.</p>
+</div>
+
 <h2 id="use-cases">Use-cases</h2>
 
 <p>Forked databases provide a risk-free way of working with your production data and schema. For example, they can be used to test new schema migrations or to load test your application on a different database plan. The are also valuable as snapshots of your data at a point-in-time for later analysis or forensics.</p>
 
 <h2 id="create-a-fork">Create a fork</h2>
+
 <div class="callout">
-
 <p>Creating forks is subject to the same limitations as <a href="https://devcenter.heroku.com/articles/heroku-postgres-follower-databases#create-a-follower">creating followers</a>.</p>
-
 </div>
-<p>Forking a database uses the same mechanism as creating a <a href="https://devcenter.heroku.com/articles/heroku-postgres-follower-databases">follower</a> – namely that provisioning occurs on creation of a new database add-on with the <code>--fork</code> flag. The flag can take either the config var name of the database on the same app, an argument of the form <code>appname::HEROKU_POSTGRES_COLOR_URL</code>, or the full url of any Heroku Postgres database.</p>
-<p class="note">
-Forks do not have to be the same database plan as their master. Production tier database plans can be forked to all other production tier plans. If your database is on an older 32-bit machine then the follower may only be followed by the same plan, you can identify this by running heroku pg:info on your database.
-</p>
+
+<p>Forking a database uses the same mechanism as creating a <a href="https://devcenter.heroku.com/articles/heroku-postgres-follower-databases">follower</a> – namely that provisioning occurs on creation of a new database add-on with the <code>--fork</code> flag. The flag can take either the config var name of the database on the same app, an argument of the form <code>appname::HEROKU_POSTGRESQL_COLOR_URL</code>, or the full url of any Heroku Postgres database.</p>
+
+<div class="note">
+<p>Forks do not have to be the same database plan as their master. Production tier database plans can be forked to all other production tier plans. If your database is on an older 32-bit machine then the follower may only be followed by the same plan, you can identify this by running heroku pg:info on your database.</p>
+</div>
+
 <pre><code class="term">$ heroku addons:add heroku-postgresql:crane --fork HEROKU_POSTGRESQL_CHARCOAL_URL
 Adding heroku-postgresql:crane on sushi... done, v71 ($50/mo)
 Attached as HEROKU_POSTGRESQL_SILVER_URL
 Database will become available after it completes forking
-Use `heroku pg:wait` to track status</code></pre>
+Use `heroku pg:wait` to track status
+</code></pre>
 
 <p>Preparing a fork can take anywhere from several minutes to several hours, depending on the size of your dataset. The <code>heroku pg:wait</code> command outputs the provisioning status of any new databases and can be used to determine when the fork is up-to-date.</p>
 
 <pre><code class="term">$ heroku pg:wait
-Waiting for database HEROKU_POSTGRESQL_SILVER_URL... available</code></pre>
+Waiting for database HEROKU_POSTGRESQL_SILVER_URL... available
+</code></pre>
 
 <p>De-provision a fork using <code>heroku addons:remove</code>:</p>
+
 <div class="callout">
-
 <p>Be sure to remove the <code>_URL</code> suffix from the database name in this command.</p>
-
 </div>
+
 <pre><code class="term">$ heroku addons:remove HEROKU_POSTGRESQL_SILVER
 
 !    WARNING: Destructive Action
 !    This command will affect the app: sushi
-!    To proceed, type "sushi" or re-run this command with --confirm sushi</code></pre>
+!    To proceed, type "sushi" or re-run this command with --confirm sushi
+</code></pre>
+
+<h2 id="fork-fast-option">Fork Fast option</h2>
+
+<p>Forks can be created faster using the <code>--fast</code> flag, however they will be up to 30 hours out-of-date. This option is useful if there have been no major changes (such as schema migrations or large data imports) to your database in the last 30 hours.</p>
+
+<pre><code class="term">$ heroku addons:add heroku-postgresql:premium-ika --fork HEROKU_POSTGRESQL_CHARCOAL_URL --fast
+
+Adding heroku-postgresql:premium-ika on dashboard... done, v1022 ($1200/mo)
+Attached as HEROKU_POSTGRESQL_BLUE_URL
+
+Fork will contain data from 5/26/2014 at 13:56 UTC (about 16 hours old)
+To create a fork with up-to-date data, exclude the `--fast` flag.
+
+Database will become available after it completes forking
+Use `heroku pg:wait` to track status.
+Use `heroku addons:docs heroku-postgresql` to view documentation ```
+</code></pre>

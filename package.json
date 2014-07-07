@@ -11,6 +11,7 @@
   "license": "BSD",
   "dependencies": {
     "rimraf": "~2.2.2",
-    "coffee-script": "~1.6.3"
+    "coffee-script": "~1.6.3",
+    "git": "~0.1.5"
   }
 }

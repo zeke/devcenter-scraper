@@ -31,7 +31,7 @@ An optional final step would be to [implement single sign-on](https://devcenter.
 
 First we need to install some software and create your add-on manifest.
 
-### Prerequistes
+### Prerequisites
 
 Your service can be written in any language. You'll need Ruby to run Kensa, the manifest validation tool. In both cases you only need Ruby in your development environment, not on your production system.
 
@@ -48,7 +48,7 @@ Windows users can use [Ruby Installer](http://rubyinstaller.org/).
 Everything in this document will take place in your local development environment. We'll simulate the calls from Heroku using the Kensa command-line tool. To install:
 
 ```term
-$ sudo gem install kensa
+$ gem install kensa
 ```
 
 Run `kensa` with no arguments for a quick reference to the commands available.
@@ -352,7 +352,7 @@ This section assumes you've already implemented [provisioning](#provisioning) as
 ### 1. Create a consumer test in Ruby
 
 In order for Heroku apps to [consume your service](https://devcenter.heroku.com/articles/how-addons-work#consumption) once the add-on is installed,
-you'll need to write a sample that demonstates how to consume your service
+you'll need to write a sample that demonstrates how to consume your service
 from Ruby, using a URL passed in through the environment.
 
 >callout
@@ -476,4 +476,4 @@ If you've made it this far, you've done the bulk of the technical integration
 needed to make your cloud service into a Heroku add-on.  Congratulations!
 
 The next step will be to [Submit your
-add-on](https://devcenter.heroku.com/articles/submitting-an-add-on) to the add-ons catalog.
+add-on](https://devcenter.heroku.com/articles/submitting-an-add-on) to the add-ons catalog. 

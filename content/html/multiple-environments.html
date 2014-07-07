@@ -6,9 +6,13 @@
 
 <p>The solution is to have a staging environment that is as similar to production as is possible. This can be achieved by creating a second Heroku application that hosts your staging application.  With staging, you can check your code in a production-like setting before having it affect your actual users.  As you already <a href="https://devcenter.heroku.com/articles/git">deploy with git</a>, setting up and managing these multiple remote environments is easy.</p>
 
+<div class="callout">
+<p>While we are refering to a “staging” environment you should always run your app on Heroku in the “production” environment. For more information see <a href="https://devcenter.heroku.com/articles/deploying-to-a-custom-rails-environment">Deploying to a custom Rails environment</a>.</p>
+</div>
+
 <h2 id="starting-from-scratch">Starting from scratch</h2>
 
-<p>Say you’ve already got an application on your local machine, and you’re ready to push it to Heroku. We’ll need to create both remote environments, staging and production. To get in the habit of pushing to staging first, we’ll start with it:</p>
+<p>We assume you have an application running on your local machine, and you’re ready to push it to Heroku. We’ll need to create both remote environments, staging and production. To get in the habit of pushing to staging first, we’ll start with it:</p>
 
 <pre><code class="term">$ heroku create --remote staging
 Creating strong-river-216.... done
@@ -17,19 +21,21 @@ Git remote staging added
 </code></pre>
 
 <div class="callout">
-<p>If you forget the <code>--remote</code> flag, you can always rename the default <code>heroku</code> remote later with <code>git remote rename &lt;old&gt; &lt;new&gt;</code>. </p>
+<p>If you forget the <code>--remote</code> flag, you can also edit git config by running <code>$ git config -e</code></p>
 </div>
 
 <p>By default, the <a href="https://devcenter.heroku.com/articles/heroku-command">heroku CLI</a> creates projects with a <code>heroku</code> git remote (thus the normal <code>git push heroku master</code>). Here, we’re specifying a different name with the <code>--remote</code> flag, so pushing code to Heroku and running commands against the app look a little different than the normal <code>git push heroku master</code>:</p>
 
 <pre><code class="term">$ git push staging master
 ...
-$ heroku run rake db:migrate --remote staging
-...
 $ heroku ps --remote staging
-=== web: `bundle exec thin start -p $PORT -e production`
+=== web: `bundle exec puma -C config/puma.rb``
 web.1: up for 21s
 </code></pre>
+
+<div class="note">
+<p>Even though we are pushing to the “staging” remote, the code is still running in “production” environment for more context read <a href="https://devcenter.heroku.com/articles/deploying-to-a-custom-rails-environment">Deploying to a custom Rails environment</a>.</p>
+</div>
 
 <p>Once your staging app is up and running properly, you can create your production app:</p>
 
@@ -39,10 +45,8 @@ http://fierce-ice-327.heroku.com/ | git@heroku.com:fierce-ice-327.git
 Git remote production added
 $ git push production master
 ...
-$ heroku run rake db:migrate --remote production
-...
 $ heroku ps --remote production
-=== web: `bundle exec thin start -p $PORT -e production`
+=== web: `bundle exec puma -C config/puma.rb``
 web.1: up for 16s
 </code></pre>
 
@@ -52,18 +56,22 @@ web.1: up for 16s
 
 <p>And with that, you’ve got the same codebase running as two separate Heroku apps – one staging and one production, set up identically.</p>
 
-<p>In the example <code>heroku</code> commands above we’ve specified the target app using the <code>--remote</code> option. In the course of your normal work, however, you may tire of always typing either <code>--remote staging</code> or <code>--remote production</code> at the end of every command. To make things easier, you can use your git config to specify a default app. For example, if you wanted “staging” do be your default remote, you could set it with the following command:</p>
+<p>In the example <code>heroku</code> commands above we’ve specified the target app using the <code>--remote</code> option. In the course of your normal work, however, you may tire of always typing either <code>--remote staging</code> or <code>--remote production</code> at the end of every command. To make things easier, you can use your git config to specify a default app. For example, if you wanted “staging” to be your default remote, you could set it with the following command:</p>
 
 <pre><code class="term">$ git config heroku.remote staging
 </code></pre>
 
-<p>This will add a section to the project’s .git/config file that looks something like this:</p>
+<p>This will add a section to the project’s <code>.git/config</code> file that looks something like this:</p>
 
 <pre><code>[heroku]
   remote = staging
 </code></pre>
 
 <p>Once this is set up, all <code>heroku</code> commands will default to the staging app. To run a command on the production app, simply use the <code>--remote production</code> option.</p>
+
+<div class="note">
+<p>The <a href="https://devcenter.heroku.com/articles/labs-pipelines">pipelines</a> Heroku Labs feature can be used as an alternative method of deploying from staging to production environments.</p>
+</div>
 
 <h2 id="starting-from-an-existing-app">Starting from an existing app</h2>
 
@@ -81,12 +89,11 @@ $ git remote add integration git@heroku.com:integration.git
 
 <p>Many languages and frameworks support flipping a development/production switch.  For example, when in development mode, you may use a different database, have increased logging levels, and send all emails to yourself instead of to end users.</p>
 
-<p>You typically want to do this for the staging apps.  For example, in Ruby you can set the <code>RACK_ENV</code> and <code>RAILS_ENV</code> for your staging app (you’ll also need a <code>config/environments/staging.rb</code> file to make this work, of course.):</p>
+<div class="note">
+<p>You should use <code>RAILS_ENV=production</code> or <code>RACK_ENV=production</code> for your staging applications to minimize surprises while deploying to production. Read <a href="https://devcenter.heroku.com/articles/deploying-to-a-custom-rails-environment">Deploying to a custom Rails environment</a> for more information.</p>
+</div>
 
-<pre><code class="term">$ heroku config:set RACK_ENV=staging RAILS_ENV=staging --remote staging
-</code></pre>
-
-<p>The services and libraries that your application uses may also need their own configuration variables set, mirroring those on production.  For example, you may use a different S3 bucket in development than you do on production, so you will use different values for the keys:</p>
+<p>The services and libraries that your application uses may also need their own configuration variables set, mirroring those on production.  For example, you may use a different S3 bucket for staging than you do on production, so you will use different values for the keys:</p>
 
 <pre><code class="term">$ heroku config:set S3_KEY=XXX --remote staging
 $ heroku config:set S3_SECRET=YYY --remote staging
@@ -99,7 +106,7 @@ $ heroku config:set S3_SECRET=YYY --remote staging
 <pre><code class="term">$ git push staging development:master
 </code></pre>
 
-<p>This command tells git that you want to push from your local <code>development</code> branch to the <code>master</code> branch of your <code>staging</code> remote. (It might look a little disorderly, but there’s a lot more going on - take a look at the <a href="http://progit.org/book/ch9-5.html">git book for a very in-depth exploration of refspecs</a>.)</p>
+<p>This command tells git that you want to push from your local <code>development</code> branch to the <code>master</code> branch of your <code>staging</code> remote. (It might look a little disorderly, but there’s a lot more going on - take a look at the <a href="http://git-scm.com/book/ch9-5.html">git book for a very in-depth exploration of refspecs</a>.)</p>
 
 <p>If you want to simplify your git commands, you can make things easier by forcing your local git branches to track your remote applications. Assuming you’ve got git remotes for <code>staging</code> and <code>production</code>, you can do the following:</p>
 

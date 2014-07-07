@@ -1,17 +1,25 @@
-
-<p>Slugs are compressed and pre-packaged copies of your application optimized for distribution to the <a href="https://devcenter.heroku.com/articles/dynos#the-dyno-manager">dyno manager</a>. When you <code>git push</code> to Heroku, your code is received by the slug compiler which transforms your repository into a slug. Scaling an application then downloads and expands the slug to a dyno for execution.</p>
+<p>Slugs are compressed and pre-packaged copies of your application
+optimized for distribution to the
+<a href="https://devcenter.heroku.com/articles/dynos#the-dyno-manager">dyno manager</a>. When you <code>git push</code> to
+Heroku, your code is received by the slug compiler which transforms
+your repository into a slug. Scaling an application then downloads and
+expands the slug to a dyno for execution.</p>
 
 <h2 id="compilation">Compilation</h2>
 
-<p>The slug compiler is invoked by a <a href="http://git-scm.com/book/en/Customizing-Git-Git-Hooks#Server-Side-Hooks">git pre-receive hook</a>, which follows these steps:</p>
+<p>The slug compiler is invoked by a
+<a href="http://git-scm.com/book/en/Customizing-Git-Git-Hooks#Server-Side-Hooks">git pre-receive hook</a>,
+which follows these steps:</p>
 
 <ol>
 <li>Create a fresh checkout of HEAD from the master branch.</li>
-
-<li>Remove unused files, including <code>.git</code> directories, <code>.gitmodules</code> files, anything in <code>log</code> and <code>tmp</code>, and anything specified in a top-level <code>.slugignore</code> file.</li>
-
-<li>Download, build, and install local dependencies as specified in your build file (for example, <a href="https://devcenter.heroku.com/articles/bundler">Gemfile</a>, <code>package.json</code>, <code>requirements.txt</code>, <code>pom.xml</code>, etc.) with the dependency management tool supported by the language (e.g. Bundler, npm, pip, Maven).</li>
-
+<li>Remove unused files, including <code>.git</code> directories, <code>.gitmodules</code> files, anything in
+<code>log</code> and <code>tmp</code>, and anything specified in a top-level <code>.slugignore</code>
+file.</li>
+<li>Download, build, and install local dependencies as specified in
+your build file (for example,  <a href="https://devcenter.heroku.com/articles/bundler">Gemfile</a>, <code>package.json</code>,
+<code>requirements.txt</code>,  <code>pom.xml</code>, etc.) with the dependency management
+tool supported by the language (e.g. Bundler, npm, pip, Maven).</li>
 <li>Package the final slug archive.</li>
 </ol><h2 id="time-limit">Time limit</h2>
 
@@ -20,37 +28,48 @@
 <h2 id="ignoring-files-with-slugignore">Ignoring files with <code>.slugignore</code>
 </h2>
 
-<p>If your repository contains files not necessary to run your app, you may wish to add these to a <code>.slugignore</code> file in the root of your repository. Examples of files you may wish to exclude from the slug:</p>
+<p>If your repository contains files not necessary to run your app, you
+may wish to add these to a <code>.slugignore</code> file in the root of your
+repository. Examples of files you may wish to exclude from the slug:</p>
 
 <ul>
 <li>Unit tests or specs</li>
-
 <li>Art sources (like .psd files)</li>
-
 <li>Design documents (like .pdf files)</li>
-
 <li>Test data</li>
-</ul><p>The format is roughly the same as <code>.gitignore</code>. Here’s an example <code>.slugignore</code>:</p>
+</ul><p>The format is roughly the same as <code>.gitignore</code>. Here’s an example
+<code>.slugignore</code>:</p>
 
 <pre><code class="text">*.psd
 *.pdf
 /test
-/spec</code></pre>
+/spec
+</code></pre>
 
-<p>The <code>.slugignore</code> file causes files to be removed after you push code to Heroku and before the <a href="https://devcenter.heroku.com/articles/buildpacks">buildpack</a> runs. This lets you prevent large files from being included in the final slug. Unlike <code>.gitignore</code>, <code>.slugignore</code> does not support negated <code>!</code> patterns.</p>
+<p>The <code>.slugignore</code> file causes files to be removed after you push code
+to Heroku and before the <a href="https://devcenter.heroku.com/articles/buildpacks">buildpack</a> runs. This lets you
+prevent large files from being included in the final slug. Unlike
+<code>.gitignore</code>, <code>.slugignore</code> does not support negated <code>!</code> patterns.</p>
 
-<p>You can further reduce the number of unnecessary files (for example, <code>log</code> and <code>tmp</code> directories) by ensuring that they aren’t tracked by git, in which case they won’t be deployed to Heroku either. See <a href="https://devcenter.heroku.com/articles/gitignore">Using a .gitignore</a> file.</p>
+<p>You can further reduce the number of unnecessary files (for example,
+<code>log</code> and <code>tmp</code> directories) by ensuring that they aren’t tracked by
+git, in which case they won’t be deployed to Heroku either. See
+<a href="https://devcenter.heroku.com/articles/gitignore">Using a .gitignore</a> file.</p>
 
 <h2 id="slug-size">Slug size</h2>
 
-<p>Your slug size is displayed at the end of a successful compile. The maximum allowed slug size (after compression) is 300MB.</p>
-<p class="callout">You can inspect the extracted contents of your slug with <code>heroku run bash</code> and by using commands such as <code>ls</code> and <code>du</code>.</p>
+<p>Your slug size is displayed at the end of a successful compile after the <code>Compressing</code> message. The maximum allowed slug size (after compression) is 300MB.</p>
+
+<div class="callout">
+<p>You can inspect the extracted contents of your slug with <code>heroku run bash</code> and by using commands such as <code>ls</code> and <code>du</code>.</p>
+</div>
+
 <p>Slug size varies greatly depending on what language and framework you are using, how many dependencies you have added and other factors specific to your app. Smaller slugs can be transferred to the dyno manager more quickly, allowing for more immediate scaling. You should try to keep your slugs as small and nimble as possible.</p>
 
 <p>Here are some techniques for reducing slug size:</p>
 
 <ul>
 <li>Move large assets like PDFs or audio files to <a href="https://devcenter.heroku.com/articles/s3">asset storage</a>.</li>
-
-<li>Remove unneeded dependencies and exclude unnecessary files via <code>.slugignore</code>.</li>
+<li>Remove unneeded dependencies and exclude unnecessary files via
+<code>.slugignore</code>.</li>
 </ul>

@@ -1,4 +1,4 @@
-<p><a href="http://postgis.org/">PostGIS</a> is available in public beta. The beta is available on all Production tier databases and currently supports PostGIS version 2.0. It is not available on the Dev or Basic Starter tier plans. PostGIS is only available with Postgres 9.2 databases provisioned after April 20, 2013. To enable PostGIS once connected to your PostgreSQL 9.2 database run:</p>
+<p><a href="http://postgis.org/">PostGIS</a> is available in public beta. The beta is available on all Production tier databases and currently supports PostGIS version 2.0. It is not available on the Dev or Basic Starter tier plans. PostGIS is only available with Postgres 9.2 databases provisioned after April 20, 2013 and all Postgres 9.3 database. To enable PostGIS once connected to your PostgreSQL 9.2 database run:</p>
 
 <pre><code class="sql">CREATE EXTENSION postgis;
 </code></pre>
@@ -14,7 +14,7 @@
 <pre><code class="ruby">gem 'activerecord-postgis-adapter'
 </code></pre>
 
-<p>Run <code>bundle install</code> to download and resolve all dependencies. For more information on getting setup with <code>activerecord-postgis-adapter</code> you can visit <a href="http://dazuma.github.io/activerecord-postgis-adapter/rdoc/">their docs</a>. Once you’ve installed the gem, configure ActiveRecord to read the database configuration from DATABASE_URL, but modify the adapter to <code>postgis</code>:</p>
+<p>Run <code>bundle install</code> to download and resolve all dependencies. For more information on getting setup with <code>activerecord-postgis-adapter</code> you can visit <a href="http://rdoc.info/gems/activerecord-postgis-adapter">their docs</a>. Once you’ve installed the gem, configure ActiveRecord to read the database configuration from DATABASE_URL, but modify the adapter to <code>postgis</code>:</p>
 
 <pre><code class="ruby"># in config/application.rb, before the application loads
 class ActiveRecordOverrideRailtie &lt; Rails::Railtie

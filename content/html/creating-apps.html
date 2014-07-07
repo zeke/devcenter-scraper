@@ -15,6 +15,17 @@ http://example.herokuapp.com/ | git@heroku.com:example.git
 
 <p>The command’s output shows that the app will be available at <code>http://example.herokuapp.com</code>. The second URL, <code>git@heroku.com:example.git</code>, is the remote git repository URL; by default, the <code>heroku create</code> command automatically adds a git remote named “heroku” pointing at this URL.</p>
 
+<p>Typically, this command will only be used on an initialised git repository.  In that case, the command creates the application as well as a git remote, that you can use to push your code to Heroku:</p>
+
+<pre><code class="term">$ mkdir example
+$ cd example
+$ git init
+$ heroku apps:create example
+Creating example... done, stack is cedar
+http://example.herokuapp.com/ | git@heroku.com:example.git
+Git remote heroku added
+</code></pre>
+
 <h2 id="creating-an-app-without-a-name">Creating an app without a name</h2>
 
 <p>The app name argument (“example”) is optional. If no app name is specified, a random name will be generated.</p>

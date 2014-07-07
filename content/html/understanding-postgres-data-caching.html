@@ -1,4 +1,3 @@
-
 <p>Data caching in Postgres cannot be preallocated or guaranteed. Instead it can only be estimated and can vary widely depending on your workload. Heroku Postgres plans have a certain amount of System RAM, much of which is used for caching, but users may see slightly better or worse caching in their databases. A well designed application serves more than 99% of queries from cache. To learn more about how Postgres caches, read the discussion below.</p>
 
 <h2 id="how-does-postgresql-cache-data">How does PostgreSQL cache data?</h2>
@@ -22,7 +21,9 @@
 <h2 id="what-does-having-a-cold-cache-mean">What does having a cold cache mean</h2>
 
 <p>If for some reason you experience a service disruption on your production tier Heroku Postgres database you may receive a message that when your database comes back online you will have a “cold cache”. When you see this there is underlying hardware affected and as a result your database will come back online on a new host where no data will have been cached.</p>
+
 <div class="callout">
-If you periodically send reads to your follower the cache may already be warmed, thereby reducing the time for your cache to be performing at normal levels.
+<p>If you periodically send reads to your follower the cache may already be warmed, thereby reducing the time for your cache to be performing at normal levels.</p>
 </div>
+
 <p>If you have a <a href="https://devcenter.heroku.com/articles/heroku-postgres-follower-databases">follower</a> you can promote it when you see this instead of waiting for your database to become available on the new host.</p>

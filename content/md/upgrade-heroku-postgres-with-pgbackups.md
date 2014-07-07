@@ -5,21 +5,21 @@ url: https://devcenter.heroku.com/articles/upgrade-heroku-postgres-with-pgbackup
 description: Use the PG Backups add-on to upgrade from a starter tier database plan to a production tier plan.
 ---
 
-<p class="note" markdown="1">
-Upgrading between two [non-hobby tier](heroku-postgres-plans#standard-tier) Heroku Postgres databases is best accomplished [using followers](heroku-postgres-follower-databases#database-upgrades-and-migrations-with-changeovers). The PG Backups-based approach described here is useful to upgrade from a [starter tier](heroku-postgres-plans#standard-tier) database, where followers are not supported, or older [32-bit production database](postgres-logs-errors#this-database-does-not-support-forking-and-following).
-</p>
+>note
+>Upgrading between two [non-hobby tier](heroku-postgres-plans#standard-tier) Heroku Postgres databases is best accomplished [using followers](heroku-postgres-follower-databases#database-upgrades-and-migrations-with-changeovers). The PG Backups-based approach described here is useful to upgrade from a [starter tier](heroku-postgres-plans#standard-tier) database, where followers are not supported, or older [32-bit production database](postgres-logs-errors#this-database-does-not-support-forking-and-following), and when upgrading across PostgreSQL versions.
 
 The [PG Backups add-on](https://addons.heroku.com/pgbackups) is useful not only for capturing regular backups of your database but also as an upgrade tool for [hobby tier](heroku-postgres-plans#hobby-tier) databases. PG Backups can be used to migrate between starter tier databases or from a starter tier database to a production tier database. 
 
 Before beginning you should ensure you've installed the pgbackups addon:
 
-    heroku addons:add pgbackups
+```term
+$ heroku addons:add pgbackups
+```
 
 The steps to upgrade from a starter tier database are the same independent of the plan you're upgrading to. This assumes you have the PG Backups add-on already installed on the application you wish to upgrade.
 
-<p class="warning" markdown="1">
-Upgrading databases necessarily involves some amount of downtime. Please plan accordingly.
-</p>
+>warning
+>Upgrading databases necessarily involves some amount of downtime. Please plan accordingly.
 
 ## Provision new plan
 
@@ -27,120 +27,145 @@ Provision a new database of the plan you want to upgrade to. If you're unsure of
 
 ### Upgrading from dev to basic
 
-<div class="callout">
-If you are upgrading from an older version your new database by default will be 9.2. If you wish to remain on an identical version you should use the `version` flag.
-</div>
+>callout
+>If you are upgrading from an older version your new database by default will be 9.3. If you wish to remain on an identical version you should use the `version` flag.
 
 If you are upgrading from the `dev` starter tier plan to a `basic` starter tier plan you will first need to provision a new `basic` database.
 
-    :::term
-    $ heroku addons:add heroku-postgresql:basic
-    Adding heroku-postgresql:basic on sushi... done, v122 ($9/mo)
-    Attached as HEROKU_POSTGRESQL_PINK_URL
-    Database has been created and is available
-    Use `heroku addons:docs heroku-postgresql:basic` to view documentation.
+```term
+$ heroku addons:add heroku-postgresql:hobby-basic
+Adding heroku-postgresql:hobby-basic on sushi... done, v122 ($9/mo)
+Attached as HEROKU_POSTGRESQL_PINK_URL
+Database has been created and is available
+Use `heroku addons:docs heroku-postgresql:basic` to view documentation.
+```
 
-<p class="note" markdown="1">
-Take note of this new database name (`HEROKU_POSTGRESQL_PINK` here) as you will refer to it when restoring the backup.
-</p>
+>note
+>Take note of this new database name (`HEROKU_POSTGRESQL_PINK` here) as you will refer to it when restoring the backup.
 
 ### Upgrading to production tier
 
-If you are upgrading from one of the starter tier database plans (`dev` or `basic`) to a production tier plan, provision the new production database.
+If you are upgrading from one of the starter tier database plans (`dev` or `basic`) to a standard or premium tier plan, provision the new standard or premium database.
 
-    :::term
-    $ heroku addons:add heroku-postgresql:crane
-    Adding heroku-postgresql:crane on sushi... done, v122 ($50/mo)
-    The database should be available in 3-5 minutes
-    Use `heroku pg:wait` to track status
-    Use `heroku addons:docs heroku-postgresql:crane` to view documentation.
+```term
+$ heroku addons:add heroku-postgresql:standard-tengu
+Adding heroku-postgresql:standard-tengu on sushi... done, v122 ($200/mo)
+The database should be available in 3-5 minutes
+Use `heroku pg:wait` to track status
+Use `heroku addons:docs heroku-postgresql:standard-tengu` to view documentation.
+```
 
 Production databases may take a few minutes to be fully provisioned. Use `pg:wait` to wait until the process is completed before proceeding with the upgrade.
 
-    :::term
-    $ heroku pg:wait
-    Waiting for database HEROKU_POSTGRESQL_PINK_URL... available
+```term
+$ heroku pg:wait
+Waiting for database HEROKU_POSTGRESQL_PINK_URL... available
+```
 
-<p class="note" markdown="1">
-Take note of this new database name (`HEROKU_POSTGRESQL_PINK` here) as you will refer to it when restoring the backup.
-</p>
+>note
+>Take note of this new database name (`HEROKU_POSTGRESQL_PINK` here) as you will refer to it when restoring the backup.
 
 ## Prevent new updates
 
-It is important that no new data is written to your application during the upgrade process or it will not be transferred to the new database. To accomplish this, place your app into [maintenance mode](maintenance-mode) and scale down to zero all non-web dynos (maintenance mode automatically scales down all web dynos).
+It is important that no new data is written to your application during the upgrade process or it will not be transferred to the new database. To accomplish this, place your app into [maintenance mode](maintenance-mode). If you have scheduler jobs running as well you will want to disable those.
 
-<p class="warning" markdown="1">
-Your application will be unavailable starting at this point in the upgrade process.
-</p>
+>warning
+>Your application will be unavailable starting at this point in the upgrade process.
 
-    :::term
-    $ heroku maintenance:on
-    Enabling maintenance mode for sushi... done
+```term
+$ heroku maintenance:on
+Enabling maintenance mode for sushi... done
+```
+
+Any non-web dynos should be scaled down as well (maintenance mode automatically scales down all web dynos).
+
+```term
+$ heroku ps:scale worker=0
+Scaling worker processes... done, now running 0
+```
+
+## Transfer data to new database
+
+To transfer data from your current database to the newly provisioned database, simply use the `pgbackups:transfer` command with the 
+`HEROKU_POSTGRESQL_COLOR` name of your *new* database (`PINK` in this example).
     
-    $ heroku ps:scale worker=0
-    Scaling worker processes... done, now running 0
+ ```term
+ $ heroku pgbackups:transfer HEROKU_POSTGRESQL_PINK
 
-## Capture backup
+ !    WARNING: Destructive Action
+ !    Transfering data from DATABASE_URL to HEROKU_POSTGRESQL_PINK
+ !    To proceed, type "sushi" or re-run this command with --confirm sushi
 
-Capture a backup of the original database using `heroku pgbackups`.
+ > sushi
+```
 
-<p class="callout" markdown="1">
-The `--expire` flag tells pgbackups to automatically expire the oldest manual backup if the retention limit is reached.
-</p>
+This step may take some time depending on the size of your dataset. Wait until the transfer completes before proceeding.
 
-    :::term
-    $ heroku pgbackups:capture --expire
+>note
+>Note that the upgraded database may be smaller (as seen in heroku pg:info), since this process avoids moving [MVCC bloat](https://devcenter.heroku.com/articles/heroku-postgres-database-tuning) to the new database.
 
-    DATABASE_URL  ----backup--->  b001
+## Promote new database
 
-    Capturing... done
-    Storing... done
+>note
+>Please take care to note that the port number for your database may change during this process. You should ensure that the port is parsed correctly from the URL.
 
-## Restore to upgraded database
-
-To restore the database capture from the original database to the new upgraded database simply use `pgbackups:restore` with the `HEROKU_POSTGRESQL_COLOR` name of the *new* database (`PINK` in this example).
-
-    :::term
-    $ heroku pgbackups:restore HEROKU_POSTGRESQL_PINK
-    
-    HEROKU_POSTGRESQL_PINK  <---restore---  b001 (most recent)
-                                            DATABASE_URL
-                                            2011/03/08 09:41.57
-                                            543.7MB
-
-This step may take some time depending on the size of your dataset. Wait until the restoration completes before proceeding.
-
-## Promote upgraded database
-
-<p class="note" markdown="1">
-Please take care to note that the port number for your database may change during this process. You should ensure that the port is parsed correctly from the URL.
-</p>
 
 At this point the new database is populated with the data from the original database but is not yet the active database for your application. If you wish for the new upgraded database to be the primary database for your application you will need to promote it.
 
-    :::term
-    $ heroku pg:promote HEROKU_POSTGRESQL_PINK
-    Promoting HEROKU_POSTGRESQL_PINK_URL to DATABASE_URL... done
+```term
+$ heroku pg:promote HEROKU_POSTGRESQL_PINK
+Promoting HEROKU_POSTGRESQL_PINK_URL to DATABASE_URL... done
+```
 
 The upgraded database is now the primary database (though the application is not yet receiving new requests).
 
 ## Make application active
 
-To resume normal application operation scale any non-web dynos back to their original levels and turn off maintenance mode.
+To resume normal application operation, scale any non-web dynos back to their original levels (if the application was not previously using non-web dynos, skip this step in order to avoid scaling any dynos that you may not need).
 
-    :::term
-    $ heroku ps:scale worker=1    
-    $ heroku maintenance:off
+```term
+$ heroku ps:scale worker=1    
+```
+
+Finally, turn off maintenance mode.
+
+```term
+$ heroku maintenance:off
+```
 
 Your application is now receiving requests to your upgraded database instance. This can be confirmed by running `heroku pg:info` -- the database denoted by `DATABASE_URL` is considered the primary database.
 
 ## Remove old database
 
-<p class="warning" markdown="1">
-The original database will continue to run (and incur charges) even after the upgrade. If desired, remove it after the upgrade is successful.
-</p>
+>warning
+>The original database will continue to run (and incur charges) even after the upgrade. If desired, remove it after the upgrade is successful.
 
-    :::term
-    $ heroku addons:remove HEROKU_POSTGRESQL_ORANGE
+```term
+$ heroku addons:remove HEROKU_POSTGRESQL_ORANGE
+```
 
 Where `HEROKU_POSTGRESQL_ORANGE` is your database name as seen on the output of `heroku addons`.
+
+## Transfering databases between Heroku applications
+
+You may want to transfer the contents of one application’s database to another application's database. For instance, when maintaining both a staging and production environment of a single application you may wish to take a snapshot of the production data and import it to staging for testing purposes.
+
+>note
+>For the purpose of consistency the database being migrated from will be called the `source` database while the database being migrated to will be called the `target` database.
+
+To transfer the source database to the target database you will need to invoke pgbackups from the target application, referencing a source database. This is a **destructive** operation: the transfer operation will drop existing data and replace it with the contents of the source database. The contents of the database prior to a transfer will **not** be recoverable. If the target database already contains data, capturing a backup with `pgbackups:capture` prior to transfering is a good idea.
+
+>note
+>The example below uses the syntax `APPLICATION::DATABASE` to reference another application in-line with your `pgbackups:transfer` call.
+
+```term
+ $ heroku pgbackups:transfer HEROKU_POSTGRESQL_PINK sushi-staging::HEROKU_POSTGRESQL_OLIVE -a sushi
+
+ !    WARNING: Destructive Action
+ !    Transfering data from HEROKU_POSTGRESQL_PINK to SUSHI-STAGING::COLOR
+ !    To proceed, type "sushi" or re-run this command with --confirm sushi
+
+ > sushi
+```
+
+This command tells PG Backups to transfer the data in the `HEROKU_POSTGRESQL_PINK` database attached to application `sushi` to the database `HEROKU_POSTGRESQL_OLIVE` attached to application `sushi-staging`. 

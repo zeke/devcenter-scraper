@@ -1,0 +1,21 @@
+<p>This article describes how a slug from one app can be used to create a release on another app. Imagine that you have pushed code to a staging app, the code has been tested and you are now ready to release to production. Instead of pushing to the production app and waiting for the code to build again, you can simply copy the slug from the staging app to the production app.</p>
+
+<p>First, <a href="https://devcenter.heroku.com/articles/platform-api-reference#release-list">list releases</a> on the staging app to get the id of the slug to release on the production app:</p>
+
+<pre><code class="term">$ curl -H "Accept: application/vnd.heroku+json; version=3" -n \
+https://api.heroku.com/apps/example-app-staging/releases
+...
+"slug":{ "id":"ff40c84f-a538-4b65-a838-88fdd5245f4b" }
+</code></pre>
+
+<p>Now, create a new release on the production app using the slug from the staging app:</p>
+
+<pre><code class="term">$ curl -X POST -H "Accept: application/vnd.heroku+json; version=3" -n \
+-H "Content-Type: application/json" \
+-d '{"slug": "ff40c84f-a538-4b65-a838-88fdd5245f4b"}' \
+https://api.heroku.com/apps/example-app-production/releases
+</code></pre>
+
+<p>That’s it! The new code is now running on the <code>example-app-production</code> app.</p>
+
+<p>Note that copying slugs between apps is already possible using the beta <a href="https://blog.heroku.com/archives/2013/7/10/heroku-pipelines-beta">Pipelines plugin</a>, and <a href="https://blog.heroku.com/archives/2013/6/27/heroku-fork">Heroku Fork</a>. The release endpoint exposes the primitives necessary for third-party API developers to build services offering similar functionality.</p>

@@ -10,11 +10,15 @@
 
 <li>Your application must run on the <a href="http://openjdk.java.net/">OpenJDK</a> version 6.</li>
 
-<li>A Heroku user account. <a href="https://api.heroku.com/signup/devcenter">Signup is free and instant.</a>
+<li>A Heroku user account. <a href="https://signup.heroku.com/signup/dc">Signup is free and instant.</a>
 </li>
 </ul><h2 id="local-workstation-setup">Local workstation setup</h2>
 
-<p>Install the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a> on your local workstation. This ensures that you have access to the <a href="https://devcenter.heroku.com/categories/command-line">Heroku command-line client</a>, Foreman, and the Git revision control system.</p>
+<p>First, install the Heroku Toolbelt on your local workstation.</p>
+
+<p><a class="toolbelt" href="https://toolbelt.heroku.com/">Install the Heroku Toolbelt</a></p>
+
+<p>This ensures that you have access to the <a href="https://devcenter.heroku.com/categories/command-line">Heroku command-line client</a>, Foreman, and the Git revision control system.</p>
 
 <p>Once installed, you can use the <code>heroku</code> command from your command shell. Log in using the email address and password you used when creating your Heroku account:</p>
 
@@ -77,7 +81,7 @@ class Hello extends Service[HttpRequest, HttpResponse] {
 
 <h3 id="build-sbt">build.sbt</h3>
 
-<pre><code class="scala">import com.typesafe.startscript.StartScriptPlugin
+<pre><code class="scala">import com.typesafe.sbt.SbtStartScript
 
 seq(StartScriptPlugin.startScriptForClassesSettings: _*)
 
@@ -93,7 +97,7 @@ libraryDependencies ++= Seq("com.twitter" % "finagle-core" % "1.9.0", "com.twitt
 
 <h2 id="add-the-start-script-plugin">Add the start script plugin</h2>
 
-<p>At deploy time, Heroku runs <code>sbt clean compile stage</code> to build your Scala app. <a href="http://typesafe.com/">Typesafe</a>’s <a href="http://github.com/typesafehub/xsbt-start-script-plugin"><code>xbst-start-script-plugin</code></a> adds a <code>stage</code> task to sbt that generates start scripts for your application.</p>
+<p>At deploy time, Heroku runs <code>sbt compile stage</code> to build your Scala app. <a href="http://typesafe.com/">Typesafe</a>’s <a href="https://github.com/sbt/sbt-start-script"><code>sbt-start-script</code></a> adds a <code>stage</code> task to sbt that generates start scripts for your application.</p>
 
 <p>To use the plugin, create this file:</p>
 
@@ -101,7 +105,7 @@ libraryDependencies ++= Seq("com.twitter" % "finagle-core" % "1.9.0", "com.twitt
 
 <pre><code class="scala">resolvers += Classpaths.typesafeResolver
 
-addSbtPlugin("com.typesafe.startscript" % "xsbt-start-script-plugin" % "0.5.3")</code></pre>
+addSbtPlugin("com.typesafe.sbt" %% "sbt-start-script" % "0.10.0")</code></pre>
 
 <p>The <code>stage</code> task, by convention, performs any tasks needed to prepare an app to be run in-place. Other plugins that use a different approach to prepare an app to run could define <code>stage</code> as well.</p>
 
@@ -119,7 +123,7 @@ addSbtPlugin("com.typesafe.startscript" % "xsbt-start-script-plugin" % "0.5.3")<
 
 <p>Build your app locally:</p>
 
-<pre><code class="term">$ sbt clean compile stage
+<pre><code class="term">$ sbt compile stage
 ...
 [info] Compiling 1 Scala source to .../target/scala-2.9.2/classes...
 [success] Total time: 5 s, completed Sep 5, 2012 12:42:56 PM
@@ -130,7 +134,7 @@ addSbtPlugin("com.typesafe.startscript" % "xsbt-start-script-plugin" % "0.5.3")<
 
 <p>Use a <a href="https://devcenter.heroku.com/articles/procfile">Procfile</a>, a text file in the root directory of your application, to explicitly declare what command should be executed to start a web <a href="https://devcenter.heroku.com/articles/dynos">dyno</a>. In this case, you need to execute the <code>Web</code> main method.</p>
 
-<p>The <code>xsbt-start-script-plugin</code> we added above generates a start script in <code>target/start</code>. This simple shell script sets the <code>CLASSPATH</code> and executes the main method for the object you specify. Invoke it from your Procfile:</p>
+<p>The <code>sbt-start-script</code> we added above generates a start script in <code>target/start</code>. This simple shell script sets the <code>CLASSPATH</code> and executes the main method for the object you specify. Invoke it from your Procfile:</p>
 
 <h3 id="procfile">Procfile</h3>
 
@@ -185,7 +189,7 @@ Total 14 (delta 1), reused 0 (delta 0)
 -----&gt; Heroku receiving push
 -----&gt; Scala app detected
 -----&gt; Building app with sbt
------&gt; Running: sbt clean compile stage
+-----&gt; Running: sbt compile stage
        Getting net.java.dev.jna jna 3.2.3 ...
        ...
        [info] Compiling 1 Scala source to /tmp/build_1otpp7ujqznr3/target/scala-2.9.2/classes...
@@ -248,7 +252,7 @@ Opening warm-frost-1289... done</code></pre>
 
 <h2 id="console">Console</h2>
 
-<p>Heroku allows you to run <a href="https://devcenter.heroku.com/articles/oneoff-admin-ps">one-off proceses</a> - scripts and applications that only need to be executed when needed - using the <code>heroku run</code> command. Use this to launch a REPL process attached to your local terminal for experimenting in your app’s environment:</p>
+<p>Heroku allows you to run <a href="https://devcenter.heroku.com/articles/one-off-dynos">one-off dynos</a> - scripts and applications that only need to be executed when needed - using the <code>heroku run</code> command. Use this to launch a REPL process attached to your local terminal for experimenting in your app’s environment:</p>
 
 <pre><code class="term">$ heroku run sbt console
 Running sbt console attached to terminal... up, run.1

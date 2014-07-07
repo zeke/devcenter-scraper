@@ -8,6 +8,9 @@ description: Learn about the behavior of the Heroku routers, connection terminat
 > callout
 > Additional concurrency usually doesn't help much if you are encountering request timeouts, since the most common causes affect only individual requests. You can crank your dynos to the maximum and you'll still get a request timeout, since it is a single request that is failing to serve in the correct amount of time.  Extra dynos increase your concurrency, not the speed of your requests.
 
+> note
+> Tuning your applications' dynos may help to prevent timeouts and generally improve performance. Learn more: [Optimizing Dyno Usage](https://devcenter.heroku.com/articles/optimizing-dyno-usage)
+
 Web requests processed by Heroku are directed to your dynos via a number of Heroku [routers](http-routing). These requests are intended to be served by your application quickly. Best practice is to get the response time of your web application to be under 500ms, this will free up the application for more requests and deliver a high quality user experience to your visitors. Occasionally a web request may hang or take an excessive amount of time to process by your application. When this happens the router will terminate the request if it takes longer than 30 seconds to complete. The timeout countdown begins when the request leaves the router. The request must then be processed in the dyno by your application, and then a response delivered back to the router within 30 seconds to avoid the timeout.
 
 When a timeout is detected the router will return a [customizable error page](error-pages) to the client and an [H12 error](error-codes) is emitted to your application logs. While the router has returned a response to the client, your application will not know that the request it is processing has reached a time-out, and your application will continue to work on the request. To avoid this situation Heroku recommends setting a timeout within your application and keeping the value well under 30 seconds, such as 10 or 15 seconds. Unlike the routing timeout, these timers will begin when the request begins being processed by your application. You can read more about this below in: Timeout behavior.
@@ -50,7 +53,7 @@ Another possibility is that you are trying to do some sort of long-running task 
 * Heavy computation (computing a fibonacci sequence, etc.)
 * Heavy database usage (slow or numerous queries, N+1 queries)
 
-If so, you should move this heavy lifting into a background job which can run asynchronously from your web request.  See [background workers](background-jobs-queueing) for details.
+If so, you should move this heavy lifting into a background job which can run asynchronously from your web request.  See [Worker Dynos, Background Jobs and Queueing](background-jobs-queueing) for details.
 
 Another class of timeouts occur when an external service used by your application is unavailable or overloaded.  In this case, your web app is highly likely to timeout unless you move the work to the background. In some cases where you must process these requests during your web request, you should always plan for the failure case.  Most languages let you specify a timeout on HTTP requests, for example.
 
@@ -60,4 +63,8 @@ Request timeouts can also be caused by queueing of TCP connections inside the dy
 
 - *Run more processes per dyno*, with correspondingly fewer dynos. If you're using a framework that can handle only one request at a time (for example, Ruby on Rails), try a tool like [Unicorn](rails-unicorn) with more worker processes. This keeps your app's total concurrency the same, but dramatically improves request queueing efficiency by sharing each dyno queue among more processes.
 - *Make slow requests faster* by optimizing app code. To do this effectively, focus on the 99th percentile and maximum service time for your app. This decreases the amount of time requests will spend waiting behind other, slower requests.
-- *Run more dynos*, thus increasing total concurrency. This slightly decreases the probability that any given request will get stuck behind another one.
+- *Run more dynos*, thus increasing total concurrency. This slightly decreases the probability that any given request will get stuck behind another one. 
+
+## Uploading large files
+
+Many web applications allow users to upload files. When these files are large, or the user is on a slow internet connection, the upload can take longer than 30 seconds. For this we recommend [directly uploading to S3](https://devcenter.heroku.com/articles/s3#direct-upload). 

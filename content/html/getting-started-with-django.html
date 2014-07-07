@@ -1,50 +1,45 @@
+<p>This quickstart will get you going with a Python/Django application that uses a Postgres database, deployed to Heroku.  For other Python apps, see <a href="https://devcenter.heroku.com/articles/getting-started-with-python">Getting Started with Python on Heroku</a>. For general information on how to develop and architect apps for use on Heroku, see <a href="https://devcenter.heroku.com/articles/architecting-apps">Architecting Applications for Heroku</a>.</p>
 
-<p>This quickstart will get you going with a Python/Django application that uses a Postgres database, deployed to Heroku. For other Python apps, see <a href="https://devcenter.heroku.com/articles/python">Getting Started with Python on Heroku</a>. For general information on how to develop and architect apps for use on Heroku, see <a href="https://devcenter.heroku.com/articles/architecting-apps">Architecting Applications for Heroku</a>.</p>
 <div class="note">
-
 <p>If you have questions about Python on Heroku, consider discussing it in the <a href="https://discussion.heroku.com/category/python">Python on Heroku forums</a>. Both Heroku and community-based Python experts are available.</p>
-
 </div>
+
 <h2 id="prerequisites">Prerequisites</h2>
 
 <ul>
 <li>The Heroku toolbelt, as described in <a href="https://devcenter.heroku.com/articles/getting-started-with-python#local-workstation-setup">Getting Started with Python</a>.</li>
-
-<li>Installed <a href="http://python.org/">Python</a> and <a href="http://pypi.python.org/pypi/virtualenv">Virtualenv</a>. See <a href="http://install.python-guide.org/">this guide</a> for guidance.</li>
-
+<li>Installed <a href="http://python.org/">Python</a> and <a href="http://pypi.python.org/pypi/virtualenv">Virtualenv</a> in a unix-style environment. See <a href="http://install.python-guide.org/">this guide</a> for guidance.</li>
 <li>An installed version of <a href="http://www.postgresql.org/">Postgres</a> to test locally.</li>
-
-<li>A Heroku user account. <a href="https://api.heroku.com/signup/devcenter">Signup is free and instant</a>.</li>
+<li>A Heroku user account.  <a href="https://signup.heroku.com/signup/dc">Signup is free and instant</a>.</li>
 </ul><h2 id="start-a-django-app-inside-a-virtualenv">Start a Django app inside a Virtualenv</h2>
 
 <p>First, we’ll create an empty top-level directory for our project:</p>
 
-<pre><code class="term">$ mkdir hellodjango &amp;&amp; cd hellodjango</code></pre>
-<div class="callout">
-<p>Make sure you're using the latest virtualenv release. If you're using a version that comes with Ubuntu, you may need to add the <code>--no-site-packages</code> flag.</p>
-</div>
-<p>Next, we’ll create a Python <a href="http://pypi.python.org/pypi/virtualenv">Virtualenv</a> (v0.7):</p>
+<pre><code class="term">$ mkdir hellodjango &amp;&amp; cd hellodjango
+</code></pre>
 
-<pre><code class="term">$ virtualenv venv --distribute
+<div class="callout">
+<p>Make sure you’re using the latest virtualenv release. If you’re using a version that comes with Ubuntu, you may need to add the <code>--no-site-packages</code> flag.</p>
+</div>
+
+<p>Next, we’ll create a Python <a href="http://pypi.python.org/pypi/virtualenv">Virtualenv</a> (v1.0+):</p>
+
+<pre><code class="term">$ virtualenv venv
 New python executable in venv/bin/python
-Installing distribute...............done.
-Installing pip...............done.</code></pre>
+Installing setuptools, pip...done.
+</code></pre>
 
 <p>To use the new virtualenv, we need to activate it. (You must source the virtualenv environment for each terminal session where you wish to run your app.)</p>
-<div class="callout">
-<p>Windows users can run <code>venv\Scripts\activate.bat</code> for the same effect.</p>
-</div>
-<pre><code class="term">$ source venv/bin/activate</code></pre>
+
+<pre><code class="term">$ source venv/bin/activate
+</code></pre>
 
 <p>Next, install our application’s dependencies with <a href="http://pypi.python.org/pypi/pip">pip</a>. In this case, we will be installing <strong>django-toolbelt</strong>, which includes all of the packages we need:</p>
 
 <ul>
 <li>Django (the web framework)</li>
-
 <li>Gunicorn (WSGI server)</li>
-
 <li>dj-database-url (a Django configuration helper)</li>
-
 <li>dj-static (a Django static file server)</li>
 </ul><p>From your virtualenv:</p>
 
@@ -52,13 +47,17 @@ Installing pip...............done.</code></pre>
 Installing collected packages: Django, psycopg2, gunicorn, dj-database-url, dj-static, static
   ...
 Successfully installed Django psycopg2 gunicorn dj-database-url dj-static static
-Cleaning up...</code></pre>
+Cleaning up...
+</code></pre>
 
 <p>Now that we have a clean Python environment to work in, we’ll create our simple Django application.</p>
+
 <div class="callout">
-<p>Don't forget the <code>.</code> at the end. This tells Django to put the extract the into the current directory, instead of putting it in a new subdirectory.</p>
+<p>Don’t forget the <code>.</code> at the end. This tells Django to put the extract the into the current directory, instead of putting it in a new subdirectory.</p>
 </div>
-<pre><code class="term">$ django-admin.py startproject hellodjango .</code></pre>
+
+<pre><code class="term">$ django-admin.py startproject hellodjango .
+</code></pre>
 
 <h2 id="declare-process-types-with-procfile">Declare process types with Procfile</h2>
 
@@ -68,13 +67,15 @@ Cleaning up...</code></pre>
 
 <h4 id="procfile">Procfile</h4>
 
-<pre><code class="term">web: gunicorn hellodjango.wsgi</code></pre>
+<pre><code class="term">web: gunicorn hellodjango.wsgi --log-file -
+</code></pre>
 
 <p>You can now start the processes in your Procfile locally using <a href="http://blog.daviddollar.org/2011/05/06/introducing-foreman.html">Foreman</a> (installed as part of the Toolbelt):</p>
 
 <pre><code class="term">$ foreman start
 2013-04-03 16:11:22 [8469] [INFO] Starting gunicorn 0.17.2
-2013-04-03 16:11:22 [8469] [INFO] Listening at: http://127.0.0.1:8000 (8469)</code></pre>
+2013-04-03 16:11:22 [8469] [INFO] Listening at: http://127.0.0.1:8000 (8469)
+</code></pre>
 
 <p>Make sure things are working properly <code>curl</code> or a web browser, then Ctrl-C to exit.</p>
 
@@ -84,7 +85,8 @@ Cleaning up...</code></pre>
 
 <p>Pip has a nice command (<code>pip freeze</code>) that will generate this file for us:</p>
 
-<pre><code class="term">$ pip freeze &gt; requirements.txt</code></pre>
+<pre><code class="term">$ pip freeze &gt; requirements.txt
+</code></pre>
 
 <h4 id="requirements-txt">requirements.txt</h4>
 
@@ -94,13 +96,14 @@ dj-static==0.0.5
 gunicorn==18.0
 psycopg2==2.5.1
 static==0.4
-wsgiref==0.1.2</code></pre>
+wsgiref==0.1.2
+</code></pre>
 
 <p>Pip can also be used for advanced dependency management. See <a href="https://devcenter.heroku.com/articles/python-pip">Python Dependencies via Pip</a> to learn more.</p>
 
 <h2 id="django-settings">Django settings</h2>
 
-<p>Next, configure the application for the Heroku environment, including <a href="https://devcenter.heroku.com/articles/heroku-postgresql">Heroku’s Postgres</a> database. The <a href="https://crate.io/packages/dj-database-url/">dj-database-url</a> module will parse the values of the <code>DATABASE_URL</code> <a href="https://devcenter.heroku.com/articles/config-vars">environment variable</a> and convert them to something Django can understand.</p>
+<p>Next, configure the application for the Heroku environment, including <a href="https://devcenter.heroku.com/articles/heroku-postgresql">Heroku’s Postgres</a> database. The <a href="https://crate.io/packages/dj-database-url/">dj-database-url</a> module will parse the value of the <code>DATABASE_URL</code> <a href="https://devcenter.heroku.com/articles/config-vars">environment variable</a> and convert them to something Django can understand.</p>
 
 <p>Make sure ‘dj-database-url’ is in your requirements file, then add the following to the bottom of your <code>settings.py</code> file:</p>
 
@@ -124,7 +127,8 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
-)</code></pre>
+)
+</code></pre>
 
 <p>With these settings available, you can add the following code to <code>wsgi.py</code> to serve static files in production:</p>
 
@@ -133,21 +137,25 @@ STATICFILES_DIRS = (
 <pre><code class="python">from django.core.wsgi import get_wsgi_application
 from dj_static import Cling
 
-application = Cling(get_wsgi_application())</code></pre>
+application = Cling(get_wsgi_application())
+</code></pre>
 
 <h2 id="store-your-app-in-git">Store your app in Git</h2>
 
 <p>Now that we’ve written and tested our application, we need to store the project in a <a href="http://git-scm.org/">Git</a> repository.</p>
 
 <p>Since our current directory contains a lof of extra files, we’ll want to configure our repository to ignore these files with a <code>.gitignore</code> file:</p>
+
 <div class="callout">
-<p>GitHub provides an excellent <a href="https://github.com/github/gitignore/blob/master/Python.gitignore">Python gitignore file</a> that can be <a href="https://github.com/github/gitignore#readme">installed system-wide</a>.</p>
- </div>
+<p>GitHub provides an excellent <a href="https://github.com/github/gitignore/blob/master/Python.gitignore">Python gitignore file</a> that can be <a href="https://github.com/github/gitignore#readme">installed system-wide</a>. </p>
+</div>
+
 <h4 id="gitignore">.gitignore</h4>
 
 <pre><code>venv
 *.pyc
-staticfiles</code></pre>
+staticfiles
+</code></pre>
 
 <p>Next, we’ll create a new git repository and save our changes.</p>
 
@@ -164,7 +172,8 @@ $ git commit -m "my django app"
  create mode 100644 hellodjango/urls.py
  create mode 100644 hellodjango/wsgi.py
  create mode 100644 manage.py
- create mode 100644 requirements.txt</code></pre>
+ create mode 100644 requirements.txt
+</code></pre>
 
 <h2 id="deploy-to-heroku">Deploy to Heroku</h2>
 
@@ -173,7 +182,8 @@ $ git commit -m "my django app"
 <pre><code class="term">$ heroku create
 Creating simple-spring-9999... done, stack is cedar
 http://simple-spring-9999.herokuapp.com/ | git@heroku.com:simple-spring-9999.git
-Git remote heroku added</code></pre>
+Git remote heroku added
+</code></pre>
 
 <p>This automatically added the Heroku remote for our app (<code>git@heroku.com:simple-spring-9999.git</code>) to our repository. Now we can do a simple <code>git push</code> to deploy our application:</p>
 
@@ -184,8 +194,8 @@ Compressing objects: 100% (9/9), done.
 Writing objects: 100% (11/11), 4.01 KiB, done.
 Total 11 (delta 0), reused 0 (delta 0)
 -----&gt; Python app detected
------&gt; No runtime.txt provided; assuming python-2.7.4.
------&gt; Preparing Python runtime (python-2.7.4)
+-----&gt; No runtime.txt provided; assuming python-2.7.6.
+-----&gt; Preparing Python runtime (python-2.7.6)
 -----&gt; Installing Distribute (0.6.36)
 -----&gt; Installing Pip (1.3.1)
 -----&gt; Installing dependencies using Pip (1.3.1)
@@ -204,46 +214,52 @@ Total 11 (delta 0), reused 0 (delta 0)
        http://simple-spring-9999.herokuapp.com deployed to Heroku
 
 To git@heroku.com:simple-spring-9999.git
-* [new branch]      master -&gt; master</code></pre>
+* [new branch]      master -&gt; master
+</code></pre>
 
 <h3 id="visit-your-application">Visit your application</h3>
 
-<p>You’ve deployed your code to Heroku, and specified the process types in a <code>Procfile</code>. You can now instruct Heroku to execute a process type. Heroku does this by running the associated command in a <a href="https://devcenter.heroku.com/articles/dynos">dyno</a> - a lightweight container which is the basic unit of composition on Heroku.</p>
+<p>You’ve deployed your code to Heroku, and specified the process types in a <code>Procfile</code>.  You can now instruct Heroku to execute a process type.  Heroku does this by running the associated command in a <a href="https://devcenter.heroku.com/articles/dynos">dyno</a> - a lightweight container which is the basic unit of composition on Heroku.</p>
 
 <p>Let’s ensure we have one dyno running the <code>web</code> process type:</p>
 
-<pre><code class="term">$ heroku ps:scale web=1</code></pre>
+<pre><code class="term">$ heroku ps:scale web=1
+</code></pre>
 
-<p>You can check the state of the app’s dynos. The <code>heroku ps</code> command lists the running dynos of your application:</p>
+<p>You can check the state of the app’s dynos.  The <code>heroku ps</code> command lists the running dynos of your application:</p>
 
 <pre><code class="term">$ heroku ps
 === web: `gunicorn hellodjango.wsgi`
-web.1: up for 10s</code></pre>
+web.1: up for 10s
+</code></pre>
 
 <p>Here, one dyno is running.</p>
 
 <p>We can now visit the app in our browser with <code>heroku open</code>.</p>
 
 <pre><code class="term">$ heroku open
-Opening simple-spring-9999.herokuapp.com... done</code></pre>
+Opening simple-spring-9999.herokuapp.com... done
+</code></pre>
 
 <p>You should see the satisfying “It worked!” Django welcome page.</p>
 
 <h2 id="dyno-sleeping-and-scaling">Dyno sleeping and scaling</h2>
 
-<p>Having only a single web dyno running will result in the dyno <a href="https://devcenter.heroku.com/articles/dynos#dyno-sleeping">going to sleep</a> after one hour of inactivity. This causes a delay of a few seconds for the first request upon waking. Subsequent requests will perform normally.</p>
+<p>Having only a single web dyno running will result in the dyno <a href="https://devcenter.heroku.com/articles/dynos#dyno-sleeping">going to sleep</a> after one hour of inactivity.  This causes a delay of a few seconds for the first request upon waking. Subsequent requests will perform normally.</p>
 
-<p>To avoid this, you can scale to more than one web dyno. For example:</p>
+<p>To avoid this, you can scale to more than one web dyno.  For example:</p>
 
-<pre><code class="term">$ heroku ps:scale web=2</code></pre>
+<pre><code class="term">$ heroku ps:scale web=2
+</code></pre>
 
-<p>For each application, Heroku provides <a href="https://devcenter.heroku.com/articles/usage-and-billing#750-free-dyno-hours-per-app">750 free dyno-hours</a>. Running your app at 2 dynos would exceed this free, monthly allowance, so let’s scale back:</p>
+<p>For each application, Heroku provides <a href="https://devcenter.heroku.com/articles/usage-and-billing#750-free-dyno-hours-per-app">750 free dyno-hours</a>.  Running your app at 2 dynos would exceed this free, monthly allowance, so let’s scale back:</p>
 
-<pre><code class="term">$ heroku ps:scale web=1</code></pre>
+<pre><code class="term">$ heroku ps:scale web=1
+</code></pre>
 
 <h3 id="view-the-logs">View the logs</h3>
 
-<p>Heroku treats logs as streams of time-ordered events aggregated from the output streams of all the dynos running the components of your application. Heroku’s <a href="https://devcenter.heroku.com/articles/logplex">Logplex</a> provides a single channel for all of these events.</p>
+<p>Heroku treats logs as streams of time-ordered events aggregated from the output streams of all the dynos running the components of your application.  Heroku’s <a href="https://devcenter.heroku.com/articles/logplex">Logplex</a> provides a single channel for all of these events.</p>
 
 <p>View information about your running app using one of the <a href="https://devcenter.heroku.com/articles/logging">logging commands</a>, <code>heroku logs</code>:</p>
 
@@ -257,11 +273,12 @@ Opening simple-spring-9999.herokuapp.com... done</code></pre>
 2012-04-06T19:38:29+00:00 app[web.1]: Development server is running at http://0.0.0.0:6566/
 2012-04-06T19:38:29+00:00 app[web.1]: Quit the server with CONTROL-C.
 2012-04-06T19:38:30+00:00 heroku[web.1]: State changed from starting to up
-2012-04-06T19:38:32+00:00 heroku[slugc]: Slug compilation finished</code></pre>
+2012-04-06T19:38:32+00:00 heroku[slugc]: Slug compilation finished
+</code></pre>
 
 <h3 id="syncing-the-database">Syncing the database</h3>
 
-<p>The <code>heroku run</code> command lets you run <a href="https://devcenter.heroku.com/articles/oneoff-admin-ps">one-off admin dynos</a>. You can use this to sync the Django models with the database schema:</p>
+<p>The <code>heroku run</code> command lets you run <a href="https://devcenter.heroku.com/articles/one-off-dynos">one-off dynos</a>.  You can use this to sync the Django models with the database schema:</p>
 
 <pre><code class="term">$ heroku run python manage.py syncdb
 Running python manage.py syncdb attached to terminal... up, run.1
@@ -285,7 +302,8 @@ Password (again):
 Superuser created successfully.
 Installing custom SQL ...
 Installing indexes ...
-Installed 0 object(s) from 0 fixture(s)</code></pre>
+Installed 0 object(s) from 0 fixture(s)
+</code></pre>
 
 <h3 id="using-the-django-shell">Using the Django shell</h3>
 
@@ -293,26 +311,30 @@ Installed 0 object(s) from 0 fixture(s)</code></pre>
 
 <pre><code class="term">$ heroku run python manage.py shell
 Running python manage.py shell attached to terminal... up, run.1
-Python 2.7.4 (default, Apr  6 2013, 22:14:13)
+Python 2.7.6 (default, Jan 16 2014, 02:39:37)
 [GCC 4.4.3] on linux2
 Type "help", "copyright", "credits" or "license" for more information.
 (InteractiveConsole)
 &gt;&gt;&gt; from django.contrib.auth.models import User
 &gt;&gt;&gt; User.objects.all()
-[&lt;User: kenneth&gt;]</code></pre>
+[&lt;User: kenneth&gt;]
+</code></pre>
 
 <h2 id="next-steps">Next steps</h2>
 
+<p>Now that you’ve deployed your first Django application to Heroku, it’s time to take the next step! If if you’d like to learn more about Heroku, these articles are a great place to start.</p>
+
+<h3 id="heroku-reference">Heroku Reference</h3>
+
 <ul>
-<li>Learn about <a href="https://devcenter.heroku.com/articles/django-assets">Django and Static Assets</a> and automatic collectstatic running.</li>
+<li><a href="https://devcenter.heroku.com/articles/how-heroku-works">How Heroku Works</a></li>
+<li><a href="https://devcenter.heroku.com/categories/reference">Heroku Reference Documentation</a></li>
+</ul><h3 id="python-reference">Python Reference</h3>
 
-<li>Visit the <a href="https://devcenter.heroku.com/categories/python">Python category</a> to learn more about developing and deploying Python applications.</li>
-
-<li>Learn about <a href="https://devcenter.heroku.com/articles/python-pip">Python Dependencies via Pip</a> and <a href="https://devcenter.heroku.com/articles/python-runtimes">Specifying a Python Runtime</a>
-</li>
-
-<li>Extend your app architecture with <a href="https://devcenter.heroku.com/articles/python-rq">Background Tasks in Python with RQ</a>
-</li>
-
-<li>Read <a href="https://devcenter.heroku.com/articles/how-heroku-works">How Heroku Works</a> for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.</li>
+<ul>
+<li><a href="https://devcenter.heroku.com/articles/django-assets">Django and Static Assets</a></li>
+<li><a href="https://devcenter.heroku.com/articles/python-gunicorn">Deploying Python Applications with Gunicorn</a></li>
+<li><a href="https://devcenter.heroku.com/articles/python-runtimes">Specifying a Python Runtime</a></li>
+<li><a href="https://devcenter.heroku.com/articles/python-pip">Python Dependencies via Pip</a></li>
+<li><a href="https://devcenter.heroku.com/articles/python-rq">Background Tasks in Python with RQ</a></li>
 </ul>

@@ -71,4 +71,4 @@ Though scaling via the CLI is preferred it is also possible to scale dynos and w
 
 Use the two vertical sliders to adjust the web and worker dynos up to the UI-limit of 24.
 
-![Heroku scaling sliders](https://dl.dropbox.com/u/674401/devcenter/Screen%20shot%202012-03-13%20at%202.38.42%20PM.png)
+![Heroku scaling sliders](https://s3.amazonaws.com/heroku.devcenter/manual_uploads/Screen%20shot%202012-03-13%20at%202.38.42%20PM.png) 

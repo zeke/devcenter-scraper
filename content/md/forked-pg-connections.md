@@ -5,6 +5,7 @@ url: https://devcenter.heroku.com/articles/forked-pg-connections
 description: Connecting to a Postgres database from a forked environment requires that each connection be established after forking has occurred.
 ---
 
+
 By design, connections to Postgres databases are persistent to reduce
 the performance impact of having to re-establish a connection for
 every invocation. While this increases the performance of your
@@ -111,6 +112,27 @@ connections in an initializer:
   end
 ```
 
+## Sidekiq
+
+[Sidekiq](https://github.com/mperham/sidekiq) uses threads to handle
+many jobs at the same time in the same process. To prevent sharing of
+connections you need to configure the Sidekiq server to correctly establish
+it's own connection.
+
+You can specify this behavior by cleaning up and re-establishing
+connections in a Sidekiq initializer:
+
+```ruby
+# config/initializers/sidekiq.rb
+Sidekiq.configure_server do |config|
+  database_url = ENV['DATABASE_URL']
+  if database_url
+    ENV['DATABASE_URL'] = "#{database_url}?pool=25"
+    ActiveRecord::Base.establish_connection
+  end
+end
+```
+
 ## Disabling New Relic EXPLAIN
 
 The current implementation of New Relic auto-`EXPLAIN` can cause one
@@ -127,3 +149,4 @@ If using Postgres 9.2 or later, investigating
 is recommended.  Useful in its own right, it can also help mitigate
 some of the loss in visibility caused by disabling New Relic's
 auto-`EXPLAIN`.
+ 

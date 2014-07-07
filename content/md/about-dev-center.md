@@ -15,9 +15,9 @@ Our library of articles has been growing rapidly, and you now have several ways 
 
 ### Categorization
 
-* **Overview** is the new home for our [Getting Started series](/categories/getting-started), as well as information about the [basic components of the Heroku platform](/categories/platform-architecture).
+* **Overview** is the new home for our [Getting Started series](https://devcenter.heroku.com/articles/quickstart), as well as information about the [basic components of the Heroku platform](/categories/heroku-architecture).
 
-* **Reference** is just that: a place for documenting APIs, commands, options, tools, and more. You'll find in-depth discussions of [platform features](/categories/platform-features), articles on the [heroku command line tool](/categories/command-line), [collaboration](/categories/collaboration), [deployment](/categories/deployment), and [troubleshooting your app](/categories/troubleshooting).
+* **Reference** is just that: a place for documenting APIs, commands, options, tools, and more. You'll find in-depth discussions of [platform features](/categories/features), articles on the [heroku command line tool](/categories/command-line), [collaboration](/categories/collaboration), [deployment](/categories/deployment), and [troubleshooting your app](/categories/troubleshooting).
 
 * **Tutorials** is where we expect to see the most growth. Currently, it houses information on building [Facebook](https://devcenter.heroku.com/articles/facebook) and [mobile](/categories/mobile) apps, [adding specific functionality](/categories/features) to your app and [architecting it to make it scalable](https://devcenter.heroku.com/categories/application-architecture).
 
@@ -57,4 +57,4 @@ When any changes or improvements have a user-visible impact, you'll find them in
 
 We're far from done! Look for ongoing changes to Dev Center in the future, including more ways for you to get involved – but in the meantime, you can take an active part by letting us know what you think – what have we missed?  What works particularly well? [We're listening](mailto:devcenter-feedback@heroku.com)!
 
-If you spot a bug in any of our content, please use the feedback box at the bottom of the article to report the bug.
+If you spot a bug in any of our content, please use the feedback box at the bottom of the article to report the bug. 

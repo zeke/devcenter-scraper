@@ -1,16 +1,14 @@
-<!-- #HOME: http://devcenter.heroku.com/articles/config-vars -->
+<p>A given codebase may have numerous deployments: a production site, a staging site, and any number of local environments maintained by each developer. An open source app may have hundreds or thousands of deployments.</p>
 
-<p>A given codebase may have numerous deployments: a production site, a staging site, and any number of local environments maintained by each developer.  An open source app may have hundreds or thousands of deployments.</p>
+<p>Although all running the same code, each of these deploys have environment-specific configurations. One example would be credentials for an external service, such as Amazon S3. Developers may share one S3 account, while the staging site and production sites each have their own keys.</p>
 
-<p>Although all running the same code, each of these deploys have environment-specific configurations.  One example would be credentials for an external service, such as Amazon S3.  Developers may share one S3 account, while the staging site and production sites each have their own keys.</p>
+<p>The traditional approach for handling such config vars is to put them under source - in a properties file of some sort. This is an error-prone process, and is especially complicated for open source apps which often have to maintain separate (and private) branches with app-specific configurations.</p>
 
-<p>The traditional approach for handling such config vars is to put them under source - in a properties file of some sort.  This is an error-prone process, and is especially complicated for open source apps which often have to maintain separate (and private) branches with app-specific configurations.</p>
-
-<p>A better solution is to use environment variables, and keep the keys out of the code.  On a traditional host or working locally you can set environment vars in your <code>bashrc</code>.  On Heroku, you use config vars.</p>
+<p>A better solution is to use environment variables, and keep the keys out of the code. On a traditional host or working locally you can set environment vars in your <code>bashrc</code>. On Heroku, you use config vars.</p>
 
 <h2 id="setting-up-config-vars-for-a-deployed-application">Setting up config vars for a deployed application</h2>
 
-<p>Use the Heroku CLI’s  <code>config</code>, <code>config:set</code>, <code>config:get</code> and <code>config:unset</code> to manage your config vars:</p>
+<p>Use the Heroku CLI’s <code>config</code>, <code>config:set</code>, <code>config:get</code> and <code>config:unset</code> to manage your config vars:</p>
 
 <div class="callout">
 <p>Previous versions of the Heroku Toolbelt used <code>config:add</code> and <code>config:remove</code></p>
@@ -22,7 +20,7 @@ GITHUB_USERNAME: joesmith
 
 $ heroku config
 GITHUB_USERNAME: joesmith
-OTHER_VAR:       production
+OTHER_VAR:    production
 
 $ heroku config:get GITHUB_USERNAME
 joesmith
@@ -31,8 +29,11 @@ $ heroku config:unset GITHUB_USERNAME
 Unsetting GITHUB_USERNAME and restarting myapp... done, v13
 </code></pre>
 
-<p>Heroku manifests these config vars as environment variables to the application. These
-environment variables are persistent – they will remain in place across deploys and app restarts – so unless you need to change values, you only need to set them once.</p>
+<p>You can also edit config vars on your app’s settings tab on Dashboard:</p>
+
+<p><img src="https://s3.amazonaws.com/heroku.devcenter/heroku_assets/images/298-original.jpg" alt="Config Vars in Dashboard" title="Config Vars in Dashboard"></p>
+
+<p>Heroku manifests these config vars as environment variables to the application. These environment variables are persistent – they will remain in place across deploys and app restarts – so unless you need to change values, you only need to set them once.</p>
 
 <p>Whenever you set or remove a config var, your app will be restarted.</p>
 
@@ -47,15 +48,15 @@ environment variables are persistent – they will remain in place across deploy
 <pre><code class="term">$ cd myapp
 $ heroku config:set S3_KEY=8N029N81 S3_SECRET=9s83109d3+583493190
 Adding config vars and restarting myapp... done, v14
-S3_KEY:     8N029N81
-S3_SECRET:  9s83109d3+583493190
+S3_KEY:   8N029N81
+S3_SECRET: 9s83109d3+583493190
 </code></pre>
 
-<p>Set up your code to read the vars at runtime.  For example, in Ruby you access the environment variables using the <code>ENV['KEY']</code> pattern - so now you can write an initializer like so:</p>
+<p>Set up your code to read the vars at runtime. For example, in Ruby you access the environment variables using the <code>ENV['KEY']</code> pattern - so now you can write an initializer like so:</p>
 
 <pre><code class="ruby">AWS::S3::Base.establish_connection!(
-  :access_key_id     =&gt; ENV['S3_KEY'],
-  :secret_access_key =&gt; ENV['S3_SECRET']
+ :access_key_id   =&gt; ENV['S3_KEY'],
+ :secret_access_key =&gt; ENV['S3_SECRET']
 )
 </code></pre>
 
@@ -75,7 +76,7 @@ S3_SECRET:  9s83109d3+583493190
 
 <h3 id="using-foreman">Using Foreman</h3>
 
-<p>In the example shown above, the app would run with the S3 keys set to <code>nil</code> on a developer workstation or any host other than Heroku.  However, you may more typically use a different service locally.</p>
+<p>In the example shown above, the app would run with the S3 keys set to <code>nil</code> on a developer workstation or any host other than Heroku. However, you may more typically use a different service locally.</p>
 
 <p>For example, your deployed app may have <code>DATABASE_URL</code> referencing a Heroku Postgres database, but your local app may have <code>DATABASE_URL</code> referencing your local installation of Postgres.</p>
 
@@ -83,7 +84,7 @@ S3_SECRET:  9s83109d3+583493190
 <p>Foreman has the advantage of letting you select a different environment file, or even multiple files, at launch: <code>foreman -e alternate_env start</code></p>
 </div>
 
-<p>Where should you put your local environment variables?  One solution is to place them in a <code>.env</code> file and use <a href="https://devcenter.heroku.com/articles/procfile#developing-locally-with-foreman">Foreman</a> (installed with the <a href="http://toolbelt.heroku.com/">Heroku Toolbelt</a>) to start your application.  Foreman will then ensure the variables are set, before starting up the processes specified in your <code>Procfile</code>.  Here’s a <code>.env</code>:</p>
+<p>Where should you put your local environment variables? One solution is to place them in a <code>.env</code> file and use <a href="https://devcenter.heroku.com/articles/procfile#developing-locally-with-foreman">Foreman</a> (installed with the <a href="http://toolbelt.heroku.com/">Heroku Toolbelt</a>) to start your application. Foreman will then ensure the variables are set, before starting up the processes specified in your <code>Procfile</code>. Here’s a <code>.env</code>:</p>
 
 <pre><code>S3_KEY=mykey
 S3_SECRET=mysecret
@@ -92,7 +93,7 @@ S3_SECRET=mysecret
 <p>Now start the application:</p>
 
 <div class="callout">
-<p>Foreman also lets you easily run a single one-off command locally. For example: <code>foreman run rails console</code>. This is analogous to Heroku’s <a href="https://devcenter.heroku.com/articles/oneoff-admin-ps">one-off dynos</a>.</p>
+<p>Foreman also lets you easily run a single one-off command locally. For example: <code>foreman run rails console</code>. This is analogous to Heroku’s <a href="https://devcenter.heroku.com/articles/one-off-dynos">one-off dynos</a>.</p>
 </div>
 
 <pre><code class="term">$ foreman start
@@ -139,8 +140,8 @@ export S3_SECRET=mysecret
 
 <h2 id="production-and-development-modes">Production and development modes</h2>
 
-<p>Many languages and frameworks support a development mode.  This typically enables more debugging, as well as dynamic reloading or recompilation of changed source files.</p>
+<p>Many languages and frameworks support a development mode. This typically enables more debugging, as well as dynamic reloading or recompilation of changed source files.</p>
 
 <p>For example, in a Ruby environment you could set a <code>RACK_ENV</code> config var to <code>development</code> to enable such a mode.</p>
 
-<p>It’s important to understand and keep track of these config vars on a production Heroku app.  While a development mode is typically great for development, it’s not so great for production - leading to a degradation of performance.</p>
+<p>It’s important to understand and keep track of these config vars on a production Heroku app. While a development mode is typically great for development, it’s not so great for production - leading to a degradation of performance.</p>

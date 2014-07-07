@@ -16,7 +16,9 @@
 <li>JSON</li>
 <li>CSV</li>
 <li>XLS</li>
-</ul><p>You may access each format by selecting the format from the dataclips menu, or by appending the file format to the URL of the dataclip. The JSON endpoint is handy for prototyping APIs but should not be used as a replacement for a production API.</p>
+</ul><p>You may access each format by selecting the format from the dataclips menu, or by appending the file format to the URL of the dataclip.</p>
+
+<p>The JSON endpoint is handy for prototyping APIs but should not be used as a replacement for a production API. The JSON endpoint also supports <a href="http://en.wikipedia.org/wiki/Cross-origin_resource_sharing">Cross-Origin Resource Sharing</a> (CORS) on GET requests to a clip’s JSON URL.</p>
 
 <h2 id="interacting-with-dataclips">Interacting with dataclips</h2>
 
@@ -41,7 +43,7 @@
 
 <h3 id="data-refresh">Data Refresh</h3>
 
-<p>When visiting a dataclip it will immediately show the last run results and alert you if there is a new result set available. New data will be automatically shown only if the last run of your query executed in under 2 seconds. Queries that take longer than 10 minutes to run are automatically cancelled.</p>
+<p>When visiting a dataclip it will immediately show the last run results and alert you if there is a new result set available. Queries that take longer than 10 minutes to run are automatically cancelled.</p>
 
 <p>When connecting your dataclips to google docs your data is refreshed on an hourly basis.</p>
 

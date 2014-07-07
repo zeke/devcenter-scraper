@@ -17,7 +17,7 @@ The final section ties all the definitions together, providing a [deploy-time](#
 
 ## Defining an application
 
-Heroku lets you deploy, run and manage applications written in Ruby, Node.js, Java, Python, Clojure and Scala.  
+Heroku lets you deploy, run and manage applications written in Ruby, Node.js, Java, Python, Clojure, Scala and PHP.  
 
 An application is a collection of *source code* written in one of these languages, perhaps a framework, and some *dependency description* that instructs a build system as to which additional dependencies are needed in order to build and run the application.
 
@@ -132,7 +132,7 @@ Heroku lets you run your application with a customizable configuration - the con
 The configuration for an application is stored in [config vars](config-vars).  For example, here's how to configure an encryption key for an application:
 
 ```term
-$ heroku config:add ENCRYPTION_KEY= my_secret_launch_codes 
+$ heroku config:set ENCRYPTION_KEY= my_secret_launch_codes 
 Adding config vars and restarting demoapp... done, v14
 ENCRYPTION_KEY:     my_secret_launch_codes 
 ```
@@ -140,7 +140,7 @@ ENCRYPTION_KEY:     my_secret_launch_codes
 >note
 >**Terminology**: [Config vars](config-vars) contain customizable configuration data that can be changed independently of your source code. The configuration is exposed to a running application via environment variables.
 
-At runtime, all of the config vars are exposed as environment variables - so they can be easily extracted programatically.  A Ruby application deployed with the above config var, can access it by calling `ENV["ENCRYPTION_KEY"]`.
+At runtime, all of the config vars are exposed as environment variables - so they can be easily extracted programatically.  A Ruby application deployed with the above config var can access it by calling `ENV["ENCRYPTION_KEY"]`.
 
 All dynos in an application will have access to the exact same set of config vars at runtime.  
 
@@ -207,7 +207,7 @@ Running `bash` attached to terminal... up, run.8963
 ~ $ ls
 ```
 
-This will spin up a new dyno, loaded with your release, and then run the `bash` command - which will provide you with a unix shell (remember that dynos are effectively isolated virtualized unix containers).   Once you've terminated your session, or after a period of inactivty, the dyno will be removed.
+This will spin up a new dyno, loaded with your release, and then run the `bash` command - which will provide you with a unix shell (remember that dynos are effectively isolated virtualized unix containers).   Once you've terminated your session, or after a period of inactivity, the dyno will be removed.
 
 Changes to the filesystem on one dyno are not propagated to other dynos and are not persisted across deploys and dyno restarts.  A better and more scalable approach is to use a shared resource such as a database or queue.
 
@@ -227,6 +227,8 @@ For example, here is how to add a Redis backing store add-on (by [RedisToGo](htt
 ```term
 $ heroku addons:add redistogo:nano
 ```
+
+Dynos do not share file state, and so add-ons that provide some kind of storage are typically used as a means of communication between dynos in an application. For example, Redis or Postgres could be used as the backing mechanism in a queue; then  dynos of the web process type can push job requests onto the queue, and dynos of the queuty process type can pull jobs requests from the queue.
 
 The add-on service provider is responsible for the service - and the interface to your application is often provided through a config var. In this example, a `REDISTOGO_URL` will be automatically added to your application when you provision the add-on.  You can write code that connects to the service through the URL, for example:
 
@@ -313,3 +315,9 @@ The following two sections recapitulate the main components of the platform, sep
 * Each dyno gets its own [ephemeral filesystem](dynos#ephemeral-filesystem) - with a fresh copy of the most recent release. It can be used as temporary scratchpad, but changes to the filesystem are not reflected to other dynos.
 * [Logplex](logplex) automatically collates log entries from all the running dynos of  your app, as well as other components such as the routers, providing a single source of activity.
 * [Scaling](scaling) an application involves varying the number of dynos of each process type.
+
+## Next steps
+
+* Perform one of the [Getting Started](quickstart) tutorials to make the concepts in this documentation more concrete.
+* Read [Architecting Applications for Heroku](https://devcenter.heroku.com/articles/architecting-apps) to understand how to build scaleable apps that utilize Heroku's architecture.
+ 

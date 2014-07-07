@@ -29,8 +29,7 @@ Beyond this, there are other operations that require memory, such as running VAC
 
 If for some reason you experience a service disruption on your production tier Heroku Postgres database you may receive a message that when your database comes back online you will have a "cold cache". When you see this there is underlying hardware affected and as a result your database will come back online on a new host where no data will have been cached. 
 
-<div class="callout"> 
-If you periodically send reads to your follower the cache may already be warmed, thereby reducing the time for your cache to be performing at normal levels.
-</div>
+>callout
+>If you periodically send reads to your follower the cache may already be warmed, thereby reducing the time for your cache to be performing at normal levels.
 
-If you have a [follower](https://devcenter.heroku.com/articles/heroku-postgres-follower-databases) you can promote it when you see this instead of waiting for your database to become available on the new host. 
+If you have a [follower](https://devcenter.heroku.com/articles/heroku-postgres-follower-databases) you can promote it when you see this instead of waiting for your database to become available on the new host.  

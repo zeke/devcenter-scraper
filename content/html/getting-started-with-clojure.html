@@ -10,10 +10,14 @@
 
 <li>Your application must run on the <a href="http://openjdk.java.net/">OpenJDK</a> <a href="https://devcenter.heroku.com/articles/customizing-the-jdk">version 6 or 7</a>.</li>
 
-<li>A Heroku user account. <a href="https://api.heroku.com/signup/devcenter">Signup is free and instant</a>.</li>
+<li>A Heroku user account. <a href="https://signup.heroku.com/signup/dc">Signup is free and instant</a>.</li>
 </ul><h2 id="local-workstation-setup">Local workstation setup</h2>
 
-<p>Install the <a href="https://toolbelt.heroku.com/">Heroku Toolbelt</a> on your local workstation. This ensures that you have access to the <a href="https://devcenter.heroku.com/categories/command-line">Heroku command-line client</a>, Foreman, and the Git revision control system.</p>
+<p>First, install the Heroku Toolbelt on your local workstation.</p>
+
+<p><a class="toolbelt" href="https://toolbelt.heroku.com/">Install the Heroku Toolbelt</a></p>
+
+<p>This ensures that you have access to the <a href="https://devcenter.heroku.com/categories/command-line">Heroku command-line client</a>, Foreman, and the Git revision control system.</p>
 
 <p>Once installed, you’ll have access to the <code>heroku</code> command from your shell. Log in using the email address and password you used when creating your Heroku account:</p>
 
@@ -82,6 +86,8 @@ Uploading ssh public key /Users/adam/.ssh/id_rsa.pub</code></pre>
 <pre><code class="term">web: java $JVM_OPTS -cp target/helloworld-standalone.jar clojure.main -m hello.world $PORT</code></pre>
 
 <p>This declares a single process type, <code>web</code>, and the command needed to run it. The name “web” is important here. It declares that this process type will be attached to the <a href="https://devcenter.heroku.com/articles/http-routing">HTTP routing</a> stack of Heroku, and receive web traffic when deployed.</p>
+
+<p>Note that your app’s config is exported to the command in the Procfile as environment variables. For instance, running <code>heroku config:add JVM_OPTS=...</code> will change the value used here.</p>
 
 <p>You can run your app locally with <code>lein run -m hello.world 5000</code> for a quick check, or you can launch the server from a repl for interactive development:</p>
 
@@ -191,7 +197,7 @@ Opening glowing-snow-27... done</code></pre>
 
 <h2 id="console">Console</h2>
 
-<p>Heroku allows you to run <a href="https://devcenter.heroku.com/articles/oneoff-admin-ps">one-off proceses</a> - scripts and applications that only need to be executed when needed - using the <code>heroku run</code> command. Use this to launch a REPL process attached to your local terminal for experimenting in your app’s environment:</p>
+<p>Heroku allows you to run <a href="https://devcenter.heroku.com/articles/one-off-dynos">one-off dynos</a> - scripts and applications that only need to be executed when needed - using the <code>heroku run</code> command. Use this to launch a REPL process attached to your local terminal for experimenting in your app’s environment:</p>
 <div class="callout">
 <p>Running <code>heroku run lein repl</code> uses a simplified version of the <code>repl</code> task provided by Leiningen.</p>
 </div>
@@ -228,7 +234,7 @@ user=&gt; (hello.world/app {})
 $ git commit -m hi
 $ git push heroku master</code></pre>
 
-<p>Run the script in a <a href="https://devcenter.heroku.com/articles/oneoff-admin-ps">one-off dyno</a> with <code>heroku run</code>:</p>
+<p>Run the script in a <a href="https://devcenter.heroku.com/articles/one-off-dynos">one-off dyno</a> with <code>heroku run</code>:</p>
 
 <pre><code class="term">$ heroku run lein run -m hello.hi
 Running lein run -m hello.hi attached to terminal... up, run.2

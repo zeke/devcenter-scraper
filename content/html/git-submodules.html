@@ -47,6 +47,10 @@ Submodule path 'FooBar': checked out '667e0b5717631a8cca657a0aa306c045f06cfda4'
 
 <p>If it’s at all possible to use your runtime’s preferred dependency resolution mechanisms, you should prefer it to using submodules, which can often be confusing and error-prone.</p>
 
+<div class="warning">
+<p>Using submodules for builds on Heroku is only supported for builds triggered with git pushes. Builds created with the <a href="https://devcenter.heroku.com/articles/build-and-release-using-the-api">API</a> do not resolve submodules.</p>
+</div>
+
 <h2 id="protected-git-submodules">Protected Git submodules</h2>
 
 <p>If the referenced git repository is protected via a username and password it’s still possible to reference it with a submodule. Since remote environments like Heroku don’t have access to locally available credentials you will need to embed the username and password into the repository URL.</p>

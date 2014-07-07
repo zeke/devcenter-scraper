@@ -192,7 +192,7 @@ RateLimit-Remaining: 1200
 }
 ```
 
-Subsequent requests should use the access token's `token` value base64 encoded and prepended with a colon in the Authorization header. For example, given the token `01234567-89ab-cdef-0123-456789abcdef`, you'd base64 encode the string `:01234567-89ab-cdef-0123-456789abcdef` and set the header to `Authorization: Bearer MDEyMzQ1NjctODlhYi1jZGVmLTAxMjMtNDU2Nzg5YWJjZGVm`
+Subsequent requests should use the access token's `token` value in the Authorization header. For example, given the token `01234567-89ab-cdef-0123-456789abcdef`, you'd set the header to `Authorization: Bearer 01234567-89ab-cdef-0123-456789abcdef`.
 
 Access tokens acquired through the direct authorization flow do not expire.
 
@@ -209,7 +209,7 @@ DELETE /oauth/authorizations/{authorization-id}
 ```term
 $ curl -X DELETE https://api.heroku.com/oauth/authorizations/$AUTHORIZATION_ID \
 -H "Accept: application/vnd.heroku+json; version=3" \
--H "Authorization: Bearer 0123456789ABCDEF="
+-H "Authorization: Bearer 01234567-89ab-cdef-0123-456789abcdef"
 ```
 #### Response
 
@@ -260,4 +260,4 @@ RateLimit-Remaining: 1200
 * [OmniAuth Strategy for Heroku](https://github.com/heroku/omniauth-heroku)
 * Ruby Rack middleware [Heroku Bouncer](https://github.com/heroku/heroku-bouncer)
 * [Python WSGI middleware](https://github.com/heroku/heroku-bouncer-python)
-* [log2viz](https://github.com/heroku/log2viz) log analyzer that uses OAuth
+* [log2viz](https://github.com/heroku/log2viz) log analyzer that uses OAuth 

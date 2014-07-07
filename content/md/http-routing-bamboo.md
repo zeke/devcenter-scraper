@@ -6,7 +6,7 @@ description: A description of how Heroku routes requests on the Bamboo stack, in
 ---
 
 > warning
-> This article applies to apps on the [Bamboo](bamboo) stack.  For the most recent stack, [Cedar](cedar), see [HTTP Routing](http-routing).
+> This article applies to apps using the deprecated Bamboo routing stack. You need to [migrate your app's routing to the current routing stack](moving-to-the-current-routing-stack) by September 22, 2014.
 
 The Heroku platform automatically routes HTTP requests sent to your app's hostname(s) through to all of your web dynos.
 
@@ -33,4 +33,4 @@ All requests on the `heroku.com` stack are limited to 30 seconds total time. Any
 
 ### HTTP 1.0
 
-The `heroku.com` stack is HTTP 1.0 compliant only.  HTTP 1.1 features such as long-polling and chunked response are not supported.
+The `heroku.com` stack is HTTP 1.0 compliant only.  HTTP 1.1 features such as long-polling and chunked response are not supported. 

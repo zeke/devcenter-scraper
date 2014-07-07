@@ -13,7 +13,7 @@ working environment.
 
 ## Installing the Heroku CLI
 
-Set up your local workstation with the Heroku command-line client, the Git revision control system and the Foreman app runner by installing the [Heroku Toolbelt](http://toolbelt.herokuapp.com/).
+Set up your local workstation with the Heroku command-line client, the Git revision control system and the Foreman app runner by installing the [Heroku Toolbelt](http://toolbelt.heroku.com/).
 
 To verify your toolbelt installation use the `heroku --version` command.
 
@@ -63,4 +63,4 @@ The Heroku Toolbelt will automatically keep itself up to date.
 
 When you run a `heroku` command, a background process will be spawned that checks a URL for the latest available version of the CLI. If a new version is found, it will be downloaded and stored in `~/.heroku/client`. This background check will happen at most once every 5 minutes.
 
-The `heroku` binary will check for updated clients in `~/.heroku/client` before loading the system-installed version.
+The `heroku` binary will check for updated clients in `~/.heroku/client` before loading the system-installed version. 

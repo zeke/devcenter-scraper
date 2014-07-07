@@ -1,26 +1,28 @@
 <div class="callout">
-
 <p>By default, the maintenance mode page is unstyled; if you need a custom design, take a look at <a href="https://devcenter.heroku.com/articles/error-pages">Custom Error Pages</a>.</p>
-
 </div>
-<p>If you’re deploying a large migration or need to disable access to your application for some length of time, you can use Heroku’s built in maintenance mode. It will serve a static page to all visitors, while still allowing you to run <a href="https://devcenter.heroku.com/articles/oneoff-admin-ps">one-off dynos</a>.</p>
+
+<p>If you’re deploying a large migration or need to disable access to your application for some length of time, you can use Heroku’s built in maintenance mode. It will serve a static page to all visitors, while still allowing you to run <a href="https://devcenter.heroku.com/articles/one-off-dynos">one-off dynos</a>.</p>
 
 <h2 id="usage">Usage</h2>
 
 <p>Enable it like so:</p>
 
 <pre><code class="term">$ heroku maintenance:on
-Enabling maintenance mode for myapp... done</code></pre>
+Enabling maintenance mode for myapp... done
+</code></pre>
 
 <p>Once your application is ready, you can disable maintenance mode with:</p>
 
 <pre><code class="term">$ heroku maintenance:off
-Disabling maintenance mode for myapp... done</code></pre>
+Disabling maintenance mode for myapp... done
+</code></pre>
 
 <p>At any time you can also check the maintenance status of an app:</p>
 
 <pre><code class="term">$ heroku maintenance
-off</code></pre>
+off
+</code></pre>
 
 <h2 id="customization">Customization</h2>
 
@@ -28,7 +30,8 @@ off</code></pre>
 
 <p>To use, set your <code>MAINTENANCE_PAGE_URL</code>:</p>
 
-<pre><code class="term">$ heroku config:set MAINTENANCE_PAGE_URL=http://s3.amazonaws.com/your_bucket/your_maintenance_page.html</code></pre>
+<pre><code class="term">$ heroku config:set MAINTENANCE_PAGE_URL=//s3.amazonaws.com/your_bucket/your_maintenance_page.html
+</code></pre>
 
 <p>See the <a href="https://devcenter.heroku.com/articles/error-pages">Error Pages docs</a> for full details.</p>
 
@@ -41,8 +44,9 @@ off</code></pre>
 <pre><code class="term">$ heroku maintenance:on
 Enabling maintenance mode for myapp... done
 $ heroku scale worker=0
-Scaling worker processes... done, now running 0</code></pre>
+Scaling worker processes... done, now running 0
+</code></pre>
 
 <p>If you do scale down dynos after enabling maintenance mode, be sure to scale them back up before returning traffic to the app.</p>
 
-<p>You can run <a href="https://devcenter.heroku.com/articles/oneoff-admin-ps">one-off dynos</a> as usual while maintenance mode is enabled using <code>heroku run</code>.</p>
+<p>You can run <a href="https://devcenter.heroku.com/articles/one-off-dynos">one-off dynos</a> as usual while maintenance mode is enabled using <code>heroku run</code>.</p>

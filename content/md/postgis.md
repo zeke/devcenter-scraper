@@ -5,7 +5,7 @@ url: https://devcenter.heroku.com/articles/postgis
 description: How to use PostGIS, available on Heroku Postgres, from Ruby on Rails and Django applications.
 ---
 
-[PostGIS](http://postgis.org/) is available in public beta. The beta is available on all Production tier databases and currently supports PostGIS version 2.0. It is not available on the Dev or Basic Starter tier plans. PostGIS is only available with Postgres 9.2 databases provisioned after April 20, 2013. To enable PostGIS once connected to your PostgreSQL 9.2 database run:
+[PostGIS](http://postgis.org/) is available in public beta. The beta is available on all Production tier databases and currently supports PostGIS version 2.0. It is not available on the Dev or Basic Starter tier plans. PostGIS is only available with Postgres 9.2 databases provisioned after April 20, 2013 and all Postgres 9.3 database. To enable PostGIS once connected to your PostgreSQL 9.2 database run:
 
 ```sql
 CREATE EXTENSION postgis;
@@ -22,7 +22,7 @@ To use PostgreSQL as your database in Ruby applications you will need to include
 gem 'activerecord-postgis-adapter'
 ```
 
-Run `bundle install` to download and resolve all dependencies. For more information on getting setup with `activerecord-postgis-adapter` you can visit [their docs](http://dazuma.github.io/activerecord-postgis-adapter/rdoc/). Once you've installed the gem, configure ActiveRecord to read the database configuration from DATABASE_URL, but modify the adapter to `postgis`:
+Run `bundle install` to download and resolve all dependencies. For more information on getting setup with `activerecord-postgis-adapter` you can visit [their docs](http://rdoc.info/gems/activerecord-postgis-adapter). Once you've installed the gem, configure ActiveRecord to read the database configuration from DATABASE_URL, but modify the adapter to `postgis`:
 
 ```ruby
 # in config/application.rb, before the application loads
@@ -83,4 +83,4 @@ DATABASES['default'] =  dj_database_url.config()
 DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 ```
 
-This will parse the values of the DATABASE_URL environment variable and convert them to something Django can understand then set the engine to take advantage of PostGIS.
+This will parse the values of the DATABASE_URL environment variable and convert them to something Django can understand then set the engine to take advantage of PostGIS. 
