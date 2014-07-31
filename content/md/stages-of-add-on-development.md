@@ -53,7 +53,7 @@ Bear in mind that, during the Beta stage, your add-on can regress back to
 Alpha.
 
 ## GA
-At this point your Add-on has hopefully been throughly vetted by a large group of Heroku users. The next step is to finalize your plans & pricing into the Add-on catalog.
+At this point your Add-on has hopefully been throughly vetted by a large group of Heroku users. The next step is to finalize your plans & pricing into the Add-on catalog. Once fully GA there are ways you can continue to [market your addon](https://devcenter.heroku.com/articles/heroku-add-on-marketing)
 
 ### Plans & Pricing
 

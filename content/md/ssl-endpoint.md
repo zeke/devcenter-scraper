@@ -147,7 +147,7 @@ Next add your certificate, any intermediate certificates, and private key to the
 ```term
 $ heroku certs:add server.crt server.key
 Adding SSL Endpoint to example... done
-example now served by tokyo-2121.herokussl.com.
+example now served by example-2121.herokussl.com.
 Certificate details:
 Expires At: 2012-10-31 21:53:18 GMT
 Issuer: C=US; ST=CA; L=SF; O=Heroku; CN=www.example.com
@@ -155,7 +155,7 @@ Starts At: 2011-11-01 21:53:18 GMT
 ...
 ```
 
-The endpoint URL assigned to your app will be listed in the output, `tokyo-2121.herokussl.com` in this example. Visiting this URL will result in a "no such app" message -- this is expected. Read further for proper verification steps.
+The endpoint URL assigned to your app will be listed in the output, `example-2121.herokussl.com` in this example. Visiting this URL will result in a "no such app" message -- this is expected. Read further for proper verification steps.
 
 > note
 > Apps located in a non-default [region](regions), e.g., Europe, will not have a distinct `herokussl.com` SSL endpoint URL. Instead, the endpoint URL will just be your app's `herokuapp` domain, e.g., `example.herokuapp.com`. The output of the `certs:add` command will accurately reflect this.
@@ -168,14 +168,14 @@ You can verify the details of the SSL endpoint configuration with `heroku certs`
 $ heroku certs
 Endpoint                    Common Name         Expires                    Trusted
 ------------------------    ----------------    -----------------------    -------
-tokyo-2121.herokussl.com    www.example.com    2012-10-31 21:53:18 GMT    False
+example-2121.herokussl.com    www.example.com    2012-10-31 21:53:18 GMT    False
 ```
 
 To get the detailed information about a certificate at any time use `certs:info`.
 
 ```term
 $ heroku certs:info
-Fetching SSL Endpoint tokyo-2121.herokussl.com info for example... done
+Fetching SSL Endpoint example-2121.herokussl.com info for example... done
 Certificate details:
 Expires At: 2012-10-31 21:53:18 GMT
 Issuer: C=US; ST=CA; L=SF; O=Heroku; CN=www.example.com
@@ -187,7 +187,7 @@ Subject: C=US; ST=CA; L=SF; O=Heroku; CN=www.example.com
 > callout
 > In rare circumstances, it can take an SSL endpoint up to 30 minutes before it's provisioned. If you are unable to hit the endpoint URL, please wait that amount of time before proceeding.
 
-If you have a `herokussl.com` endpoint URL, visit it via https, e.g., `https://tokyo-2121.herokussl.com`. This should throw a cert error saying that the certificate at www.example.com doesn't match tokyo-2121.herokussl.com. This means that you are serving up the cert that you'd expect to serve (just not for the requested `herokussl.com` domain).
+If you have a `herokussl.com` endpoint URL, visit it via https, e.g., `https://example-2121.herokussl.com`. This should throw a cert error saying that the certificate at www.example.com doesn't match example-2121.herokussl.com. This means that you are serving up the cert that you'd expect to serve (just not for the requested `herokussl.com` domain).
 
 ## DNS and domain configuration
 
@@ -214,7 +214,7 @@ If you're securing a subdomain, e.g., `www.example.com`, modify your DNS setting
   <tr>
     <td><code>CNAME</code></td>
     <td><code>www</code></td>
-    <td><code>tokyo-2121.herokussl.com.</code></td>
+    <td><code>example-2121.herokussl.com.</code></td>
   </tr>
 </table>
 
@@ -229,7 +229,7 @@ If you're using a wildcard certificate your DNS setup will look similar.
   <tr>
     <td><code>CNAME</code></td>
     <td><code>*</code></td>
-    <td><code>tokyo-2121.herokussl.com.</code></td>
+    <td><code>example-2121.herokussl.com.</code></td>
   </tr>
 </table>
 
@@ -248,7 +248,7 @@ Modify your DNS settings and create an ALIAS or ANAME record to the endpoint.
   <tr>
     <td><code>ALIAS</code> or <code>ANAME</code></td>
     <td>&lt;empty&gt; or <code>@</code></td>
-    <td><code>tokyo-2121.herokussl.com.</code></td>
+    <td><code>example-2121.herokussl.com.</code></td>
   </tr>
 </table>
 
@@ -275,12 +275,12 @@ $ curl -kvI https://www.example.com
 * SSLv3, TLS handshake, Finished (20):
 * SSL connection using AES256-SHA
 * Server certificate:
-* 	 subject: C=US; ST=CA; L=SF; O=SFDC; OU=Heroku; CN=www.example.com
-* 	 start date: 2011-11-01 17:18:11 GMT
-* 	 expire date: 2012-10-31 17:18:11 GMT
-* 	 common name: www.example.com (matched)
-* 	 issuer: C=US; ST=CA; L=SF; O=SFDC; OU=Heroku; CN=www.heroku.com
-* 	 SSL certificate verify ok.
+*    subject: C=US; ST=CA; L=SF; O=SFDC; OU=Heroku; CN=www.example.com
+*    start date: 2011-11-01 17:18:11 GMT
+*    expire date: 2012-10-31 17:18:11 GMT
+*    common name: www.example.com (matched)
+*    issuer: C=US; ST=CA; L=SF; O=SFDC; OU=Heroku; CN=www.heroku.com
+*    SSL certificate verify ok.
 > GET / HTTP/1.1
 > User-Agent: curl/7.19.7 (universal-apple-darwin10.0) libcurl/7.19.7 OpenSSL/0.9.8r zlib/1.2.3
 > Host: www.example.com
@@ -299,7 +299,7 @@ You can update a certificate using the `certs:update` command with the new cert 
 
 ```term
 $ heroku certs:update server.crt server.key
-Updating SSL Endpoint endpoint tokyo-2121.herokussl.com for example... done
+Updating SSL Endpoint endpoint example-2121.herokussl.com for example... done
 ```
 
 ### Undo
@@ -322,7 +322,7 @@ You can remove a certificate using the `certs:remove` command:
 
 ```term
 $ heroku certs:remove
-Removing SSL Endpoint endpoint tokyo-2121.herokussl.com on example... done
+Removing SSL Endpoint endpoint example-2121.herokussl.com on example... done
 ```
 
 > warning
@@ -350,7 +350,7 @@ In some cases, when running `heroku certs` it may list your certificate as untru
 $ heroku certs
 Endpoint                    Common Name         Expires                    Trusted
 ------------------------    ----------------    -----------------------    -------
-tokyo-2121.herokussl.com    www.example.com    2012-10-31 21:53:18 GMT    False
+example-2121.herokussl.com    www.example.com    2012-10-31 21:53:18 GMT    False
 ```
 
 If this occurs it may be because it is not trusted by Mozilla's list of [root CA's](http://www.mozilla.org/projects/security/certs/included/). If this is the case your certificate should work as you expect for many browsers. 
@@ -394,10 +394,10 @@ Now upload your certificate and private key. You don't need to get a new certifi
 ```term
 $ heroku certs:add --app myapp my_existing.crt my_existing.key
 Adding certificate to myapp... done
-myapp now served by tokyo-2121.herokussl.com.
+myapp now served by example-2121.herokussl.com.
 ```
 
-Your new endpoint is now ready to receive traffic. To direct traffic to the endpoint, go to your DNS provider and update the records for your domain so that you have a single CNAME entry pointing to the SSL endpoint host (e.g. `tokyo-2121.herokussl.com`). If you already had a CNAME entry pointing to your app, change it to point to your SSL endpoint name instead.
+Your new endpoint is now ready to receive traffic. To direct traffic to the endpoint, go to your DNS provider and update the records for your domain so that you have a single CNAME entry pointing to the SSL endpoint host (e.g. `example-2121.herokussl.com`). If you already had a CNAME entry pointing to your app, change it to point to your SSL endpoint name instead.
 
 Once the DNS change propagates, your users will be routed to the new endpoint. You can de-provision the old SSL add-on, for example:
 

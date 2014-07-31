@@ -110,3 +110,51 @@ $ curl -n https://api.heroku.com/apps/example-app/builds/01234567-89ab-cdef-0123
 ```
 
 The output includes both `STDOUT` and `STDERR` and is provided in the order it was output by the build. If you combine with values of all the `line` elements, you will will get the same output as you would have seen when doing an interactive `git push` to Heroku.
+
+## Experimental Realtime Build Output
+
+Build output is available in realtime using the `edge` version of the [Platform API](platform-api-reference).
+
+> warning
+> Features using the edge version of the Platform API are experimental and subject to change without notice.
+
+To use realtime build output:
+
+Change the `Accept` header's version to `edge` and `POST` a new build:
+
+```term
+$ curl -n -X POST https://api.heroku.com/apps/example-app/builds \
+-d '{"source_blob":{"url":"https://github.com/heroku/node-js-sample/archive/master.tar.gz", "version": "cb6999d361a0244753cf89813207ad53ad906a14"}}' \
+-H 'Accept: application/vnd.heroku+json; version=edge' \
+-H "Content-Type: application/json"
+{
+  "created_at": "2014-07-25T21:46:02+00:00",
+  "id": "4dff04cd-08ae-4a73-b4c1-12b84170a30f",
+  "output_stream_url": "https://build-output.herokuapp.com/streams/a52bf6fa40cc728a807f0dd163c22972",
+  "source_blob": {
+    "url": "https://github.com/heroku/node-js-sample/archive/cb6999d361a0244753cf89813207ad53ad906a14.tar.gz",
+    "version": "cb6999d361a0244753cf89813207ad53ad906a14"
+  },
+  "status": "pending",
+  "updated_at": "2014-07-25T21:46:02+00:00",
+  "user": {
+    "email": "username@example.com",
+    "id": "01234567-89ab-cdef-0123-456789abcdef"
+  }
+}
+```
+
+Make a `GET` request to the URL in `output_stream_url`.
+
+```term
+$ curl https://build-output.herokuapp.com/streams/a52bf6fa40cc728a807f0dd163c22972
+
+-----> Node.js app detected
+-----> Requested node range:  0.10.x
+...
+```
+
+The build output is sent via [chunked encoding](https://en.wikipedia.org/wiki/Chunked_transfer_encoding) and closes the connection when the build completes. If a client connects after data is sent for a given build, the data is buffered from the start of the build. Buffered build data is available for up to a minute after the build completes. For a canonical source of build output, use the [build-result](platform-api-reference#build-result) endpoint.
+
+> callout
+> A [null character](https://en.wikipedia.org/wiki/Null_character) chunk may be sent as a [heartbeat](https://en.wikipedia.org/wiki/Heartbeat_(computing)) while receiving data. This is not build output. It is a signal the build is still running but has not output any data recently.

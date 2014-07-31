@@ -2,21 +2,28 @@
 
 <h2 id="setup">Setup</h2>
 
-<p>To gain access to the app’s Logplex token, which will give you the capability to write to an app’s log stream, you will first need to store the token that is submitted in the Add-on provision request. More details of the provision request can be found in the <a href="https://devcenter.heroku.com/articles/add-on-provider-api">Add-on Provider API Spec</a>. If you have not previously stored the logplex_token from the provision request, you can use the <a href="https://devcenter.heroku.com/articles/add-on-app-info">App Info API</a> to query for the token.</p>
+<p>To gain access to the app’s Logplex endpoint, which will give you the capability to write to an app’s log stream, you will first need to store its URL that is submitted in the Add-on provision request. More details of the provision request can be found in the <a href="https://devcenter.heroku.com/articles/add-on-provider-api">Add-on Provider API Spec</a>. If you have not previously stored the <code>log_input_url</code> from the provision request, you can use the <a href="https://devcenter.heroku.com/articles/add-on-app-info">App Info API</a> to query for the endpoint URL.</p>
 
 <h2 id="transport">Transport</h2>
 
 <p>Data must be delivered to Logplex via HTTP. Using keep-alive connections and dense payloads, you can efficiently deliver all of your customer’s logs to Logplex via HTTP. Here is cURL example demonstrating a simple HTTP request:</p>
 
-<pre><code>$ curl "https://east.logplex.io/logs" \
-  --user "token:t123" \
-  -d "62 &lt;190&gt;1 2013-03-27T20:02:24+00:00 hostname t.123 procid - - foo62 &lt;190&gt;1 2013-03-27T20:02:24+00:00 hostname t.123 procid - - bar" \
+<pre><code>$ URL="https://token:t.01234567-89ab-cdef-0123-456789abcdef@1.us.logplex.io/logs"
+$ curl $URL \
+  -d "62 &lt;190&gt;1 2013-03-27T20:02:24+00:00 hostname t.01234567-89ab-cdef-0123-456789abcdef procid - - foo62 &lt;190&gt;1 2013-03-27T20:02:24+00:00 hostname t.123 procid - - bar" \
   -X "POST" \
   -H "Content-Length: 130" \
-  -H "Content-Type: application/logplex-1"
+  -H "Content-Type: application/logplex-1" \
+  -A 'MyAddonName (https://addons.heroku.com/my-addon-name; Ruby/2.1.2)'
 </code></pre>
 
-<p>Note that basic authentication is required. The username is <code>token</code> and the password is the <code>logplex_token</code> value returned by the <a href="https://devcenter.heroku.com/articles/add-on-app-info">App Info API</a>.</p>
+<div class="callout">
+<p>Please make sure that you set a <code>User-Agent</code> header that includes a string that identifies your add-on uniquely.</p>
+</div>
+
+<p>Note that the URL in the example above is purely illustrative. This URL can vary from app to app and will always have different credentials. You’ll need to store these URLs for each installed add-on that requires writing logs or fetching them from the <a href="https://devcenter.heroku.com/articles/add-on-app-info">App Info API</a> as needed.</p>
+
+<p>The <code>log_input_url</code> field for a given app is subject to change, for instance if credentials must be rotated. If your HTTP request gets a <code>4xx</code> response code, please see if the <code>log_input_url</code> for the app has changed using the <a href="https://devcenter.heroku.com/articles/add-on-app-info">App Info API</a>; if so, update your record for the app and retry.</p>
 
 <div class="callout">
 <p>Checkout all of the API details in the <a href="https://github.com/heroku/logplex/blob/master/doc/">Logplex API Docs</a>.</p>
@@ -24,14 +31,14 @@
 
 <h2 id="format">Format</h2>
 
-<p>The headers of the request should contain Content-Length &amp; Content-Type. The value of Content-Length should be the integer value of the length of the body. The value of Content-Type should be application/logplex-1.</p>
+<p>The headers of the request should contain <code>Content-Length</code> &amp; <code>Content-Type</code>. The value of <code>Content-Length</code> should be the integer value of the byte length of the body. The value of <code>Content-Type</code> should be <code>application/logplex-1</code>.</p>
 
 <p>The body of the HTTP request should contain length delimited syslog packets. Syslog packets are defined in <a href="http://tools.ietf.org/html/rfc5424">RFC5424</a>. The following line summarizes the RFC protocol:</p>
 
 <pre><code>&lt;prival&gt;version time hostname appname procid msgid structured-data msg
 </code></pre>
 
-<p>You can use <code>&lt;190&gt;</code> (local7.info) for the <strong>prival</strong> and <code>1</code> for the version. The <strong>time</strong> field should be set to the time at which the logline was created in <a href="http://tools.ietf.org/html/rfc3339">rfc3339</a> format. The <strong>hostname</strong> should be set to the name of your service. (e.g. postgresql) The <strong>appname</strong> field is reserved for the app’s Logplex token. The Logplex token is required to write to an app’s log stream. The <strong>procid</strong> is not used by logplex but is a great way to identify the process which is emitting the logs. Similarly, the msgid, and structured-data is not used by logplex and the value <code>-</code> should be used. Finally, the msg is the section of the packet where the log message can be stored.</p>
+<p>You can use <code>&lt;190&gt;</code> (local7.info) for the <strong>prival</strong> and <code>1</code> for the version. The <strong>time</strong> field should be set to the time at which the logline was created in <a href="http://tools.ietf.org/html/rfc3339">rfc3339</a> format. The <strong>hostname</strong> should be set to the name of your service (e.g. postgresql). The <strong>appname</strong> field is reserved for the app’s Logplex token. The Logplex token is required to write to an app’s log stream. The <strong>procid</strong> is not used by logplex but is a great way to identify the process which is emitting the logs. Similarly, the msgid, and structured-data is not used by logplex and the value <code>-</code> should be used. Finally, the msg is the section of the packet where the log message can be stored.</p>
 
 <h3 id="message-conventions">Message conventions</h3>
 

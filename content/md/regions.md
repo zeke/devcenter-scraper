@@ -77,7 +77,7 @@ $ heroku addons:list --region=eu
 
 On [addons.heroku.com](https://addons.heroku.com/) you can use the search box to find add-ons that support the `eu` region by searching for ["europe"](https://addons.heroku.com/?q=europe). You can narrow your search further, for example to Redis add-ons that support the `eu` region by searching for ["Redis europe"](https://addons.heroku.com/?q=Redis%20europe).
 
-## Deployment & dynos
+## Deployment
 
 Apps are deployed to the region specified on creation. [Deploy your app with git](git), as usual:
 
@@ -85,7 +85,11 @@ Apps are deployed to the region specified on creation. [Deploy your app with git
 $ git push heroku master
 ```
 
+## Dynos
+
 [One-off dynos](https://devcenter.heroku.com/articles/one-off-dynos) are also run in the region where the app was created. This is also true of secondary services such as [Heroku Scheduler](https://addons.heroku.com/scheduler) that provision one-off dynos to execute jobs.
+
+[PX dynos](https://devcenter.heroku.com/articles/dyno-size) are not available in the EU region.
 
 ## Custom domains
 

@@ -5,9 +5,6 @@ url: https://devcenter.heroku.com/articles/php-support
 description: Heroku support for PHP.
 ---
 
->warning
->This article describes a [beta feature](heroku-beta-features). Functionality may change prior to general availability.
-
 This document describes the general behavior of the [Heroku Cedar stack](cedar) as it relates to the recognition and execution of PHP applications.
 
 ## Activation
@@ -23,38 +20,43 @@ $ git push heroku master
 
 ## PHP runtimes
 
-Heroku makes a number of different runtimes available.  You can configure your app to select a particular runtime. 
+Heroku makes a number of different runtimes available. You can use HHVM, PHP, or both simultaneously.
 
 ### Supported runtimes
 
-Heroku’s PHP support extend to apps using **PHP 5.5** (5.5.14, 64-bit), which is also the default PHP runtime for apps. The PHP runtime has [OPcache](http://docs.php.net/opcache) enabled for improved performance, with a configuration optimized for Heroku.
+Heroku’s PHP support extend to apps using **PHP 5.5** (5.5.15, 64-bit), which is also the default PHP runtime for apps. The PHP runtime has [OPcache](http://docs.php.net/opcache) enabled for improved performance, with a configuration optimized for Heroku.
 
 ### Available runtimes
 
+Heroku currently allows installation of pre-release versions of **PHP 5.6**, currently available as version 5.6.0RC2, 64-bit.
+
 An additional, unsupported runtime is available - HipHop VM (**HHVM**) (3.1.0, 64-bit). However, we only currently endorse and support the use of PHP 5.5.  
 
-This runtime can be enabled via `composer.json`.
+These runtimes can also be enabled via `composer.json`.
 
-> note
-> Specify PHP or HHVM runtime versions other than exactly "5.5.14" and "3.1.0", respectively, will currently generate a warning which can be ignored.
+### Default runtime
+
+If no runtime is specified, the default will be the latest stable PHP version. Heroku will display this information upon a push:
+
+```
+-----> No runtime requirements in composer.json, defaulting to PHP 5.5.15.
+```
 
 ### Selecting a runtime
 
-You may select the runtime to use via [Composer Platform Packages](https://getcomposer.org/doc/02-libraries.md#platform-packages) in `composer.json`. Upon deploy, Heroku will confirm the request:
+You may select the runtime(s) to use via [Composer Platform Packages](https://getcomposer.org/doc/02-libraries.md#platform-packages) in `composer.json`. Upon a push, Heroku will read the necessary information from `composer.lock`, if present, and fall back to `composer.json` otherwise.
+
+Heroku will print the versions that were resolved and will be installed:
 
 ```
------> Detected request for PHP 5.5.14 in composer.json.
+-----> Resolved composer.lock requirement for PHP >=5.3.3 to version 5.5.15.
+-----> Resolved composer.json requirement for HHVM 3.* to version 3.1.0.
 ```
 
-If you specify an unknown or unsupported version, Heroku will default to the latest version and inform you of the problem:
+Specifying an unknown or unsupported version will result in an error.
 
-```
------> Fetching custom git buildpack... done
------> PHP app detected
-
- !     WARNING: Your composer.json requires an unknown HHVM version.
-       Defaulting to HHVM 3.1.0; install may fail!
-```
+> note
+> You may select both HHVM and PHP as runtimes. Both will be available, and depending on what [boot script](php-support#web-servers) you use, one of them will be used to handle requests from the web server.
 
 #### PHP
 
@@ -68,9 +70,6 @@ Specify "`php`" as a dependency in the `require` section of your `composer.json`
 }
 ```
 
-> note
-> Currently, using a lenient selector such as `~5.5.0` will generate a warning which can be ignored as long as the selected range includes PHP 5.5.14.
-
 #### HHVM
 
 > warning
@@ -81,16 +80,14 @@ Specify "`hhvm`" as a dependency in the `require` section of your `composer.json
 ```json
 {
   "require": {
-    "hhvm": "~3.1.0"
+    "hhvm": "~3.1"
   }
 }
 ```
 
 > note
-> Specifying an exact version like this may not be practical in all circumstances. Currently, using a more lenient selector such as `~3.1` will generate a warning which can be ignored as long as the selected range includes HHVM 3.1.0.
-
-> warning
 > If you specify `hhvm` as a dependency in your project, Composer will check for it during `composer update` or `composer install` commands. This means that you need HHVM installed on the computer where you run the command, and you need to run Composer using HHVM (e.g. by running ```hhvm `which composer` update``` or ```hhvm composer.phar update```) for Composer to successfully finish the operation and write a `composer.lock` lock file.
+> For this reason, Heroku will currently honor an `hhvm` entry in the `require` section of `composer.json`, even if the requirement hasn't been "frozen" to `composer.lock`. 
 
 ### Supported versions
 
@@ -99,20 +96,23 @@ Specify "`hhvm`" as a dependency in the `require` section of your `composer.json
 * 5.5.11
 * 5.5.12
 * 5.5.13
-* 5.5.14 (default)
+* 5.5.14
+* 5.5.15 (default)
+* 5.6.0RC2
 
 #### HHVM
 
-* 3.0.1
 * 3.1.0 (default)
 
 ### Upgrades
 
-If you deploy an application that does not declare a runtime version dependency, the then-latest version of PHP 5.5 or HHVM 3 will be used. Your application will be upgraded to more recent versions of PHP 5.5 (e.g. 5.5.15) or HHVM (e.g. 3.2.0) if available automatically upon the next deploy, but you will never automatically be upgraded to PHP 5.6 or HHVM 4.0.
+If you deploy an application that does not declare a runtime version dependency, the then-latest version of PHP will be used. Your application will be upgraded to more recent versions of PHP 5 if available automatically upon the next deploy.
+
+If your application declares runtime version dependencies, the most recent version matching the version constraint will be selected for installation.
 
 ## Extensions
 
-### PHP 5.5
+### PHP 5.5 and 5.6
 
 The following built-in extensions are enabled automatically on Heroku (this list does not include extensions that PHP enables by default, such as [DOM](http://docs.php.net/dom), [JSON](http://docs.php.net/json), [PCRE](http://docs.php.net/pcre) or [PDO](http://docs.php.net/pdo)):
 
@@ -186,9 +186,9 @@ Upon the next push, Heroku will enable the corresponding PHP extensions:
 ```term
 -----> PHP app detected
 -----> Setting up runtime environment...
-       - PHP 5.5.14
-       - Apache 2.4.9
-       - Nginx 1.4.6
+       - PHP 5.5.15
+       - Apache 2.4.10
+       - Nginx 1.6.0
 -----> Installing PHP extensions:
        - opcache (automatic; bundled, using 'ext-opcache.ini')
        - mongo (composer.json; downloaded, using 'ext-mongo.ini')
@@ -252,7 +252,7 @@ For more information, you may also refer to the [troubleshooting section](https:
 
 ## Web servers
 
-Heroku supports **[Apache](http://httpd.apache.org) 2.4** (2.4.9) and **[Nginx](http://nginx.org) 1.4** (1.4.6) as dedicated Web servers. For testing purposes, users may of course also use PHP's built-in Web server, although this is not recommended.
+Heroku supports **[Apache](http://httpd.apache.org) 2.4** (2.4.10) and **[Nginx](http://nginx.org) 1.6** (1.6.0) as dedicated Web servers. For testing purposes, users may of course also use PHP's built-in Web server, although this is not recommended.
 
 In the absence of a `Procfile` entry for the "web" dyno type, the Apache Web server will be used together with the PHP or HHVM runtime.
 

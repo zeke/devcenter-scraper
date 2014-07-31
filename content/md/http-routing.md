@@ -95,7 +95,7 @@ Apps serving large amounts of static assets can take advantage of [HTTP caching]
 
 ## WebSockets
 
-WebSocket functionality is [now available as a labs feature](https://devcenter.heroku.com/articles/heroku-labs-websockets).
+WebSocket functionality is [also available](https://devcenter.heroku.com/articles/websockets).
 
 ## Gzipped responses
 

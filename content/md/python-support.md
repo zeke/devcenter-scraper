@@ -17,23 +17,23 @@ The Heroku Python Support will be applied to applications only when the applicat
 
 ## Supported Python Runtimes
 
-Newly created Python applications default to the Python 2.7.7 runtime.
+Newly created Python applications default to the Python 2.7.8 runtime.
 
 You can specify an arbitrary version of Python to be used to run your application. This functionality is enabled by the presence of a `runtime.txt` file.
 
 ```term
 $ cat runtime.txt
-python-2.7.7
+python-2.7.8
 ```
 
 ### Supported Runtimes
 
-- `python-2.7.7`
+- `python-2.7.8`
 - `python-3.4.1`
 
 ### Unsupported Runtimes
 
-Unsupported runtimes can also be specified (2.4.4–3.4.1). However, we only endorse and support the use of Python 2.7.7 and 3.4.1.
+Unsupported runtimes can also be specified (2.4.4–3.4.1). However, we only endorse and support the use of Python 2.7.8 and 3.4.1.
 
 ### Changing runtimes
 

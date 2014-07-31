@@ -61,6 +61,7 @@ If a dyno crashes within the first 10 minutes of launch, Heroku will immediately
 
 > callout
 > A dyno "crash" represents any event originating with the process running in the dyno that causes the dyno to stop. That includes the process exiting with an exit code of `0` (or any other exit code).
+
 > callout
 > Crashes that happen more than 10 minutes after dyno start do not count as a "boot crash" and Heroku will restart the dyno immediately.
 
@@ -94,10 +95,10 @@ The `.profile` script will be sourced *after* the app's config vars. To have the
 
 
     # add vendor binaries to the path
-    PATH=$PATH:$HOME/vendor/bin
+    export PATH=$PATH:$HOME/vendor/bin
 
     # set a default LANG if it does not exist in the environment
-    LANG=${LANG:-en_US.UTF-8}
+    export LANG=${LANG:-en_US.UTF-8}
 
 >warning
 >For most purposes, [config vars](config-vars) are more convenient and flexible. You need not push new code to edit config vars, whereas `.profile` is part of your source tree and must be edited and deployed like any code change.

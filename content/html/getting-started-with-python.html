@@ -101,7 +101,7 @@ def hello():
 
 <h4 id="hello-world-procfile">Procfile</h4>
 
-<pre><code class="term">web: gunicorn hello:app</code></pre>
+<pre><code class="term">web: gunicorn hello:app --log-file=-</code></pre>
 
 <p>You can now start the processes in your Procfile locally using <a href="http://blog.daviddollar.org/2011/05/06/introducing-foreman.html">Foreman</a> (installed as part of the Toolbelt):</p>
 

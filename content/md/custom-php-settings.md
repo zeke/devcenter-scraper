@@ -5,9 +5,6 @@ url: https://devcenter.heroku.com/articles/custom-php-settings
 description: How to customize settings for the PHP runtime and web servers on Heroku.
 ---
 
->warning
->This article describes a [beta feature](heroku-beta-features). Functionality may change prior to general availability.
-
 PHP has a built-in web server that can be used to run on Heroku web [dynos](dynos), however this is not recommended. Instead you should be using a boot script which is referenced in your `Procfile` to launch a web server together with PHP. 
 
 This article explains the different ways in which you can pass arguments to this boot script to customize settings for the PHP runtime and the web server software.

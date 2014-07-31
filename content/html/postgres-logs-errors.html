@@ -93,6 +93,15 @@ Behind By    125 commits
 
 <p>Each database plan has a maximum allowed number of connections available, which vary by plan. This message indicates you have reach the maximum number allowed for your applications, and remaining connections are reserved for super user access (restricted to Heroku Postgres staff). See <a href="https://devcenter.heroku.com/articles/heroku-postgres-production-tier-technical-characterization">Heroku Postgres Production Tier Technical Characterization</a> for details on connection limits for a given plan.</p>
 
+<h2 id="temporary-file-path-file-path-size-file-size">temporary file: path "file path”, size “file size”</h2>
+
+<pre><code>temporary file: path "base/pgsql_tmp/pgsql_tmp23058.672", size 1073741824
+</code></pre>
+
+<p>We configure Postgres to log temporary file names and sizes when the size exceeds 10240 kilobytes. Temporary files can be created when performing sorts, hashes or for temporary query results, and log entries are made for each file when it is deleted.</p>
+
+<p>This log entry is just a informational, as creating a large number of temporary files impacts query performance.</p>
+
 <h2 id="pgerror-permission-denied-for-relation">PGError: permission denied for relation</h2>
 
 <pre><code>PGError: ERROR:  permission denied for relation table-name
@@ -109,7 +118,7 @@ Behind By    125 commits
 
 <p>Make sure the operator is adequate for the data type or that the necessary <a href="http://www.postgresql.org/docs/9.1/static/sql-expressions.html#SQL-SYNTAX-TYPE-CASTS">type casts</a> have been applied.</p>
 
-<h2 id="pgerror-relation-table-name-does-not-exist">PGError: relation "table-name” does not exist</h2>
+<h2 id="pgerror-relation-table-name-does-not-exist">PGError: relation “table-name” does not exist</h2>
 
 <pre><code>PGError: ERROR: relation "documents" does not exist
 </code></pre>

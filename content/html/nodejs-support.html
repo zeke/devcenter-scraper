@@ -76,13 +76,11 @@ on Heroku</a>.</p>
 <p>The following environment variables will be set:</p>
 
 <pre><code class="sh">PATH=vendor/node/bin:bin:node_modules/.bin:$PATH
-NODE_ENV=production
 </code></pre>
 
-<p>The <code>NODE_ENV</code> environment variable defaults to <code>production</code>, but you can
-override it if you wish:</p>
+<p>The <code>NODE_ENV</code> environment variable is unset by default. If you would like to set it (to specify staging, production, etc):</p>
 
-<pre><code class="sh">heroku config:set NODE_ENV=staging
+<pre><code class="sh">heroku config:set NODE_ENV=production
 </code></pre>
 
 <h2 id="build-behavior">Build Behavior</h2>
@@ -117,14 +115,7 @@ available</a> during the build,
 allowing you to adjust build behavior based on the values of
 environment variables such as <code>NODE_ENV</code>.</p>
 
-<p>By default, the Heroku node buildpack runs <code>npm install --production</code>, which doesn’t install <code>devDependencies</code> in
-your package.json file. If you wish to install development dependencies when deploying to Heroku, there are two ways to do so:</p>
-
-<ul>
-<li>Move your build dependencies (such as grunt plugins) from <code>devDependencies</code> to <code>dependencies</code> in package.json.</li>
-<li>Configure npm to install all dependencies by setting a config var:</li>
-</ul><pre><code class="term">$ heroku config:set npm_config_production=false
-</code></pre>
+<p>The Heroku node buildpack runs <code>npm install --production</code>, which doesn’t install <code>devDependencies</code> in your package.json file. If you wish to install development dependencies when deploying to Heroku, you should move your build dependencies (such as grunt plugins) from <code>devDependencies</code> to <code>dependencies</code> in package.json.</p>
 
 <h2 id="runtime-behavior">Runtime Behavior</h2>
 

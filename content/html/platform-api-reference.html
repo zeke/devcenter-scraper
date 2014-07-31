@@ -29,8 +29,11 @@ It is auto-generated, so please leave comments instead.
 
 <p>The API has a machine-readable <a href="http://json-schema.org/">JSON schema</a> that describes what resources are available via the API, what their URLs are, how they are represented and what operations they support. You can access the schema using cURL:</p>
 
-<pre><code class="term">$ curl https://api.heroku.com/schema  -H "Accept: application/vnd.heroku+json; version=3"
-{
+<pre><code class="bash">$ curl https://api.heroku.com/schema \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<pre><code class="json">{
   "description": "The platform API empowers developers to automate, extend and combine Heroku with other services.",
   "definitions": {
   ...
@@ -174,25 +177,31 @@ It is auto-generated, so please leave comments instead.
 
 <p>The property used to sort values in a list response can be changed. The default property is <code>id</code>, as in <code>Range: id ..;</code>. To learn what other properties you can use to sort a list response, inspect the <code>Accept-Ranges</code> headers. For the <code>apps</code> resource, for example, you can sort on either <code>id</code> or <code>name</code>:</p>
 
-<pre><code class="term">$ curl -i -n -X GET https://api.heroku.com/apps -H "Accept: application/vnd.heroku+json; version=3"
-...
+<pre><code class="bash">$ curl -i -n -X GET https://api.heroku.com/apps \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<pre><code>...
 Accept-Ranges: id, name
 ...
 </code></pre>
 
 <p>The default sort order for resource lists responses is ascending. You can opt for descending sort order by passing a <code>order</code> key in the range header:</p>
 
-<pre><code class="term">$ curl -i -n -X GET https://api.heroku.com/apps -H "Accept: application/vnd.heroku+json; version=3" -H "Range: name ..; order=desc;"
+<pre><code class="bash">$ curl -i -n -X GET https://api.heroku.com/apps \
+-H "Accept: application/vnd.heroku+json; version=3" -H "Range: name ..; order=desc;"
 </code></pre>
 
 <p>Combining with the <code>max</code> key would look like this:</p>
 
-<pre><code class="term">$ curl -i -n -X GET https://api.heroku.com/apps -H "Accept: application/vnd.heroku+json; version=3" -H "Range: name ..; order=desc,max=10;"
+<pre><code class="bash">$ curl -i -n -X GET https://api.heroku.com/apps \
+-H "Accept: application/vnd.heroku+json; version=3" \
+-H "Range: name ..; order=desc,max=10;"
 </code></pre>
 
 <h3 id="rate-limits">Rate Limits</h3>
 
-<p>The API limits the number of requests each user can make per hour to protect against abuse and buggy code. Each account has a pool of request tokens that can hold at most 2400 tokens. Each API call removes one token from the pool. Tokens are added to the account pool at a rate of roughly 20 per minute (or 1200 per hour), up to a maximum of 1200. If no tokens remain, further calls will return 429 <code>Too Many Requests</code> until more tokens become available.</p>
+<p>The API limits the number of requests each user can make per hour to protect against abuse and buggy code. Each account has a pool of request tokens that can hold at most 2400 tokens. Each API call removes one token from the pool. Tokens are added to the account pool at a rate of roughly 20 per minute (or 1200 per hour), up to a maximum of 2400. If no tokens remain, further calls will return 429 <code>Too Many Requests</code> until more tokens become available.</p>
 
 <p>You can use the <code>RateLimit-Remaining</code> response header to check your current token count. You can also query the <a href="#rate-limits">rate limit</a> endpoint to get your token count. Requests to the rate limit endpoint do not count toward the limit. If you find your account is being rate limited but don’t know the cause, consider cycling your API key on the account page on Heroku dashboard.</p>
 
@@ -413,7 +422,7 @@ This attribute reflects the change management policy in place for the resource. 
 
 <h4 id="account-feature-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/account/features/$ACCOUNT_FEATURE_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/account/features/$ACCOUNT_FEATURE_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -422,10 +431,10 @@ This attribute reflects the change management policy in place for the resource. 
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "description": "Causes account to example.",
   "doc_url": "http://devcenter.heroku.com/articles/example",
@@ -448,7 +457,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="account-feature-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/account/features \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/account/features \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -459,10 +468,10 @@ Accept-Ranges: id, name
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "created_at": "2012-01-01T12:00:00Z",
     "description": "Causes account to example.",
@@ -500,10 +509,12 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="account-feature-update-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/account/features/$ACCOUNT_FEATURE_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X PATCH https://api.heroku.com/account/features/$ACCOUNT_FEATURE_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"enabled":true}'
+-d '{
+  "enabled": true
+}'
 </code></pre>
 
 <h4 id="account-feature-update-response-example">Response Example</h4>
@@ -511,10 +522,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "description": "Causes account to example.",
   "doc_url": "http://devcenter.heroku.com/articles/example",
@@ -544,7 +555,8 @@ RateLimit-Remaining: 1200
 <tr>
 <td><strong>allow_tracking</strong></td>
     <td><em>boolean</em></td>
-    <td>whether to allow third party web activity tracking</td>
+    <td>whether to allow third party web activity tracking<br><b>default:</b> <code>true</code>
+</td>
     <td><code>true</code></td>
   </tr>
 <tr>
@@ -604,7 +616,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="account-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/account \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/account \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -613,10 +625,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "allow_tracking": true,
   "beta": false,
   "created_at": "2012-01-01T12:00:00Z",
@@ -663,7 +675,8 @@ RateLimit-Remaining: 1200
 <tr>
 <td><strong>allow_tracking</strong></td>
     <td><em>boolean</em></td>
-    <td>whether to allow third party web activity tracking</td>
+    <td>whether to allow third party web activity tracking<br><b>default:</b> <code>true</code>
+</td>
     <td><code>true</code></td>
   </tr>
 <tr>
@@ -680,10 +693,15 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="account-update-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/account \
+<pre><code class="bash">$ curl -n -X PATCH https://api.heroku.com/account \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"allow_tracking":true,"beta":false,"name":"Tina Edmonds","password":"currentpassword"}'
+-d '{
+  "allow_tracking": true,
+  "beta": false,
+  "name": "Tina Edmonds",
+  "password": "currentpassword"
+}'
 </code></pre>
 
 <h4 id="account-update-response-example">Response Example</h4>
@@ -691,10 +709,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "allow_tracking": true,
   "beta": false,
   "created_at": "2012-01-01T12:00:00Z",
@@ -737,10 +755,13 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="account-change-email-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/account \
+<pre><code class="bash">$ curl -n -X PATCH https://api.heroku.com/account \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"email":"username@example.com","password":"currentpassword"}'
+-d '{
+  "email": "username@example.com",
+  "password": "currentpassword"
+}'
 </code></pre>
 
 <h4 id="account-change-email-response-example">Response Example</h4>
@@ -748,10 +769,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "allow_tracking": true,
   "beta": false,
   "created_at": "2012-01-01T12:00:00Z",
@@ -794,10 +815,13 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="account-change-password-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/account \
+<pre><code class="bash">$ curl -n -X PATCH https://api.heroku.com/account \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"new_password":"newpassword","password":"currentpassword"}'
+-d '{
+  "new_password": "newpassword",
+  "password": "currentpassword"
+}'
 </code></pre>
 
 <h4 id="account-change-password-response-example">Response Example</h4>
@@ -805,10 +829,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "allow_tracking": true,
   "beta": false,
   "created_at": "2012-01-01T12:00:00Z",
@@ -869,7 +893,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="add-on-service-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/addon-services/$ADDON_SERVICE_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/addon-services/$ADDON_SERVICE_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -878,10 +902,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
   "name": "heroku-postgresql",
@@ -900,7 +924,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="add-on-service-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/addon-services \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/addon-services \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -911,10 +935,10 @@ Accept-Ranges: id, name
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "created_at": "2012-01-01T12:00:00Z",
     "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -1040,10 +1064,15 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="add-on-create-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/addons \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/addons \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"config":{"db-version":"1.2.3"},"plan":"01234567-89ab-cdef-0123-456789abcdef"}'
+-d '{
+  "config": {
+    "db-version": "1.2.3"
+  },
+  "plan": "01234567-89ab-cdef-0123-456789abcdef"
+}'
 </code></pre>
 
 <h4 id="add-on-create-response-example">Response Example</h4>
@@ -1051,16 +1080,17 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "addon_service": {
     "id": "01234567-89ab-cdef-0123-456789abcdef",
     "name": "heroku-postgresql"
   },
   "config_vars": [
-    null
+    "FOO",
+    "BAZ"
   ],
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -1083,7 +1113,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="add-on-delete-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/addons/$ADDON_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/addons/$ADDON_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -1092,16 +1122,17 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "addon_service": {
     "id": "01234567-89ab-cdef-0123-456789abcdef",
     "name": "heroku-postgresql"
   },
   "config_vars": [
-    null
+    "FOO",
+    "BAZ"
   ],
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -1124,7 +1155,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="add-on-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/addons/$ADDON_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/addons/$ADDON_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -1133,16 +1164,17 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "addon_service": {
     "id": "01234567-89ab-cdef-0123-456789abcdef",
     "name": "heroku-postgresql"
   },
   "config_vars": [
-    null
+    "FOO",
+    "BAZ"
   ],
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -1167,7 +1199,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="add-on-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/addons \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/addons \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -1178,17 +1210,18 @@ Accept-Ranges: id, name
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "addon_service": {
       "id": "01234567-89ab-cdef-0123-456789abcdef",
       "name": "heroku-postgresql"
     },
     "config_vars": [
-      null
+      "FOO",
+      "BAZ"
     ],
     "created_at": "2012-01-01T12:00:00Z",
     "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -1229,10 +1262,12 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="add-on-update-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME/addons/$ADDON_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME/addons/$ADDON_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"plan":"01234567-89ab-cdef-0123-456789abcdef"}'
+-d '{
+  "plan": "01234567-89ab-cdef-0123-456789abcdef"
+}'
 </code></pre>
 
 <h4 id="add-on-update-response-example">Response Example</h4>
@@ -1240,16 +1275,17 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "addon_service": {
     "id": "01234567-89ab-cdef-0123-456789abcdef",
     "name": "heroku-postgresql"
   },
   "config_vars": [
-    null
+    "FOO",
+    "BAZ"
   ],
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -1335,7 +1371,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="app-feature-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/features/$APP_FEATURE_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/features/$APP_FEATURE_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -1344,10 +1380,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "description": "Causes app to example.",
   "doc_url": "http://devcenter.heroku.com/articles/example",
@@ -1370,7 +1406,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="app-feature-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/features \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/features \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -1381,10 +1417,10 @@ Accept-Ranges: id, name
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "created_at": "2012-01-01T12:00:00Z",
     "description": "Causes app to example.",
@@ -1422,10 +1458,12 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="app-feature-update-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME/features/$APP_FEATURE_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME/features/$APP_FEATURE_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"enabled":true}'
+-d '{
+  "enabled": true
+}'
 </code></pre>
 
 <h4 id="app-feature-update-response-example">Response Example</h4>
@@ -1433,10 +1471,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "description": "Causes app to example.",
   "doc_url": "http://devcenter.heroku.com/articles/example",
@@ -1519,6 +1557,18 @@ RateLimit-Remaining: 1200
     <td><code>null</code></td>
   </tr>
 <tr>
+<td><strong>postdeploy:exit_code</strong></td>
+    <td><em>integer</em></td>
+    <td>The exit code of the postdeploy script</td>
+    <td><code>1</code></td>
+  </tr>
+<tr>
+<td><strong>postdeploy:output</strong></td>
+    <td><em>string</em></td>
+    <td>output of the postdeploy script</td>
+    <td><code>"assets precompiled"</code></td>
+  </tr>
+<tr>
 <td><strong>resolved_success_url</strong></td>
     <td><em>nullable string</em></td>
     <td>fully qualified success url</td>
@@ -1598,10 +1648,25 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="app-setup-create-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/app-setups \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/app-setups \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"app":{"name":"example","region":null,"stack":null},"source_blob":{"url":"https://example.com/source.tgz?token=xyz"},"overrides":{"env":{"FOO":"bar","BAZ":"qux"}}}'
+-d '{
+  "app": {
+    "name": "example",
+    "region": "01234567-89ab-cdef-0123-456789abcdef",
+    "stack": "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "source_blob": {
+    "url": "https://example.com/source.tgz?token=xyz"
+  },
+  "overrides": {
+    "env": {
+      "FOO": "bar",
+      "BAZ": "qux"
+    }
+  }
+}'
 </code></pre>
 
 <h4 id="app-setup-create-response-example">Response Example</h4>
@@ -1609,10 +1674,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "id": "01234567-89ab-cdef-0123-456789abcdef",
   "created_at": "2012-01-01T12:00:00Z",
   "updated_at": "2012-01-01T12:00:00Z",
@@ -1627,7 +1692,7 @@ RateLimit-Remaining: 1200
     "status": "succeeded"
   },
   "manifest_errors": [
-    null
+    "config var FOO is required"
   ],
   "postdeploy": {
     "output": "assets precompiled",
@@ -1646,7 +1711,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="app-setup-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/app-setups/$APP_SETUP_ID \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/app-setups/$APP_SETUP_ID \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -1655,10 +1720,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "id": "01234567-89ab-cdef-0123-456789abcdef",
   "created_at": "2012-01-01T12:00:00Z",
   "updated_at": "2012-01-01T12:00:00Z",
@@ -1673,7 +1738,7 @@ RateLimit-Remaining: 1200
     "status": "succeeded"
   },
   "manifest_errors": [
-    null
+    "config var FOO is required"
   ],
   "postdeploy": {
     "output": "assets precompiled",
@@ -1793,10 +1858,13 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="app-transfer-create-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/account/app-transfers \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/account/app-transfers \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"app":"01234567-89ab-cdef-0123-456789abcdef","recipient":"01234567-89ab-cdef-0123-456789abcdef"}'
+-d '{
+  "app": "01234567-89ab-cdef-0123-456789abcdef",
+  "recipient": "01234567-89ab-cdef-0123-456789abcdef"
+}'
 </code></pre>
 
 <h4 id="app-transfer-create-response-example">Response Example</h4>
@@ -1804,10 +1872,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "app": {
     "name": "example",
     "id": "01234567-89ab-cdef-0123-456789abcdef"
@@ -1836,7 +1904,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="app-transfer-delete-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/account/app-transfers/$APP_TRANSFER_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X DELETE https://api.heroku.com/account/app-transfers/$APP_TRANSFER_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -1845,10 +1913,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "app": {
     "name": "example",
     "id": "01234567-89ab-cdef-0123-456789abcdef"
@@ -1877,7 +1945,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="app-transfer-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/account/app-transfers/$APP_TRANSFER_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/account/app-transfers/$APP_TRANSFER_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -1886,10 +1954,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "app": {
     "name": "example",
     "id": "01234567-89ab-cdef-0123-456789abcdef"
@@ -1920,7 +1988,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="app-transfer-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/account/app-transfers \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/account/app-transfers \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -1931,10 +1999,10 @@ Accept-Ranges: id, name
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "app": {
       "name": "example",
@@ -1981,10 +2049,12 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="app-transfer-update-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/account/app-transfers/$APP_TRANSFER_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X PATCH https://api.heroku.com/account/app-transfers/$APP_TRANSFER_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"state":"pending"}'
+-d '{
+  "state": "pending"
+}'
 </code></pre>
 
 <h4 id="app-transfer-update-response-example">Response Example</h4>
@@ -1992,10 +2062,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "app": {
     "name": "example",
     "id": "01234567-89ab-cdef-0123-456789abcdef"
@@ -2178,10 +2248,14 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="app-create-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/apps \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"name":"example","region":"01234567-89ab-cdef-0123-456789abcdef","stack":"01234567-89ab-cdef-0123-456789abcdef"}'
+-d '{
+  "name": "example",
+  "region": "01234567-89ab-cdef-0123-456789abcdef",
+  "stack": "01234567-89ab-cdef-0123-456789abcdef"
+}'
 </code></pre>
 
 <h4 id="app-create-response-example">Response Example</h4>
@@ -2189,10 +2263,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "archived_at": "2012-01-01T12:00:00Z",
   "buildpack_provided_description": "Ruby/Rack",
   "created_at": "2012-01-01T12:00:00Z",
@@ -2229,7 +2303,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="app-delete-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -2238,10 +2312,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "archived_at": "2012-01-01T12:00:00Z",
   "buildpack_provided_description": "Ruby/Rack",
   "created_at": "2012-01-01T12:00:00Z",
@@ -2278,7 +2352,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="app-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -2287,10 +2361,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "archived_at": "2012-01-01T12:00:00Z",
   "buildpack_provided_description": "Ruby/Rack",
   "created_at": "2012-01-01T12:00:00Z",
@@ -2329,7 +2403,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="app-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -2340,10 +2414,10 @@ Accept-Ranges: id, name, updated_at
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "archived_at": "2012-01-01T12:00:00Z",
     "buildpack_provided_description": "Ruby/Rack",
@@ -2403,10 +2477,13 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="app-update-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"maintenance":false,"name":"example"}'
+-d '{
+  "maintenance": false,
+  "name": "example"
+}'
 </code></pre>
 
 <h4 id="app-update-response-example">Response Example</h4>
@@ -2414,10 +2491,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "archived_at": "2012-01-01T12:00:00Z",
   "buildpack_provided_description": "Ruby/Rack",
   "created_at": "2012-01-01T12:00:00Z",
@@ -2494,7 +2571,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="build-result-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/builds/$BUILD_ID/result \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/builds/$BUILD_ID/result \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -2503,10 +2580,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "build": {
     "id": "01234567-89ab-cdef-0123-456789abcdef",
     "status": "succeeded"
@@ -2514,8 +2591,8 @@ RateLimit-Remaining: 1200
   "exit_code": 0,
   "lines": [
     {
-      "stream": "STDOUT",
-      "line": "-----&gt; Ruby app detected\n"
+      "line": "-----&gt; Ruby app detected\n",
+      "stream": "STDOUT"
     }
   ]
 }
@@ -2552,6 +2629,12 @@ RateLimit-Remaining: 1200
 <td><strong>slug</strong></td>
     <td><em>nullable object</em></td>
     <td>slug created by this build</td>
+    <td><code>null</code></td>
+  </tr>
+<tr>
+<td><strong>slug:id</strong></td>
+    <td><em>uuid</em></td>
+    <td>unique identifier of slug</td>
     <td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
   </tr>
 <tr>
@@ -2621,10 +2704,15 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="build-create-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/builds \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/builds \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"source_blob":{"url":"https://example.com/source.tgz?token=xyz","version":"v1.3.0"}}'
+-d '{
+  "source_blob": {
+    "url": "https://example.com/source.tgz?token=xyz",
+    "version": "v1.3.0"
+  }
+}'
 </code></pre>
 
 <h4 id="build-create-response-example">Response Example</h4>
@@ -2632,17 +2720,19 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
   "source_blob": {
     "url": "https://example.com/source.tgz?token=xyz",
     "version": "v1.3.0"
   },
-  "slug": "01234567-89ab-cdef-0123-456789abcdef",
+  "slug": {
+    "id": "01234567-89ab-cdef-0123-456789abcdef"
+  },
   "status": "succeeded",
   "updated_at": "2012-01-01T12:00:00Z",
   "user": {
@@ -2661,7 +2751,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="build-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/builds/$BUILD_ID \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/builds/$BUILD_ID \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -2670,17 +2760,19 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
   "source_blob": {
     "url": "https://example.com/source.tgz?token=xyz",
     "version": "v1.3.0"
   },
-  "slug": "01234567-89ab-cdef-0123-456789abcdef",
+  "slug": {
+    "id": "01234567-89ab-cdef-0123-456789abcdef"
+  },
   "status": "succeeded",
   "updated_at": "2012-01-01T12:00:00Z",
   "user": {
@@ -2701,7 +2793,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="build-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/builds \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/builds \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -2712,10 +2804,10 @@ Accept-Ranges: id, started_at
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "created_at": "2012-01-01T12:00:00Z",
     "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -2723,7 +2815,9 @@ RateLimit-Remaining: 1200
       "url": "https://example.com/source.tgz?token=xyz",
       "version": "v1.3.0"
     },
-    "slug": "01234567-89ab-cdef-0123-456789abcdef",
+    "slug": {
+      "id": "01234567-89ab-cdef-0123-456789abcdef"
+    },
     "status": "succeeded",
     "updated_at": "2012-01-01T12:00:00Z",
     "user": {
@@ -2820,10 +2914,13 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="collaborator-create-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/collaborators \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/collaborators \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"silent":false,"user":"01234567-89ab-cdef-0123-456789abcdef"}'
+-d '{
+  "silent": false,
+  "user": "01234567-89ab-cdef-0123-456789abcdef"
+}'
 </code></pre>
 
 <h4 id="collaborator-create-response-example">Response Example</h4>
@@ -2831,10 +2928,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
   "updated_at": "2012-01-01T12:00:00Z",
@@ -2854,7 +2951,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="collaborator-delete-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/collaborators/$COLLABORATOR_EMAIL_OR_ID \
+<pre><code class="bash">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/collaborators/$COLLABORATOR_EMAIL_OR_ID \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -2863,10 +2960,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
   "updated_at": "2012-01-01T12:00:00Z",
@@ -2886,7 +2983,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="collaborator-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/collaborators/$COLLABORATOR_EMAIL_OR_ID \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/collaborators/$COLLABORATOR_EMAIL_OR_ID \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -2895,10 +2992,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
   "updated_at": "2012-01-01T12:00:00Z",
@@ -2920,7 +3017,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="collaborator-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/collaborators \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/collaborators \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -2931,10 +3028,10 @@ Accept-Ranges: email, id
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "created_at": "2012-01-01T12:00:00Z",
     "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -2962,7 +3059,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="config-vars-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/config-vars \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/config-vars \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -2971,10 +3068,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "FOO": "bar",
   "BAZ": "qux"
 }
@@ -2989,10 +3086,13 @@ RateLimit-Remaining: 1200
 
 <h4 id="config-vars-update-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME/config-vars \
+<pre><code class="bash">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME/config-vars \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"FOO":"bar","BAZ":"qux"}'
+-d '{
+  "FOO": "bar",
+  "BAZ": "qux"
+}'
 </code></pre>
 
 <h4 id="config-vars-update-response-example">Response Example</h4>
@@ -3000,13 +3100,140 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "FOO": "bar",
   "BAZ": "qux"
 }
+</code></pre>
+
+<h2 id="credit">Credit</h2>
+
+<p>Stability: <code>development</code></p>
+
+<p>A credit represents value that will be used up before further charges are assigned to an account.</p>
+
+<h3 id="credit-attributes">Attributes</h3>
+
+<table>
+<tr>
+<th>Name</th>
+    <th>Type</th>
+    <th>Description</th>
+    <th>Example</th>
+  </tr>
+<tr>
+<td><strong>amount</strong></td>
+    <td><em>number</em></td>
+    <td>total value of credit in cents</td>
+    <td><code>10000</code></td>
+  </tr>
+<tr>
+<td><strong>balance</strong></td>
+    <td><em>number</em></td>
+    <td>remaining value of credit in cents</td>
+    <td><code>5000</code></td>
+  </tr>
+<tr>
+<td><strong>created_at</strong></td>
+    <td><em>date-time</em></td>
+    <td>when credit was created</td>
+    <td><code>"2012-01-01T12:00:00Z"</code></td>
+  </tr>
+<tr>
+<td><strong>expires_at</strong></td>
+    <td><em>date-time</em></td>
+    <td>when credit will expire</td>
+    <td><code>"2012-01-01T12:00:00Z"</code></td>
+  </tr>
+<tr>
+<td><strong>id</strong></td>
+    <td><em>uuid</em></td>
+    <td>unique identifier of credit</td>
+    <td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+  </tr>
+<tr>
+<td><strong>title</strong></td>
+    <td><em>string</em></td>
+    <td>a name for credit</td>
+    <td><code>"gift card"</code></td>
+  </tr>
+<tr>
+<td><strong>updated_at</strong></td>
+    <td><em>date-time</em></td>
+    <td>when credit was updated</td>
+    <td><code>"2012-01-01T12:00:00Z"</code></td>
+  </tr>
+</table><h3 id="credit-info">Credit Info</h3>
+
+<p>Info for existing credit.</p>
+
+<pre><code>GET /account/credits/{credit_id}
+</code></pre>
+
+<h4 id="credit-info-curl-example">Curl Example</h4>
+
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/account/credits/$CREDIT_ID \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="credit-info-response-example">Response Example</h4>
+
+<pre><code>HTTP/1.1 200 OK
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 2400
+</code></pre>
+
+<pre><code class="json">{
+  "amount": 10000,
+  "balance": 5000,
+  "created_at": "2012-01-01T12:00:00Z",
+  "expires_at": "2012-01-01T12:00:00Z",
+  "id": "01234567-89ab-cdef-0123-456789abcdef",
+  "title": "gift card",
+  "updated_at": "2012-01-01T12:00:00Z"
+}
+</code></pre>
+
+<h3 id="credit-list">Credit List</h3>
+
+<p>List existing credits.</p>
+
+<p>The only acceptable order value for the Range header is <code>id</code>.</p>
+
+<pre><code>GET /account/credits
+</code></pre>
+
+<h4 id="credit-list-curl-example">Curl Example</h4>
+
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/account/credits \
+-H "Accept: application/vnd.heroku+json; version=3"
+</code></pre>
+
+<h4 id="credit-list-response-example">Response Example</h4>
+
+<pre><code>HTTP/1.1 200 OK
+Accept-Ranges: id
+Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
+ETag: "0123456789abcdef0123456789abcdef"
+Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
+RateLimit-Remaining: 2400
+</code></pre>
+
+<pre><code class="json">[
+  {
+    "amount": 10000,
+    "balance": 5000,
+    "created_at": "2012-01-01T12:00:00Z",
+    "expires_at": "2012-01-01T12:00:00Z",
+    "id": "01234567-89ab-cdef-0123-456789abcdef",
+    "title": "gift card",
+    "updated_at": "2012-01-01T12:00:00Z"
+  }
+]
 </code></pre>
 
 <h2 id="domain">Domain</h2>
@@ -3072,10 +3299,12 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="domain-create-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/domains \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/domains \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"hostname":"subdomain.example.com"}'
+-d '{
+  "hostname": "subdomain.example.com"
+}'
 </code></pre>
 
 <h4 id="domain-create-response-example">Response Example</h4>
@@ -3083,10 +3312,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "hostname": "subdomain.example.com",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -3103,7 +3332,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="domain-delete-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/domains/$DOMAIN_ID_OR_HOSTNAME \
+<pre><code class="bash">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/domains/$DOMAIN_ID_OR_HOSTNAME \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -3112,10 +3341,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "hostname": "subdomain.example.com",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -3132,7 +3361,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="domain-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/domains/$DOMAIN_ID_OR_HOSTNAME \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/domains/$DOMAIN_ID_OR_HOSTNAME \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -3141,10 +3370,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "hostname": "subdomain.example.com",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -3163,7 +3392,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="domain-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/domains \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/domains \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -3174,10 +3403,10 @@ Accept-Ranges: hostname, id
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "created_at": "2012-01-01T12:00:00Z",
     "hostname": "subdomain.example.com",
@@ -3319,10 +3548,18 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="dyno-create-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/dynos \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/dynos \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"attach":true,"command":"bash","env":{"COLUMNS":"80","LINES":"24"},"size":"1X"}'
+-d '{
+  "attach": true,
+  "command": "bash",
+  "env": {
+    "COLUMNS": "80",
+    "LINES": "24"
+  },
+  "size": "1X"
+}'
 </code></pre>
 
 <h4 id="dyno-create-response-example">Response Example</h4>
@@ -3330,10 +3567,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "attach_url": "rendezvous://rendezvous.runtime.heroku.com:5000/{rendezvous-id}",
   "command": "bash",
   "created_at": "2012-01-01T12:00:00Z",
@@ -3359,7 +3596,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="dyno-restart-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/dynos/$DYNO_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/dynos/$DYNO_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -3368,11 +3605,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 202 Accepted
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{}
-</code></pre>
+<pre><code class="json"></code></pre>
 
 <h3 id="dyno-restart-all">Dyno Restart all</h3>
 
@@ -3383,7 +3619,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="dyno-restart-all-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/dynos \
+<pre><code class="bash">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/dynos \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -3392,11 +3628,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 202 Accepted
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{}
-</code></pre>
+<pre><code class="json"></code></pre>
 
 <h3 id="dyno-info">Dyno Info</h3>
 
@@ -3407,7 +3642,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="dyno-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/dynos/$DYNO_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/dynos/$DYNO_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -3416,10 +3651,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "attach_url": "rendezvous://rendezvous.runtime.heroku.com:5000/{rendezvous-id}",
   "command": "bash",
   "created_at": "2012-01-01T12:00:00Z",
@@ -3447,7 +3682,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="dyno-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/dynos \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/dynos \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -3458,10 +3693,10 @@ Accept-Ranges: id, name
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "attach_url": "rendezvous://rendezvous.runtime.heroku.com:5000/{rendezvous-id}",
     "command": "bash",
@@ -3546,7 +3781,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="formation-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/formation/$FORMATION_ID_OR_TYPE \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/formation/$FORMATION_ID_OR_TYPE \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -3555,10 +3790,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "command": "bundle exec rails server -p $PORT",
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -3580,7 +3815,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="formation-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/formation \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/formation \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -3591,10 +3826,10 @@ Accept-Ranges: id, type
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "command": "bundle exec rails server -p $PORT",
     "created_at": "2012-01-01T12:00:00Z",
@@ -3631,10 +3866,18 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="formation-batch-update-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME/formation \
+<pre><code class="bash">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME/formation \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"updates":[{"process":"web","quantity":1,"size":"2X"}]}'
+-d '{
+  "updates": [
+    {
+      "process": "web",
+      "quantity": 1,
+      "size": "2X"
+    }
+  ]
+}'
 </code></pre>
 
 <h4 id="formation-batch-update-response-example">Response Example</h4>
@@ -3642,10 +3885,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "command": "bundle exec rails server -p $PORT",
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -3686,10 +3929,13 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="formation-update-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME/formation/$FORMATION_ID_OR_TYPE \
+<pre><code class="bash">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME/formation/$FORMATION_ID_OR_TYPE \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"quantity":1,"size":"1X"}'
+-d '{
+  "quantity": 1,
+  "size": "1X"
+}'
 </code></pre>
 
 <h4 id="formation-update-response-example">Response Example</h4>
@@ -3697,10 +3943,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "command": "bundle exec rails server -p $PORT",
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -3792,10 +4038,12 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="key-create-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/account/keys \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/account/keys \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"public_key":"ssh-rsa AAAAB3NzaC1ycVc/../839Uv username@example.com"}'
+-d '{
+  "public_key": "ssh-rsa AAAAB3NzaC1ycVc/../839Uv username@example.com"
+}'
 </code></pre>
 
 <h4 id="key-create-response-example">Response Example</h4>
@@ -3803,10 +4051,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "comment": "username@host",
   "created_at": "2012-01-01T12:00:00Z",
   "email": "username@host",
@@ -3826,7 +4074,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="key-delete-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/account/keys/$KEY_ID_OR_FINGERPRINT \
+<pre><code class="bash">$ curl -n -X DELETE https://api.heroku.com/account/keys/$KEY_ID_OR_FINGERPRINT \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -3835,10 +4083,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "comment": "username@host",
   "created_at": "2012-01-01T12:00:00Z",
   "email": "username@host",
@@ -3858,7 +4106,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="key-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/account/keys/$KEY_ID_OR_FINGERPRINT \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/account/keys/$KEY_ID_OR_FINGERPRINT \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -3867,10 +4115,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "comment": "username@host",
   "created_at": "2012-01-01T12:00:00Z",
   "email": "username@host",
@@ -3892,7 +4140,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="key-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/account/keys \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/account/keys \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -3903,10 +4151,10 @@ Accept-Ranges: fingerprint, id
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "comment": "username@host",
     "created_at": "2012-01-01T12:00:00Z",
@@ -3939,6 +4187,12 @@ RateLimit-Remaining: 1200
     <td><em>nullable object</em></td>
     <td>addon that created the drain</td>
     <td><code>"example"</code></td>
+  </tr>
+<tr>
+<td><strong>addon:id</strong></td>
+    <td><em>uuid</em></td>
+    <td>unique identifier of add-on</td>
+    <td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
   </tr>
 <tr>
 <td><strong>created_at</strong></td>
@@ -3994,10 +4248,12 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="log-drain-create-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/log-drains \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/log-drains \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"url":"https://example.com/drain"}'
+-d '{
+  "url": "https://example.com/drain"
+}'
 </code></pre>
 
 <h4 id="log-drain-create-response-example">Response Example</h4>
@@ -4005,10 +4261,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "addon": "example",
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -4027,7 +4283,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="log-drain-delete-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/log-drains/$LOG_DRAIN_ID_OR_URL \
+<pre><code class="bash">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/log-drains/$LOG_DRAIN_ID_OR_URL \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -4036,10 +4292,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "addon": "example",
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -4058,7 +4314,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="log-drain-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/log-drains/$LOG_DRAIN_ID_OR_URL \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/log-drains/$LOG_DRAIN_ID_OR_URL \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -4067,10 +4323,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "addon": "example",
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -4091,7 +4347,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="log-drain-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/log-drains \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/log-drains \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -4102,10 +4358,10 @@ Accept-Ranges: id, url
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "addon": "example",
     "created_at": "2012-01-01T12:00:00Z",
@@ -4198,10 +4454,15 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="log-session-create-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/log-sessions \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/log-sessions \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"dyno":"web.1","lines":10,"source":"app","tail":true}'
+-d '{
+  "dyno": "web.1",
+  "lines": 10,
+  "source": "app",
+  "tail": true
+}'
 </code></pre>
 
 <h4 id="log-session-create-response-example">Response Example</h4>
@@ -4209,10 +4470,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
   "logplex_url": "https://logplex.heroku.com/sessions/01234567-89ab-cdef-0123-456789abcdef?srv=1325419200",
@@ -4242,10 +4503,46 @@ RateLimit-Remaining: 1200
     <td><code>null</code></td>
   </tr>
 <tr>
+<td><strong>access_token:expires_in</strong></td>
+    <td><em>nullable integer</em></td>
+    <td>seconds until OAuth token expires; may be `null` for tokens with indefinite lifetime</td>
+    <td><code>2592000</code></td>
+  </tr>
+<tr>
+<td><strong>access_token:id</strong></td>
+    <td><em>uuid</em></td>
+    <td>unique identifier of OAuth token</td>
+    <td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+  </tr>
+<tr>
+<td><strong>access_token:token</strong></td>
+    <td><em>string</em></td>
+    <td>contents of the token to be used for authorization</td>
+    <td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+  </tr>
+<tr>
 <td><strong>client</strong></td>
     <td><em>nullable object</em></td>
     <td>identifier of the client that obtained this authorization, if any</td>
     <td><code>null</code></td>
+  </tr>
+<tr>
+<td><strong>client:id</strong></td>
+    <td><em>uuid</em></td>
+    <td>unique identifier of this OAuth client</td>
+    <td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+  </tr>
+<tr>
+<td><strong>client:name</strong></td>
+    <td><em>string</em></td>
+    <td>OAuth client name</td>
+    <td><code>"example"</code></td>
+  </tr>
+<tr>
+<td><strong>client:redirect_uri</strong></td>
+    <td><em>string</em></td>
+    <td>endpoint for redirection after authorization with OAuth client</td>
+    <td><code>"https://example.com/auth/heroku/callback"</code></td>
   </tr>
 <tr>
 <td><strong>created_at</strong></td>
@@ -4260,6 +4557,24 @@ RateLimit-Remaining: 1200
     <td><code>null</code></td>
   </tr>
 <tr>
+<td><strong>grant:code</strong></td>
+    <td><em>string</em></td>
+    <td>grant code received from OAuth web application authorization</td>
+    <td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+  </tr>
+<tr>
+<td><strong>grant:expires_in</strong></td>
+    <td><em>integer</em></td>
+    <td>seconds until OAuth grant expires</td>
+    <td><code>2592000</code></td>
+  </tr>
+<tr>
+<td><strong>grant:id</strong></td>
+    <td><em>uuid</em></td>
+    <td>unique identifier of OAuth grant</td>
+    <td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+  </tr>
+<tr>
 <td><strong>id</strong></td>
     <td><em>uuid</em></td>
     <td>unique identifier of OAuth authorization</td>
@@ -4270,6 +4585,24 @@ RateLimit-Remaining: 1200
     <td><em>nullable object</em></td>
     <td>refresh token for this authorization</td>
     <td><code>null</code></td>
+  </tr>
+<tr>
+<td><strong>refresh_token:expires_in</strong></td>
+    <td><em>nullable integer</em></td>
+    <td>seconds until OAuth token expires; may be `null` for tokens with indefinite lifetime</td>
+    <td><code>2592000</code></td>
+  </tr>
+<tr>
+<td><strong>refresh_token:id</strong></td>
+    <td><em>uuid</em></td>
+    <td>unique identifier of OAuth token</td>
+    <td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+  </tr>
+<tr>
+<td><strong>refresh_token:token</strong></td>
+    <td><em>string</em></td>
+    <td>contents of the token to be used for authorization</td>
+    <td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
   </tr>
 <tr>
 <td><strong>scope</strong></td>
@@ -4334,10 +4667,17 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="oauth-authorization-create-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/oauth/authorizations \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/oauth/authorizations \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"client":"01234567-89ab-cdef-0123-456789abcdef","description":"sample authorization","expires_in":2592000,"scope":["global"]}'
+-d '{
+  "client": "01234567-89ab-cdef-0123-456789abcdef",
+  "description": "sample authorization",
+  "expires_in": 2592000,
+  "scope": [
+    "global"
+  ]
+}'
 </code></pre>
 
 <h4 id="oauth-authorization-create-response-example">Response Example</h4>
@@ -4345,10 +4685,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "access_token": {
     "expires_in": 2592000,
     "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -4372,7 +4712,7 @@ RateLimit-Remaining: 1200
     "token": "01234567-89ab-cdef-0123-456789abcdef"
   },
   "scope": [
-    null
+    "global"
   ],
   "updated_at": "2012-01-01T12:00:00Z"
 }
@@ -4387,7 +4727,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="oauth-authorization-delete-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/oauth/authorizations/$OAUTH_AUTHORIZATION_ID \
+<pre><code class="bash">$ curl -n -X DELETE https://api.heroku.com/oauth/authorizations/$OAUTH_AUTHORIZATION_ID \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -4396,10 +4736,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "access_token": {
     "expires_in": 2592000,
     "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -4423,7 +4763,7 @@ RateLimit-Remaining: 1200
     "token": "01234567-89ab-cdef-0123-456789abcdef"
   },
   "scope": [
-    null
+    "global"
   ],
   "updated_at": "2012-01-01T12:00:00Z"
 }
@@ -4438,7 +4778,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="oauth-authorization-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/oauth/authorizations/$OAUTH_AUTHORIZATION_ID \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/oauth/authorizations/$OAUTH_AUTHORIZATION_ID \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -4447,10 +4787,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "access_token": {
     "expires_in": 2592000,
     "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -4474,7 +4814,7 @@ RateLimit-Remaining: 1200
     "token": "01234567-89ab-cdef-0123-456789abcdef"
   },
   "scope": [
-    null
+    "global"
   ],
   "updated_at": "2012-01-01T12:00:00Z"
 }
@@ -4491,7 +4831,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="oauth-authorization-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/oauth/authorizations \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/oauth/authorizations \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -4502,10 +4842,10 @@ Accept-Ranges: id
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "access_token": {
       "expires_in": 2592000,
@@ -4530,7 +4870,7 @@ RateLimit-Remaining: 1200
       "token": "01234567-89ab-cdef-0123-456789abcdef"
     },
     "scope": [
-      null
+      "global"
     ],
     "updated_at": "2012-01-01T12:00:00Z"
   }
@@ -4624,10 +4964,13 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="oauth-client-create-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/oauth/clients \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/oauth/clients \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"name":"example","redirect_uri":"https://example.com/auth/heroku/callback"}'
+-d '{
+  "name": "example",
+  "redirect_uri": "https://example.com/auth/heroku/callback"
+}'
 </code></pre>
 
 <h4 id="oauth-client-create-response-example">Response Example</h4>
@@ -4635,10 +4978,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
   "ignores_delinquent": false,
@@ -4658,7 +5001,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="oauth-client-delete-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/oauth/clients/$OAUTH_CLIENT_ID \
+<pre><code class="bash">$ curl -n -X DELETE https://api.heroku.com/oauth/clients/$OAUTH_CLIENT_ID \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -4667,10 +5010,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
   "ignores_delinquent": false,
@@ -4690,7 +5033,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="oauth-client-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/oauth/clients/$OAUTH_CLIENT_ID \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/oauth/clients/$OAUTH_CLIENT_ID \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -4699,10 +5042,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
   "ignores_delinquent": false,
@@ -4724,7 +5067,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="oauth-client-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/oauth/clients \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/oauth/clients \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -4735,10 +5078,10 @@ Accept-Ranges: id
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "created_at": "2012-01-01T12:00:00Z",
     "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -4781,10 +5124,13 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="oauth-client-update-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/oauth/clients/$OAUTH_CLIENT_ID \
+<pre><code class="bash">$ curl -n -X PATCH https://api.heroku.com/oauth/clients/$OAUTH_CLIENT_ID \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"name":"example","redirect_uri":"https://example.com/auth/heroku/callback"}'
+-d '{
+  "name": "example",
+  "redirect_uri": "https://example.com/auth/heroku/callback"
+}'
 </code></pre>
 
 <h4 id="oauth-client-update-response-example">Response Example</h4>
@@ -4792,10 +5138,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
   "ignores_delinquent": false,
@@ -4850,6 +5196,12 @@ RateLimit-Remaining: 1200
     <td><em>nullable object</em></td>
     <td>OAuth client secret used to obtain token</td>
     <td><code>null</code></td>
+  </tr>
+<tr>
+<td><strong>client:secret</strong></td>
+    <td><em>string</em></td>
+    <td>secret used to obtain OAuth authorizations under this client</td>
+    <td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
   </tr>
 <tr>
 <td><strong>created_at</strong></td>
@@ -4953,10 +5305,21 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="oauth-token-create-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/oauth/tokens \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/oauth/tokens \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"client":{"secret":"01234567-89ab-cdef-0123-456789abcdef"},"grant":{"code":"01234567-89ab-cdef-0123-456789abcdef","type":"authorization_code"},"refresh_token":{"token":"01234567-89ab-cdef-0123-456789abcdef"}}'
+-d '{
+  "client": {
+    "secret": "01234567-89ab-cdef-0123-456789abcdef"
+  },
+  "grant": {
+    "code": "01234567-89ab-cdef-0123-456789abcdef",
+    "type": "authorization_code"
+  },
+  "refresh_token": {
+    "token": "01234567-89ab-cdef-0123-456789abcdef"
+  }
+}'
 </code></pre>
 
 <h4 id="oauth-token-create-response-example">Response Example</h4>
@@ -4964,10 +5327,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "access_token": {
     "expires_in": 2592000,
     "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -5093,10 +5456,13 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="organization-app-collaborator-create-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/organizations/apps/$APP_ID_OR_NAME/collaborators \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/organizations/apps/$APP_ID_OR_NAME/collaborators \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"silent":false,"user":"01234567-89ab-cdef-0123-456789abcdef"}'
+-d '{
+  "silent": false,
+  "user": "01234567-89ab-cdef-0123-456789abcdef"
+}'
 </code></pre>
 
 <h4 id="organization-app-collaborator-create-response-example">Response Example</h4>
@@ -5104,10 +5470,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
   "role": "admin",
@@ -5128,7 +5494,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="organization-app-collaborator-delete-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/organizations/apps/$ORGANIZATION_APP_NAME/collaborators/$ORGANIZATION_APP_COLLABORATOR_EMAIL \
+<pre><code class="bash">$ curl -n -X DELETE https://api.heroku.com/organizations/apps/$ORGANIZATION_APP_NAME/collaborators/$ORGANIZATION_APP_COLLABORATOR_EMAIL \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -5137,10 +5503,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
   "role": "admin",
@@ -5161,7 +5527,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="organization-app-collaborator-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/organizations/apps/$ORGANIZATION_APP_NAME/collaborators/$ORGANIZATION_APP_COLLABORATOR_EMAIL \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/organizations/apps/$ORGANIZATION_APP_NAME/collaborators/$ORGANIZATION_APP_COLLABORATOR_EMAIL \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -5170,10 +5536,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
   "role": "admin",
@@ -5196,7 +5562,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="organization-app-collaborator-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/organizations/apps/$ORGANIZATION_APP_NAME/collaborators \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/organizations/apps/$ORGANIZATION_APP_NAME/collaborators \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -5207,10 +5573,10 @@ Accept-Ranges: email
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "created_at": "2012-01-01T12:00:00Z",
     "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -5300,10 +5666,28 @@ RateLimit-Remaining: 1200
     <td><code>null</code></td>
   </tr>
 <tr>
+<td><strong>organization:name</strong></td>
+    <td><em>string</em></td>
+    <td>unique name of organization</td>
+    <td><code>"example"</code></td>
+  </tr>
+<tr>
 <td><strong>owner</strong></td>
     <td><em>nullable object</em></td>
     <td>identity of app owner</td>
     <td><code>null</code></td>
+  </tr>
+<tr>
+<td><strong>owner:email</strong></td>
+    <td><em>email</em></td>
+    <td>email address of account</td>
+    <td><code>"username@example.com"</code></td>
+  </tr>
+<tr>
+<td><strong>owner:id</strong></td>
+    <td><em>uuid</em></td>
+    <td>unique identifier</td>
+    <td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
   </tr>
 <tr>
 <td><strong>region:id</strong></td>
@@ -5413,10 +5797,17 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="organization-app-create-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/organizations/apps \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/organizations/apps \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"locked":false,"name":"example","organization":"example","personal":false,"region":"us","stack":"cedar"}'
+-d '{
+  "locked": false,
+  "name": "example",
+  "organization": "example",
+  "personal": false,
+  "region": "us",
+  "stack": "cedar"
+}'
 </code></pre>
 
 <h4 id="organization-app-create-response-example">Response Example</h4>
@@ -5424,10 +5815,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "archived_at": "2012-01-01T12:00:00Z",
   "buildpack_provided_description": "Ruby/Rack",
   "created_at": "2012-01-01T12:00:00Z",
@@ -5471,7 +5862,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="organization-app-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/organizations/apps \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/organizations/apps \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -5482,10 +5873,10 @@ Accept-Ranges: name
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "archived_at": "2012-01-01T12:00:00Z",
     "buildpack_provided_description": "Ruby/Rack",
@@ -5531,7 +5922,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="organization-app-list-for-organization-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/organizations/$ORGANIZATION_NAME/apps \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/organizations/$ORGANIZATION_NAME/apps \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -5542,10 +5933,10 @@ Accept-Ranges: name
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "archived_at": "2012-01-01T12:00:00Z",
     "buildpack_provided_description": "Ruby/Rack",
@@ -5589,7 +5980,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="organization-app-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/organizations/apps/$ORGANIZATION_APP_NAME \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/organizations/apps/$ORGANIZATION_APP_NAME \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -5598,10 +5989,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "archived_at": "2012-01-01T12:00:00Z",
   "buildpack_provided_description": "Ruby/Rack",
   "created_at": "2012-01-01T12:00:00Z",
@@ -5658,10 +6049,12 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="organization-app-update-locked-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/organizations/apps/$ORGANIZATION_APP_NAME \
+<pre><code class="bash">$ curl -n -X PATCH https://api.heroku.com/organizations/apps/$ORGANIZATION_APP_NAME \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"locked":false}'
+-d '{
+  "locked": false
+}'
 </code></pre>
 
 <h4 id="organization-app-update-locked-response-example">Response Example</h4>
@@ -5669,10 +6062,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "archived_at": "2012-01-01T12:00:00Z",
   "buildpack_provided_description": "Ruby/Rack",
   "created_at": "2012-01-01T12:00:00Z",
@@ -5731,10 +6124,12 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="organization-app-transfer-to-account-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/organizations/apps/$ORGANIZATION_APP_NAME \
+<pre><code class="bash">$ curl -n -X PATCH https://api.heroku.com/organizations/apps/$ORGANIZATION_APP_NAME \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"owner":"01234567-89ab-cdef-0123-456789abcdef"}'
+-d '{
+  "owner": "01234567-89ab-cdef-0123-456789abcdef"
+}'
 </code></pre>
 
 <h4 id="organization-app-transfer-to-account-response-example">Response Example</h4>
@@ -5742,10 +6137,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "archived_at": "2012-01-01T12:00:00Z",
   "buildpack_provided_description": "Ruby/Rack",
   "created_at": "2012-01-01T12:00:00Z",
@@ -5802,10 +6197,12 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="organization-app-transfer-to-organization-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/organizations/apps/$ORGANIZATION_APP_NAME \
+<pre><code class="bash">$ curl -n -X PATCH https://api.heroku.com/organizations/apps/$ORGANIZATION_APP_NAME \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"owner":"example"}'
+-d '{
+  "owner": "example"
+}'
 </code></pre>
 
 <h4 id="organization-app-transfer-to-organization-response-example">Response Example</h4>
@@ -5813,10 +6210,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "archived_at": "2012-01-01T12:00:00Z",
   "buildpack_provided_description": "Ruby/Rack",
   "created_at": "2012-01-01T12:00:00Z",
@@ -5920,10 +6317,13 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="organization-member-create-or-update-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X PUT https://api.heroku.com/organizations/$ORGANIZATION_NAME/members \
+<pre><code class="bash">$ curl -n -X PUT https://api.heroku.com/organizations/$ORGANIZATION_NAME/members \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"email":"someone@example.org","role":"admin"}'
+-d '{
+  "email": "someone@example.org",
+  "role": "admin"
+}'
 </code></pre>
 
 <h4 id="organization-member-create-or-update-response-example">Response Example</h4>
@@ -5931,10 +6331,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "email": "someone@example.org",
   "role": "admin",
@@ -5951,7 +6351,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="organization-member-delete-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/organizations/$ORGANIZATION_NAME/members/$ORGANIZATION_MEMBER_EMAIL \
+<pre><code class="bash">$ curl -n -X DELETE https://api.heroku.com/organizations/$ORGANIZATION_NAME/members/$ORGANIZATION_MEMBER_EMAIL \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -5960,10 +6360,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "email": "someone@example.org",
   "role": "admin",
@@ -5982,7 +6382,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="organization-member-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/organizations/$ORGANIZATION_NAME/members \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/organizations/$ORGANIZATION_NAME/members \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -5993,10 +6393,10 @@ Accept-Ranges: email
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "created_at": "2012-01-01T12:00:00Z",
     "email": "someone@example.org",
@@ -6063,7 +6463,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="organization-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/organizations \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/organizations \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -6074,10 +6474,10 @@ Accept-Ranges: name
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "credit_card_collections": "true",
     "default": "true",
@@ -6090,7 +6490,7 @@ RateLimit-Remaining: 1200
 
 <h3 id="organization-update">Organization Update</h3>
 
-<p>Set or Unset the organization as your default organization.</p>
+<p>Set or unset the organization as your default organization.</p>
 
 <pre><code>PATCH /organizations/{organization_name}
 </code></pre>
@@ -6112,10 +6512,12 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="organization-update-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/organizations/$ORGANIZATION_NAME \
+<pre><code class="bash">$ curl -n -X PATCH https://api.heroku.com/organizations/$ORGANIZATION_NAME \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"default":"true"}'
+-d '{
+  "default": "true"
+}'
 </code></pre>
 
 <h4 id="organization-update-response-example">Response Example</h4>
@@ -6123,10 +6525,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "credit_card_collections": "true",
   "default": "true",
   "name": "example",
@@ -6213,7 +6615,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="plan-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/addon-services/$ADDON_SERVICE_ID_OR_NAME/plans/$PLAN_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/addon-services/$ADDON_SERVICE_ID_OR_NAME/plans/$PLAN_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -6222,10 +6624,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "default": false,
   "description": "Heroku Postgres Dev",
@@ -6251,7 +6653,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="plan-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/addon-services/$ADDON_SERVICE_ID_OR_NAME/plans \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/addon-services/$ADDON_SERVICE_ID_OR_NAME/plans \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -6262,10 +6664,10 @@ Accept-Ranges: id, name
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "created_at": "2012-01-01T12:00:00Z",
     "default": false,
@@ -6312,7 +6714,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="rate-limit-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/account/rate-limits \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/account/rate-limits \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -6321,10 +6723,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "remaining": 2399
 }
 </code></pre>
@@ -6383,7 +6785,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="region-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/regions/$REGION_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/regions/$REGION_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -6392,10 +6794,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "description": "United States",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -6415,7 +6817,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="region-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/regions \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/regions \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -6426,10 +6828,10 @@ Accept-Ranges: id, name
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "created_at": "2012-01-01T12:00:00Z",
     "description": "United States",
@@ -6480,6 +6882,12 @@ RateLimit-Remaining: 1200
     <td><code>null</code></td>
   </tr>
 <tr>
+<td><strong>slug:id</strong></td>
+    <td><em>uuid</em></td>
+    <td>unique identifier of slug</td>
+    <td><code>"01234567-89ab-cdef-0123-456789abcdef"</code></td>
+  </tr>
+<tr>
 <td><strong>updated_at</strong></td>
     <td><em>date-time</em></td>
     <td>when release was updated</td>
@@ -6512,7 +6920,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="release-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/releases/$RELEASE_ID_OR_VERSION \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/releases/$RELEASE_ID_OR_VERSION \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -6521,10 +6929,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "description": "Added new feature",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -6551,7 +6959,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="release-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/releases \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/releases \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -6562,10 +6970,10 @@ Accept-Ranges: id, version
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "created_at": "2012-01-01T12:00:00Z",
     "description": "Added new feature",
@@ -6622,10 +7030,13 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="release-create-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/releases \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/releases \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"description":"Added new feature","slug":"01234567-89ab-cdef-0123-456789abcdef"}'
+-d '{
+  "description": "Added new feature",
+  "slug": "01234567-89ab-cdef-0123-456789abcdef"
+}'
 </code></pre>
 
 <h4 id="release-create-response-example">Response Example</h4>
@@ -6633,10 +7044,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "description": "Added new feature",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -6676,10 +7087,12 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="release-rollback-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/releases \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/releases \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"release":"01234567-89ab-cdef-0123-456789abcdef"}'
+-d '{
+  "release": "01234567-89ab-cdef-0123-456789abcdef"
+}'
 </code></pre>
 
 <h4 id="release-rollback-response-example">Response Example</h4>
@@ -6687,10 +7100,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "description": "Added new feature",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
@@ -6784,7 +7197,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="slug-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/slugs/$SLUG_ID \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/slugs/$SLUG_ID \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -6793,10 +7206,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "blob": {
     "method": "GET",
     "url": "https://api.heroku.com/slugs/1234.tgz"
@@ -6858,10 +7271,16 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="slug-create-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/slugs \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/slugs \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"buildpack_provided_description":"Ruby/Rack","commit":"60883d9e8947a57e04dc9124f25df004866a2051","process_types":{"web":"./bin/web -p $PORT"}}'
+-d '{
+  "buildpack_provided_description": "Ruby/Rack",
+  "commit": "60883d9e8947a57e04dc9124f25df004866a2051",
+  "process_types": {
+    "web": "./bin/web -p $PORT"
+  }
+}'
 </code></pre>
 
 <h4 id="slug-create-response-example">Response Example</h4>
@@ -6869,10 +7288,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "blob": {
     "method": "GET",
     "url": "https://api.heroku.com/slugs/1234.tgz"
@@ -6980,15 +7399,20 @@ RateLimit-Remaining: 1200
 <tr>
 <td><strong>preprocess</strong></td>
     <td><em>boolean</em></td>
-    <td>allow Heroku to modify an uploaded public certificate chain if deemed advantageous by adding missing intermediaries, stripping unnecessary ones, etc.</td>
+    <td>allow Heroku to modify an uploaded public certificate chain if deemed advantageous by adding missing intermediaries, stripping unnecessary ones, etc.<br><b>default:</b> <code>true</code>
+</td>
     <td><code>true</code></td>
   </tr>
 </table><h4 id="ssl-endpoint-create-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/ssl-endpoints \
+<pre><code class="bash">$ curl -n -X POST https://api.heroku.com/apps/$APP_ID_OR_NAME/ssl-endpoints \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"certificate_chain":"-----BEGIN CERTIFICATE----- ...","preprocess":true,"private_key":"-----BEGIN RSA PRIVATE KEY----- ..."}'
+-d '{
+  "certificate_chain": "-----BEGIN CERTIFICATE----- ...",
+  "preprocess": true,
+  "private_key": "-----BEGIN RSA PRIVATE KEY----- ..."
+}'
 </code></pre>
 
 <h4 id="ssl-endpoint-create-response-example">Response Example</h4>
@@ -6996,10 +7420,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 201 Created
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "certificate_chain": "-----BEGIN CERTIFICATE----- ...",
   "cname": "example.herokussl.com",
   "created_at": "2012-01-01T12:00:00Z",
@@ -7018,7 +7442,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="ssl-endpoint-delete-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/ssl-endpoints/$SSL_ENDPOINT_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X DELETE https://api.heroku.com/apps/$APP_ID_OR_NAME/ssl-endpoints/$SSL_ENDPOINT_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -7027,10 +7451,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "certificate_chain": "-----BEGIN CERTIFICATE----- ...",
   "cname": "example.herokussl.com",
   "created_at": "2012-01-01T12:00:00Z",
@@ -7049,7 +7473,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="ssl-endpoint-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/ssl-endpoints/$SSL_ENDPOINT_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/ssl-endpoints/$SSL_ENDPOINT_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -7058,10 +7482,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "certificate_chain": "-----BEGIN CERTIFICATE----- ...",
   "cname": "example.herokussl.com",
   "created_at": "2012-01-01T12:00:00Z",
@@ -7082,7 +7506,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="ssl-endpoint-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/ssl-endpoints \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/apps/$APP_ID_OR_NAME/ssl-endpoints \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -7093,10 +7517,10 @@ Accept-Ranges: id, name
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "certificate_chain": "-----BEGIN CERTIFICATE----- ...",
     "cname": "example.herokussl.com",
@@ -7133,7 +7557,8 @@ RateLimit-Remaining: 1200
 <tr>
 <td><strong>preprocess</strong></td>
     <td><em>boolean</em></td>
-    <td>allow Heroku to modify an uploaded public certificate chain if deemed advantageous by adding missing intermediaries, stripping unnecessary ones, etc.</td>
+    <td>allow Heroku to modify an uploaded public certificate chain if deemed advantageous by adding missing intermediaries, stripping unnecessary ones, etc.<br><b>default:</b> <code>true</code>
+</td>
     <td><code>true</code></td>
   </tr>
 <tr>
@@ -7150,10 +7575,15 @@ RateLimit-Remaining: 1200
   </tr>
 </table><h4 id="ssl-endpoint-update-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME/ssl-endpoints/$SSL_ENDPOINT_ID_OR_NAME \
+<pre><code class="bash">$ curl -n -X PATCH https://api.heroku.com/apps/$APP_ID_OR_NAME/ssl-endpoints/$SSL_ENDPOINT_ID_OR_NAME \
 -H "Accept: application/vnd.heroku+json; version=3" \
 -H "Content-Type: application/json" \
--d '{"certificate_chain":"-----BEGIN CERTIFICATE----- ...","preprocess":true,"private_key":"-----BEGIN RSA PRIVATE KEY----- ...","rollback":false}'
+-d '{
+  "certificate_chain": "-----BEGIN CERTIFICATE----- ...",
+  "preprocess": true,
+  "private_key": "-----BEGIN RSA PRIVATE KEY----- ...",
+  "rollback": false
+}'
 </code></pre>
 
 <h4 id="ssl-endpoint-update-response-example">Response Example</h4>
@@ -7161,10 +7591,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "certificate_chain": "-----BEGIN CERTIFICATE----- ...",
   "cname": "example.herokussl.com",
   "created_at": "2012-01-01T12:00:00Z",
@@ -7228,7 +7658,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="stack-info-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/stacks/$STACK_NAME_OR_ID \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/stacks/$STACK_NAME_OR_ID \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -7237,10 +7667,10 @@ RateLimit-Remaining: 1200
 <pre><code>HTTP/1.1 200 OK
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">{
+<pre><code class="json">{
   "created_at": "2012-01-01T12:00:00Z",
   "id": "01234567-89ab-cdef-0123-456789abcdef",
   "name": "cedar",
@@ -7260,7 +7690,7 @@ RateLimit-Remaining: 1200
 
 <h4 id="stack-list-curl-example">Curl Example</h4>
 
-<pre><code class="term">$ curl -n -X GET https://api.heroku.com/stacks \
+<pre><code class="bash">$ curl -n -X GET https://api.heroku.com/stacks \
 -H "Accept: application/vnd.heroku+json; version=3"
 </code></pre>
 
@@ -7271,10 +7701,10 @@ Accept-Ranges: id, name
 Content-Range: id 01234567-89ab-cdef-0123-456789abcdef..01234567-89ab-cdef-0123-456789abcdef; max=200
 ETag: "0123456789abcdef0123456789abcdef"
 Last-Modified: Sun, 01 Jan 2012 12:00:00 GMT
-RateLimit-Remaining: 1200
+RateLimit-Remaining: 2400
 </code></pre>
 
-<pre><code class="javascript```">[
+<pre><code class="json">[
   {
     "created_at": "2012-01-01T12:00:00Z",
     "id": "01234567-89ab-cdef-0123-456789abcdef",

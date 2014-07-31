@@ -204,7 +204,7 @@ Running rails console attached to terminal...
 Timeout awaiting process
 ```
 
-You can test your connection to Heroku by trying to connect directly to port 5000 by using telnet to `rendezvous.runtime.heroku.com`. A successful session will look like this:
+You can test your connection to Heroku by trying to connect directly to `rendezvous.runtime.heroku.com` on port 5000 using telnet. A successful session will look like this:
 
 ```term
 $ telnet rendezvous.runtime.heroku.com 5000

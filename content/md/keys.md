@@ -7,9 +7,8 @@ description: Create, manage and send SSH keys to Heroku for use in deploying app
 
 If you don't already use SSH, you'll need to create a public/private key pair to deploy code to Heroku. This keypair is used for the strong cryptography and that uniquely identifies you as a developer when pushing code changes.
 
->callout
->You can use DSA keys if you prefer, using the `-t dsa` option.  Heroku can use either type of key.
-
+Heroku supports RSA and DSA key formats.  ECDSA keys are currently not supported.
+ 
 To generate a public key:
 
 ```term

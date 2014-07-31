@@ -90,6 +90,8 @@ Apps on Cedar's [HTTP routing stack](http-routing) use the herokuapp.com domain.
 ```
 
 ## H17 - Poorly formatted HTTP response
+> callout
+> Our HTTP routing stack has recently changed and no longer accepts responses that are missing a reason phrase in the [status line](http://tools.ietf.org/html/rfc7230#section-3.1.2). 'HTTP/1.1 200 OK' will work with the new router, but 'HTTP/1.1 200' will not.
 
 This error message is logged when a router detects a malformed HTTP response coming from a dyno.
 

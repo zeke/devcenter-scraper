@@ -17,7 +17,7 @@ Request Body: {
   "plan": "basic",
   "region": "amazon-web-services::us-east-1",
   "callback_url": "https://api.heroku.com/vendor/apps/app123%40heroku.com",
-  "logplex_token": "t.abc123",
+  "log_input_url": "https://token:t.01234567-89ab-cdef-0123-456789abcdef@1.us.logplex.io/logs",
   "options": {}
 }
 Response Body: {
@@ -27,17 +27,15 @@ Response Body: {
 }
 ```
 Only information which is immutable between requests is provided at the time of provisioning.
-If you wish to access information which can change (e.g., owner email address or application name) then it is available via the [App Info API](https://addons.heroku.com/provider/resources/technical/reference/app-info). The App Info API will return a 4XX response until you've returned a successful provisioning request to Heroku, as a result we recommend accessing it asynchronously after provisioning. It is the responsibility of the provider to periodically check this endpoint to ensure data is consistent. 
+If you wish to access information which can change (e.g., owner email address or application name) then it is available via the [App Info API](https://addons.heroku.com/provider/resources/technical/reference/app-info). The App Info API will return a 4XX response until you've returned a successful provisioning response to Heroku. As a result, we recommend accessing it asynchronously after provisioning. It is the responsibility of the provider to periodically check this endpoint to ensure data is consistent. 
 
-The `region` attribute in the request specifies geographical region of the app that the add-on is being provisioned to. Use this to provision the resource in geopgraphical proximity to the app, ignore it (if your add-on is not latency sensitive) or respond with an error if your add-on does not support apps in the region specified.
+The `region` attribute in the request specifies geographical region of the app that the add-on is being provisioned to—either `amazon-web-services::us-east-1` or `amazon-web-services::eu-west-1` are possible at this time. Use this to provision the resource in geopgraphical proximity to the app, ignore it (if your add-on is not latency sensitive) or respond with an error if your add-on does not support apps in the region specified.
 
-The `logplex_token` attribute is provided so that logs can be sent to the app's log stream. For more information, see [the article describing logplex input](add-on-provider-log-integration).
+The `log_input_url` attribute is provided so that logs can be sent to the app's log stream. This field is only present when configured in you manifest. For more information, see [the article describing logplex input](add-on-provider-log-integration). The `logplex_token` attribute used to be used for this purpose, but is deprecated and will be removed in the near future. 
 
 The `options` object in the request are [extra command line options](add-on-parameter-handling) passed in to the `heroku addons:add` command.
 
-The `id` value returned in the response may be a string or integer value. It should be an
-immutable value that can be used to address the relationship between this app and resource. This means that a plan change can *not* change the value of this `id`, although you can update the
-`config` later to point the app to a different resource.
+The `id` value returned in the response may be a string or integer value. It should be an immutable value that can be used to address the relationship between this app and resource. This means that a plan change can *not* change the value of this `id`, although you can update the `config` later to point the app to a different resource.
 
 The `config` object and `message` in the response are both optional.
 

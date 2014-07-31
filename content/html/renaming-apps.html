@@ -3,14 +3,16 @@ to rename an app named “oldname” to “newname”, change into the app’s g
 checkout and run:</p>
 
 <pre><code class="term">$ heroku apps:rename newname
-http://newname.heroku.com/ | git@heroku.com:newname.git
+Renaming oldname to newname... done
+http://newname.herokuapp.com/ | git@herokuapp.com:newname.git
 Git remote heroku updated
 </code></pre>
 
 <p>Renaming an app will cause it to immediately become available at the new
-subdomain (<code>newname.heroku.com</code>) and unavailable at the old name
-(<code>oldname.heroku.com</code>).  This may not matter if you’re using a custom domain
-name, but be aware that any external links will need to be updated.</p>
+subdomain (<code>newname.herokuapp.com</code>) and unavailable at the old name
+(<code>oldname.herokuapp.com</code>).</p>
+
+<p>If you have custom domains configured that use these subdomains, for example <a href="https://devcenter.heroku.com/articles/custom-domains#subdomain-dns">a CNAME record</a> set up that references <code>oldname.herokuapp.com</code>, then it will also need to be updated.</p>
 
 <h2 id="renaming-without-a-checkout">Renaming without a checkout</h2>
 
@@ -18,7 +20,7 @@ name, but be aware that any external links will need to be updated.</p>
 <code>--app</code> argument:</p>
 
 <pre><code class="term">$ heroku apps:rename newname --app oldname
-http://newname.heroku.com/ | git@heroku.com:newname.git
+http://newname.herokuapp.com/ | git@herokuapp.com:newname.git
 </code></pre>
 
 <p>Note that you will need to manually update any existing git remotes that point

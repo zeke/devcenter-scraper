@@ -1,7 +1,3 @@
-<div class="warning">
-<p>This article describes a <a href="https://devcenter.heroku.com/articles/heroku-beta-features">beta feature</a>. Functionality may change prior to general availability.</p>
-</div>
-
 <p>This guide will get you going with a <a href="http://php.net/">PHP</a> application. For general information on how to develop and architect apps for use on Heroku, see <a href="https://devcenter.heroku.com/articles/architecting-apps">Architecting Applications for Heroku</a>.</p>
 
 <h2 id="prerequisites">Prerequisites</h2>
@@ -309,7 +305,7 @@ $log = new Logger('name');
 $log-&gt;pushHandler(new StreamHandler('php://stderr', Logger::WARNING));
 
 // add records to the log
-$log-&gt;addWarning("Running a beta version of Heroku's PHP support");
+$log-&gt;addWarning("Running PHP!");
 
 // don't forget to greet the world!
 echo "Hello World!";
@@ -459,11 +455,10 @@ php &gt; echo PHP_VERSION;
 <h2 id="next-steps">Next steps</h2>
 
 <ul>
-<li>Deploy your own custom PHP application.</li>
-<li>Read the <a href="https://devcenter.heroku.com/articles/php-support">PHP on Heroku Reference</a> to learn about available versions, extensions, features and behaviors.</li>
-<li>Learn how to <a href="https://devcenter.heroku.com/articles/custom-php-settings">customize</a>  web server and runtime settings for PHP</li>
-<li>Use a <a href="https://devcenter.heroku.com/articles/php-support#custom-github-oauth-tokens">custom GitHub OAuth token</a> for Composer</li>
-<li>Explore the <a href="https://devcenter.heroku.com/categories/php">PHP category</a> on Dev Center</li>
-<li>Join Heroku’s <a href="http://discussion.heroku.com/category/php">PHP Forums</a>
-</li>
+<li>Deploy your own custom PHP application;</li>
+<li>Read the <a href="https://devcenter.heroku.com/articles/php-support">PHP on Heroku Reference</a> to learn about available versions, extensions, features and behaviors;</li>
+<li>Learn how to <a href="https://devcenter.heroku.com/articles/custom-php-settings">customize</a>  web server and runtime settings for PHP, in particular how to <a href="https://devcenter.heroku.com/articles/custom-php-settings#setting-the-document-root">set the document root</a> for your application;</li>
+<li>Use a <a href="https://devcenter.heroku.com/articles/php-support#custom-github-oauth-tokens">custom GitHub OAuth token</a> for Composer;</li>
+<li>Explore the <a href="https://devcenter.heroku.com/categories/php">PHP category</a> on Dev Center;</li>
+<li>Join Heroku’s <a href="http://discussion.heroku.com/category/php">PHP Forums</a>.</li>
 </ul>

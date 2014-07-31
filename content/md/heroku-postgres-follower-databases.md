@@ -59,7 +59,7 @@ Follower will become available for read-only queries when up-to-date
 Use `heroku pg:wait` to track status
 ```
 
-Preparing a follower can take anywhere from several minutes to several hours, depending on the size of your dataset. The `heroku pg:wait` command outputs the provisioning status of any new databases and can be used to determine when the follower is up-to-date.
+Preparing a follower can take anywhere from several minutes to several hours, depending on the size of your dataset. The `heroku pg:wait` command outputs the provisioning status of any new databases.
 
 ```term
 $ heroku pg:wait

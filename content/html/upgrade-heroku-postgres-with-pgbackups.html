@@ -4,9 +4,10 @@
 
 <p>The <a href="https://addons.heroku.com/pgbackups">PG Backups add-on</a> is useful not only for capturing regular backups of your database but also as an upgrade tool for <a href="https://devcenter.heroku.com/articles/heroku-postgres-plans#hobby-tier">hobby tier</a> databases. PG Backups can be used to migrate between starter tier databases or from a starter tier database to a production tier database.</p>
 
-<p>Before beginning you should ensure you’ve installed the pgbackups addon:</p>
+<p>Before beginning you should ensure you’ve installed the pgbackups addon and that your toolbelt is up-to-date:</p>
 
 <pre><code class="term">$ heroku addons:add pgbackups
+$ heroku update
 </code></pre>
 
 <p>The steps to upgrade from a starter tier database are the same independent of the plan you’re upgrading to. This assumes you have the PG Backups add-on already installed on the application you wish to upgrade.</p>

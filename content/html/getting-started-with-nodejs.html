@@ -262,11 +262,7 @@ Running `node` attached to terminal... up, ps.1
 
 <h2 id="advanced-http-features">Advanced HTTP features</h2>
 
-<div class="callout">
-<p>The WebSocket protocol is now supported as a <a href="https://devcenter.heroku.com/articles/heroku-labs-websockets">beta labs feature</a> for apps running on the Cedar stack.</p>
-</div>
-
-<p>The HTTP stack available to Cedar apps on the <code>herokuapp.com</code> subdomain supports HTTP 1.1, long polling, and chunked responses.</p>
+<p>The HTTP stack available to Cedar apps on the <code>herokuapp.com</code> subdomain supports HTTP 1.1, long polling, chunked responses and <a href="https://devcenter.heroku.com/articles/websockets">WebSockets</a>.</p>
 
 <h2 id="running-a-worker">Running a worker</h2>
 
@@ -358,7 +354,7 @@ mongo.Db.connect(mongoUri, function (err, db) {
 <h2 id="next-steps">Next steps</h2>
 
 <ul>
-<li>Read <a href="https://blog.heroku.com/archives/2014/3/11/node-habits">10 Habits of a Happy Node Hacker</a> on the Heroku blog.</li>
+<li>Read <a href="https://devcenter.heroku.com/articles/node-best-practices">Best Practices for Node.js Development</a>.</li>
 <li>Visit the <a href="https://devcenter.heroku.com/categories/nodejs">Node.js category</a> to learn more about developing and deploying Node.js applications.</li>
 <li>Read <a href="https://devcenter.heroku.com/articles/how-heroku-works">How Heroku Works</a> for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.</li>
 </ul>

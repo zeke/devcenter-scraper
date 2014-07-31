@@ -631,7 +631,7 @@ $ heroku logs
 
 There are several options for invoking the [Rails asset pipeline](http://guides.rubyonrails.org/asset_pipeline.html) when deploying to Heroku. For general information on the asset pipeline please see the [Rails 3.1+ Asset Pipeline on Heroku Cedar](rails-asset-pipeline) article.
 
-The `config.assets.initialize_on_precompile` option has been removed is and not needed for Rails 4. Also, any failure in asset compilation will now cause the push to fail. For Rails 4 asset pipeline support see the [Ruby Support](https://devcenter.heroku.com/articles/ruby-support#rails-4-x-applications) page.
+The `config.assets.initialize_on_precompile` option has been removed and is not needed for Rails 4. Also, any failure in asset compilation will now cause the push to fail. For Rails 4 asset pipeline support see the [Ruby Support](https://devcenter.heroku.com/articles/ruby-support#rails-4-x-applications) page.
 
 ## Troubleshooting
 

@@ -1,7 +1,3 @@
-<div class="warning">
-<p>This article describes a <a href="https://devcenter.heroku.com/articles/heroku-beta-features">beta feature</a>. Functionality may change prior to general availability.</p>
-</div>
-
 <p>This document describes the general behavior of the <a href="https://devcenter.heroku.com/articles/cedar">Heroku Cedar stack</a> as it relates to the recognition and execution of PHP applications.</p>
 
 <h2 id="activation">Activation</h2>
@@ -16,37 +12,42 @@
 
 <h2 id="php-runtimes">PHP runtimes</h2>
 
-<p>Heroku makes a number of different runtimes available.  You can configure your app to select a particular runtime.</p>
+<p>Heroku makes a number of different runtimes available. You can use HHVM, PHP, or both simultaneously.</p>
 
 <h3 id="supported-runtimes">Supported runtimes</h3>
 
-<p>Heroku’s PHP support extend to apps using <strong>PHP 5.5</strong> (5.5.14, 64-bit), which is also the default PHP runtime for apps. The PHP runtime has <a href="http://docs.php.net/opcache">OPcache</a> enabled for improved performance, with a configuration optimized for Heroku.</p>
+<p>Heroku’s PHP support extend to apps using <strong>PHP 5.5</strong> (5.5.15, 64-bit), which is also the default PHP runtime for apps. The PHP runtime has <a href="http://docs.php.net/opcache">OPcache</a> enabled for improved performance, with a configuration optimized for Heroku.</p>
 
 <h3 id="available-runtimes">Available runtimes</h3>
 
+<p>Heroku currently allows installation of pre-release versions of <strong>PHP 5.6</strong>, currently available as version 5.6.0RC2, 64-bit.</p>
+
 <p>An additional, unsupported runtime is available - HipHop VM (<strong>HHVM</strong>) (3.1.0, 64-bit). However, we only currently endorse and support the use of PHP 5.5.</p>
 
-<p>This runtime can be enabled via <code>composer.json</code>.</p>
+<p>These runtimes can also be enabled via <code>composer.json</code>.</p>
 
-<div class="note">
-<p>Specify PHP or HHVM runtime versions other than exactly “5.5.14” and “3.1.0”, respectively, will currently generate a warning which can be ignored.</p>
-</div>
+<h3 id="default-runtime">Default runtime</h3>
+
+<p>If no runtime is specified, the default will be the latest stable PHP version. Heroku will display this information upon a push:</p>
+
+<pre><code>-----&gt; No runtime requirements in composer.json, defaulting to PHP 5.5.15.
+</code></pre>
 
 <h3 id="selecting-a-runtime">Selecting a runtime</h3>
 
-<p>You may select the runtime to use via <a href="https://getcomposer.org/doc/02-libraries.md#platform-packages">Composer Platform Packages</a> in <code>composer.json</code>. Upon deploy, Heroku will confirm the request:</p>
+<p>You may select the runtime(s) to use via <a href="https://getcomposer.org/doc/02-libraries.md#platform-packages">Composer Platform Packages</a> in <code>composer.json</code>. Upon a push, Heroku will read the necessary information from <code>composer.lock</code>, if present, and fall back to <code>composer.json</code> otherwise.</p>
 
-<pre><code>-----&gt; Detected request for PHP 5.5.14 in composer.json.
+<p>Heroku will print the versions that were resolved and will be installed:</p>
+
+<pre><code>-----&gt; Resolved composer.lock requirement for PHP &gt;=5.3.3 to version 5.5.15.
+-----&gt; Resolved composer.json requirement for HHVM 3.* to version 3.1.0.
 </code></pre>
 
-<p>If you specify an unknown or unsupported version, Heroku will default to the latest version and inform you of the problem:</p>
+<p>Specifying an unknown or unsupported version will result in an error.</p>
 
-<pre><code>-----&gt; Fetching custom git buildpack... done
------&gt; PHP app detected
-
- !     WARNING: Your composer.json requires an unknown HHVM version.
-       Defaulting to HHVM 3.1.0; install may fail!
-</code></pre>
+<div class="note">
+<p>You may select both HHVM and PHP as runtimes. Both will be available, and depending on what <a href="https://devcenter.heroku.com/articles/php-support#web-servers">boot script</a> you use, one of them will be used to handle requests from the web server.</p>
+</div>
 
 <h4 id="selecting-a-runtime-php">PHP</h4>
 
@@ -59,10 +60,6 @@
 }
 </code></pre>
 
-<div class="note">
-<p>Currently, using a lenient selector such as <code>~5.5.0</code> will generate a warning which can be ignored as long as the selected range includes PHP 5.5.14.</p>
-</div>
-
 <h4 id="selecting-a-runtime-hhvm">HHVM</h4>
 
 <div class="warning">
@@ -73,19 +70,14 @@
 
 <pre><code class="json">{
   "require": {
-    "hhvm": "~3.1.0"
+    "hhvm": "~3.1"
   }
 }
 </code></pre>
 
 <div class="note">
-<p>Specifying an exact version like this may not be practical in all circumstances. Currently, using a more lenient selector such as <code>~3.1</code> will generate a warning which can be ignored as long as the selected range includes HHVM 3.1.0.</p>
-</div>
-
-<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
-
-<div class="warning">
-<p>If you specify <code>hhvm</code> as a dependency in your project, Composer will check for it during <code>composer update</code> or <code>composer install</code> commands. This means that you need HHVM installed on the computer where you run the command, and you need to run Composer using HHVM (e.g. by running <code>hhvm `which composer` update</code> or <code>hhvm composer.phar update</code>) for Composer to successfully finish the operation and write a <code>composer.lock</code> lock file.</p>
+<p>If you specify <code>hhvm</code> as a dependency in your project, Composer will check for it during <code>composer update</code> or <code>composer install</code> commands. This means that you need HHVM installed on the computer where you run the command, and you need to run Composer using HHVM (e.g. by running <code>hhvm `which composer` update</code> or <code>hhvm composer.phar update</code>) for Composer to successfully finish the operation and write a <code>composer.lock</code> lock file.
+For this reason, Heroku will currently honor an <code>hhvm</code> entry in the <code>require</code> section of <code>composer.json</code>, even if the requirement hasn’t been “frozen” to <code>composer.lock</code>.</p>
 </div>
 
 <h3 id="supported-versions">Supported versions</h3>
@@ -96,19 +88,22 @@
 <li>5.5.11</li>
 <li>5.5.12</li>
 <li>5.5.13</li>
-<li>5.5.14 (default)</li>
+<li>5.5.14</li>
+<li>5.5.15 (default)</li>
+<li>5.6.0RC2</li>
 </ul><h4 id="supported-versions-hhvm">HHVM</h4>
 
 <ul>
-<li>3.0.1</li>
 <li>3.1.0 (default)</li>
 </ul><h3 id="upgrades">Upgrades</h3>
 
-<p>If you deploy an application that does not declare a runtime version dependency, the then-latest version of PHP 5.5 or HHVM 3 will be used. Your application will be upgraded to more recent versions of PHP 5.5 (e.g. 5.5.15) or HHVM (e.g. 3.2.0) if available automatically upon the next deploy, but you will never automatically be upgraded to PHP 5.6 or HHVM 4.0.</p>
+<p>If you deploy an application that does not declare a runtime version dependency, the then-latest version of PHP will be used. Your application will be upgraded to more recent versions of PHP 5 if available automatically upon the next deploy.</p>
+
+<p>If your application declares runtime version dependencies, the most recent version matching the version constraint will be selected for installation.</p>
 
 <h2 id="extensions">Extensions</h2>
 
-<h3 id="php-5-5">PHP 5.5</h3>
+<h3 id="php-5-5-and-5-6">PHP 5.5 and 5.6</h3>
 
 <p>The following built-in extensions are enabled automatically on Heroku (this list does not include extensions that PHP enables by default, such as <a href="http://docs.php.net/dom">DOM</a>, <a href="http://docs.php.net/json">JSON</a>, <a href="http://docs.php.net/pcre">PCRE</a> or <a href="http://docs.php.net/pdo">PDO</a>):</p>
 
@@ -203,9 +198,9 @@
 
 <pre><code class="term">-----&gt; PHP app detected
 -----&gt; Setting up runtime environment...
-       - PHP 5.5.14
-       - Apache 2.4.9
-       - Nginx 1.4.6
+       - PHP 5.5.15
+       - Apache 2.4.10
+       - Nginx 1.6.0
 -----&gt; Installing PHP extensions:
        - opcache (automatic; bundled, using 'ext-opcache.ini')
        - mongo (composer.json; downloaded, using 'ext-mongo.ini')
@@ -271,7 +266,7 @@
 
 <h2 id="web-servers">Web servers</h2>
 
-<p>Heroku supports <strong><a href="http://httpd.apache.org">Apache</a> 2.4</strong> (2.4.9) and <strong><a href="http://nginx.org">Nginx</a> 1.4</strong> (1.4.6) as dedicated Web servers. For testing purposes, users may of course also use PHP’s built-in Web server, although this is not recommended.</p>
+<p>Heroku supports <strong><a href="http://httpd.apache.org">Apache</a> 2.4</strong> (2.4.10) and <strong><a href="http://nginx.org">Nginx</a> 1.6</strong> (1.6.0) as dedicated Web servers. For testing purposes, users may of course also use PHP’s built-in Web server, although this is not recommended.</p>
 
 <p>In the absence of a <code>Procfile</code> entry for the “web” dyno type, the Apache Web server will be used together with the PHP or HHVM runtime.</p>
 

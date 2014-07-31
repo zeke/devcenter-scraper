@@ -49,9 +49,13 @@ The cases when the processes running in a dyno can exit are as follows:</p>
 <p>If a dyno crashes within the first 10 minutes of launch, Heroku will immediately attempt to restart it. If a dyno again crashes within 10 minutes of starting, Heroku will continue to attempt to restart it, but the attempts will be spaced apart by increasing intervals. If the second restart attempt results in the dyno crashing within 10 minutes of start, there will be a 10 minute cool-off period before the third attempt. If the third restart attempt fails, there will be a 20 minute cool-off period, followed by a 40 minute cool-off period and so forth up to a maximum 24 hour cool-off period between restart attempts.</p>
 
 <div class="callout">
-<p>A dyno “crash” represents any event originating with the process running in the dyno that causes the dyno to stop. That includes the process exiting with an exit code of <code>0</code> (or any other exit code).
-callout
-Crashes that happen more than 10 minutes after dyno start do not count as a “boot crash” and Heroku will restart the dyno immediately.</p>
+<p>A dyno “crash” represents any event originating with the process running in the dyno that causes the dyno to stop. That includes the process exiting with an exit code of <code>0</code> (or any other exit code).</p>
+</div>
+
+<p class="devcenter-parser-special-block-separator" style="display:none"> </p>
+
+<div class="callout">
+<p>Crashes that happen more than 10 minutes after dyno start do not count as a “boot crash” and Heroku will restart the dyno immediately.</p>
 </div>
 
 <h3 id="dyno-sleeping">Dyno sleeping</h3>
@@ -88,10 +92,10 @@ Crashes that happen more than 10 minutes after dyno start do not count as a “b
 </div>
 
 <pre><code># add vendor binaries to the path
-PATH=$PATH:$HOME/vendor/bin
+export PATH=$PATH:$HOME/vendor/bin
 
 # set a default LANG if it does not exist in the environment
-LANG=${LANG:-en_US.UTF-8}
+export LANG=${LANG:-en_US.UTF-8}
 </code></pre>
 
 <div class="warning">

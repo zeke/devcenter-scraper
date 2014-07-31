@@ -295,10 +295,7 @@ This console has nothing loaded other than the Node.js standard library.  From h
 Advanced HTTP features
 ----------------------
 
-> callout
-> The WebSocket protocol is now supported as a [beta labs feature](https://devcenter.heroku.com/articles/heroku-labs-websockets) for apps running on the Cedar stack.
-
-The HTTP stack available to Cedar apps on the `herokuapp.com` subdomain supports HTTP 1.1, long polling, and chunked responses.
+The HTTP stack available to Cedar apps on the `herokuapp.com` subdomain supports HTTP 1.1, long polling, chunked responses and [WebSockets](https://devcenter.heroku.com/articles/websockets).
 
 Running a worker
 ----------------
@@ -399,6 +396,6 @@ mongo.Db.connect(mongoUri, function (err, db) {
 
 ## Next steps
 
-* Read [10 Habits of a Happy Node Hacker](https://blog.heroku.com/archives/2014/3/11/node-habits) on the Heroku blog.
+* Read [Best Practices for Node.js Development](https://devcenter.heroku.com/articles/node-best-practices).
 * Visit the [Node.js category](/categories/nodejs) to learn more about developing and deploying Node.js applications.
 * Read [How Heroku Works](how-heroku-works) for a technical overview of the concepts you’ll encounter while writing, configuring, deploying and running applications.         

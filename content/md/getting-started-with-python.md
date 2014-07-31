@@ -113,7 +113,7 @@ Here's a `Procfile` for our new app. It should be called `Procfile` and live at 
 #### Procfile
 
     :::term
-    web: gunicorn hello:app
+    web: gunicorn hello:app --log-file=-
 
 You can now start the processes in your Procfile locally using [Foreman](http://blog.daviddollar.org/2011/05/06/introducing-foreman.html) (installed as part of the Toolbelt):
 

@@ -23,6 +23,9 @@ The new owner can receive the transfer by accepting the pending transfer request
 
 As the new owner you will have the option to accept or decline all transfer requests. If the app has an ongoing cost, such as paid add-ons or dynos, then you will be asked to enter in a credit card before accepting, if you haven't done so already.
 
+>callout
+>Note that you will also be asked to enter your credit card information if [verification is required](/articles/account-verification#verification-requirement).
+
 ## Cancel transfer
 
 The owner can cancel the transfer request at anytime before the new owner accepts or declines the request. 

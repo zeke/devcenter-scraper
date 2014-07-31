@@ -66,14 +66,18 @@ Adding cloudcounter on calm-ocean-1234... failed
 
 <p>On <a href="https://addons.heroku.com/">addons.heroku.com</a> you can use the search box to find add-ons that support the <code>eu</code> region by searching for <a href="https://addons.heroku.com/?q=europe">“europe”</a>. You can narrow your search further, for example to Redis add-ons that support the <code>eu</code> region by searching for <a href="https://addons.heroku.com/?q=Redis%20europe">“Redis europe”</a>.</p>
 
-<h2 id="deployment-dynos">Deployment &amp; dynos</h2>
+<h2 id="deployment">Deployment</h2>
 
 <p>Apps are deployed to the region specified on creation. <a href="https://devcenter.heroku.com/articles/git">Deploy your app with git</a>, as usual:</p>
 
 <pre><code class="term">$ git push heroku master
 </code></pre>
 
+<h2 id="dynos">Dynos</h2>
+
 <p><a href="https://devcenter.heroku.com/articles/one-off-dynos">One-off dynos</a> are also run in the region where the app was created. This is also true of secondary services such as <a href="https://addons.heroku.com/scheduler">Heroku Scheduler</a> that provision one-off dynos to execute jobs.</p>
+
+<p><a href="https://devcenter.heroku.com/articles/dyno-size">PX dynos</a> are not available in the EU region.</p>
 
 <h2 id="custom-domains">Custom domains</h2>
 

@@ -14,7 +14,7 @@
 <p>See a complete list of supported <a href="https://devcenter.heroku.com/articles/ruby-support#ruby-versions">Ruby versions</a></p>
 </div>
 
-<p>You can use the <code>ruby</code> keyword of your app’s <code>Gemfile</code> to specify a particular version of Ruby.</p>
+<p>You can use the <code>ruby</code> keyword in your app’s <code>Gemfile</code> to specify a particular version of Ruby.</p>
 
 <pre><code class="ruby">source "https://rubygems.org"
 ruby "1.9.3"
@@ -39,6 +39,19 @@ ruby "1.9.3"
 
 <div class="warning">
 <p>If you were previously using <code>RUBY_VERSION</code> to select a version of Ruby, please follow the instructions above to specify your desired version of Ruby using Bundler.</p>
+</div>
+
+<h2 id="specifying-a-ruby-version-via-the-environment">Specifying a Ruby version via the environment</h2>
+
+<p>Gemfiles are actually just Ruby code, so you can also specify your Ruby version in the environment. For example:</p>
+
+<pre><code class="ruby">ruby ENV['CUSTOM_RUBY_VERSION'] || '2.0.0'
+</code></pre>
+
+<p>Would let you specify a Ruby version in the <code>CUSTOM_RUBY_VERSION</code> environment variable, or default to 2.0.0 if it’s not set. This is handy if you are running your app through a continuous integration tool and want to ensure it checks your codebase against other versions of Ruby, but restrict it to a certain version when deployed to Heroku.</p>
+
+<div class="warning">
+<p>Changing environment variables does not recompile your app. For a Ruby version change to take effect through this method, you should force a restart of your app with <code>heroku restart</code> after setting the environment variable.</p>
 </div>
 
 <h2 id="troubleshooting">Troubleshooting</h2>

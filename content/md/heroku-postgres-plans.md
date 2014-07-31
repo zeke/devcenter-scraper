@@ -14,7 +14,7 @@ as your organization's availability and uptime expectations.
 ## Plan tiers
 
 >callout
->If you're on one of our legacy plans you can still provision and use those. Details of those plans can be found at [https://devcenter.heroku.com/articles/heroku-postgres-legacy-plans](https://devcenter.heroku.com/articles/heroku-postgres-legacy-plans)
+>If you're on one of our legacy plans you can still provision and use those. Details of those plans can be found at [devcenter.heroku.com/articles/heroku-postgres-legacy-plans](https://devcenter.heroku.com/articles/heroku-postgres-legacy-plans)
 
 [Heroku Postgres's many plans](https://postgres.heroku.com/pricing)
 are segmented in four broad tiers. While each tier has a few differences, the key factor in each tier is the uptime expectation for your database. The four tiers are designed as:
@@ -64,9 +64,10 @@ limitations:
 * No [fork/follow](heroku-postgres-follower-databases) support: Fork
   and follow, used to create replica databases and master-slave
   setups, are not supported.
-* Expected uptime of 99.5% each month
-* Unannounced maintenances and database upgrades
-* No postgres logs
+* No [Expensive Queries](https://devcenter.heroku.com/articles/expensive-queries) support.
+* Expected uptime of 99.5% each month.
+* Unannounced maintenances and database upgrades.
+* No postgres logs.
 
 ### Row limit enforcement
 

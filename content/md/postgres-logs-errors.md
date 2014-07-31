@@ -91,6 +91,14 @@ This message indicates a backend connection was terminated. This can happen when
 
 Each database plan has a maximum allowed number of connections available, which vary by plan. This message indicates you have reach the maximum number allowed for your applications, and remaining connections are reserved for super user access (restricted to Heroku Postgres staff). See [Heroku Postgres Production Tier Technical Characterization](https://devcenter.heroku.com/articles/heroku-postgres-production-tier-technical-characterization) for details on connection limits for a given plan. 
 
+## temporary file: path "file path", size "file size"
+
+    temporary file: path "base/pgsql_tmp/pgsql_tmp23058.672", size 1073741824
+
+We configure Postgres to log temporary file names and sizes when the size exceeds 10240 kilobytes. Temporary files can be created when performing sorts, hashes or for temporary query results, and log entries are made for each file when it is deleted.
+
+This log entry is just a informational, as creating a large number of temporary files impacts query performance.
+
 ## PGError: permission denied for relation
 
     PGError: ERROR:  permission denied for relation table-name

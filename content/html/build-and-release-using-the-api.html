@@ -101,3 +101,51 @@
 </code></pre>
 
 <p>The output includes both <code>STDOUT</code> and <code>STDERR</code> and is provided in the order it was output by the build. If you combine with values of all the <code>line</code> elements, you will will get the same output as you would have seen when doing an interactive <code>git push</code> to Heroku.</p>
+
+<h2 id="experimental-realtime-build-output">Experimental Realtime Build Output</h2>
+
+<p>Build output is available in realtime using the <code>edge</code> version of the <a href="https://devcenter.heroku.com/articles/platform-api-reference">Platform API</a>.</p>
+
+<div class="warning">
+<p>Features using the edge version of the Platform API are experimental and subject to change without notice.</p>
+</div>
+
+<p>To use realtime build output:</p>
+
+<p>Change the <code>Accept</code> header’s version to <code>edge</code> and <code>POST</code> a new build:</p>
+
+<pre><code class="term">$ curl -n -X POST https://api.heroku.com/apps/example-app/builds \
+-d '{"source_blob":{"url":"https://github.com/heroku/node-js-sample/archive/master.tar.gz", "version": "cb6999d361a0244753cf89813207ad53ad906a14"}}' \
+-H 'Accept: application/vnd.heroku+json; version=edge' \
+-H "Content-Type: application/json"
+{
+  "created_at": "2014-07-25T21:46:02+00:00",
+  "id": "4dff04cd-08ae-4a73-b4c1-12b84170a30f",
+  "output_stream_url": "https://build-output.herokuapp.com/streams/a52bf6fa40cc728a807f0dd163c22972",
+  "source_blob": {
+    "url": "https://github.com/heroku/node-js-sample/archive/cb6999d361a0244753cf89813207ad53ad906a14.tar.gz",
+    "version": "cb6999d361a0244753cf89813207ad53ad906a14"
+  },
+  "status": "pending",
+  "updated_at": "2014-07-25T21:46:02+00:00",
+  "user": {
+    "email": "username@example.com",
+    "id": "01234567-89ab-cdef-0123-456789abcdef"
+  }
+}
+</code></pre>
+
+<p>Make a <code>GET</code> request to the URL in <code>output_stream_url</code>.</p>
+
+<pre><code class="term">$ curl https://build-output.herokuapp.com/streams/a52bf6fa40cc728a807f0dd163c22972
+
+-----&gt; Node.js app detected
+-----&gt; Requested node range:  0.10.x
+...
+</code></pre>
+
+<p>The build output is sent via <a href="https://en.wikipedia.org/wiki/Chunked_transfer_encoding">chunked encoding</a> and closes the connection when the build completes. If a client connects after data is sent for a given build, the data is buffered from the start of the build. Buffered build data is available for up to a minute after the build completes. For a canonical source of build output, use the <a href="https://devcenter.heroku.com/articles/platform-api-reference#build-result">build-result</a> endpoint.</p>
+
+<div class="callout">
+<p>A <a href="https://en.wikipedia.org/wiki/Null_character">null character</a> chunk may be sent as a <a href="https://en.wikipedia.org/wiki/Heartbeat_(computing)">heartbeat</a> while receiving data. This is not build output. It is a signal the build is still running but has not output any data recently.</p>
+</div>

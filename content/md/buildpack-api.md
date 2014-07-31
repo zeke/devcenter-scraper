@@ -94,7 +94,7 @@ export_env_dir() {
 
 Use the regular expressions to blacklist or whitelist config keys for export. For example, runtime config vars like PATH can sometimes conflict with build tools so blacklisting that might be a good idea. Whitelisting is recommended if you know that builds will only require a specific subset of config vars (like `DATABASE_URL`) to run.
 
-A `STACK` environment variable is available to the compile script. The value of the `STACK` variable is the [stack](https://devcenter.heroku.com/articles/stack) of the app that the slug is being built for, eg. `cedar`. Currently, `cedar` is the only possible value (Bamboo apps don't use buildpacks). Buildpacks can use the `STACK` variable to selectively pull binaries and other dependencies appropriate for that stack. Builds are always done inside a dyno running on the same stack as the app that the build is running for.
+A `STACK` environment variable is available to the compile script. The value of the `STACK` variable is the [stack](https://devcenter.heroku.com/articles/stack) of the app that the slug is being built for, i.e. `cedar` or `cedar-14` (Bamboo apps don't use buildpacks). Buildpacks should use the `STACK` variable to selectively pull binaries and other dependencies appropriate for that stack. Builds are always done inside a dyno running on the same stack as the app that the build is running for.
 
 #### Style
 

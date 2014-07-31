@@ -46,11 +46,12 @@ Response Body :
     "callback_url": "https://api.heroku.com/vendor/apps/app123%40heroku.com",
     "owner_email": "glenn@heroku.com",
     "region": "amazon-web-services::us-east-1",
-    "domains": ["www.the-consumer.com", "the-consumer.com"]
+    "domains": ["www.the-consumer.com", "the-consumer.com"],
+    "log_input_url": "https://token:t.01234567-89ab-cdef-0123-456789abcdef@1.us.logplex.io/logs",
   }
 </code></pre>
 
-<p>Use this call to get the full set of details on any of your add-on instances. This endpoint will only return a 200 response after <a href="https://devcenter.heroku.com/articles/add-on-provider-api#provision">provisioning</a> has completed. Trying to access App Info during a provisioning request will return a 404 response.</p>
+<p>Use this call to get the full set of details on any of your add-on instances. This endpoint will only return a 200 response after <a href="https://devcenter.heroku.com/articles/add-on-provider-api#provision">provisioning</a> has completed. Trying to access App Info during a provisioning request will return a 404 response. Some fields are dependent on your Add-on manifest and may be omitted.</p>
 
 <h2 id="update-config-vars">Update Config Vars</h2>
 

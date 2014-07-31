@@ -5,9 +5,6 @@ url: https://devcenter.heroku.com/articles/getting-started-with-php
 description: This quickstart will get you going with a PHP application. For general information on how to develop and architect apps for use on Heroku, see Architecting Applications for Heroku.
 ---
 
->warning
->This article describes a [beta feature](heroku-beta-features). Functionality may change prior to general availability.
-
 This guide will get you going with a [PHP](http://php.net/) application. For general information on how to develop and architect apps for use on Heroku, see [Architecting Applications for Heroku](https://devcenter.heroku.com/articles/architecting-apps).
 
 ## Prerequisites
@@ -326,7 +323,7 @@ $log = new Logger('name');
 $log->pushHandler(new StreamHandler('php://stderr', Logger::WARNING));
 
 // add records to the log
-$log->addWarning("Running a beta version of Heroku's PHP support");
+$log->addWarning("Running PHP!");
 
 // don't forget to greet the world!
 echo "Hello World!";
@@ -481,9 +478,9 @@ php > echo PHP_VERSION;
 
 ## Next steps
 
-- Deploy your own custom PHP application.
-- Read the [PHP on Heroku Reference](php-support) to learn about available versions, extensions, features and behaviors.
-- Learn how to [customize](https://devcenter.heroku.com/articles/custom-php-settings)  web server and runtime settings for PHP
-- Use a [custom GitHub OAuth token](https://devcenter.heroku.com/articles/php-support#custom-github-oauth-tokens) for Composer
-- Explore the [PHP category](/categories/php) on Dev Center
-- Join Heroku's [PHP Forums](http://discussion.heroku.com/category/php)
+- Deploy your own custom PHP application;
+- Read the [PHP on Heroku Reference](php-support) to learn about available versions, extensions, features and behaviors;
+- Learn how to [customize](https://devcenter.heroku.com/articles/custom-php-settings)  web server and runtime settings for PHP, in particular how to [set the document root](/articles/custom-php-settings#setting-the-document-root) for your application;
+- Use a [custom GitHub OAuth token](https://devcenter.heroku.com/articles/php-support#custom-github-oauth-tokens) for Composer;
+- Explore the [PHP category](/categories/php) on Dev Center;
+- Join Heroku's [PHP Forums](http://discussion.heroku.com/category/php).

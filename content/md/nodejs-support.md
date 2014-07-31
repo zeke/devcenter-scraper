@@ -78,14 +78,12 @@ The following environment variables will be set:
 
 ```sh
 PATH=vendor/node/bin:bin:node_modules/.bin:$PATH
-NODE_ENV=production
 ```
 
-The `NODE_ENV` environment variable defaults to `production`, but you can
-override it if you wish:
+The `NODE_ENV` environment variable is unset by default. If you would like to set it (to specify staging, production, etc):
 
 ```sh
-heroku config:set NODE_ENV=staging
+heroku config:set NODE_ENV=production
 ```
 
 ## Build Behavior
@@ -121,15 +119,7 @@ available](https://devcenter.heroku.com/changelog-items/416) during the build,
 allowing you to adjust build behavior based on the values of
 environment variables such as `NODE_ENV`.
 
-By default, the Heroku node buildpack runs `npm install --production`, which doesn't install `devDependencies` in
-your package.json file. If you wish to install development dependencies when deploying to Heroku, there are two ways to do so:
-
-- Move your build dependencies (such as grunt plugins) from `devDependencies` to `dependencies` in package.json.
-- Configure npm to install all dependencies by setting a config var:
-
-```term
-$ heroku config:set npm_config_production=false
-```
+The Heroku node buildpack runs `npm install --production`, which doesn't install `devDependencies` in your package.json file. If you wish to install development dependencies when deploying to Heroku, you should move your build dependencies (such as grunt plugins) from `devDependencies` to `dependencies` in package.json.
 
 ## Runtime Behavior
 

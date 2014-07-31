@@ -10,7 +10,7 @@ Request Body: {
   "plan": "basic",
   "region": "amazon-web-services::us-east-1",
   "callback_url": "https://api.heroku.com/vendor/apps/app123%40heroku.com",
-  "logplex_token": "t.abc123",
+  "log_input_url": "https://token:t.01234567-89ab-cdef-0123-456789abcdef@1.us.logplex.io/logs",
   "options": {}
 }
 Response Body: {
@@ -21,17 +21,15 @@ Response Body: {
 </code></pre>
 
 <p>Only information which is immutable between requests is provided at the time of provisioning.
-If you wish to access information which can change (e.g., owner email address or application name) then it is available via the <a href="https://addons.heroku.com/provider/resources/technical/reference/app-info">App Info API</a>. The App Info API will return a 4XX response until you’ve returned a successful provisioning request to Heroku, as a result we recommend accessing it asynchronously after provisioning. It is the responsibility of the provider to periodically check this endpoint to ensure data is consistent.</p>
+If you wish to access information which can change (e.g., owner email address or application name) then it is available via the <a href="https://addons.heroku.com/provider/resources/technical/reference/app-info">App Info API</a>. The App Info API will return a 4XX response until you’ve returned a successful provisioning response to Heroku. As a result, we recommend accessing it asynchronously after provisioning. It is the responsibility of the provider to periodically check this endpoint to ensure data is consistent.</p>
 
-<p>The <code>region</code> attribute in the request specifies geographical region of the app that the add-on is being provisioned to. Use this to provision the resource in geopgraphical proximity to the app, ignore it (if your add-on is not latency sensitive) or respond with an error if your add-on does not support apps in the region specified.</p>
+<p>The <code>region</code> attribute in the request specifies geographical region of the app that the add-on is being provisioned to—either <code>amazon-web-services::us-east-1</code> or <code>amazon-web-services::eu-west-1</code> are possible at this time. Use this to provision the resource in geopgraphical proximity to the app, ignore it (if your add-on is not latency sensitive) or respond with an error if your add-on does not support apps in the region specified.</p>
 
-<p>The <code>logplex_token</code> attribute is provided so that logs can be sent to the app’s log stream. For more information, see <a href="https://devcenter.heroku.com/articles/add-on-provider-log-integration">the article describing logplex input</a>.</p>
+<p>The <code>log_input_url</code> attribute is provided so that logs can be sent to the app’s log stream. This field is only present when configured in you manifest. For more information, see <a href="https://devcenter.heroku.com/articles/add-on-provider-log-integration">the article describing logplex input</a>. The <code>logplex_token</code> attribute used to be used for this purpose, but is deprecated and will be removed in the near future.</p>
 
 <p>The <code>options</code> object in the request are <a href="https://devcenter.heroku.com/articles/add-on-parameter-handling">extra command line options</a> passed in to the <code>heroku addons:add</code> command.</p>
 
-<p>The <code>id</code> value returned in the response may be a string or integer value. It should be an
-immutable value that can be used to address the relationship between this app and resource. This means that a plan change can <em>not</em> change the value of this <code>id</code>, although you can update the
-<code>config</code> later to point the app to a different resource.</p>
+<p>The <code>id</code> value returned in the response may be a string or integer value. It should be an immutable value that can be used to address the relationship between this app and resource. This means that a plan change can <em>not</em> change the value of this <code>id</code>, although you can update the <code>config</code> later to point the app to a different resource.</p>
 
 <p>The <code>config</code> object and <code>message</code> in the response are both optional.</p>
 

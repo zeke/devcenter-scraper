@@ -91,7 +91,7 @@ The reason application config vars are passed to the compile script in individua
 
 <p>Use the regular expressions to blacklist or whitelist config keys for export. For example, runtime config vars like PATH can sometimes conflict with build tools so blacklisting that might be a good idea. Whitelisting is recommended if you know that builds will only require a specific subset of config vars (like <code>DATABASE_URL</code>) to run.</p>
 
-<p>A <code>STACK</code> environment variable is available to the compile script. The value of the <code>STACK</code> variable is the <a href="https://devcenter.heroku.com/articles/stack">stack</a> of the app that the slug is being built for, eg. <code>cedar</code>. Currently, <code>cedar</code> is the only possible value (Bamboo apps don’t use buildpacks). Buildpacks can use the <code>STACK</code> variable to selectively pull binaries and other dependencies appropriate for that stack. Builds are always done inside a dyno running on the same stack as the app that the build is running for.</p>
+<p>A <code>STACK</code> environment variable is available to the compile script. The value of the <code>STACK</code> variable is the <a href="https://devcenter.heroku.com/articles/stack">stack</a> of the app that the slug is being built for, i.e. <code>cedar</code> or <code>cedar-14</code> (Bamboo apps don’t use buildpacks). Buildpacks should use the <code>STACK</code> variable to selectively pull binaries and other dependencies appropriate for that stack. Builds are always done inside a dyno running on the same stack as the app that the build is running for.</p>
 
 <h4 id="style">Style</h4>
 

@@ -28,6 +28,33 @@ $ heroku --version
 2.21.2
 ```
 
+## Base technology
+
+Cedar comes in two flavors. The versions signify the base technology on which they're built. We recommend that you go with the latest.
+
+<table>
+  <tr>
+    <th>Stack Version</th>
+    <th class="tech">Base Technology</th>
+  </tr>
+  <tr>
+    <td>cedar</td>
+    <td>Ubuntu 10.04</td>
+  </tr>
+  <tr>
+    <td>cedar-14</td>
+    <td>Ubuntu 14.04</td>
+  </tr>
+</table>
+
+To create an app on a specific version, use the `stack` argument:
+
+```term
+$ heroku create --stack cedar-14
+Creating still-river-7404... done, stack is cedar-14
+http://still-river-7404.herokuapp.com/ | git@heroku.com:quiet-sky-6888.git
+```
+
 ## Polyglot platform
 
 Cedar is a [polyglot platform](http://blog.heroku.com/archives/2011/8/3/polyglot_platform/) with native support for many of today's most popular and productive languages and frameworks including:

@@ -77,6 +77,10 @@
 
 <h2 id="h17-poorly-formatted-http-response">H17 - Poorly formatted HTTP response</h2>
 
+<div class="callout">
+<p>Our HTTP routing stack has recently changed and no longer accepts responses that are missing a reason phrase in the <a href="http://tools.ietf.org/html/rfc7230#section-3.1.2">status line</a>. ‘HTTP/1.1 200 OK’ will work with the new router, but ‘HTTP/1.1 200’ will not.</p>
+</div>
+
 <p>This error message is logged when a router detects a malformed HTTP response coming from a dyno.</p>
 
 <pre><code>2010-10-06T21:51:37-07:00 heroku[router]: at=error code=H17 desc="Poorly formatted HTTP response" method=GET path="/" host=myapp.herokuapp.com fwd=17.17.17.17 dyno=web.1 connect=1ms service=1ms status=503 bytes=0

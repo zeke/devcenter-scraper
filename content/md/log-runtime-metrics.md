@@ -37,7 +37,7 @@ The `source` field identifies a dyno in your [dyno formation](scaling#dyno-forma
 
 The following fields are reported for CPU load average:
 
-* **Load Average 1m** (`load_avg_1m`): The load average for the dyno in the last 1 minute. This reflects the number of CPU tasks that are in the [ready queue](http://en.wikipedia.org/wiki/Process_state#Ready_or_waiting) (i.e. waiting to be processed). More details about how load averages are calculated can be found [below](#understand-load-averages).
+* **Load Average 1m** (`load_avg_1m`): The load average for the dyno in the last 1 minute. This reflects the number of CPU tasks that are in the [ready queue](http://en.wikipedia.org/wiki/Process_state#Ready_or_waiting) (i.e. waiting to be processed). More details about how load averages are calculated can be found [below](#understanding-load-averages).
 * **Load Average 5m** (`load_avg_5m`): The load average for the dyno in the last 5 minutes. Computed in the same manner as 1m load average.
 * **Load Average 15m** (`load_avg_15m`): The load average for the dyno in the last 15 minutes. Computed in the same manner as 1m load average.
 

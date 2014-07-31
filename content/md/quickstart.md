@@ -73,7 +73,7 @@ Choose from the following getting started tutorials to learn how to deploy your 
   </tr>
  <tr>
     <td style="text-align: left">
-<a href="https://devcenter.heroku.com/articles/getting-started-with-php">PHP</a> (beta)
+<a href="https://devcenter.heroku.com/articles/getting-started-with-php">PHP</a>
 </td>
     <td style="text-align: left">
 &nbsp;

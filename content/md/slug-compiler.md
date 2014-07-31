@@ -75,5 +75,5 @@ Slug size varies greatly depending on what language and framework you are using,
 Here are some techniques for reducing slug size:
 
 * Move large assets like PDFs or audio files to [asset storage](s3).
-* Remove unneeded dependencies and exclude unnecessary files via
-`.slugignore`. 
+* Remove unneeded dependencies and [exclude unnecessary files via
+`.slugignore`](#ignoring-files-with-slugignore). 
